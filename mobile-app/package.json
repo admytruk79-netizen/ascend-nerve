@@ -1,0 +1,16 @@
+{
+  "name": "ascend-path",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync:android": "npx cap sync android",
+    "open:android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
