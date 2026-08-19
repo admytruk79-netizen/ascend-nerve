@@ -3,7 +3,6 @@
   const KEY='sb_publishable_Z8KPlgoyxv4RC0yaZpuLSQ_5SBzrxbR';
   const STORAGE='ascendPathSession';
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
-
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};
   async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);return body}
@@ -14,17 +13,13 @@
   function signOut(){persist(null)}
   async function rest(table,{method='GET',query='',body,prefer}={}){if(!session?.access_token)throw new Error('Sign in required');const h={};if(prefer)h.Prefer=prefer;return jsonFetch(`${BASE}/rest/v1/${table}${query?`?${query}`:''}`,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)})}
   async function rpc(name,body){if(!session?.access_token)throw new Error('Sign in required');return jsonFetch(`${BASE}/rest/v1/rpc/${name}`,{method:'POST',body:JSON.stringify(body)})}
-  async function loadCurriculum(){const [phases,stages,practices,links,markers,content]=await Promise.all([
-    rest('path_phases',{query:'select=*&order=sort_order.asc'}),
-    rest('path_stages',{query:'select=*&order=sort_order.asc'}),
-    rest('path_practices',{query:'select=*'}),
-    rest('path_stage_practices',{query:'select=*'}),
-    rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),
-    rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'})
-  ]);return{phases,stages,practices,links,markers,content}}
+  async function loadCurriculum(){const [phases,stages,practices,links,markers,content]=await Promise.all([rest('path_phases',{query:'select=*&order=sort_order.asc'}),rest('path_stages',{query:'select=*&order=sort_order.asc'}),rest('path_practices',{query:'select=*'}),rest('path_stage_practices',{query:'select=*'}),rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'})]);return{phases,stages,practices,links,markers,content}}
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}
   async function completePractice({stageId,practiceId,durationSeconds}){return rpc('path_record_practice_completion',{p_stage_id:stageId,p_practice_id:practiceId,p_duration_seconds:durationSeconds})}
   async function saveJournal(userId,stageId,entry){return rest('path_journal_entries',{method:'POST',body:{user_id:userId,stage_id:stageId,entry_date:new Date().toISOString().slice(0,10),observation:entry.observation||null,inner_state:entry.inner_state||null,life_application:entry.life_application||null,interpretation:entry.interpretation||null,unresolved:entry.unresolved||null,share_with_teacher:false},prefer:'return=minimal'})}
-  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,isSignedIn:()=>!!session?.access_token};
+  async function getMarkerObservations(userId,stageId){return rest('path_student_marker_observations',{query:`user_id=eq.${userId}&stage_id=eq.${stageId}&select=*`})}
+  async function saveMarkerObservation(userId,stageId,markerId,state,reflection=''){return rest('path_student_marker_observations',{method:'POST',body:{user_id:userId,stage_id:stageId,marker_id:markerId,state,reflection:reflection||null,observed_at:new Date().toISOString()},prefer:'resolution=merge-duplicates,return=minimal'})}
+  async function submitReadinessReview(stageId){return rpc('path_submit_readiness_review',{p_stage_id:stageId})}
+  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,isSignedIn:()=>!!session?.access_token};
 })();
