@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#081521" />
+  <title>ASCEND Path</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <header class="topbar">
+      <button class="icon-button" aria-label="Menu">☰</button>
+      <div class="brand">ASCEND <span>PATH</span></div>
+      <button class="icon-button" aria-label="Notifications">◌</button>
+    </header>
+
+    <section id="today" class="screen active">
+      <div class="eyebrow">FOUNDATION · DISCIPLINE OF THOUGHT</div>
+      <div class="day">DAY 1</div>
+      <h1>Clarity of Thought</h1>
+      <div class="sigil" aria-hidden="true"><div class="sigil-core">✦</div></div>
+      <p class="practice-label">Primary Practice</p>
+      <p class="practice-name">Directed Thought · 10 min</p>
+      <button class="primary" data-action="practice">Begin Practice</button>
+      <section class="rhythm-card">
+        <h2>Today's Rhythm</h2>
+        <label><span>Morning Practice</span><input type="checkbox" /></label>
+        <label><span>Primary Practice</span><input type="checkbox" id="primary-check" /></label>
+        <label><span>Daily Observation</span><input type="checkbox" /></label>
+        <label><span>Evening Review</span><input type="checkbox" /></label>
+      </section>
+      <p class="quiet-note"><strong id="practice-days">0</strong> practice days · Stage review after required practice days</p>
+    </section>
+
+    <section id="path" class="screen">
+      <div class="eyebrow">24-MONTH JOURNEY</div>
+      <h1>The Path</h1>
+      <ol class="path-list">
+        <li class="done"><span></span><div><strong>Entrance</strong><small>7-day contemplation</small></div></li>
+        <li class="current"><span></span><div><strong>Discipline of Thought</strong><small>Current stage</small></div></li>
+        <li><span></span><div><strong>Will & Constancy</strong><small>Revealed when ready</small></div></li>
+        <li><span></span><div><strong>Equanimity</strong><small>Locked</small></div></li>
+        <li><span></span><div><strong>Positive Perception</strong><small>Locked</small></div></li>
+        <li><span></span><div><strong>Open-Mindedness</strong><small>Locked</small></div></li>
+        <li><span></span><div><strong>Harmony</strong><small>Locked</small></div></li>
+      </ol>
+    </section>
+
+    <section id="journal" class="screen">
+      <div class="eyebrow">OBSERVE · REFLECT · UNDERSTAND</div>
+      <h1>Journal</h1>
+      <form id="journal-form" class="journal-form">
+        <label>Observation<textarea name="observation" placeholder="What did you notice without interpreting it?"></textarea></label>
+        <label>Inner State<textarea name="inner_state" placeholder="What was your inner state?"></textarea></label>
+        <label>Life Application<textarea name="life_application" placeholder="Where did today's quality appear in ordinary life?"></textarea></label>
+        <label>Interpretation<textarea name="interpretation" placeholder="What do you currently think it may mean?"></textarea></label>
+        <label>Unresolved<textarea name="unresolved" placeholder="What remains uncertain?"></textarea></label>
+        <button class="primary" type="submit">Save Reflection</button>
+      </form>
+      <div id="journal-status" class="quiet-note"></div>
+    </section>
+
+    <section id="library" class="screen">
+      <div class="eyebrow">TEACHINGS FOR YOUR STAGE</div>
+      <h1>Library</h1>
+      <article class="content-card"><small>TEACHING</small><strong>The Purpose of Practice</strong><span>Available now</span></article>
+      <article class="content-card"><small>PRACTICE</small><strong>Working with Thought</strong><span>Current-stage material</span></article>
+      <article class="content-card locked"><small>PART II</small><strong>Advanced Material</strong><span>Opens later on the Path</span></article>
+    </section>
+
+    <section id="me" class="screen">
+      <div class="eyebrow">YOUR RHYTHM</div>
+      <h1>Me</h1>
+      <div class="profile-mark">✦</div>
+      <article class="rhythm-card"><h2>Current Stage</h2><p>Discipline of Thought</p><p>Practice days: <strong id="profile-days">0</strong></p></article>
+      <article class="rhythm-card"><h2>Mirror</h2><p>Mirror will compare your own reflections and surface recurring patterns. It will not determine spiritual attainment.</p></article>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Primary navigation">
+    <button class="active" data-screen="today">Today</button>
+    <button data-screen="path">Path</button>
+    <button data-screen="journal">Journal</button>
+    <button data-screen="library">Library</button>
+    <button data-screen="me">Me</button>
+  </nav>
+
+  <div id="practice-overlay" class="practice-overlay hidden" role="dialog" aria-modal="true">
+    <button class="overlay-close" aria-label="Close">×</button>
+    <div class="eyebrow">PRACTICE</div>
+    <h1>Directed Thought</h1>
+    <p>Keep the thought on your chosen object. Gently return when it wanders.</p>
+    <div class="timer" id="timer">10:00</div>
+    <button class="primary" id="timer-toggle">Begin</button>
+    <button class="secondary" id="finish-practice">Finish Practice</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
