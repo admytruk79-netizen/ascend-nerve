@@ -12,38 +12,34 @@
     <header class="topbar">
       <button class="icon-button" aria-label="Menu">☰</button>
       <div class="brand">ASCEND <span>PATH</span></div>
-      <button class="icon-button" aria-label="Notifications">◌</button>
+      <div id="sync-state" class="sync-state">LOCAL</div>
     </header>
 
     <section id="today" class="screen active">
-      <div class="eyebrow">FOUNDATION · DISCIPLINE OF THOUGHT</div>
-      <div class="day">DAY 1</div>
-      <h1>Clarity of Thought</h1>
+      <div class="eyebrow" id="stage-eyebrow">THE BEGINNING OF THE PATH</div>
+      <div class="day" id="stage-day">DAY 1</div>
+      <h1 id="stage-title">Self-Contemplation</h1>
       <div class="sigil" aria-hidden="true"><div class="sigil-core">✦</div></div>
       <p class="practice-label">Primary Practice</p>
-      <p class="practice-name">Directed Thought · 10 min</p>
+      <p class="practice-name" id="practice-name">Self-Contemplation · 10 min</p>
       <button class="primary" data-action="practice">Begin Practice</button>
       <section class="rhythm-card">
         <h2>Today's Rhythm</h2>
-        <label><span>Morning Practice</span><input type="checkbox" /></label>
+        <label><span>Morning Presence</span><input type="checkbox" /></label>
         <label><span>Primary Practice</span><input type="checkbox" id="primary-check" /></label>
         <label><span>Daily Observation</span><input type="checkbox" /></label>
         <label><span>Evening Review</span><input type="checkbox" /></label>
       </section>
-      <p class="quiet-note"><strong id="practice-days">0</strong> practice days · Stage review after required practice days</p>
+      <p class="quiet-note"><strong id="practice-days">0</strong> practice days · <span id="stage-requirement">7 required</span></p>
     </section>
 
     <section id="path" class="screen">
       <div class="eyebrow">24-MONTH JOURNEY</div>
       <h1>The Path</h1>
-      <ol class="path-list">
-        <li class="done"><span></span><div><strong>Entrance</strong><small>7-day contemplation</small></div></li>
-        <li class="current"><span></span><div><strong>Discipline of Thought</strong><small>Current stage</small></div></li>
-        <li><span></span><div><strong>Will & Constancy</strong><small>Revealed when ready</small></div></li>
-        <li><span></span><div><strong>Equanimity</strong><small>Locked</small></div></li>
-        <li><span></span><div><strong>Positive Perception</strong><small>Locked</small></div></li>
-        <li><span></span><div><strong>Open-Mindedness</strong><small>Locked</small></div></li>
-        <li><span></span><div><strong>Harmony</strong><small>Locked</small></div></li>
+      <ol class="path-list" id="path-list">
+        <li class="current"><span></span><div><strong>Entrance</strong><small>7-day contemplation</small></div></li>
+        <li><span></span><div><strong>Discipline of Thought</strong><small>Revealed when ready</small></div></li>
+        <li><span></span><div><strong>Will & Constancy</strong><small>Later on the Path</small></div></li>
       </ol>
     </section>
 
@@ -64,17 +60,36 @@
     <section id="library" class="screen">
       <div class="eyebrow">TEACHINGS FOR YOUR STAGE</div>
       <h1>Library</h1>
-      <article class="content-card"><small>TEACHING</small><strong>The Purpose of Practice</strong><span>Available now</span></article>
-      <article class="content-card"><small>PRACTICE</small><strong>Working with Thought</strong><span>Current-stage material</span></article>
-      <article class="content-card locked"><small>PART II</small><strong>Advanced Material</strong><span>Opens later on the Path</span></article>
+      <div id="library-list">
+        <article class="content-card"><small>TEACHING</small><strong>The Path Is Not Completed by Moving Quickly</strong><span>Foundation teaching</span></article>
+        <article class="content-card"><small>TEACHING</small><strong>Observe Before You Interpret</strong><span>Method</span></article>
+        <article class="content-card locked"><small>LATER</small><strong>Advanced Material</strong><span>Opens later on the Path</span></article>
+      </div>
     </section>
 
     <section id="me" class="screen">
       <div class="eyebrow">YOUR RHYTHM</div>
       <h1>Me</h1>
       <div class="profile-mark">✦</div>
-      <article class="rhythm-card"><h2>Current Stage</h2><p>Discipline of Thought</p><p>Practice days: <strong id="profile-days">0</strong></p></article>
-      <article class="rhythm-card"><h2>Mirror</h2><p>Mirror will compare your own reflections and surface recurring patterns. It will not determine spiritual attainment.</p></article>
+      <article class="rhythm-card"><h2>Current Stage</h2><p id="profile-stage">Beginning of the Path</p><p>Practice days: <strong id="profile-days">0</strong></p></article>
+      <article class="rhythm-card"><h2>Mirror</h2><p>Mirror compares your own reflections and surfaces recurring patterns. It does not determine spiritual attainment.</p></article>
+      <article class="rhythm-card auth-card">
+        <h2>ASCEND Account</h2>
+        <div id="account-signed-out">
+          <p>Sign in to synchronize your Path, journal and practice history across devices.</p>
+          <form id="auth-form">
+            <input name="email" type="email" placeholder="Email" autocomplete="email" required />
+            <input name="password" type="password" placeholder="Password" autocomplete="current-password" minlength="6" required />
+            <button class="primary" type="submit">Sign In</button>
+            <button class="secondary" type="button" id="create-account">Create Account</button>
+          </form>
+          <p id="auth-status" class="quiet-note"></p>
+        </div>
+        <div id="account-signed-in" class="hidden">
+          <p id="account-email"></p>
+          <button class="secondary" type="button" id="sign-out">Sign Out</button>
+        </div>
+      </article>
     </section>
   </main>
 
@@ -89,13 +104,14 @@
   <div id="practice-overlay" class="practice-overlay hidden" role="dialog" aria-modal="true">
     <button class="overlay-close" aria-label="Close">×</button>
     <div class="eyebrow">PRACTICE</div>
-    <h1>Directed Thought</h1>
-    <p>Keep the thought on your chosen object. Gently return when it wanders.</p>
+    <h1 id="overlay-practice-title">Self-Contemplation</h1>
+    <p id="overlay-practice-instructions">Turn toward the inner world. Observe where you are at the beginning of the Path, then record what you experienced without forcing an interpretation.</p>
     <div class="timer" id="timer">10:00</div>
     <button class="primary" id="timer-toggle">Begin</button>
     <button class="secondary" id="finish-practice">Finish Practice</button>
   </div>
 
+  <script src="backend.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
