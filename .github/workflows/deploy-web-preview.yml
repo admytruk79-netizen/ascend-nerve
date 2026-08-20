@@ -27,8 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # enablement: true so this action turns Pages on via the API on first
+      # run -- it defaults to false, which 404s ("Get Pages site failed")
+      # against a repo where Pages has never been enabled in Settings.
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload web app
         uses: actions/upload-pages-artifact@v3
