@@ -12,62 +12,18 @@
   <script src="theme.js"></script>
 </head>
 <body>
-  <div id="splash" class="splash" aria-hidden="true">
-    <div class="splash-orbit"></div>
-    <img src="assets/ascend-logo.png" class="splash-logo" alt="" />
-    <div class="splash-title">ASCEND<span>PATH</span></div>
-    <div class="splash-subtitle">A LIVING PATH OF CONSCIOUS DEVELOPMENT</div>
-  </div>
-
+  <div id="splash" class="splash" aria-hidden="true"><div class="splash-orbit"></div><img src="assets/ascend-logo.png" class="splash-logo" alt="" /><div class="splash-title">ASCEND<span>PATH</span></div><div class="splash-subtitle">A LIVING PATH OF CONSCIOUS DEVELOPMENT</div></div>
   <main id="app" class="app-shell">
-    <header class="topbar">
-      <button class="icon-button" aria-label="Menu">☰</button>
-      <div class="brand-lockup"><img src="assets/ascend-logo.png" class="brand-logo" alt="ASCEND" /><div class="brand">ASCEND <span>PATH</span></div></div>
-      <div id="sync-state" class="sync-state">LOCAL</div>
-    </header>
-
-    <section id="today" class="screen active">
-      <div class="eyebrow" id="stage-eyebrow">THE BEGINNING OF THE PATH</div>
-      <div class="day" id="stage-day">DAY 1</div>
-      <h1 id="stage-title">Self-Contemplation</h1>
-      <div class="living-object stage-presence" id="living-object" aria-hidden="true">
-        <div class="living-halo"></div><div class="living-ring ring-one"></div><div class="living-ring ring-two"></div>
-        <div class="living-core"><div class="living-surface surface-a"></div><div class="living-surface surface-b"></div><div class="living-seam"></div></div>
-        <div class="living-point point-a"></div><div class="living-point point-b"></div><div class="living-point point-c"></div>
-      </div>
-      <p class="practice-label">Primary Practice</p>
-      <p class="practice-name" id="practice-name">Self-Contemplation · 10 min</p>
-      <button class="primary" data-action="practice">Begin Practice</button>
-      <section class="rhythm-card"><h2>Today's Rhythm</h2>
-        <label><span>Morning Presence</span><input type="checkbox" /></label>
-        <label><span>Primary Practice</span><input type="checkbox" id="primary-check" /></label>
-        <label><span>Daily Observation</span><input type="checkbox" /></label>
-        <label><span>Evening Review</span><input type="checkbox" /></label>
-      </section>
-      <p class="quiet-note"><strong id="practice-days">0</strong> practice days · <span id="stage-requirement">7 required</span></p>
-    </section>
-
-    <section id="path" class="screen"><div class="eyebrow">24-MONTH JOURNEY</div><h1>The Path</h1><ol class="path-list" id="path-list"></ol>
-      <article id="stage-review-card" class="rhythm-card hidden"><div class="eyebrow">STAGE REVIEW</div><h2 id="review-title">Attainment Reflection</h2><p class="review-intro">Time alone does not establish a quality. Review what has become observable in practice and in ordinary life.</p><div id="marker-list"></div><button class="primary" id="submit-stage-review" type="button">Request Progression Review</button><button class="secondary" id="continue-stage" type="button">Continue This Stage</button><p id="review-status" class="quiet-note"></p></article>
-    </section>
-
+    <header class="topbar"><button class="icon-button" aria-label="Menu">☰</button><div class="brand-lockup"><img src="assets/ascend-logo.png" class="brand-logo" alt="ASCEND" /><div class="brand">ASCEND <span>PATH</span></div></div><div id="sync-state" class="sync-state">LOCAL</div></header>
+    <section id="today" class="screen active"><div class="eyebrow" id="stage-eyebrow">THE BEGINNING OF THE PATH</div><div class="day" id="stage-day">DAY 1</div><h1 id="stage-title">Self-Contemplation</h1><div class="living-object stage-presence" id="living-object" aria-hidden="true"><div class="living-halo"></div><div class="living-ring ring-one"></div><div class="living-ring ring-two"></div><div class="living-core"><div class="living-surface surface-a"></div><div class="living-surface surface-b"></div><div class="living-seam"></div></div><div class="living-point point-a"></div><div class="living-point point-b"></div><div class="living-point point-c"></div></div><p class="practice-label">Primary Practice</p><p class="practice-name" id="practice-name">Self-Contemplation · 10 min</p><button class="primary" data-action="practice">Begin Practice</button><section class="rhythm-card"><h2>Today's Rhythm</h2><label><span>Morning Presence</span><input type="checkbox" /></label><label><span>Primary Practice</span><input type="checkbox" id="primary-check" /></label><label><span>Daily Observation</span><input type="checkbox" /></label><label><span>Evening Review</span><input type="checkbox" /></label></section><p class="quiet-note"><strong id="practice-days">0</strong> practice days · <span id="stage-requirement">7 required</span></p></section>
+    <section id="path" class="screen"><div class="eyebrow">24-MONTH JOURNEY</div><h1>The Path</h1><ol class="path-list" id="path-list"></ol><article id="stage-review-card" class="rhythm-card hidden"><div class="eyebrow">STAGE REVIEW</div><h2 id="review-title">Attainment Reflection</h2><p class="review-intro">Time alone does not establish a quality. Review what has become observable in practice and in ordinary life.</p><div id="marker-list"></div><button class="primary" id="submit-stage-review" type="button">Request Progression Review</button><button class="secondary" id="continue-stage" type="button">Continue This Stage</button><p id="review-status" class="quiet-note"></p></article></section>
     <section id="journal" class="screen"><div class="eyebrow">OBSERVE · REFLECT · UNDERSTAND</div><h1>Journal</h1><form id="journal-form" class="journal-form"><label>Observation<textarea name="observation" placeholder="What did you notice without interpreting it?"></textarea></label><label>Inner State<textarea name="inner_state" placeholder="What was your inner state?"></textarea></label><label>Life Application<textarea name="life_application" placeholder="Where did today's quality appear in ordinary life?"></textarea></label><label>Interpretation<textarea name="interpretation" placeholder="What do you currently think it may mean?"></textarea></label><label>Unresolved<textarea name="unresolved" placeholder="What remains uncertain?"></textarea></label><button class="primary" type="submit">Save Reflection</button></form><div id="journal-status" class="quiet-note"></div></section>
-
     <section id="library" class="screen"><div class="eyebrow">TEACHINGS FOR YOUR STAGE</div><h1>Library</h1><div id="library-list"></div></section>
-
-    <section id="me" class="screen"><div class="eyebrow">YOUR RHYTHM</div><h1>Me</h1><img src="assets/ascend-logo.png" class="profile-logo" alt="ASCEND" />
-      <article class="rhythm-card"><h2>Current Stage</h2><p id="profile-stage">Beginning of the Path</p><p>Practice days: <strong id="profile-days">0</strong></p></article>
-      <article class="rhythm-card"><h2>Mirror</h2><p class="review-intro">Mirror reflects patterns from your own journal. It does not determine spiritual attainment.</p><div id="mirror-content" class="mirror-content"><p>Sign in and begin journaling to create a grounded reflection.</p></div><button class="secondary" type="button" id="refresh-mirror">Refresh Mirror</button></article>
-      <article class="rhythm-card auth-card"><h2>ASCEND Account</h2><div id="account-signed-out"><p>Sign in to synchronize your Path, journal and practice history across devices.</p><form id="auth-form"><input name="email" type="email" placeholder="Email" autocomplete="email" required /><input name="password" type="password" placeholder="Password" autocomplete="current-password" minlength="6" required /><button class="primary" type="submit">Sign In</button><button class="secondary" type="button" id="create-account">Create Account</button></form><p id="auth-status" class="quiet-note"></p></div><div id="account-signed-in" class="hidden"><p id="account-email"></p><button class="secondary" type="button" id="sign-out">Sign Out</button></div></article>
-    </section>
+    <section id="me" class="screen"><div class="eyebrow">YOUR RHYTHM</div><h1>Me</h1><img src="assets/ascend-logo.png" class="profile-logo" alt="ASCEND" /><article class="rhythm-card"><h2>Current Stage</h2><p id="profile-stage">Beginning of the Path</p><p>Practice days: <strong id="profile-days">0</strong></p></article><article class="rhythm-card"><h2>Mirror</h2><p class="review-intro">Mirror reflects patterns from your own journal. It does not determine spiritual attainment.</p><div id="mirror-content" class="mirror-content"><p>Sign in and begin journaling to create a grounded reflection.</p></div><button class="secondary" type="button" id="refresh-mirror">Refresh Mirror</button></article><article class="rhythm-card auth-card"><h2>ASCEND Account</h2><div id="account-signed-out"><p>Sign in to synchronize your Path, journal and practice history across devices.</p><form id="auth-form"><input name="email" type="email" placeholder="Email" autocomplete="email" required /><input name="password" type="password" placeholder="Password" autocomplete="current-password" minlength="6" required /><button class="primary" type="submit">Sign In</button><button class="secondary" type="button" id="create-account">Create Account</button></form><p id="auth-status" class="quiet-note"></p></div><div id="account-signed-in" class="hidden"><p id="account-email"></p><button class="secondary" type="button" id="sign-out">Sign Out</button></div></article></section>
   </main>
-
   <nav class="bottom-nav" aria-label="Primary navigation"><button class="active" data-screen="today">Today</button><button data-screen="path">Path</button><button data-screen="journal">Journal</button><button data-screen="library">Library</button><button data-screen="me">Me</button></nav>
-
   <div id="practice-overlay" class="practice-overlay hidden" role="dialog" aria-modal="true"><button class="overlay-close" aria-label="Close">×</button><div class="eyebrow">PRACTICE</div><h1 id="overlay-practice-title">Self-Contemplation</h1><p id="overlay-practice-instructions"></p><div class="timer" id="timer">10:00</div><button class="primary" id="timer-toggle">Begin</button><button class="secondary" id="finish-practice">Finish Practice</button></div>
-
   <div id="library-overlay" class="library-overlay hidden" role="dialog" aria-modal="true"><button class="overlay-close library-close" aria-label="Close">×</button><div class="eyebrow" id="library-type">TEACHING</div><h1 id="library-title"></h1><div id="library-body" class="library-body"></div></div>
-
-  <script src="backend.js"></script><script src="stage-visual.js"></script><script src="app.js"></script>
+  <script src="backend.js"></script><script src="stage-visual.js"></script><script src="app.js"></script><script src="experience.js"></script>
 </body>
 </html>
