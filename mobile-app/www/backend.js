@@ -21,5 +21,6 @@
   async function getMarkerObservations(userId,stageId){return rest('path_student_marker_observations',{query:`user_id=eq.${userId}&stage_id=eq.${stageId}&select=*`})}
   async function saveMarkerObservation(userId,stageId,markerId,state,reflection=''){return rest('path_student_marker_observations',{method:'POST',body:{user_id:userId,stage_id:stageId,marker_id:markerId,state,reflection:reflection||null,observed_at:new Date().toISOString()},prefer:'resolution=merge-duplicates,return=minimal'})}
   async function submitReadinessReview(stageId){return rpc('path_submit_readiness_review',{p_stage_id:stageId})}
-  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,isSignedIn:()=>!!session?.access_token};
+  async function mirrorSnapshot(stageId){return rpc('path_mirror_snapshot',{p_stage_id:stageId})}
+  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,isSignedIn:()=>!!session?.access_token};
 })();
