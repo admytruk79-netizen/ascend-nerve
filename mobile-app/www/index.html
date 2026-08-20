@@ -36,11 +36,16 @@
     <section id="path" class="screen">
       <div class="eyebrow">24-MONTH JOURNEY</div>
       <h1>The Path</h1>
-      <ol class="path-list" id="path-list">
-        <li class="current"><span></span><div><strong>Entrance</strong><small>7-day contemplation</small></div></li>
-        <li><span></span><div><strong>Discipline of Thought</strong><small>Revealed when ready</small></div></li>
-        <li><span></span><div><strong>Will & Constancy</strong><small>Later on the Path</small></div></li>
-      </ol>
+      <ol class="path-list" id="path-list"></ol>
+      <article id="stage-review-card" class="rhythm-card hidden">
+        <div class="eyebrow">STAGE REVIEW</div>
+        <h2 id="review-title">Attainment Reflection</h2>
+        <p class="review-intro">Time alone does not establish a quality. Review what has become observable in practice and in ordinary life.</p>
+        <div id="marker-list"></div>
+        <button class="primary" id="submit-stage-review" type="button">Request Progression Review</button>
+        <button class="secondary" id="continue-stage" type="button">Continue This Stage</button>
+        <p id="review-status" class="quiet-note"></p>
+      </article>
     </section>
 
     <section id="journal" class="screen">
@@ -60,11 +65,7 @@
     <section id="library" class="screen">
       <div class="eyebrow">TEACHINGS FOR YOUR STAGE</div>
       <h1>Library</h1>
-      <div id="library-list">
-        <article class="content-card"><small>TEACHING</small><strong>The Path Is Not Completed by Moving Quickly</strong><span>Foundation teaching</span></article>
-        <article class="content-card"><small>TEACHING</small><strong>Observe Before You Interpret</strong><span>Method</span></article>
-        <article class="content-card locked"><small>LATER</small><strong>Advanced Material</strong><span>Opens later on the Path</span></article>
-      </div>
+      <div id="library-list"></div>
     </section>
 
     <section id="me" class="screen">
@@ -72,7 +73,12 @@
       <h1>Me</h1>
       <div class="profile-mark">✦</div>
       <article class="rhythm-card"><h2>Current Stage</h2><p id="profile-stage">Beginning of the Path</p><p>Practice days: <strong id="profile-days">0</strong></p></article>
-      <article class="rhythm-card"><h2>Mirror</h2><p>Mirror compares your own reflections and surfaces recurring patterns. It does not determine spiritual attainment.</p></article>
+      <article class="rhythm-card">
+        <h2>Mirror</h2>
+        <p class="review-intro">Mirror reflects patterns from your own journal. It does not determine spiritual attainment.</p>
+        <div id="mirror-content" class="mirror-content"><p>Sign in and begin journaling to create a grounded reflection.</p></div>
+        <button class="secondary" type="button" id="refresh-mirror">Refresh Mirror</button>
+      </article>
       <article class="rhythm-card auth-card">
         <h2>ASCEND Account</h2>
         <div id="account-signed-out">
