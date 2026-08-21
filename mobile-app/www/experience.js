@@ -9,6 +9,12 @@
   document.querySelector('.library-close')?.addEventListener('click',close);
   overlay?.addEventListener('click',e=>{if(e.target===overlay)close()});
 
+  const aboutOverlay=document.getElementById('about-overlay');
+  const closeAbout=()=>aboutOverlay?.classList.add('hidden');
+  document.getElementById('menu-button')?.addEventListener('click',()=>aboutOverlay?.classList.remove('hidden'));
+  document.querySelector('.about-close')?.addEventListener('click',closeAbout);
+  aboutOverlay?.addEventListener('click',e=>{if(e.target===aboutOverlay)closeAbout()});
+
   const escapeText=(value='')=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const paragraphs=(text='')=>String(text).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${escapeText(p)}</p>`).join('');
 
