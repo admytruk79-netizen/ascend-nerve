@@ -22,5 +22,6 @@
   async function saveMarkerObservation(userId,stageId,markerId,state,reflection=''){return rest('path_student_marker_observations',{method:'POST',body:{user_id:userId,stage_id:stageId,marker_id:markerId,state,reflection:reflection||null,observed_at:new Date().toISOString()},prefer:'resolution=merge-duplicates,return=minimal'})}
   async function submitReadinessReview(stageId){return rpc('path_submit_readiness_review',{p_stage_id:stageId})}
   async function mirrorSnapshot(stageId){return rpc('path_mirror_snapshot',{p_stage_id:stageId})}
-  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,isSignedIn:()=>!!session?.access_token};
+  async function getRecentJournalText(userId,limit=8){try{const rows=await rest('path_journal_entries',{query:`user_id=eq.${userId}&select=observation,inner_state,life_application,interpretation,unresolved&order=entry_date.desc&limit=${limit}`});return rows.map(r=>[r.observation,r.inner_state,r.life_application,r.interpretation,r.unresolved].filter(Boolean).join(' ')).join(' ')}catch(e){return ''}}
+  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,isSignedIn:()=>!!session?.access_token};
 })();

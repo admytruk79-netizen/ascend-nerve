@@ -18,18 +18,22 @@
   const escapeText=(value='')=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const paragraphs=(text='')=>String(text).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${escapeText(p)}</p>`).join('');
 
-  document.getElementById('library-list')?.addEventListener('click',e=>{
+  const openLibraryItem=e=>{
     const card=e.target.closest('.content-card');
     if(!card||card.classList.contains('locked')||!window.curriculum)return;
+    const slug=card.dataset.slug;
     const title=card.querySelector('strong')?.textContent?.trim();
-    const item=window.curriculum.content?.find(x=>x.title===title);
+    const item=window.curriculum.content?.find(x=>slug?x.slug===slug:x.title===title);
     if(!item)return;
+    window.LibraryEngine?.recordLibraryView(item);
     document.getElementById('library-type').textContent=(item.content_type||'TEACHING').toUpperCase();
     document.getElementById('library-title').textContent=item.title||'';
     const body=item.body||item.summary||'This item is available as part of your current Path stage.';
     document.getElementById('library-body').innerHTML=paragraphs(body)+`<div class="source-note">ASCEND Path Library · ${escapeText(item.metadata?.source||'ASCEND curriculum')}</div>`;
     overlay.classList.remove('hidden');
-  });
+  };
+  document.getElementById('library-list')?.addEventListener('click',openLibraryItem);
+  document.getElementById('library-recommended')?.addEventListener('click',openLibraryItem);
 
   // Expose curriculum to the reader without changing the Path engine contract.
   const wait=()=>{
