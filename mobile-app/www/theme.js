@@ -31,4 +31,5 @@
   document.addEventListener('DOMContentLoaded',mount);
   apply();
   window.PathTheme={apply,set,get:getPref};
+  const historyScript=document.createElement('script');historyScript.src='day-history.js?v=20260823b';historyScript.defer=true;document.head.appendChild(historyScript);
 })();
