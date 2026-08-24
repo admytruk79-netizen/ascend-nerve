@@ -1,0 +1,55 @@
+(()=>{
+  const MONTHS=[
+    {month:1,title:'Foundation · Self-Contemplation',gate:'ENTRY'},
+    {month:2,title:'Clarity · Thought'},
+    {month:3,title:'Constancy · Will'},
+    {month:4,title:'Equanimity'},
+    {month:5,title:'Positive Perception'},
+    {month:6,title:'Openness'},
+    {month:7,title:'Impartial Retrospect',gate:'FOUNDATION REVIEW'},
+    {month:8,title:'Consolidation · Continuing Practice'},
+    {month:9,title:'Consolidation · Observation & Integration'},
+    {month:10,title:'Preparation · Review & Readiness',gate:'PART I GATE'},
+    {month:11,title:'Part II · Energy Gain'},
+    {month:12,title:'Star Energy'},
+    {month:13,title:'Emptiness'},
+    {month:14,title:'New Tools'},
+    {month:15,title:'Green Sphere'},
+    {month:16,title:'Helping the World'},
+    {month:17,title:'Integration'},
+    {month:18,title:'Consolidation',gate:'PART II GATE'},
+    {month:19,title:'Part III · Seven Chakra'},
+    {month:20,title:'Elements'},
+    {month:21,title:'Inner Octaves'},
+    {month:22,title:'Three Centres'},
+    {month:23,title:'Ancestors & Higher Self'},
+    {month:24,title:'Final Integration',gate:'PATH REVIEW'}
+  ];
+  const capForStage=sortOrder=>sortOrder<=7?Math.max(1,sortOrder):(sortOrder===8?18:24);
+  const elapsedMonth=(startedAt,now=new Date())=>{
+    const started=new Date(startedAt||now);
+    if(Number.isNaN(started.getTime()))return 1;
+    return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
+  };
+  const monthFor=({pathStartedAt,stageSortOrder=1,now=new Date()})=>Math.min(24,capForStage(Number(stageSortOrder)||1),elapsedMonth(pathStartedAt,now));
+  let cache=null,cacheAt=0;
+  async function current({fresh=false}={}){
+    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    if(!fresh&&cache&&Date.now()-cacheAt<15000)return cache;
+    const user=await PathBackend.me();
+    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    const [profiles,stages,progress]=await Promise.all([
+      PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id`}),
+      PathBackend.rest('path_stages',{query:'select=id,sort_order,title&is_published=eq.true&order=sort_order.asc'}),
+      PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
+    ]);
+    const profile=profiles[0]||{};
+    const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
+    const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
+    cache={month:monthFor({pathStartedAt:profile.path_started_at||active?.started_at,stageSortOrder:stage.sort_order}),stageSortOrder:Number(stage.sort_order)||1,stageTitle:stage.title||'Beginning',signedIn:true};
+    cacheAt=Date.now();
+    return cache;
+  }
+  function invalidate(){cache=null;cacheAt=0}
+  window.ASCENDProgression={MONTHS,capForStage,elapsedMonth,monthFor,current,invalidate};
+})();
