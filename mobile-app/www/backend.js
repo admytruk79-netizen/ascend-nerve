@@ -2,7 +2,7 @@
   const BASE='https://nqionqvuudamqkfbaopk.supabase.co';
   const KEY='sb_publishable_Z8KPlgoyxv4RC0yaZpuLSQ_5SBzrxbR';
   const STORAGE='ascendPathSession';
-  const PUBLIC_READ_TABLES=new Set(['path_phases','path_stages','path_practices','path_stage_practices','path_attainment_markers','path_content_items','path_content_unlock_rules','path_training_assignments']);
+  const PUBLIC_READ_TABLES=new Set(['path_phases','path_stages','path_practices','path_stage_practices','path_attainment_markers','path_content_items','path_content_unlock_rules','path_training_assignments','training_branches','training_branch_modules']);
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};

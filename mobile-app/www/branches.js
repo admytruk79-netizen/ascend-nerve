@@ -5,13 +5,12 @@
 
   async function load(){
     loadedSignedIn=PathBackend.isSignedIn();
-    if(!loadedSignedIn){branches=[];modules=[];progress=[];foundationMonth=1;render();return}
     try{
       const [branchRows,moduleRows,progressRows,context]=await Promise.all([
         PathBackend.rest('training_branches',{query:'is_published=eq.true&select=*&order=sort_order.asc'}),
         PathBackend.rest('training_branch_modules',{query:'is_published=eq.true&select=*&order=module_number.asc'}),
-        PathBackend.rest('training_branch_progress',{query:'select=*'}),
-        window.ASCENDProgression?.current?.({fresh:true}).catch(()=>({month:1}))||Promise.resolve({month:1})
+        loadedSignedIn?PathBackend.rest('training_branch_progress',{query:'select=*'}):Promise.resolve([]),
+        loadedSignedIn?(window.ASCENDProgression?.current?.({fresh:true}).catch(()=>({month:1}))||Promise.resolve({month:1})):Promise.resolve({month:1})
       ]);
       branches=branchRows;modules=moduleRows;progress=progressRows;foundationMonth=Number(context?.month)||1;
       render();
@@ -28,6 +27,11 @@
   }
   function parentPrimary(m){return modules.filter(x=>x.branch_id===m.branch_id&&x.module_number<m.module_number&&!isApplied(x)).sort((a,b)=>b.module_number-a.module_number)[0]||null}
   function canOpen(m,branch,signedIn,current){
+    // Enhanced (intense) practices stay gated regardless of sequence: sign-in
+    // plus clearing the Month 7 Foundation Review, same bar the rest of the
+    // Path already holds deeper material to. Everything else previews freely
+    // so a visitor can see the app is populated before creating an account.
+    if(m.safety_level==='enhanced'&&(!signedIn||!foundationCleared()))return false;
     if(!signedIn)return true;
     if(isApplied(m)){
       const parent=parentPrimary(m),p=parent&&progressFor(parent);
@@ -39,19 +43,9 @@
 
   function render(){
     const host=document.getElementById('practice-branches');if(!host)return;host.innerHTML='';
-    if(!loadedSignedIn){
-      const card=document.createElement('article');card.className='rhythm-card';
-      card.innerHTML=`<h2>Sign In Required</h2><p class="quiet-note">The Primary Path continuation and specialized pathways open once you are signed in and have cleared the Foundation Review (Month 7) of Core Formation.</p>`;
-      host.appendChild(card);return;
-    }
-    if(!foundationCleared()){
-      const card=document.createElement('article');card.className='rhythm-card';
-      card.innerHTML=`<h2>Locked Until Foundation Review</h2><p class="quiet-note">The Primary Path continuation and specialized pathways ask for the six months of Core Formation Foundation work first, so the deeper material here (including enhanced practices) is met with real grounding rather than curiosity alone. You are at Month ${foundationMonth} of 24 · unlocks at Month ${FOUNDATION_GATE_MONTH}.</p>`;
-      host.appendChild(card);return;
-    }
     branches.forEach(branch=>{
       const ms=modules.filter(m=>m.branch_id===branch.id),done=progress.filter(p=>p.branch_id===branch.id&&p.status==='completed').length,current=currentFor(branch);
-      const note=`${done} of ${ms.length} modules integrated${current?` · Current primary: ${esc(current.title)}`:' · Pathway complete'}`;
+      const note=loadedSignedIn?`${done} of ${ms.length} modules integrated${current?` · Current primary: ${esc(current.title)}`:' · Pathway complete'}`:`${ms.length} modules · Sign in to track progress`;
       const card=document.createElement('article');card.className='rhythm-card branch-card';
       card.innerHTML=`<div class="branch-card-main"><div><h2>${esc(branch.title)}</h2><p>${esc(branch.subtitle||branch.description||'Specialized training')}</p></div><button class="secondary branch-open" type="button">${done?'Continue':'View'}</button></div><p class="quiet-note">${note}</p>`;
       card.querySelector('.branch-open').onclick=()=>openBranch(branch,current);host.appendChild(card);
@@ -59,10 +53,9 @@
   }
 
   function openBranch(branch,current=currentFor(branch)){
-    if(!loadedSignedIn||!foundationCleared())return;
     const overlay=document.getElementById('branch-overlay'),body=document.getElementById('branch-body');if(!overlay||!body)return;
     const ms=modules.filter(m=>m.branch_id===branch.id),signedIn=PathBackend.isSignedIn();
-    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):(isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.'))}</span></article>`}).join('')}</div>`;
+    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';const lockedReason=m.safety_level==='enhanced'&&(!signedIn||!foundationCleared())?`Enhanced practice · opens after signing in and the Month ${FOUNDATION_GATE_MONTH-1} Foundation Review.`:isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):lockedReason)}</span></article>`}).join('')}</div>`;
     body.querySelectorAll('.content-card:not(.locked)').forEach(el=>el.onclick=()=>openModule(ms.find(m=>m.id===el.dataset.module),branch));overlay.classList.remove('hidden');
   }
 
