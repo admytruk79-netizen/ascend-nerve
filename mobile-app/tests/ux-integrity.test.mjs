@@ -34,9 +34,18 @@ test('Core and specialized pathways are independent in the Path UX',()=>{
   const branches=read('branches.js');
   assert.match(html,/Core Formation/);
   assert.match(html,/Independent Pathways/);
-  assert.match(html,/never replace or advance Core Formation/);
+  assert.match(html,/separate progression records/);
+  assert.match(html,/Separate from Core Formation/);
   assert.doesNotMatch(branches,/branchAvailable|Core Foundation Gate|Core Foundations Required/);
   assert.match(branches,/INDEPENDENT PATHWAY/);
+});
+
+test('the 24-month map uses progressive disclosure instead of 24 competing cards',()=>{
+  const monthPath=read('month-path.js');
+  assert.match(monthPath,/formation-group/);
+  assert.match(monthPath,/document\.createElement\('details'\)/);
+  assert.match(monthPath,/details\.open=currentMonth/);
+  assert.doesNotMatch(monthPath,/LOCKED/);
 });
 
 test('inactive screens cannot remain stacked during transitions',()=>{
