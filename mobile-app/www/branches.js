@@ -4,13 +4,12 @@
 
   async function load(){
     try{
-      branches=await PathBackend.rest('training_branches',{query:'is_published=eq.true&select=*&order=sort_order.asc'});
-      if(PathBackend.isSignedIn()){
-        [modules,progress]=await Promise.all([
-          PathBackend.rest('training_branch_modules',{query:'is_published=eq.true&select=*&order=module_number.asc'}),
-          PathBackend.rest('training_branch_progress',{query:'select=*'})
-        ]);
-      }else{modules=[];progress=[]}
+      const signedIn=PathBackend.isSignedIn();
+      [branches,modules,progress]=await Promise.all([
+        PathBackend.rest('training_branches',{query:'is_published=eq.true&select=*&order=sort_order.asc'}),
+        PathBackend.rest('training_branch_modules',{query:'is_published=eq.true&select=*&order=module_number.asc'}),
+        signedIn?PathBackend.rest('training_branch_progress',{query:'select=*'}):Promise.resolve([])
+      ]);
       render();
     }catch(e){console.error('Branch load failed',e)}
   }
@@ -26,7 +25,7 @@
     const host=document.getElementById('practice-branches');if(!host)return;host.innerHTML='';
     branches.forEach(branch=>{
       const ms=modules.filter(m=>m.branch_id===branch.id),done=progress.filter(p=>p.branch_id===branch.id&&p.status==='completed').length,current=currentFor(branch);
-      const note=PathBackend.isSignedIn()?`${done} of ${ms.length} modules integrated${current?` · Next: ${esc(current.title)}`:' · Pathway complete'}`:`Sign in to load the sequential modules and record progress`;
+      const note=PathBackend.isSignedIn()?`${done} of ${ms.length} modules integrated${current?` · Next: ${esc(current.title)}`:' · Pathway complete'}`:`${ms.length} modules ready · Sign in to record progress`;
       const card=document.createElement('article');card.className='rhythm-card branch-card';
       card.innerHTML=`<div class="branch-card-main"><div><h2>${esc(branch.title)}</h2><p>${esc(branch.subtitle||branch.description||'Specialized training')}</p></div><button class="secondary branch-open" type="button">${done?'Continue':'View'}</button></div><p class="quiet-note">${note}</p>`;
       card.querySelector('.branch-open').onclick=()=>openBranch(branch,current);host.appendChild(card);
@@ -35,10 +34,6 @@
 
   function openBranch(branch,current=currentFor(branch)){
     const overlay=document.getElementById('branch-overlay'),body=document.getElementById('branch-body');if(!overlay||!body)return;
-    if(!PathBackend.isSignedIn()){
-      body.innerHTML=`<div class="eyebrow">INDEPENDENT PATHWAY</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p><article class="rhythm-card"><h2>Your pathway record</h2><p>Sign in to load every module and keep this pathway's repetitions and progression separate from Core Formation.</p><button class="primary" type="button" data-go-signin>Sign In</button></article>`;
-      overlay.classList.remove('hidden');return;
-    }
     const ms=modules.filter(m=>m.branch_id===branch.id);
     const signedIn=PathBackend.isSignedIn();
     body.innerHTML=`<div class="eyebrow">INDEPENDENT PATHWAY</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m);const locked=signedIn&&current&&m.module_number>current.module_number;const state=p?.status==='completed'?' · COMPLETE':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';return `<article class="content-card ${locked?'locked':''}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${state}</small><strong>${esc(m.title)}</strong><span>${esc(locked?'Complete the preceding training first.':m.summary||m.outcome||'Training module')}</span></article>`}).join('')}</div>`;
