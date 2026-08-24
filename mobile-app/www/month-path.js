@@ -1,18 +1,39 @@
 (()=>{
-  const style=document.createElement('style');style.textContent=`.month-path{display:grid;gap:10px;margin:18px 0 28px}.month-card{display:flex;align-items:center;gap:14px;padding:15px 16px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(255,255,255,.035);text-align:left}.month-card.current{border-color:rgba(201,162,39,.55);background:rgba(201,162,39,.08);box-shadow:0 0 28px rgba(201,162,39,.08)}.month-card.done{opacity:.72}.month-number{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.16);font-size:12px;letter-spacing:.08em;flex:0 0 auto}.month-card.current .month-number{border-color:rgba(201,162,39,.8)}.month-copy{min-width:0}.month-copy strong{display:block;font-size:14px}.month-copy small{display:block;margin-top:4px;opacity:.72;font-size:12px}.month-gate{margin-left:auto;font-size:11px;letter-spacing:.10em;opacity:.58;white-space:nowrap}.month-heading{margin:26px 0 8px;font-size:11px;letter-spacing:.18em;opacity:.68}`;document.head.appendChild(style);
+  const GROUPS=[
+    {title:'Foundation',range:'Months 1–7',start:1,end:7,description:'Attention, thought, will and emotional balance'},
+    {title:'Tools & Integration',range:'Months 8–18',start:8,end:18,description:'Consolidation, energetic tools and service'},
+    {title:'Expanded Practice',range:'Months 19–24',start:19,end:24,description:'Chakras, elements, centres and final integration'}
+  ];
+  const style=document.createElement('style');style.textContent=`
+    .month-path{display:grid;gap:10px;margin:14px 0 28px;padding:0!important}.month-path:before{display:none!important}
+    .core-now{padding:18px;border:1px solid rgba(214,179,106,.27);border-radius:18px;background:linear-gradient(135deg,rgba(214,179,106,.075),rgba(85,200,189,.035))}
+    .core-now-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.core-now small{color:var(--gold);font:11px Arial,sans-serif;letter-spacing:.14em}.core-now strong{display:block;margin-top:5px;color:var(--ivory);font-size:20px;font-weight:400}.core-now em{color:var(--teal);font:11px Arial,sans-serif;font-style:normal;white-space:nowrap}
+    .core-now-track{height:3px;margin-top:15px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}.core-now-track i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:inherit}
+    .core-now-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:var(--muted);font:11px Arial,sans-serif}
+    .formation-map{display:grid;gap:8px;margin-top:12px}.formation-group{border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);overflow:hidden}.formation-group[open]{border-color:rgba(214,179,106,.22)}
+    .formation-group summary{min-height:58px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none}.formation-group summary::-webkit-details-marker{display:none}.formation-group summary:after{content:'+';margin-left:auto;color:var(--gold);font:19px Arial,sans-serif}.formation-group[open] summary:after{content:'−'}
+    .formation-group-index{width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(214,179,106,.25);border-radius:50%;color:var(--gold2);font:10px Arial,sans-serif}.formation-group-copy{min-width:0}.formation-group-copy strong,.formation-group-copy small{display:block}.formation-group-copy strong{font-size:15px;font-weight:400}.formation-group-copy small{margin-top:3px;color:var(--muted);font:11px Arial,sans-serif}.formation-group-range{color:var(--teal);font:10px Arial,sans-serif;letter-spacing:.08em;white-space:nowrap}
+    .formation-months{padding:0 12px 10px}.month-card{min-height:46px;display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:9px;padding:8px 3px;border-top:1px solid rgba(255,255,255,.055)}.month-card.current{margin:0 -4px;padding-left:7px;padding-right:7px;border:1px solid rgba(214,179,106,.38);border-radius:12px;background:rgba(214,179,106,.055)}.month-card.done{opacity:.68}
+    .month-number{color:var(--muted);font:10px Arial,sans-serif;letter-spacing:.08em}.month-copy{min-width:0}.month-copy strong{display:block;color:var(--ivory);font:13px Arial,sans-serif;font-weight:400}.month-copy small{display:block;margin-top:2px;color:var(--muted);font:11px Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.month-state{color:var(--teal);font:10px Arial,sans-serif;letter-spacing:.08em}.month-state.gate{color:var(--gold)}
+  `;document.head.appendChild(style);
+  const activeGroup=month=>GROUPS.find(group=>month>=group.start&&month<=group.end)||GROUPS[0];
   async function paint({fresh=false}={}){
-    const list=document.getElementById('path-list');if(!list||!window.ASCENDProgression)return;
+    const host=document.getElementById('path-list');if(!host||!window.ASCENDProgression)return;
     let context={month:1};try{context=await ASCENDProgression.current({fresh})}catch(e){console.error('Progression context failed',e)}
     const currentMonth=Math.max(1,Math.min(24,Number(context.month)||1));
-    list.innerHTML='';list.classList.add('month-path');list.dataset.monthPath='1';
-    const heading=document.createElement('li');heading.className='month-heading';heading.setAttribute('role','presentation');heading.textContent='24-MONTH CORE FORMATION';list.appendChild(heading);
-    ASCENDProgression.MONTHS.forEach(item=>{
-      const i=item.month,state=i<currentMonth?'COMPLETED':i===currentMonth?'CURRENT':'LOCKED';
-      const card=document.createElement('li');card.className='month-card'+(i===currentMonth?' current':'')+(i<currentMonth?' done':'');
-      card.dataset.month=String(i);card.setAttribute('aria-current',i===currentMonth?'step':'false');
-      card.innerHTML=`<div class="month-number">${String(i).padStart(2,'0')}</div><div class="month-copy"><strong>Month ${i}</strong><small>${item.title}</small>${item.gate?`<span class="month-gate-label">${item.gate}</span>`:''}</div><div class="month-gate">${state}</div>`;
-      list.appendChild(card);
+    const current=ASCENDProgression.MONTHS[currentMonth-1],group=activeGroup(currentMonth);
+    host.innerHTML='';host.className='month-path';host.dataset.monthPath='1';
+    const summary=document.createElement('section');summary.className='core-now';summary.setAttribute('aria-label','Current Core Formation position');
+    summary.innerHTML=`<div class="core-now-top"><div><small>CORE FORMATION · MONTH ${currentMonth} OF 24</small><strong>${current.title}</strong></div><em>${context.signedIn?'IN PROGRESS':'PREVIEW'}</em></div><div class="core-now-track" aria-hidden="true"><i style="width:${Math.max(4.2,currentMonth/24*100)}%"></i></div><div class="core-now-meta"><span>${group.title}</span><span>${current.gate||`Next review · Month ${group.end}`}</span></div>`;
+    host.appendChild(summary);
+    const map=document.createElement('div');map.className='formation-map';map.setAttribute('aria-label','24-month formation map');
+    GROUPS.forEach((section,index)=>{
+      const details=document.createElement('details');details.className='formation-group';details.open=currentMonth>=section.start&&currentMonth<=section.end;
+      const months=ASCENDProgression.MONTHS.filter(item=>item.month>=section.start&&item.month<=section.end);
+      details.innerHTML=`<summary><span class="formation-group-index">${String(index+1).padStart(2,'0')}</span><span class="formation-group-copy"><strong>${section.title}</strong><small>${section.description}</small></span><span class="formation-group-range">${section.range}</span></summary><div class="formation-months">${months.map(item=>{const state=item.month<currentMonth?'COMPLETE':item.month===currentMonth?'CURRENT':item.gate?item.gate:'';return `<div class="month-card${item.month===currentMonth?' current':''}${item.month<currentMonth?' done':''}" data-month="${item.month}" ${item.month===currentMonth?'aria-current="step"':''}><span class="month-number">${String(item.month).padStart(2,'0')}</span><span class="month-copy"><strong>Month ${item.month}</strong><small>${item.title}</small></span>${state?`<span class="month-state${item.gate&&item.month!==currentMonth?' gate':''}">${state}</span>`:'<span></span>'}</div>`}).join('')}</div>`;
+      map.appendChild(details);
     });
+    host.appendChild(map);
     document.dispatchEvent(new CustomEvent('ascend:month',{detail:{...context,month:currentMonth}}));
   }
   document.addEventListener('DOMContentLoaded',()=>paint());
