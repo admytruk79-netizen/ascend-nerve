@@ -27,9 +27,8 @@
     branches.forEach(branch=>{
       const ms=modules.filter(m=>m.branch_id===branch.id),done=progress.filter(p=>p.branch_id===branch.id&&p.status==='completed').length,current=currentFor(branch);
       const note=PathBackend.isSignedIn()?`${done} of ${ms.length} modules integrated${current?` · Next: ${esc(current.title)}`:' · Pathway complete'}`:`Sign in to load the sequential modules and record progress`;
-      const recommendation=branch.slug==='energy-bodywork'?'<p class="branch-recommendation">Recommended: establish Core foundations before advanced energetic work. This pathway still progresses independently.</p>':'';
       const card=document.createElement('article');card.className='rhythm-card branch-card';
-      card.innerHTML=`<div class="eyebrow">INDEPENDENT PATHWAY</div><h2>${esc(branch.title)}</h2><p>${esc(branch.subtitle||branch.description||'Specialized training')}</p>${recommendation}<p class="quiet-note">${note}</p><button class="secondary branch-open" type="button">${done?'Continue Pathway':'Explore Pathway'}</button>`;
+      card.innerHTML=`<div class="branch-card-main"><div><h2>${esc(branch.title)}</h2><p>${esc(branch.subtitle||branch.description||'Specialized training')}</p></div><button class="secondary branch-open" type="button">${done?'Continue':'View'}</button></div><p class="quiet-note">${note}</p>`;
       card.querySelector('.branch-open').onclick=()=>openBranch(branch,current);host.appendChild(card);
     });
   }
