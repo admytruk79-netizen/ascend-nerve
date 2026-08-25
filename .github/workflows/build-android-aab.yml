@@ -69,9 +69,6 @@ jobs:
           if not raw:
               raise SystemExit('Keystore secret became empty after normalization')
 
-          # Base64 padding only belongs at the end. If clipboard/file text was
-          # appended after the payload, keep the payload through the first
-          # padding run and discard the trailing junk.
           if '=' in raw:
               first = raw.index('=')
               end = first
@@ -79,7 +76,6 @@ jobs:
                   end += 1
               raw = raw[:end]
 
-          # Repair omitted terminal padding only when needed.
           raw += '=' * ((4 - len(raw) % 4) % 4)
 
           try:
@@ -94,11 +90,34 @@ jobs:
           print(f'Restored keystore bytes: {len(data)}; recovered Base64 length: {len(raw)}')
           PY
 
-          keytool -list \
-            -keystore "$RUNNER_TEMP/ascend-upload.jks" \
-            -storepass "$ANDROID_STORE_PASSWORD" \
-            -alias "$ANDROID_KEY_ALIAS" >/dev/null
-          echo 'Upload keystore validated.'
+          KEYSTORE="$RUNNER_TEMP/ascend-upload.jks"
+
+          if keytool -list -v             -keystore "$KEYSTORE"             -storepass "$ANDROID_STORE_PASSWORD"             -alias "$ANDROID_KEY_ALIAS" 2>/dev/null |
+            grep -q 'Entry type: PrivateKeyEntry'; then
+            RESOLVED_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+            echo 'Configured signing alias is a private-key entry.'
+          else
+            mapfile -t PRIVATE_ALIASES < <(
+              keytool -list -v                 -keystore "$KEYSTORE"                 -storepass "$ANDROID_STORE_PASSWORD" |
+              awk -F': ' '/Alias name:/{alias=$2} /Entry type: PrivateKeyEntry/{print alias}'
+            )
+
+            if [ "${#PRIVATE_ALIASES[@]}" -eq 1 ]; then
+              RESOLVED_KEY_ALIAS="${PRIVATE_ALIASES[0]}"
+              echo 'Configured alias was certificate-only; selected the keystore private-key entry.'
+            elif [ "${#PRIVATE_ALIASES[@]}" -eq 0 ]; then
+              echo 'The uploaded keystore contains no PrivateKeyEntry. A certificate file cannot sign an AAB.'
+              echo 'Encode the original upload-key .jks/.keystore file and replace ANDROID_KEYSTORE_BASE64.'
+              exit 1
+            else
+              echo 'Configured alias is not a private key and the keystore contains multiple private keys.'
+              echo 'Set ANDROID_KEY_ALIAS to the alias of the intended PrivateKeyEntry.'
+              exit 1
+            fi
+          fi
+
+          echo "RESOLVED_KEY_ALIAS=$RESOLVED_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo 'Upload keystore and signing key validated.'
 
       - name: Build release app bundle
         working-directory: mobile-app/android
@@ -106,18 +125,11 @@ jobs:
 
       - name: Sign release app bundle
         env:
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           AAB='mobile-app/android/app/build/outputs/bundle/release/app-release.aab'
-          jarsigner \
-            -keystore "$RUNNER_TEMP/ascend-upload.jks" \
-            -storepass "$ANDROID_STORE_PASSWORD" \
-            -keypass "$ANDROID_KEY_PASSWORD" \
-            -sigalg SHA256withRSA \
-            -digestalg SHA-256 \
-            "$AAB" "$ANDROID_KEY_ALIAS"
+          jarsigner             -keystore "$RUNNER_TEMP/ascend-upload.jks"             -storepass "$ANDROID_STORE_PASSWORD"             -keypass "$ANDROID_KEY_PASSWORD"             -sigalg SHA256withRSA             -digestalg SHA-256             "$AAB" "$RESOLVED_KEY_ALIAS"
           jarsigner -verify -verbose -certs "$AAB"
 
       - name: Upload Play AAB
