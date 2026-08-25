@@ -54,6 +54,7 @@ jobs:
           test -n "$ANDROID_STORE_PASSWORD" || { echo 'Missing ANDROID_STORE_PASSWORD'; exit 1; }
           test -n "$ANDROID_KEY_PASSWORD" || { echo 'Missing ANDROID_KEY_PASSWORD'; exit 1; }
 
+      # Normalize common copy/paste artifacts before strict Base64 decoding.
       - name: Restore upload keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
