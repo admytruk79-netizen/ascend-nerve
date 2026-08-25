@@ -54,7 +54,6 @@ jobs:
           test -n "$ANDROID_STORE_PASSWORD" || { echo 'Missing ANDROID_STORE_PASSWORD'; exit 1; }
           test -n "$ANDROID_KEY_PASSWORD" || { echo 'Missing ANDROID_KEY_PASSWORD'; exit 1; }
 
-      # Normalize common copy/paste artifacts before strict Base64 decoding.
       - name: Restore upload keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -64,16 +63,18 @@ jobs:
           raw = os.environ['ANDROID_KEYSTORE_BASE64'].strip()
           if raw.startswith('ANDROID_KEYSTORE_BASE64='):
               raw = raw.split('=', 1)[1]
-          raw = re.sub(r'\s+', '', raw)
+          raw = re.sub(r'[^A-Za-z0-9+/=]', '', raw)
+          if not raw:
+              raise SystemExit('Keystore secret became empty after normalization')
           try:
               data = base64.b64decode(raw, validate=True)
           except Exception as exc:
-              raise SystemExit(f'Invalid Base64 secret: {exc}')
+              raise SystemExit(f'Invalid Base64 secret after normalization: {exc}; normalized length={len(raw)}')
           out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'ascend-upload.jks'
           out.write_bytes(data)
           if len(data) < 100:
               raise SystemExit('Decoded keystore is unexpectedly small')
-          print(f'Restored keystore bytes: {len(data)}')
+          print(f'Restored keystore bytes: {len(data)}; normalized Base64 length: {len(raw)}')
           PY
 
       - name: Build release app bundle
