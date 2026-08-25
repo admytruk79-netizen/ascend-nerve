@@ -87,6 +87,16 @@ test('readiness evidence includes life application and maintenance without repla
   assert.match(readiness,/Ambiguous, not-yet, or no-clear-result observations are valid/);
 });
 
+test('Library recommendations and visible cards respect Core month progression',()=>{
+  const contextual=read('contextual-library.js');
+  assert.match(contextual,/metadata\?\.month/);
+  assert.match(contextual,/metadata\?\.min_month/);
+  assert.match(contextual,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
+  assert.match(contextual,/Opens in Month \$\{needed\}/);
+  assert.match(contextual,/content-card\.month-locked/);
+  assert.match(contextual,/ASCENDProgression\?\.current/);
+});
+
 test('teacher review UI uses the live stage-gate schema',()=>{
   const teacher=read('teacher-console.js');
   const backend=read('backend.js');
