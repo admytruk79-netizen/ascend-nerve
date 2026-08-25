@@ -19,14 +19,25 @@ test('Core Formation exposes one canonical 24-month sequence',()=>{
   assert.match(months[23].title,/Final Integration/);
 });
 
-test('stage milestones cap time-based Core progression without replacing months',()=>{
+test('readiness milestones open Core ranges without allowing delayed reviews to skip months',()=>{
   const window={};
   vm.runInNewContext(read('path-progression.js'),{window,Date,Math,Number});
   const p=window.ASCENDProgression;
   assert.equal(p.capForStage(7),7);
   assert.equal(p.capForStage(8),18);
   assert.equal(p.capForStage(9),24);
-  assert.equal(p.monthFor({pathStartedAt:'2025-01-01',stageSortOrder:9,now:new Date('2026-12-01')}),24);
+
+  // Foundation months are readiness stages, not elapsed-calendar counters.
+  assert.equal(p.monthFor({stageSortOrder:7,stageStartedAt:'2024-01-01',now:new Date('2026-12-01')}),7);
+
+  // Passing Foundation Review after a long delay must begin month 8, not jump to 18.
+  assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2026-12-01')}),8);
+  assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2027-02-01')}),10);
+  assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2029-01-01')}),18);
+
+  // Passing the Part II gate begins month 19 regardless of total age of the Path.
+  assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-06-01')}),19);
+  assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-11-01')}),24);
 });
 
 test('Core and specialized pathways are independent in the Path UX',()=>{
