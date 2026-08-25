@@ -1,7 +1,7 @@
 (()=>{
   const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let branches=[],modules=[],progress=[],foundationMonth=1,loadedSignedIn=false;
-  const FOUNDATION_GATE_MONTH=8; // unlocks the month after the Month 7 Foundation Review gate
+  let branches=[],modules=[],progress=[],foundationStageSortOrder=1,loadedSignedIn=false;
+  const FOUNDATION_GATE_STAGE=8; // student's current stage must be past sort_order 7 (Impartial Retrospect / Foundation Review) -- a passed-review signal, not elapsed time
 
   async function load(){
     loadedSignedIn=PathBackend.isSignedIn();
@@ -10,13 +10,13 @@
         PathBackend.rest('training_branches',{query:'is_published=eq.true&select=*&order=sort_order.asc'}),
         PathBackend.rest('training_branch_modules',{query:'is_published=eq.true&select=*&order=module_number.asc'}),
         loadedSignedIn?PathBackend.rest('training_branch_progress',{query:'select=*'}):Promise.resolve([]),
-        loadedSignedIn?(window.ASCENDProgression?.current?.({fresh:true}).catch(()=>({month:1}))||Promise.resolve({month:1})):Promise.resolve({month:1})
+        loadedSignedIn?(window.ASCENDProgression?.current?.({fresh:true}).catch(()=>({stageSortOrder:1}))||Promise.resolve({stageSortOrder:1})):Promise.resolve({stageSortOrder:1})
       ]);
-      branches=branchRows;modules=moduleRows;progress=progressRows;foundationMonth=Number(context?.month)||1;
+      branches=branchRows;modules=moduleRows;progress=progressRows;foundationStageSortOrder=Number(context?.stageSortOrder)||1;
       render();
     }catch(e){console.error('Branch load failed',e)}
   }
-  function foundationCleared(){return foundationMonth>=FOUNDATION_GATE_MONTH}
+  function foundationCleared(){return foundationStageSortOrder>=FOUNDATION_GATE_STAGE}
 
   function progressFor(m){return progress.find(p=>p.module_id===m.id)||null}
   function isApplied(m){return !!m?.metadata?.applied_parallel}
@@ -28,9 +28,10 @@
   function parentPrimary(m){return modules.filter(x=>x.branch_id===m.branch_id&&x.module_number<m.module_number&&!isApplied(x)).sort((a,b)=>b.module_number-a.module_number)[0]||null}
   function canOpen(m,branch,signedIn,current){
     // Enhanced (intense) practices stay gated regardless of sequence: sign-in
-    // plus clearing the Month 7 Foundation Review, same bar the rest of the
-    // Path already holds deeper material to. Everything else previews freely
-    // so a visitor can see the app is populated before creating an account.
+    // plus having actually passed Foundation Review (stage sort_order past 7,
+    // set only when a stage review is submitted and approved -- never by
+    // elapsed calendar time). Everything else previews freely so a visitor
+    // can see the app is populated before creating an account.
     if(m.safety_level==='enhanced'&&(!signedIn||!foundationCleared()))return false;
     if(!signedIn)return true;
     if(isApplied(m)){
@@ -55,7 +56,7 @@
   function openBranch(branch,current=currentFor(branch)){
     const overlay=document.getElementById('branch-overlay'),body=document.getElementById('branch-body');if(!overlay||!body)return;
     const ms=modules.filter(m=>m.branch_id===branch.id),signedIn=PathBackend.isSignedIn();
-    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';const lockedReason=m.safety_level==='enhanced'&&(!signedIn||!foundationCleared())?`Enhanced practice · opens after signing in and the Month ${FOUNDATION_GATE_MONTH-1} Foundation Review.`:isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):lockedReason)}</span></article>`}).join('')}</div>`;
+    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';const lockedReason=m.safety_level==='enhanced'&&(!signedIn||!foundationCleared())?'Enhanced practice · opens after signing in and passing the Foundation Review (Impartial Retrospect stage review, not elapsed time).':isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):lockedReason)}</span></article>`}).join('')}</div>`;
     body.querySelectorAll('.content-card:not(.locked)').forEach(el=>el.onclick=()=>openModule(ms.find(m=>m.id===el.dataset.module),branch));overlay.classList.remove('hidden');
   }
 
