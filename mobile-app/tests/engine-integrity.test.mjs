@@ -60,11 +60,26 @@ test('practice completion integrity never advances locally after failed verifica
   assert.match(integrity,/remaining>0/);
 });
 
-test('training-in-life evidence is recorded through the server progression gate',()=>{
+test('training-in-life evidence is attached to Today and recorded through the server progression gate',()=>{
   const layers=read('training-layers.js');
+  assert.match(layers,/TRAINING BEYOND THE FORMAL PRACTICE/);
+  assert.match(layers,/APPLIED LIFE/);
+  assert.match(layers,/CONDUCT & CHARACTER/);
+  assert.match(layers,/RELATIONSHIP PRACTICE/);
+  assert.match(layers,/BODY & BREATH/);
+  assert.match(layers,/MAINTENANCE/);
+  assert.match(layers,/INTEGRATION/);
   assert.match(layers,/path_record_training_assignment/);
   assert.doesNotMatch(layers,/rest\('path_training_assignment_logs',\{method:'POST'/);
   assert.match(layers,/ASCENDReadinessEvidence\?\.load/);
+  assert.match(layers,/They do not replace the primary practice and they do not advance the Path by themselves/);
+});
+
+test('readiness evidence includes life application and maintenance without replacing deterministic progression',()=>{
+  const readiness=read('readiness-evidence.js');
+  assert.match(readiness,/life_application_entries\+e\.training_in_life_logs/);
+  assert.match(readiness,/MAINTENANCE LOGS/);
+  assert.match(readiness,/Ambiguous, not-yet, or no-clear-result observations are valid/);
 });
 
 test('teacher review UI uses the live stage-gate schema',()=>{
