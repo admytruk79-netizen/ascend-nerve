@@ -59,3 +59,22 @@ test('practice completion integrity never advances locally after failed verifica
   assert.match(integrity,/pending attempt and does not count toward progression yet/);
   assert.match(integrity,/remaining>0/);
 });
+
+test('training-in-life evidence is recorded through the server progression gate',()=>{
+  const layers=read('training-layers.js');
+  assert.match(layers,/path_record_training_assignment/);
+  assert.doesNotMatch(layers,/rest\('path_training_assignment_logs',\{method:'POST'/);
+  assert.match(layers,/ASCENDReadinessEvidence\?\.load/);
+});
+
+test('teacher review UI uses the live stage-gate schema',()=>{
+  const teacher=read('teacher-console.js');
+  const backend=read('backend.js');
+  assert.match(teacher,/data-decision="advance"/);
+  assert.match(teacher,/data-decision="continue"/);
+  assert.match(teacher,/data-decision="pause"/);
+  assert.match(teacher,/teacher_id:teacherId,student_id:wrap\.dataset\.student,stage_id:stageId,decision:/);
+  assert.match(backend,/student_id=eq\.\$\{userId\}/);
+  assert.match(backend,/order=submitted_at\.desc/);
+  assert.doesNotMatch(backend,/student_user_id=eq|teacher_user_id=eq/);
+});
