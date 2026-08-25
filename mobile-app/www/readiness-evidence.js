@@ -1,5 +1,5 @@
 (()=>{
- const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+ const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const style=document.createElement('style');style.textContent=`.readiness-evidence{margin:18px 0;padding:16px;border:1px solid rgba(85,200,189,.18);border-radius:18px;background:rgba(85,200,189,.025)}.readiness-evidence h3{margin:0 0 12px;color:var(--gold2);font-size:15px;font-weight:400}.evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.evidence-item{padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.018)}.evidence-item strong{display:block;font:17px Georgia,serif;font-weight:400}.evidence-item span{display:block;margin-top:3px;color:var(--muted);font:9px Arial,sans-serif;letter-spacing:.08em}.evidence-state{margin-top:12px;font:11px Arial,sans-serif;color:var(--muted);line-height:1.5}.evidence-state.ready{color:var(--teal)}.evidence-gaps{margin:8px 0 0;padding-left:17px;color:var(--muted);font:10px/1.55 Arial,sans-serif}.evidence-gaps li+li{margin-top:2px}@media(max-width:360px){.evidence-grid{grid-template-columns:1fr}}`;
  document.head.appendChild(style);
  function gateButton(e){
