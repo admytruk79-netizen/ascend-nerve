@@ -1,0 +1,87 @@
+name: Build ASCEND Path Play AAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ ascend-path-foundation ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/build-android-aab.yml'
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+
+      - name: Create Android shell and sync web app
+        working-directory: mobile-app
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: Verify Play signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo 'Missing ANDROID_KEYSTORE_BASE64'; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo 'Missing ANDROID_KEY_ALIAS'; exit 1; }
+          test -n "$ANDROID_STORE_PASSWORD" || { echo 'Missing ANDROID_STORE_PASSWORD'; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo 'Missing ANDROID_KEY_PASSWORD'; exit 1; }
+
+      - name: Restore upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/ascend-upload.jks"
+
+      - name: Build release app bundle
+        working-directory: mobile-app/android
+        run: ./gradlew bundleRelease
+
+      - name: Sign release app bundle
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          AAB='mobile-app/android/app/build/outputs/bundle/release/app-release.aab'
+          jarsigner \
+            -keystore "$RUNNER_TEMP/ascend-upload.jks" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -keypass "$ANDROID_KEY_PASSWORD" \
+            -sigalg SHA256withRSA \
+            -digestalg SHA-256 \
+            "$AAB" "$ANDROID_KEY_ALIAS"
+          jarsigner -verify -verbose -certs "$AAB"
+
+      - name: Upload Play AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascend-path-play-aab
+          path: mobile-app/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
