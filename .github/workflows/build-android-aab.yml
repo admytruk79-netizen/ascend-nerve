@@ -131,18 +131,36 @@ jobs:
             RESOLVED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
             echo 'Private signing key unlocked with ANDROID_KEY_PASSWORD.'
           else
-            cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-storepass.jar"
-            if jarsigner \
+            NORMALIZED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+            if [[ "$NORMALIZED_KEY_PASSWORD" == ANDROID_KEY_PASSWORD=* ]]; then
+              NORMALIZED_KEY_PASSWORD="${NORMALIZED_KEY_PASSWORD#ANDROID_KEY_PASSWORD=}"
+            fi
+            if [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\".*\"$ ]] || [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\'.*\'$ ]]; then
+              NORMALIZED_KEY_PASSWORD="${NORMALIZED_KEY_PASSWORD:1:${#NORMALIZED_KEY_PASSWORD}-2}"
+            fi
+
+            cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-normalized.jar"
+            if [ "$NORMALIZED_KEY_PASSWORD" != "$ANDROID_KEY_PASSWORD" ] && jarsigner \
               -keystore "$KEYSTORE" \
               -storepass "$ANDROID_STORE_PASSWORD" \
-              -keypass "$ANDROID_STORE_PASSWORD" \
-              "$RUNNER_TEMP/signing-probe-storepass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
-              RESOLVED_KEY_PASSWORD="$ANDROID_STORE_PASSWORD"
-              echo 'ANDROID_KEY_PASSWORD was incorrect; using the keystore password for the private key.'
+              -keypass "$NORMALIZED_KEY_PASSWORD" \
+              "$RUNNER_TEMP/signing-probe-normalized.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+              RESOLVED_KEY_PASSWORD="$NORMALIZED_KEY_PASSWORD"
+              echo 'Recovered the private-key password from a prefixed or quoted secret value.'
             else
-              echo 'A PrivateKeyEntry exists, but neither ANDROID_KEY_PASSWORD nor ANDROID_STORE_PASSWORD can unlock it.'
-              echo 'Replace ANDROID_KEY_PASSWORD with the password originally assigned to the private-key alias.'
-              exit 1
+              cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-storepass.jar"
+              if jarsigner \
+                -keystore "$KEYSTORE" \
+                -storepass "$ANDROID_STORE_PASSWORD" \
+                -keypass "$ANDROID_STORE_PASSWORD" \
+                "$RUNNER_TEMP/signing-probe-storepass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+                RESOLVED_KEY_PASSWORD="$ANDROID_STORE_PASSWORD"
+                echo 'ANDROID_KEY_PASSWORD was incorrect; using the keystore password for the private key.'
+              else
+                echo 'A PrivateKeyEntry exists, but the supplied, normalized, and store passwords cannot unlock it.'
+                echo 'Replace ANDROID_KEY_PASSWORD with the password originally assigned to the private-key alias.'
+                exit 1
+              fi
             fi
           fi
 
