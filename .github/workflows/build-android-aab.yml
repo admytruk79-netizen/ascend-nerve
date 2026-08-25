@@ -59,6 +59,7 @@ jobs:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           python - <<'PY'
           import os, base64, re, pathlib
@@ -117,7 +118,36 @@ jobs:
           fi
 
           echo "RESOLVED_KEY_ALIAS=$RESOLVED_KEY_ALIAS" >> "$GITHUB_ENV"
-          echo 'Upload keystore and signing key validated.'
+
+          printf 'ASCEND signing probe' > "$RUNNER_TEMP/signing-probe.txt"
+          jar --create --file "$RUNNER_TEMP/signing-probe.jar" -C "$RUNNER_TEMP" signing-probe.txt
+
+          cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-keypass.jar"
+          if jarsigner \
+            -keystore "$KEYSTORE" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -keypass "$ANDROID_KEY_PASSWORD" \
+            "$RUNNER_TEMP/signing-probe-keypass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+            RESOLVED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+            echo 'Private signing key unlocked with ANDROID_KEY_PASSWORD.'
+          else
+            cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-storepass.jar"
+            if jarsigner \
+              -keystore "$KEYSTORE" \
+              -storepass "$ANDROID_STORE_PASSWORD" \
+              -keypass "$ANDROID_STORE_PASSWORD" \
+              "$RUNNER_TEMP/signing-probe-storepass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+              RESOLVED_KEY_PASSWORD="$ANDROID_STORE_PASSWORD"
+              echo 'ANDROID_KEY_PASSWORD was incorrect; using the keystore password for the private key.'
+            else
+              echo 'A PrivateKeyEntry exists, but neither ANDROID_KEY_PASSWORD nor ANDROID_STORE_PASSWORD can unlock it.'
+              echo 'Replace ANDROID_KEY_PASSWORD with the password originally assigned to the private-key alias.'
+              exit 1
+            fi
+          fi
+
+          echo "RESOLVED_KEY_PASSWORD=$RESOLVED_KEY_PASSWORD" >> "$GITHUB_ENV"
+          echo 'Upload keystore, signing alias, and private-key password validated.'
 
       - name: Build release app bundle
         working-directory: mobile-app/android
@@ -126,10 +156,15 @@ jobs:
       - name: Sign release app bundle
         env:
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           AAB='mobile-app/android/app/build/outputs/bundle/release/app-release.aab'
-          jarsigner             -keystore "$RUNNER_TEMP/ascend-upload.jks"             -storepass "$ANDROID_STORE_PASSWORD"             -keypass "$ANDROID_KEY_PASSWORD"             -sigalg SHA256withRSA             -digestalg SHA-256             "$AAB" "$RESOLVED_KEY_ALIAS"
+          jarsigner \
+            -keystore "$RUNNER_TEMP/ascend-upload.jks" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -keypass "$RESOLVED_KEY_PASSWORD" \
+            -sigalg SHA256withRSA \
+            -digestalg SHA-256 \
+            "$AAB" "$RESOLVED_KEY_ALIAS"
           jarsigner -verify -verbose -certs "$AAB"
 
       - name: Upload Play AAB
