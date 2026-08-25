@@ -6,7 +6,7 @@ on:
   push:
     branches: [ ascend-path-foundation ]
     paths:
-      - 'mobile-app/www/**'
+      - 'mobile-app/**'
       - '.github/workflows/deploy-web-preview.yml'
   workflow_dispatch:
 
@@ -20,7 +20,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+
   deploy:
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,20 +45,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # enablement: true so this action turns Pages on via the API on first
-      # run -- it defaults to false, which 404s ("Get Pages site failed")
-      # against a repo where Pages has never been enabled in Settings.
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-
       - name: Upload web app
         uses: actions/upload-pages-artifact@v3
         with:
           path: mobile-app/www
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
