@@ -54,9 +54,11 @@ jobs:
           test -n "$ANDROID_STORE_PASSWORD" || { echo 'Missing ANDROID_STORE_PASSWORD'; exit 1; }
           test -n "$ANDROID_KEY_PASSWORD" || { echo 'Missing ANDROID_KEY_PASSWORD'; exit 1; }
 
-      - name: Restore upload keystore
+      - name: Restore and validate upload keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           python - <<'PY'
           import os, base64, re, pathlib
@@ -66,16 +68,37 @@ jobs:
           raw = re.sub(r'[^A-Za-z0-9+/=]', '', raw)
           if not raw:
               raise SystemExit('Keystore secret became empty after normalization')
+
+          # Base64 padding only belongs at the end. If clipboard/file text was
+          # appended after the payload, keep the payload through the first
+          # padding run and discard the trailing junk.
+          if '=' in raw:
+              first = raw.index('=')
+              end = first
+              while end < len(raw) and raw[end] == '=':
+                  end += 1
+              raw = raw[:end]
+
+          # Repair omitted terminal padding only when needed.
+          raw += '=' * ((4 - len(raw) % 4) % 4)
+
           try:
               data = base64.b64decode(raw, validate=True)
           except Exception as exc:
-              raise SystemExit(f'Invalid Base64 secret after normalization: {exc}; normalized length={len(raw)}')
+              raise SystemExit(f'Invalid Base64 secret after recovery: {exc}; recovered length={len(raw)}')
+
           out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'ascend-upload.jks'
           out.write_bytes(data)
           if len(data) < 100:
               raise SystemExit('Decoded keystore is unexpectedly small')
-          print(f'Restored keystore bytes: {len(data)}; normalized Base64 length: {len(raw)}')
+          print(f'Restored keystore bytes: {len(data)}; recovered Base64 length: {len(raw)}')
           PY
+
+          keytool -list \
+            -keystore "$RUNNER_TEMP/ascend-upload.jks" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          echo 'Upload keystore validated.'
 
       - name: Build release app bundle
         working-directory: mobile-app/android
