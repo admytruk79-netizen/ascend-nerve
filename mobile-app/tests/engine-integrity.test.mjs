@@ -79,6 +79,11 @@ test('readiness evidence includes life application and maintenance without repla
   const readiness=read('readiness-evidence.js');
   assert.match(readiness,/life_application_entries\+e\.training_in_life_logs/);
   assert.match(readiness,/MAINTENANCE LOGS/);
+  assert.match(readiness,/MINIMUM DURATION/);
+  assert.match(readiness,/CONSISTENT DAYS/);
+  assert.match(readiness,/button\.disabled=!ready/);
+  assert.match(readiness,/Continue Gathering Readiness Evidence/);
+  assert.match(readiness,/Progression still remains a server-side gate/);
   assert.match(readiness,/Ambiguous, not-yet, or no-clear-result observations are valid/);
 });
 
