@@ -25,13 +25,29 @@
     {month:23,title:'Ancestors & Higher Self'},
     {month:24,title:'Final Integration',gate:'PATH REVIEW'}
   ];
-  const capForStage=sortOrder=>sortOrder<=7?Math.max(1,sortOrder):(sortOrder===8?18:24);
+
+  // Stages are readiness milestones, not substitutes for the 24 monthly units.
+  // Stages 1-7 map directly to Foundation months 1-7. Passing Foundation Review
+  // opens month 8; passing Part II opens month 19. Time spent before a gate can
+  // never be used to skip the monthly work after that gate.
+  const rangeForStage=sortOrder=>{
+    const s=Math.max(1,Number(sortOrder)||1);
+    if(s<=7)return{start:s,end:s};
+    if(s===8)return{start:8,end:18};
+    return{start:19,end:24};
+  };
+  const capForStage=sortOrder=>rangeForStage(sortOrder).end;
   const elapsedMonth=(startedAt,now=new Date())=>{
     const started=new Date(startedAt||now);
     if(Number.isNaN(started.getTime()))return 1;
     return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
   };
-  const monthFor=({pathStartedAt,stageSortOrder=1,now=new Date()})=>Math.min(24,capForStage(Number(stageSortOrder)||1),elapsedMonth(pathStartedAt,now));
+  const monthFor=({stageSortOrder=1,stageStartedAt,now=new Date()})=>{
+    const range=rangeForStage(stageSortOrder);
+    if(range.start===range.end)return range.start;
+    return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now)-1);
+  };
+
   let cache=null,cacheAt=0;
   async function current({fresh=false}={}){
     if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
@@ -46,10 +62,15 @@
     const profile=profiles[0]||{};
     const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
     const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
-    cache={month:monthFor({pathStartedAt:profile.path_started_at||active?.started_at,stageSortOrder:stage.sort_order}),stageSortOrder:Number(stage.sort_order)||1,stageTitle:stage.title||'Beginning',signedIn:true};
+    cache={
+      month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at}),
+      stageSortOrder:Number(stage.sort_order)||1,
+      stageTitle:stage.title||'Beginning',
+      signedIn:true
+    };
     cacheAt=Date.now();
     return cache;
   }
   function invalidate(){cache=null;cacheAt=0}
-  window.ASCENDProgression={MONTHS,capForStage,elapsedMonth,monthFor,current,invalidate};
+  window.ASCENDProgression={MONTHS,rangeForStage,capForStage,elapsedMonth,monthFor,current,invalidate};
 })();
