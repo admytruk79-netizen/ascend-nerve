@@ -14,6 +14,11 @@ function progression(){
   return window.ASCENDProgression;
 }
 
+function assertRange(actual,start,end){
+  assert.equal(actual.start,start);
+  assert.equal(actual.end,end);
+}
+
 test('Core months cannot be skipped by time spent before a readiness gate',()=>{
   const p=progression();
   assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-08-01',now:new Date('2026-08-01')}),8);
@@ -24,9 +29,9 @@ test('Core months cannot be skipped by time spent before a readiness gate',()=>{
 
 test('Core stage ranges remain foundation then progressive development',()=>{
   const p=progression();
-  for(let stage=1;stage<=7;stage++)assert.deepEqual(p.rangeForStage(stage),{start:stage,end:stage});
-  assert.deepEqual(p.rangeForStage(8),{start:8,end:18});
-  assert.deepEqual(p.rangeForStage(9),{start:19,end:24});
+  for(let stage=1;stage<=7;stage++)assertRange(p.rangeForStage(stage),stage,stage);
+  assertRange(p.rangeForStage(8),8,18);
+  assertRange(p.rangeForStage(9),19,24);
 });
 
 test('Primary Path separates primary progression from parallel application',()=>{
