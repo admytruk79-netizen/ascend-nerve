@@ -30,6 +30,10 @@ jobs:
         working-directory: mobile-app
         run: npm install --no-audit --no-fund
 
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+
       - name: Create Android shell if needed
         working-directory: mobile-app
         run: |
