@@ -34,6 +34,14 @@
   };
   document.getElementById('library-list')?.addEventListener('click',openLibraryItem);
   document.getElementById('library-recommended')?.addEventListener('click',openLibraryItem);
+  const openLibraryItemFromKeyboard=e=>{
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const card=e.target.closest('.content-card[role="button"]');
+    if(!card||card.getAttribute('aria-disabled')==='true')return;
+    e.preventDefault();openLibraryItem(e);
+  };
+  document.getElementById('library-list')?.addEventListener('keydown',openLibraryItemFromKeyboard);
+  document.getElementById('library-recommended')?.addEventListener('keydown',openLibraryItemFromKeyboard);
 
   // Expose curriculum to the reader without changing the Path engine contract.
   const wait=()=>{

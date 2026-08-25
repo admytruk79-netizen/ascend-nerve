@@ -80,9 +80,22 @@ test('Library loads access rules and offers usable filtering',()=>{
 test('dialogs, navigation and empty Journal submission have safeguards',()=>{
   const html=read('index.html');
   const ux=read('ux-fixes.js');
+  const journal=read('journal-validation.js');
   assert.match(html,/role="dialog" aria-modal="true"/);
   assert.match(ux,/event\.key!=='Tab'/);
   assert.match(ux,/focusable/);
-  assert.match(ux,/journal-form/);
+  assert.match(journal,/REFLECTION_FIELDS/);
+  assert.match(journal,/stopImmediatePropagation/);
   assert.match(ux,/data-menu-screen/);
+});
+
+test('Library cards are keyboard operable and month-locked recommendations are removed',()=>{
+  const app=read('app.js');
+  const experience=read('experience.js');
+  const contextual=read('contextual-library.js');
+  assert.match(app,/setAttribute\('role','button'\)/);
+  assert.match(app,/setAttribute\('tabindex','0'\)/);
+  assert.match(experience,/e\.key!==\'Enter\'&&e\.key!==\' \'/);
+  assert.match(contextual,/card\.closest\('#library-recommended'\)/);
+  assert.match(contextual,/card\.remove\(\)/);
 });

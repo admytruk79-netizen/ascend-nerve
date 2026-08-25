@@ -15,16 +15,6 @@
   if(practiceTitle&&!practiceTitle.textContent.trim())practiceTitle.textContent='Self-Contemplation';
   if(practiceInstructions&&!practiceInstructions.textContent.trim())practiceInstructions.textContent='Sit quietly and observe the movement of thought without suppressing, following, or judging it. Return to simple observation whenever attention wanders.';
 
-  const journal=document.getElementById('journal-form');
-  journal?.addEventListener('submit',event=>{
-    const values=[...new FormData(journal).values()].map(value=>String(value).trim());
-    if(values.some(Boolean))return;
-    event.preventDefault();event.stopImmediatePropagation();
-    const status=document.getElementById('journal-status');
-    if(status)status.textContent='Write at least one observation before saving this reflection.';
-    journal.querySelector('textarea')?.focus();
-  },true);
-
   const overlays=[...document.querySelectorAll('.practice-overlay,.library-overlay')];
   const app=document.getElementById('app'),bottom=document.querySelector('.bottom-nav');
   let lastFocused=null;

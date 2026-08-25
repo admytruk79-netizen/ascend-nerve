@@ -64,9 +64,13 @@
     document.querySelectorAll('#library-list .content-card,#library-recommended .content-card').forEach(card=>{
       const item=c.content.find(x=>x.slug===card.dataset.slug);if(!item)return;
       const needed=minMonth(item),locked=needed>currentMonth;
+      if(locked&&card.closest('#library-recommended')){card.remove();return}
       card.classList.toggle('month-locked',locked);
-      if(locked){card.setAttribute('aria-disabled','true');card.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>Opens in Month ${needed}</span>`}
+      if(locked){card.classList.add('locked');card.setAttribute('aria-disabled','true');card.setAttribute('tabindex','-1');card.removeAttribute('role');card.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>Opens in Month ${needed}</span>`}
+      else{card.classList.remove('locked');card.removeAttribute('aria-disabled');card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`Open ${item.title}`)}
     });
+    const rail=document.getElementById('library-recommended');
+    if(rail&&!rail.querySelector('.content-card'))rail.innerHTML='';
   }
 
   function render(){

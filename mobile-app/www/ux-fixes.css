@@ -11,6 +11,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .library-filter{min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--muted);font:12px Arial,sans-serif;white-space:nowrap}.library-filter.active{border-color:var(--teal);color:var(--text)}
 .library-count{margin:8px 2px 0;color:var(--muted);font:12px Arial,sans-serif}
 .month-gate-label{display:block;margin-top:5px;color:var(--teal);font:11px Arial,sans-serif;letter-spacing:.08em}
+.content-card[role="button"]{cursor:pointer}.content-card[role="button"]:focus-visible{border-color:var(--teal);box-shadow:0 0 0 3px rgba(85,200,189,.16)}
 .menu-overlay{padding-top:calc(env(safe-area-inset-top) + 76px)}.menu-inner{max-width:520px;margin:0 auto}.menu-inner h1{text-align:left;margin-bottom:12px}.menu-links{display:grid;gap:10px;margin:24px 0}.menu-link{width:100%;min-height:52px;padding:0 16px;border:1px solid rgba(214,179,106,.2);border-radius:16px;background:var(--panel);color:var(--text);font:16px Georgia,serif;text-align:left}.menu-link span{float:right;color:var(--teal)}
 .auth-field{display:block!important;padding:0!important;border:0!important}.auth-field>span{display:block;margin:0 0 6px;color:var(--muted);font:12px Arial,sans-serif}.auth-field input{display:block}
 .review-intro{margin:10px 0 14px;text-align:left}.branch-card.is-locked{opacity:.72}.branch-card.is-locked .branch-open{cursor:not-allowed}
