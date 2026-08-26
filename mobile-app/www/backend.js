@@ -6,9 +6,11 @@
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};
+  const redirectTo=()=>`${location.origin}${location.pathname}`;
   async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);return body}
   async function signIn(email,password){const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',body:JSON.stringify({email,password})});persist(body);return body.user}
-  async function signUp(email,password){const body=await jsonFetch(`${BASE}/auth/v1/signup`,{method:'POST',body:JSON.stringify({email,password})});if(body?.access_token)persist(body);return body}
+  async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;const body=await jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})});if(body?.access_token)persist(body);return body}
+  async function resendSignup(email){const url=`${BASE}/auth/v1/resend?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({type:'signup',email})})}
   async function refresh(){if(!session?.refresh_token)return null;try{const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=refresh_token`,{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});persist(body);return body}catch(e){persist(null);return null}}
   async function me(){if(!session?.access_token)return null;try{return await jsonFetch(`${BASE}/auth/v1/user`)}catch{await refresh();return session?.access_token?jsonFetch(`${BASE}/auth/v1/user`):null}}
   function signOut(){persist(null)}
@@ -31,5 +33,5 @@
   async function getMyStudents(teacherId){return rest('path_teacher_relationships',{query:`teacher_id=eq.${teacherId}&status=eq.active&select=student_id,created_at`})}
   async function getSharedJournalEntries(studentIds){if(!studentIds.length)return[];const ids=studentIds.join(',');return rest('path_journal_entries',{query:`user_id=in.(${ids})&share_with_teacher=eq.true&select=*&order=entry_date.desc`})}
   async function submitTeacherReview({teacherId,studentId,stageId,note,recommendation,decision}){const mapped=decision||({ready:'advance',not_yet:'continue',needs_discussion:'pause',acknowledged:'continue'}[recommendation]||'continue');return rest('path_teacher_reviews',{method:'POST',body:{teacher_id:teacherId,student_id:studentId,stage_id:stageId,decision:mapped,guidance:note||''},prefer:'return=representation'})}
-  window.PathBackend={signIn,signUp,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isSignedIn:()=>!!session?.access_token};
+  window.PathBackend={signIn,signUp,resendSignup,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isSignedIn:()=>!!session?.access_token};
 })();
