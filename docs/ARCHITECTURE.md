@@ -118,6 +118,19 @@ Primary navigation:
 
 `Today | Path | Journal | Library | Me`
 
+## Access model
+
+ASCEND Path has no free curriculum tier. Authentication creates an account but
+does not grant access. The client and Supabase RLS both require one of:
+
+- active `premium` access, created only after server-side Google Play purchase
+  verification; or
+- `lifetime` access, created by a one-time tester key or an explicit manual grant.
+
+The `ascend_entitlements` row is authoritative. Developmental gates inside the
+24-month Path remain readiness-based and are independent of purchase status.
+Payment unlocks the school; it never advances a student through the curriculum.
+
 ## Privacy
 
 Journal entries are private by default. Teacher visibility is explicit, not automatic. Account information, spiritual journal data and anonymous product analytics should remain logically separate.

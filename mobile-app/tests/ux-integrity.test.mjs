@@ -113,6 +113,18 @@ test('Lifetime tester access is account-bound and redeemable from Me',()=>{
   assert.match(backend,/crypto\.subtle\.digest\('SHA-256'/);
 });
 
+test('ASCEND Path has no free-access state and gates curriculum behind entitlement',()=>{
+  const html=read('index.html');
+  const app=read('app.js');
+  const backend=read('backend.js');
+  assert.doesNotMatch(app,/Free Access/);
+  assert.match(html,/ASCEND Path requires active paid access/);
+  assert.match(app,/access-required/);
+  assert.match(app,/if\(!hasAccess\).*return/);
+  assert.match(backend,/entitlementIsActive/);
+  assert.doesNotMatch(backend,/PUBLIC_READ_TABLES/);
+});
+
 test('Account entry supports Android Google OAuth with a safe email fallback',()=>{
   const html=read('index.html');
   const app=read('app.js');

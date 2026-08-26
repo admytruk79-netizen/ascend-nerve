@@ -3,7 +3,7 @@
 
 create table if not exists public.ascend_entitlements (
   user_id uuid primary key references auth.users(id) on delete cascade,
-  access_level text not null check (access_level in ('free', 'premium', 'lifetime')),
+  access_level text not null check (access_level in ('premium', 'lifetime')),
   source text not null check (source in ('tester_key', 'google_play', 'manual')),
   source_reference text,
   is_active boolean not null default true,

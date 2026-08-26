@@ -10,16 +10,14 @@
 
   const authGateStyle=document.createElement('style');
   authGateStyle.textContent=`
-    body.auth-required,body.paywall-required{min-height:100vh}
-    body.auth-required #app .topbar,body.paywall-required #app .topbar,
-    body.auth-required #app .screen:not(#me),body.paywall-required #app .screen:not(#me),
+    body.auth-required{min-height:100vh}
+    body.auth-required #app .topbar,
+    body.auth-required #app .screen:not(#me),
     body.auth-required #me> :not(.auth-card),
-    body.paywall-required #me> :not(.paywall-card),
-    body.auth-required .bottom-nav,body.paywall-required .bottom-nav{display:none!important}
-    body.auth-required #me,body.paywall-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}
+    body.auth-required .bottom-nav{display:none!important}
+    body.auth-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}
     body.auth-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}
     body.auth-required #me .auth-card:before{content:'ASCEND PATH';display:block;letter-spacing:.18em;font-size:.78rem;margin-bottom:14px;opacity:.72}
-    body.paywall-required #me .paywall-card{display:block!important;width:min(100%,460px);margin:0 auto}
     .journal-context{margin:-4px 0 20px;opacity:.72;line-height:1.5}
   `;
   document.head.appendChild(authGateStyle);
@@ -27,22 +25,12 @@
   async function syncAuthGate(){
     let confirmedUser=null;
     try{confirmedUser=await PathBackend.me()}catch{}
-    if(!confirmedUser){
-      document.body.classList.remove('paywall-required');
-      document.body.classList.add('auth-required');
-      activateScreen('me');
-      return null;
-    }
-    document.body.classList.remove('auth-required');
-    let entitled=false;
-    try{const entitlement=await PathBackend.getMyEntitlement(confirmedUser.id);entitled=!!entitlement}catch(e){console.error('ASCEND entitlement check failed',e)}
-    document.body.classList.toggle('paywall-required',!entitled);
-    if(!entitled)activateScreen('me');
+    const locked=!confirmedUser;
+    document.body.classList.toggle('auth-required',locked);
+    if(locked)activateScreen('me');
     return confirmedUser;
   }
   syncAuthGate();
-  window.AscendBilling?.init();
-  window.AscendBilling?.onStatusChange(()=>syncAuthGate());
 
   const mirror=document.getElementById('mirror-content');
   if(mirror&&!mirror.textContent.trim())mirror.innerHTML='<p>Sign in and begin journaling to create a grounded reflection from your own observations.</p>';

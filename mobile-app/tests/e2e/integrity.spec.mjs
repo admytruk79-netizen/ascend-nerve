@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 const fixtures={
+  ascend_entitlements:[{access_level:'premium',source:'integrity-test',starts_at:'2026-08-26T00:00:00Z',expires_at:'2099-12-31T23:59:59Z',is_active:true}],
   path_phases:[{id:'phase-1',title:'Core Formation',sort_order:1}],
   path_stages:[
     {id:'stage-1',phase_id:'phase-1',slug:'entry-seven-days',title:'Self-Contemplation at the Beginning of the Path',subtitle:'Beginning',sort_order:1,required_practice_days:7,progression_mode:'readiness',objective:'Observe without forcing interpretation.',is_published:true},
