@@ -88,6 +88,42 @@ document.getElementById('forgot-password')?.addEventListener('click',async()=>{c
 document.getElementById('toggle-password')?.addEventListener('click',event=>{const input=document.getElementById('account-password'),show=input.type==='password';input.type=show?'text':'password';event.currentTarget.textContent=show?'Hide':'Show';event.currentTarget.setAttribute('aria-pressed',String(show))});
 document.getElementById('lifetime-key-form')?.addEventListener('submit',async event=>{event.preventDefault();const input=document.getElementById('lifetime-key'),status=document.getElementById('lifetime-key-status'),button=event.currentTarget.querySelector('button');status.textContent='Checking key…';button.disabled=true;try{const result=await PathBackend.redeemLifetimeKey(input.value);if(result.status==='redeemed'||result.status==='already_redeemed'){status.textContent='Lifetime access is active on this account.';input.value='';await refreshAccess()}else if(result.status==='already_used'){status.textContent='This key has already been used by another account.'}else{status.textContent='That key is not valid. Check every letter and number.'}}catch(err){console.error(err);status.textContent=err.message||'The key could not be checked right now.'}finally{button.disabled=false}});
 document.getElementById('sign-out').addEventListener('click',()=>{PathBackend.signOut();user=null;progressRow=null;markerObservations=[];recentJournalText='';window.__pathProgress=[];window.ASCENDProgression?.invalidate?.();showAccount();renderCounts(localState.practiceDays);document.getElementById('stage-review-card').classList.add('hidden');document.getElementById('mirror-content').innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';loadRemote()});
+document.getElementById('paywall-sign-out')?.addEventListener('click',()=>document.getElementById('sign-out').click());
+
+function refreshPaywallPrices(){['monthly','annual','lifetime'].forEach(tier=>{const el=document.getElementById(`price-${tier}`),price=window.AscendBilling?.getPriceString(tier);if(el&&price)el.textContent=price})}
+window.AscendBilling?.onStatusChange(refreshPaywallPrices);
+setTimeout(refreshPaywallPrices,1500);
+
+document.querySelectorAll('.paywall-buy').forEach(button=>button.addEventListener('click',async()=>{
+  const status=document.getElementById('paywall-status');
+  button.disabled=true;status.textContent='Opening Google Play…';
+  try{
+    await window.AscendBilling.purchase(button.dataset.tier);
+    status.textContent='Verifying your purchase…';
+  }catch(err){status.textContent=err.message||'Purchase could not be started.'}
+  finally{button.disabled=false}
+}));
+
+document.getElementById('lifetime-key-form-paywall')?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const input=document.getElementById('lifetime-key-paywall'),status=document.getElementById('paywall-status'),button=event.currentTarget.querySelector('button');
+  status.textContent='Checking key…';button.disabled=true;
+  try{
+    const result=await PathBackend.redeemLifetimeKey(input.value);
+    if(result.status==='redeemed'||result.status==='already_redeemed'){status.textContent='Lifetime access is active on this account.';input.value='';await window.ASCENDUX?.syncAuthGate()}
+    else if(result.status==='already_used'){status.textContent='This key has already been used by another account.'}
+    else{status.textContent='That key is not valid. Check every letter and number.'}
+  }catch(err){status.textContent=err.message||'The key could not be checked right now.'}
+  finally{button.disabled=false}
+});
+
+document.getElementById('paywall-restore')?.addEventListener('click',async event=>{
+  const status=document.getElementById('paywall-status'),button=event.currentTarget;
+  button.disabled=true;status.textContent='Restoring purchases…';
+  try{await window.AscendBilling.restore();status.textContent='Restore complete.';await window.ASCENDUX?.syncAuthGate()}
+  catch(err){status.textContent=err.message||'Nothing to restore on this account.'}
+  finally{button.disabled=false}
+});
 
 PathBackend.listenForOAuthCallback(error=>{if(error){authStatus.textContent=error.message||'Google sign-in did not complete.';document.getElementById('google-sign-in').disabled=false;return}location.reload()});
 if(!PathBackend.isSignedIn()){document.getElementById('library-list').innerHTML='<div class="empty-state"><h2>Your Library is ready</h2><p>Sign in to load all teachings, practices, readings and references available for your current stage.</p><button class="secondary" type="button" data-go-signin>Sign In</button></div>';document.getElementById('mirror-content').innerHTML='<p>Sign in and begin journaling to create a grounded reflection from your own observations.</p>'}
