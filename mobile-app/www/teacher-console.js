@@ -6,9 +6,10 @@
     if(!PathBackend.isSignedIn()){host.innerHTML='';return}
     try{
       const user=await PathBackend.me();if(!user)return;
-      const students=await PathBackend.rest('path_teacher_relationships',{query:`teacher_id=eq.${user.id}&status=eq.active&select=student_id,created_at`});
-      if(students.length)await renderTeacherView(host,user.id,students);
-      else await renderStudentView(host,user.id);
+      if(await PathBackend.isTeacher(user.id)){
+        const students=await PathBackend.rest('path_teacher_relationships',{query:`teacher_id=eq.${user.id}&status=eq.active&select=student_id,created_at`});
+        await renderTeacherView(host,user.id,students);
+      }else await renderStudentView(host,user.id);
     }catch(e){console.error('Teacher console load failed',e);host.innerHTML=''}
   }
 
@@ -25,8 +26,20 @@
     const studentIds=students.map(s=>s.student_id);
     const ids=studentIds.join(',');
     const entries=studentIds.length?await PathBackend.rest('path_journal_entries',{query:`user_id=in.(${ids})&share_with_teacher=eq.true&select=*&order=entry_date.desc`}):[];
-    host.innerHTML=`<article class="rhythm-card"><h2>Teacher Console</h2><p class="quiet-note">${studentIds.length} student${studentIds.length===1?'':'s'} linked · ${entries.length} shared entr${entries.length===1?'y':'ies'} available for context.</p>${entries.map(e=>`<div class="teacher-entry" data-student="${e.user_id}" data-stage="${e.stage_id||''}"><small>${e.entry_date} · Student ${e.user_id.slice(0,8)}</small><p>${esc(e.observation||e.inner_state||e.life_application||e.interpretation||e.unresolved||'')}</p><textarea class="teacher-note" placeholder="Stage-review guidance"></textarea><div class="teacher-actions"><button class="secondary teacher-decision" data-decision="advance" type="button">Advance</button><button class="secondary teacher-decision" data-decision="continue" type="button">Continue</button><button class="secondary teacher-decision" data-decision="pause" type="button">Pause</button></div><p class="quiet-note teacher-status"></p></div>`).join('')||'<p class="quiet-note">Nothing has been explicitly shared yet.</p>'}</article>`;
+    host.innerHTML=`<article class="rhythm-card"><h2>Teacher Console</h2><p class="quiet-note">${studentIds.length} student${studentIds.length===1?'':'s'} linked · ${entries.length} shared entr${entries.length===1?'y':'ies'} available for context.</p>${entries.map(e=>`<div class="teacher-entry" data-student="${e.user_id}" data-stage="${e.stage_id||''}"><small>${e.entry_date} · Student ${e.user_id.slice(0,8)}</small><p>${esc(e.observation||e.inner_state||e.life_application||e.interpretation||e.unresolved||'')}</p><textarea class="teacher-note" placeholder="Stage-review guidance"></textarea><div class="teacher-actions"><button class="secondary teacher-decision" data-decision="advance" type="button">Advance</button><button class="secondary teacher-decision" data-decision="continue" type="button">Continue</button><button class="secondary teacher-decision" data-decision="pause" type="button">Pause</button></div><p class="quiet-note teacher-status"></p></div>`).join('')||'<p class="quiet-note">Nothing has been explicitly shared yet.</p>'}<div class="teacher-add-student"><label>Add a student by email<input type="email" id="teacher-add-email" placeholder="student@example.com"/></label><button class="secondary" id="teacher-add-submit" type="button">Add Student</button><p class="quiet-note" id="teacher-add-status"></p></div></article>`;
     host.querySelectorAll('.teacher-decision').forEach(btn=>btn.addEventListener('click',()=>submitReview(teacherId,btn)));
+    host.querySelector('#teacher-add-submit').addEventListener('click',()=>addStudent(host));
+  }
+
+  async function addStudent(host){
+    const input=host.querySelector('#teacher-add-email'),status=host.querySelector('#teacher-add-status'),email=input.value.trim();
+    if(!email){status.textContent='Enter an email first.';return}
+    status.textContent='Adding…';
+    try{
+      const result=await PathBackend.addStudent(email);
+      if(result?.linked){status.textContent='Student linked.';input.value='';await load()}
+      else status.textContent=result?.reason==='no_account_found'?'No ASCEND account with that email yet.':result?.reason==='cannot_link_self'?'You cannot link yourself.':'Could not link that student.';
+    }catch(e){console.error(e);status.textContent=e.message||'Could not link that student.'}
   }
 
   async function submitReview(teacherId,btn){
