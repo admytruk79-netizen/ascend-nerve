@@ -47,5 +47,43 @@
   document.getElementById('menu-about')?.addEventListener('click',()=>{menu?.classList.add('hidden');about?.classList.remove('hidden')});
 
   document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.querySelector('#auth-form input[name="email"]')?.focus(),250)});
+
+  // Account creation is intentionally a separate state from sign-in.
+  // After signup, never leave the entered password sitting in the login form.
+  const authForm=document.getElementById('auth-form');
+  const createAccount=document.getElementById('create-account');
+  const authStatus=document.getElementById('auth-status');
+  if(authForm&&createAccount&&authStatus){
+    createAccount.addEventListener('click',async event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const data=new FormData(authForm);
+      const email=String(data.get('email')||'').trim();
+      const password=String(data.get('password')||'');
+      if(!email||!password){authStatus.textContent='Enter an email and password first.';return}
+      if(password.length<6){authStatus.textContent='Password must be at least 6 characters.';return}
+      createAccount.disabled=true;
+      authStatus.textContent='Creating account…';
+      try{
+        const result=await PathBackend.signUp(email,password);
+        authForm.reset();
+        const passwordInput=authForm.querySelector('input[name="password"]');
+        if(passwordInput)passwordInput.value='';
+        if(result?.access_token){
+          authStatus.textContent='Account created. Opening your ASCEND Path…';
+          setTimeout(()=>location.reload(),250);
+          return;
+        }
+        authStatus.innerHTML=`<strong>Account created.</strong><br>We sent a confirmation email to ${email}. Confirm it, then return here and sign in.`;
+        const emailInput=authForm.querySelector('input[name="email"]');
+        if(emailInput)emailInput.value='';
+      }catch(err){
+        authStatus.textContent=err?.message||'Could not create the account.';
+      }finally{
+        createAccount.disabled=false;
+      }
+    },true);
+  }
+
   window.ASCENDUX={activateScreen,syncOverlay};
 })();
