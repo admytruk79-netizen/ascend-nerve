@@ -48,15 +48,41 @@
 
   document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.querySelector('#auth-form input[name="email"]')?.focus(),250)});
 
-  // Account creation is intentionally a separate state from sign-in.
-  // After signup, never leave the entered password sitting in the login form.
+  // Replace the original create-account button so the old app.js listener cannot fire too.
   const authForm=document.getElementById('auth-form');
-  const createAccount=document.getElementById('create-account');
+  const originalCreate=document.getElementById('create-account');
   const authStatus=document.getElementById('auth-status');
-  if(authForm&&createAccount&&authStatus){
+  if(authForm&&originalCreate&&authStatus){
+    const createAccount=originalCreate.cloneNode(true);
+    originalCreate.replaceWith(createAccount);
+    let pendingEmail='';
+
+    const showSignIn=()=>{
+      authForm.classList.remove('hidden');
+      authStatus.textContent='';
+      pendingEmail='';
+      const emailInput=authForm.querySelector('input[name="email"]');
+      if(emailInput)emailInput.focus();
+    };
+
+    const showConfirmation=(email)=>{
+      pendingEmail=email;
+      authForm.reset();
+      authForm.classList.add('hidden');
+      authStatus.innerHTML=`<div class="auth-confirmation"><strong>Check your email</strong><p>We sent a confirmation link to ${escapeForAuth(email)}.</p><p>Open that link, then come back to ASCEND and sign in.</p><button class="secondary" type="button" id="resend-confirmation">Resend confirmation email</button><button class="secondary" type="button" id="back-to-signin">Back to sign in</button><p id="resend-status" class="quiet-note" role="status" aria-live="polite"></p></div>`;
+      document.getElementById('back-to-signin')?.addEventListener('click',showSignIn);
+      document.getElementById('resend-confirmation')?.addEventListener('click',async()=>{
+        const button=document.getElementById('resend-confirmation');
+        const status=document.getElementById('resend-status');
+        button.disabled=true;status.textContent='Sending…';
+        try{await PathBackend.resendSignup(pendingEmail);status.textContent='Confirmation email sent again. Check Inbox and Spam/Junk.'}
+        catch(err){status.textContent=err?.message||'Could not resend the confirmation email.'}
+        finally{button.disabled=false}
+      });
+    };
+
     createAccount.addEventListener('click',async event=>{
       event.preventDefault();
-      event.stopImmediatePropagation();
       const data=new FormData(authForm);
       const email=String(data.get('email')||'').trim();
       const password=String(data.get('password')||'');
@@ -66,24 +92,13 @@
       authStatus.textContent='Creating account…';
       try{
         const result=await PathBackend.signUp(email,password);
-        authForm.reset();
-        const passwordInput=authForm.querySelector('input[name="password"]');
-        if(passwordInput)passwordInput.value='';
-        if(result?.access_token){
-          authStatus.textContent='Account created. Opening your ASCEND Path…';
-          setTimeout(()=>location.reload(),250);
-          return;
-        }
-        authStatus.innerHTML=`<strong>Account created.</strong><br>We sent a confirmation email to ${email}. Confirm it, then return here and sign in.`;
-        const emailInput=authForm.querySelector('input[name="email"]');
-        if(emailInput)emailInput.value='';
-      }catch(err){
-        authStatus.textContent=err?.message||'Could not create the account.';
-      }finally{
-        createAccount.disabled=false;
-      }
-    },true);
+        if(result?.access_token){authForm.reset();authStatus.textContent='Account created. Opening your ASCEND Path…';setTimeout(()=>location.reload(),250);return}
+        showConfirmation(email);
+      }catch(err){authStatus.textContent=err?.message||'Could not create the account.'}
+      finally{createAccount.disabled=false}
+    });
   }
 
+  function escapeForAuth(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
   window.ASCENDUX={activateScreen,syncOverlay};
 })();
