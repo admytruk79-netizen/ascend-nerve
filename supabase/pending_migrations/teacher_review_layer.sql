@@ -62,9 +62,9 @@ CREATE POLICY "teacher may view shared entries" ON path_journal_entries
     )
   );
 
--- NOTE: a live "student may request teacher relationship" INSERT policy on
--- path_teacher_relationships (student_id = auth.uid()) predates the
--- "provisioned explicitly" decision above and was not dropped when this file
--- was rewritten -- self-request is still technically possible via the API
--- even though no client UI offers it. Left as-is pending an explicit call on
--- whether to remove it; flagging rather than dropping unilaterally.
+-- A leftover "student may request teacher relationship" INSERT policy on
+-- path_teacher_relationships predated the "provisioned explicitly" decision
+-- above and let a student self-link via the API with no client UI ever
+-- offering it. Dropped, applied live -- relationships now have SELECT only
+-- for participants; creating one requires service_role (i.e. done by hand).
+DROP POLICY IF EXISTS "student may request teacher relationship" ON path_teacher_relationships;
