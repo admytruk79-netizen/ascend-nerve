@@ -44,7 +44,7 @@ async function boot(page){
 
 test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
   await boot(page);
-  await page.getByRole('button',{name:'Journal'}).click();
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
   await page.getByRole('button',{name:'Save Reflection'}).click();
   await expect(page.locator('#journal-status')).toContainText('at least one observation');
   const count=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
