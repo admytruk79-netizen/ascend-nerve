@@ -42,7 +42,7 @@ async function boot(page){
   await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
 }
 
-test('empty Journal never reaches local persistence',async({page})=>{
+test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
   await boot(page);
   await page.getByRole('button',{name:'Journal'}).click();
   await page.getByRole('button',{name:'Save Reflection'}).click();
@@ -51,10 +51,15 @@ test('empty Journal never reaches local persistence',async({page})=>{
   expect(count).toBe(0);
 
   await page.locator('textarea[name="life_application"]').fill('Paused before responding.');
+  const requestPromise=page.waitForRequest(request=>request.url().includes('/rest/v1/path_journal_entries')&&request.method()==='POST');
   await page.getByRole('button',{name:'Save Reflection'}).click();
-  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries);
-  expect(saved).toHaveLength(1);
-  expect(saved[0].life_application).toBe('Paused before responding.');
+  const request=await requestPromise;
+  const payload=request.postDataJSON();
+  expect(payload.life_application).toBe('Paused before responding.');
+  expect(payload.user_id).toBe(testUser.id);
+  await expect(page.locator('#journal-status')).toContainText('saved privately to your ASCEND Path journal');
+  const localEntries=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries);
+  expect(localEntries).toHaveLength(0);
 });
 
 test('Library recommendations never surface locked future material and cards work from keyboard',async({page})=>{
