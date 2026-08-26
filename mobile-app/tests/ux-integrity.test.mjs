@@ -89,6 +89,30 @@ test('dialogs, navigation and empty Journal submission have safeguards',()=>{
   assert.match(ux,/data-menu-screen/);
 });
 
+test('Journal is unmistakable from Today and remains in primary navigation',()=>{
+  const html=read('index.html');
+  const ux=read('ux-fixes.js');
+  assert.match(html,/id="today-reflect" data-go-journal/);
+  assert.match(html,/>Open Journal</);
+  assert.match(html,/data-screen="journal">Journal</);
+  assert.match(ux,/closest\('\[data-go-journal\]'\)/);
+  assert.match(ux,/textarea\[name="observation"\]/);
+  assert.match(ux,/Practice complete\. Note anything you want to remember\./);
+});
+
+test('Lifetime tester access is account-bound and redeemable from Me',()=>{
+  const html=read('index.html');
+  const app=read('app.js');
+  const backend=read('backend.js');
+  assert.match(html,/id="lifetime-key-form"/);
+  assert.match(html,/Activate Lifetime Access/);
+  assert.match(app,/redeemLifetimeKey/);
+  assert.match(app,/refreshAccess/);
+  assert.match(backend,/redeem_ascend_lifetime_key/);
+  assert.match(backend,/ascend_entitlements/);
+  assert.match(backend,/crypto\.subtle\.digest\('SHA-256'/);
+});
+
 test('Library cards are keyboard operable and month-locked recommendations are removed',()=>{
   const app=read('app.js');
   const experience=read('experience.js');

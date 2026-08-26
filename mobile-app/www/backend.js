@@ -2,6 +2,7 @@
   const BASE='https://nqionqvuudamqkfbaopk.supabase.co';
   const KEY='sb_publishable_Z8KPlgoyxv4RC0yaZpuLSQ_5SBzrxbR';
   const STORAGE='ascendPathSession';
+  const RECOVERY='ascendPasswordRecovery';
   const PUBLIC_READ_TABLES=new Set(['path_phases','path_stages','path_practices','path_stage_practices','path_attainment_markers','path_content_items','path_content_unlock_rules','path_training_assignments','training_branches','training_branch_modules']);
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
@@ -23,20 +24,26 @@
           expires_at:Math.floor(Date.now()/1000)+Number(params.get('expires_in')||3600),
           token_type:params.get('token_type')||'bearer'
         });
+        if(params.get('type')==='recovery')sessionStorage.setItem(RECOVERY,'true');
         history.replaceState(null,'',location.pathname+location.search);
       }
     }
   }catch(e){console.error('ASCEND auth callback failed',e)}
 
-  async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);return body}
+  async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok){const error=new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);error.status=r.status;error.code=body?.code||body?.error_code||'';throw error}return body}
   async function signIn(email,password){const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',body:JSON.stringify({email,password})});persist(body);return body.user}
-  async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;const body=await jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})});if(body?.access_token)persist(body);return body}
+  async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})})}
   async function resendSignup(email){const url=`${BASE}/auth/v1/resend?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({type:'signup',email})})}
+  async function requestPasswordReset(email){const url=`${BASE}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email})})}
+  async function updatePassword(password){const body=await jsonFetch(`${BASE}/auth/v1/user`,{method:'PUT',body:JSON.stringify({password})});sessionStorage.removeItem(RECOVERY);return body}
   async function refresh(){if(!session?.refresh_token)return null;try{const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=refresh_token`,{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});persist(body);return body}catch(e){persist(null);return null}}
   async function me(){if(!session?.access_token)return null;try{return await jsonFetch(`${BASE}/auth/v1/user`)}catch{await refresh();return session?.access_token?jsonFetch(`${BASE}/auth/v1/user`):null}}
-  function signOut(){persist(null)}
+  function signOut(){persist(null);sessionStorage.removeItem(RECOVERY)}
   async function rest(table,{method='GET',query='',body,prefer}={}){const publicRead=method==='GET'&&PUBLIC_READ_TABLES.has(table);if(!session?.access_token&&!publicRead)throw new Error('Sign in required');const h={};if(prefer)h.Prefer=prefer;return jsonFetch(`${BASE}/rest/v1/${table}${query?`?${query}`:''}`,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)})}
   async function rpc(name,body){if(!session?.access_token)throw new Error('Sign in required');return jsonFetch(`${BASE}/rest/v1/rpc/${name}`,{method:'POST',body:JSON.stringify(body)})}
+  async function sha256(value){const bytes=new TextEncoder().encode(value);const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('')}
+  async function redeemLifetimeKey(rawKey){const normalized=String(rawKey||'').trim().toUpperCase();if(!/^ASCEND(?:-[A-F0-9]{4}){4}$/.test(normalized))return{status:'invalid'};const rows=await rpc('redeem_ascend_lifetime_key',{p_hash:await sha256(normalized)});return rows?.[0]||{status:'invalid'}}
+  async function getMyEntitlement(userId){const rows=await rest('ascend_entitlements',{query:`user_id=eq.${userId}&is_active=eq.true&select=access_level,source,starts_at,expires_at&limit=1`});return rows[0]||null}
   async function loadCurriculum(){const [phases,stages,practices,links,markers,content,contentRules]=await Promise.all([rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),rest('path_stages',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),rest('path_practices',{query:'select=*&is_published=eq.true'}),rest('path_stage_practices',{query:'select=*'}),rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),rest('path_content_unlock_rules',{query:'select=*'})]);return{phases,stages,practices,links,markers,content,contentRules}}
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}
@@ -54,5 +61,5 @@
   async function getMyStudents(teacherId){return rest('path_teacher_relationships',{query:`teacher_id=eq.${teacherId}&status=eq.active&select=student_id,created_at`})}
   async function getSharedJournalEntries(studentIds){if(!studentIds.length)return[];const ids=studentIds.join(',');return rest('path_journal_entries',{query:`user_id=in.(${ids})&share_with_teacher=eq.true&select=*&order=entry_date.desc`})}
   async function submitTeacherReview({teacherId,studentId,stageId,note,recommendation,decision}){const mapped=decision||({ready:'advance',not_yet:'continue',needs_discussion:'pause',acknowledged:'continue'}[recommendation]||'continue');return rest('path_teacher_reviews',{method:'POST',body:{teacher_id:teacherId,student_id:studentId,stage_id:stageId,decision:mapped,guidance:note||''},prefer:'return=representation'})}
-  window.PathBackend={signIn,signUp,resendSignup,signOut,me,refresh,rest,rpc,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isSignedIn:()=>!!session?.access_token};
+  window.PathBackend={signIn,signUp,resendSignup,requestPasswordReset,updatePassword,signOut,me,refresh,rest,rpc,redeemLifetimeKey,getMyEntitlement,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isSignedIn:()=>!!session?.access_token,isPasswordRecovery:()=>sessionStorage.getItem(RECOVERY)==='true'};
 })();

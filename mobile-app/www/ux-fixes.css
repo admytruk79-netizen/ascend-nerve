@@ -1,5 +1,10 @@
 .screen.motion-enter:not(.active){display:none!important}
 .screen.active.motion-enter{display:block;animation:ascendScreenIn .28s cubic-bezier(.2,.8,.2,1) both}
+.today-reflect{margin-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left}
+.today-reflect span{display:flex;flex-direction:column;gap:3px}
+.today-reflect strong{font-size:.98rem;font-weight:600}
+.today-reflect small{font-size:.76rem;opacity:.72;letter-spacing:.02em}
+.today-reflect .reflect-arrow{font-size:1.15rem;opacity:.8}
 .icon-button,.overlay-close{min-width:44px;min-height:44px;display:grid;place-items:center;border-radius:50%}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
@@ -19,3 +24,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .practice-context{max-width:430px}.practice-overlay h1{margin-bottom:10px}.practice-overlay #overlay-practice-instructions{font-size:15px}
 .sync-state{font-size:11px}.bottom-nav button{font-size:12px}.marker-type,.about-overlay section small,.about-overlay .about-footer small{font-size:11px}.today-next-row small,.today-next-row em,.ascend-dashboard-head .kicker,.today-path-line strong,.today-path-line em{font-size:11px!important}.today-path-line span{font-size:12px!important}.path-zone span{font-size:12px!important}.month-gate,.month-heading{font-size:11px!important}
 @media(max-width:380px){.library-filter{padding:0 11px}.menu-link{min-height:48px}}
+.access-panel{margin:18px 0;padding:15px;border:1px solid rgba(214,179,106,.2);border-radius:16px;background:rgba(255,255,255,.018)}
+.access-state{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;font:10px Arial,sans-serif;letter-spacing:.14em;color:var(--muted)}
+.access-state strong{color:var(--ivory);font:15px Georgia,serif;letter-spacing:0}.access-state strong.lifetime{color:var(--gold2)}
+#lifetime-key-form{display:grid;gap:10px}#lifetime-key{text-transform:uppercase;letter-spacing:.06em}#lifetime-key-form .secondary{margin-top:0}
