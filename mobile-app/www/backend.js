@@ -7,6 +7,27 @@
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};
   const redirectTo=()=>`${location.origin}${location.pathname}`;
+
+  // Supabase email confirmation returns access/refresh tokens in the URL hash.
+  // Persist them immediately, then clean the URL so a confirmed account can enter the app.
+  try{
+    if(location.hash){
+      const params=new URLSearchParams(location.hash.slice(1));
+      const access_token=params.get('access_token');
+      const refresh_token=params.get('refresh_token');
+      if(access_token&&refresh_token){
+        persist({
+          access_token,
+          refresh_token,
+          expires_in:Number(params.get('expires_in')||3600),
+          expires_at:Math.floor(Date.now()/1000)+Number(params.get('expires_in')||3600),
+          token_type:params.get('token_type')||'bearer'
+        });
+        history.replaceState(null,'',location.pathname+location.search);
+      }
+    }
+  }catch(e){console.error('ASCEND auth callback failed',e)}
+
   async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);return body}
   async function signIn(email,password){const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',body:JSON.stringify({email,password})});persist(body);return body.user}
   async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;const body=await jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})});if(body?.access_token)persist(body);return body}
