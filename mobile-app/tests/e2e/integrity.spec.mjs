@@ -17,7 +17,20 @@ const fixtures={
   path_training_assignments:[],training_branches:[],training_branch_modules:[]
 };
 
+const testUser={id:'00000000-0000-0000-0000-000000000001',email:'integrity@ascend.test',email_confirmed_at:'2026-08-26T00:00:00Z'};
+
 async function boot(page){
+  await page.addInitScript(()=>{
+    localStorage.setItem('ascendPathSession',JSON.stringify({
+      access_token:'test-access-token',
+      refresh_token:'test-refresh-token',
+      expires_in:3600,
+      token_type:'bearer'
+    }));
+  });
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',async route=>{
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)});
+  });
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',async route=>{
     const url=new URL(route.request().url());
     const table=url.pathname.split('/').pop();
@@ -25,6 +38,7 @@ async function boot(page){
   });
   await page.goto('/');
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
 }
 
