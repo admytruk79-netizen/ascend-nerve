@@ -113,6 +113,21 @@ test('Lifetime tester access is account-bound and redeemable from Me',()=>{
   assert.match(backend,/crypto\.subtle\.digest\('SHA-256'/);
 });
 
+test('Account entry supports Android Google OAuth with a safe email fallback',()=>{
+  const html=read('index.html');
+  const app=read('app.js');
+  const backend=read('backend.js');
+  assert.match(html,/id="google-sign-in">Continue with Google/);
+  assert.match(html,/type="password"/);
+  assert.match(html,/id="toggle-password"/);
+  assert.match(html,/id="create-account"/);
+  assert.match(app,/signInWithGoogle/);
+  assert.match(backend,/provider=google/);
+  assert.match(backend,/com\.ascend\.path:\/\/auth-callback/);
+  assert.match(backend,/appUrlOpen/);
+  assert.match(backend,/grant_type=password/);
+});
+
 test('Library cards are keyboard operable and month-locked recommendations are removed',()=>{
   const app=read('app.js');
   const experience=read('experience.js');

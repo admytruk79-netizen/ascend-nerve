@@ -70,7 +70,7 @@
   menu?.querySelectorAll('[data-menu-screen]').forEach(button=>button.addEventListener('click',()=>{menu.classList.add('hidden');activateScreen(button.dataset.menuScreen)}));
   document.getElementById('menu-about')?.addEventListener('click',()=>{menu?.classList.add('hidden');about?.classList.remove('hidden')});
 
-  document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.querySelector('#auth-form input[name="email"]')?.focus(),250)});
+  document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),250)});
 
   // Journal is a first-class part of Today, not a destination users must remember.
   document.addEventListener('click',event=>{
@@ -109,66 +109,7 @@
     },700);
   });
 
-  // Replace the original create-account button so the old app.js listener cannot fire too.
-  const authForm=document.getElementById('auth-form');
-  const originalCreate=document.getElementById('create-account');
-  const authStatus=document.getElementById('auth-status');
-  if(authForm&&originalCreate&&authStatus){
-    const createAccount=originalCreate.cloneNode(true);
-    originalCreate.replaceWith(createAccount);
-    let pendingEmail='';
-
-    const showSignIn=()=>{
-      authForm.classList.remove('hidden');
-      authStatus.textContent='';
-      pendingEmail='';
-      const emailInput=authForm.querySelector('input[name="email"]');
-      if(emailInput)emailInput.focus();
-    };
-
-    const showConfirmation=(email)=>{
-      pendingEmail=email;
-      authForm.reset();
-      authForm.classList.add('hidden');
-      authStatus.innerHTML=`<div class="auth-confirmation"><strong>Check your email</strong><p>We sent a confirmation link to ${escapeForAuth(email)}.</p><p>You cannot enter ASCEND until that email address is confirmed.</p><button class="secondary" type="button" id="resend-confirmation">Resend confirmation email</button><button class="secondary" type="button" id="back-to-signin">Back to sign in</button><p id="resend-status" class="quiet-note" role="status" aria-live="polite"></p></div>`;
-      document.getElementById('back-to-signin')?.addEventListener('click',showSignIn);
-      document.getElementById('resend-confirmation')?.addEventListener('click',async()=>{
-        const button=document.getElementById('resend-confirmation');
-        const status=document.getElementById('resend-status');
-        button.disabled=true;status.textContent='Sending…';
-        try{await PathBackend.resendSignup(pendingEmail);status.textContent='Confirmation email sent again. Check Inbox and Spam/Junk.'}
-        catch(err){status.textContent=err?.message||'Could not resend the confirmation email.'}
-        finally{button.disabled=false}
-      });
-    };
-
-    createAccount.addEventListener('click',async event=>{
-      event.preventDefault();
-      const data=new FormData(authForm);
-      const email=String(data.get('email')||'').trim();
-      const password=String(data.get('password')||'');
-      if(!email||!password){authStatus.textContent='Enter an email and password first.';return}
-      if(password.length<6){authStatus.textContent='Password must be at least 6 characters.';return}
-      createAccount.disabled=true;
-      authStatus.textContent='Creating account…';
-      try{
-        const result=await PathBackend.signUp(email,password);
-        if(result?.access_token){
-          // Confirmation is disabled only if Supabase explicitly issued a session.
-          await syncAuthGate();
-          location.reload();
-          return;
-        }
-        showConfirmation(email);
-      }catch(err){authStatus.textContent=err?.message||'Could not create the account.'}
-      finally{createAccount.disabled=false}
-    });
-  }
-
-  const signInForm=document.getElementById('auth-form');
-  signInForm?.addEventListener('submit',()=>setTimeout(syncAuthGate,400));
+  document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
-
-  function escapeForAuth(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
   window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate};
 })();

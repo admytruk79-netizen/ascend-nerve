@@ -41,6 +41,7 @@ jobs:
             npx cap add android
           fi
           npx cap sync android
+          node scripts/configure-android-oauth.mjs
 
       - name: Verify Play signing secrets
         env:

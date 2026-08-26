@@ -9,7 +9,9 @@
     "open:android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/app": "7.1.2",
     "@capacitor/android": "^7.4.3",
+    "@capacitor/browser": "7.0.5",
     "@capacitor/core": "^7.4.3"
   },
   "devDependencies": {

@@ -3,39 +3,63 @@
   const KEY='sb_publishable_Z8KPlgoyxv4RC0yaZpuLSQ_5SBzrxbR';
   const STORAGE='ascendPathSession';
   const RECOVERY='ascendPasswordRecovery';
+  const NATIVE_REDIRECT='com.ascend.path://auth-callback';
   const PUBLIC_READ_TABLES=new Set(['path_phases','path_stages','path_practices','path_stage_practices','path_attainment_markers','path_content_items','path_content_unlock_rules','path_training_assignments','training_branches','training_branch_modules']);
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};
   const redirectTo=()=>`${location.origin}${location.pathname}`;
 
-  // Supabase email confirmation returns access/refresh tokens in the URL hash.
-  // Persist them immediately, then clean the URL so a confirmed account can enter the app.
-  try{
-    if(location.hash){
-      const params=new URLSearchParams(location.hash.slice(1));
-      const access_token=params.get('access_token');
-      const refresh_token=params.get('refresh_token');
-      if(access_token&&refresh_token){
-        persist({
-          access_token,
-          refresh_token,
-          expires_in:Number(params.get('expires_in')||3600),
-          expires_at:Math.floor(Date.now()/1000)+Number(params.get('expires_in')||3600),
-          token_type:params.get('token_type')||'bearer'
-        });
-        if(params.get('type')==='recovery')sessionStorage.setItem(RECOVERY,'true');
-        history.replaceState(null,'',location.pathname+location.search);
-      }
-    }
-  }catch(e){console.error('ASCEND auth callback failed',e)}
+  function completeOAuth(url){
+    try{
+      const parsed=new URL(url,location.href);
+      const hash=new URLSearchParams(parsed.hash.slice(1));
+      const query=parsed.searchParams;
+      const error=hash.get('error_description')||query.get('error_description')||hash.get('error')||query.get('error');
+      if(error)throw new Error(error);
+      const access_token=hash.get('access_token');
+      const refresh_token=hash.get('refresh_token');
+      if(!access_token||!refresh_token)return false;
+      const expires_in=Number(hash.get('expires_in')||3600);
+      persist({access_token,refresh_token,expires_in,expires_at:Math.floor(Date.now()/1000)+expires_in,token_type:hash.get('token_type')||'bearer'});
+      if((hash.get('type')||query.get('type'))==='recovery')sessionStorage.setItem(RECOVERY,'true');
+      if(parsed.href.startsWith(location.origin))history.replaceState(null,'',location.pathname);
+      return true;
+    }catch(error){console.error('ASCEND OAuth callback failed',error);throw error}
+  }
+
+  try{if(location.hash)completeOAuth(location.href)}catch{}
 
   async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok){const error=new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);error.status=r.status;error.code=body?.code||body?.error_code||'';throw error}return body}
+  const isNative=()=>!!window.Capacitor?.isNativePlatform?.();
+  async function signInWithGoogle(){
+    const redirect=isNative()?NATIVE_REDIRECT:redirectTo();
+    const url=`${BASE}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}`;
+    if(!isNative()){location.assign(url);return}
+    const Browser=window.Capacitor?.Plugins?.Browser;
+    if(!Browser)throw new Error('Google sign-in is unavailable in this build.');
+    await Browser.open({url,toolbarColor:'#081521'});
+  }
   async function signIn(email,password){const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',body:JSON.stringify({email,password})});persist(body);return body.user}
   async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})})}
   async function resendSignup(email){const url=`${BASE}/auth/v1/resend?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({type:'signup',email})})}
   async function requestPasswordReset(email){const url=`${BASE}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email})})}
   async function updatePassword(password){const body=await jsonFetch(`${BASE}/auth/v1/user`,{method:'PUT',body:JSON.stringify({password})});sessionStorage.removeItem(RECOVERY);return body}
+  function listenForOAuthCallback(onComplete){
+    if(!isNative())return;
+    const App=window.Capacitor?.Plugins?.App;
+    const Browser=window.Capacitor?.Plugins?.Browser;
+    if(!App)return;
+    const consume=async(url)=>{
+      if(!url?.startsWith(NATIVE_REDIRECT))return;
+      const completed=completeOAuth(url);
+      if(!completed)return;
+      try{await Browser?.close?.()}catch{}
+      onComplete?.();
+    };
+    App.addListener('appUrlOpen',event=>consume(event.url).catch(error=>onComplete?.(error)));
+    App.getLaunchUrl?.().then(event=>consume(event?.url)).catch(error=>console.error('ASCEND launch URL failed',error));
+  }
   async function refresh(){if(!session?.refresh_token)return null;try{const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=refresh_token`,{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});persist(body);return body}catch(e){persist(null);return null}}
   async function me(){if(!session?.access_token)return null;try{return await jsonFetch(`${BASE}/auth/v1/user`)}catch{await refresh();return session?.access_token?jsonFetch(`${BASE}/auth/v1/user`):null}}
   function signOut(){persist(null);sessionStorage.removeItem(RECOVERY)}
@@ -63,5 +87,5 @@
   async function submitTeacherReview({teacherId,studentId,stageId,note,recommendation,decision}){const mapped=decision||({ready:'advance',not_yet:'continue',needs_discussion:'pause',acknowledged:'continue'}[recommendation]||'continue');return rest('path_teacher_reviews',{method:'POST',body:{teacher_id:teacherId,student_id:studentId,stage_id:stageId,decision:mapped,guidance:note||''},prefer:'return=representation'})}
   async function isTeacher(userId){const rows=await rest('path_teachers',{query:`user_id=eq.${userId}&select=user_id`});return rows.length>0}
   async function addStudent(email){return rpc('path_add_student',{p_student_email:email})}
-  window.PathBackend={signIn,signUp,resendSignup,requestPasswordReset,updatePassword,signOut,me,refresh,rest,rpc,redeemLifetimeKey,getMyEntitlement,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isTeacher,addStudent,isSignedIn:()=>!!session?.access_token,isPasswordRecovery:()=>sessionStorage.getItem(RECOVERY)==='true'};
+  window.PathBackend={signInWithGoogle,listenForOAuthCallback,completeOAuth,signIn,signUp,resendSignup,requestPasswordReset,updatePassword,signOut,me,refresh,rest,rpc,redeemLifetimeKey,getMyEntitlement,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,mirrorSnapshot,getRecentJournalText,getMyProfile,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isTeacher,addStudent,isSignedIn:()=>!!session?.access_token,isPasswordRecovery:()=>sessionStorage.getItem(RECOVERY)==='true'};
 })();
