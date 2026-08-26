@@ -47,3 +47,24 @@ CREATE POLICY "teacher may create review for active student" ON path_teacher_rev
 -- Teacher/student relationships are provisioned explicitly. Do not auto-link
 -- an arbitrary account as a teacher and do not encode personal email addresses
 -- in a migration.
+
+-- Without this, getSharedJournalEntries() always returns empty: journal
+-- entries were owner-only (auth.uid() = user_id) with no teacher exception,
+-- so the "share with teacher" checkbox on the Journal had nothing to grant.
+-- Already applied live on project nqionqvuudamqkfbaopk.
+DROP POLICY IF EXISTS "teacher may view shared entries" ON path_journal_entries;
+CREATE POLICY "teacher may view shared entries" ON path_journal_entries
+  FOR SELECT USING (
+    share_with_teacher = true
+    AND EXISTS (
+      SELECT 1 FROM path_teacher_relationships r
+      WHERE r.teacher_id = auth.uid() AND r.student_id = path_journal_entries.user_id AND r.status = 'active'
+    )
+  );
+
+-- NOTE: a live "student may request teacher relationship" INSERT policy on
+-- path_teacher_relationships (student_id = auth.uid()) predates the
+-- "provisioned explicitly" decision above and was not dropped when this file
+-- was rewritten -- self-request is still technically possible via the API
+-- even though no client UI offers it. Left as-is pending an explicit call on
+-- whether to remove it; flagging rather than dropping unilaterally.
