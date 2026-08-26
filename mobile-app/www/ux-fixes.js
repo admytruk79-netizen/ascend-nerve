@@ -18,6 +18,12 @@
     body.auth-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}
     body.auth-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}
     body.auth-required #me .auth-card:before{content:'ASCEND PATH';display:block;letter-spacing:.18em;font-size:.78rem;margin-bottom:14px;opacity:.72}
+    .today-reflect{margin-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left}
+    .today-reflect span{display:flex;flex-direction:column;gap:3px}
+    .today-reflect strong{font-size:.98rem;font-weight:600}
+    .today-reflect small{font-size:.76rem;opacity:.68;letter-spacing:.02em}
+    .today-reflect .reflect-arrow{font-size:1.15rem;opacity:.8}
+    .journal-context{margin:-4px 0 20px;opacity:.72;line-height:1.5}
   `;
   document.head.appendChild(authGateStyle);
 
@@ -70,6 +76,51 @@
   document.getElementById('menu-about')?.addEventListener('click',()=>{menu?.classList.add('hidden');about?.classList.remove('hidden')});
 
   document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.querySelector('#auth-form input[name="email"]')?.focus(),250)});
+
+  // Make reflection visible from Today instead of requiring users to remember the Journal tab.
+  const beginPractice=document.querySelector('#today [data-action="practice"]');
+  if(beginPractice&&!document.getElementById('today-reflect')){
+    const reflect=document.createElement('button');
+    reflect.type='button';
+    reflect.id='today-reflect';
+    reflect.className='secondary today-reflect';
+    reflect.innerHTML='<span><strong>Reflect / Journal</strong><small>Capture what you noticed today</small></span><span class="reflect-arrow" aria-hidden="true">→</span>';
+    reflect.addEventListener('click',()=>{
+      activateScreen('journal');
+      setTimeout(()=>document.querySelector('#journal-form textarea[name="observation"]')?.focus(),180);
+    });
+    beginPractice.insertAdjacentElement('afterend',reflect);
+  }
+
+  const journalHeading=document.querySelector('#journal h1');
+  if(journalHeading&&!document.querySelector('#journal .journal-context')){
+    const context=document.createElement('p');
+    context.className='journal-context';
+    context.textContent='Record what you observed in practice or ordinary life. One meaningful field is enough.';
+    journalHeading.insertAdjacentElement('afterend',context);
+  }
+
+  // After a genuinely completed practice, move naturally into reflection.
+  const finishPractice=document.getElementById('finish-practice');
+  finishPractice?.addEventListener('click',()=>{
+    if(!finishPractice.classList.contains('ready'))return;
+    setTimeout(()=>{
+      if(!document.getElementById('practice-overlay')?.classList.contains('hidden'))return;
+      activateScreen('journal');
+      const status=document.getElementById('journal-status');
+      if(status)status.textContent='Practice complete. Note anything you want to remember.';
+      document.querySelector('#journal-form textarea[name="observation"]')?.focus();
+    },250);
+  });
+
+  // When a reflection is saved successfully, return to Today to complete the daily loop.
+  const journalForm=document.getElementById('journal-form');
+  journalForm?.addEventListener('submit',()=>{
+    setTimeout(()=>{
+      const text=document.getElementById('journal-status')?.textContent||'';
+      if(/Reflection saved privately/i.test(text))activateScreen('today');
+    },700);
+  });
 
   // Replace the original create-account button so the old app.js listener cannot fire too.
   const authForm=document.getElementById('auth-form');
