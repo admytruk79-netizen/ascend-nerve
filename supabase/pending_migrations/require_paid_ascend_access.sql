@@ -1,5 +1,11 @@
 -- ASCEND Path is paid-only. Curriculum reads require either an active Premium
--- entitlement or a Lifetime entitlement. Authentication alone is not access.
+-- entitlement, a Lifetime entitlement, or teacher standing (path_teachers) --
+-- a teacher reviewing shared journal entries and submitting stage guidance is
+-- staff, not a customer, and should not be paywalled out of the curriculum
+-- their own students are working through. Authentication alone is not access.
+--
+-- Depends on public.path_teachers existing (see teacher_provisioning.sql) --
+-- apply that migration first, or together with this one.
 
 alter table public.ascend_entitlements
   drop constraint if exists ascend_entitlements_access_level_check;
@@ -19,20 +25,24 @@ stable
 security definer
 set search_path = ''
 as $$
-  select exists (
-    select 1
-    from public.ascend_entitlements e
-    where e.user_id = (select auth.uid())
-      and e.is_active
-      and (
-        e.access_level = 'lifetime'
-        or (
-          e.access_level = 'premium'
-          and e.expires_at is not null
-          and e.expires_at > now()
+  select
+    exists (
+      select 1
+      from public.ascend_entitlements e
+      where e.user_id = (select auth.uid())
+        and e.is_active
+        and (
+          e.access_level = 'lifetime'
+          or (
+            e.access_level = 'premium'
+            and e.expires_at is not null
+            and e.expires_at > now()
+          )
         )
-      )
-  );
+    )
+    or exists (
+      select 1 from public.path_teachers t where t.user_id = (select auth.uid())
+    );
 $$;
 
 revoke all on function private.has_ascend_paid_access() from public, anon;
