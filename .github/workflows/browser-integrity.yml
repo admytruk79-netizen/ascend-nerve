@@ -1,0 +1,34 @@
+name: ASCEND Browser Integrity
+
+on:
+  push:
+    branches: [ ascend-path-foundation ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/browser-integrity.yml'
+  pull_request:
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/browser-integrity.yml'
+
+jobs:
+  browser-integrity:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run unit integrity tests
+        run: npm test
+      - name: Run browser integrity tests
+        run: npm run test:e2e
