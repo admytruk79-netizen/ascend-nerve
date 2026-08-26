@@ -8,6 +8,29 @@
   }
   nav.forEach(button=>button.addEventListener('click',()=>activateScreen(button.dataset.screen),true));
 
+  const authGateStyle=document.createElement('style');
+  authGateStyle.textContent=`
+    body.auth-required{min-height:100vh}
+    body.auth-required #app .topbar,
+    body.auth-required #app .screen:not(#me),
+    body.auth-required #me> :not(.auth-card),
+    body.auth-required .bottom-nav{display:none!important}
+    body.auth-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}
+    body.auth-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}
+    body.auth-required #me .auth-card:before{content:'ASCEND PATH';display:block;letter-spacing:.18em;font-size:.78rem;margin-bottom:14px;opacity:.72}
+  `;
+  document.head.appendChild(authGateStyle);
+
+  async function syncAuthGate(){
+    let confirmedUser=null;
+    try{confirmedUser=await PathBackend.me()}catch{}
+    const locked=!confirmedUser;
+    document.body.classList.toggle('auth-required',locked);
+    if(locked)activateScreen('me');
+    return confirmedUser;
+  }
+  syncAuthGate();
+
   const mirror=document.getElementById('mirror-content');
   if(mirror&&!mirror.textContent.trim())mirror.innerHTML='<p>Sign in and begin journaling to create a grounded reflection from your own observations.</p>';
   const practiceTitle=document.getElementById('overlay-practice-title');
@@ -69,7 +92,7 @@
       pendingEmail=email;
       authForm.reset();
       authForm.classList.add('hidden');
-      authStatus.innerHTML=`<div class="auth-confirmation"><strong>Check your email</strong><p>We sent a confirmation link to ${escapeForAuth(email)}.</p><p>Open that link, then come back to ASCEND and sign in.</p><button class="secondary" type="button" id="resend-confirmation">Resend confirmation email</button><button class="secondary" type="button" id="back-to-signin">Back to sign in</button><p id="resend-status" class="quiet-note" role="status" aria-live="polite"></p></div>`;
+      authStatus.innerHTML=`<div class="auth-confirmation"><strong>Check your email</strong><p>We sent a confirmation link to ${escapeForAuth(email)}.</p><p>You cannot enter ASCEND until that email address is confirmed.</p><button class="secondary" type="button" id="resend-confirmation">Resend confirmation email</button><button class="secondary" type="button" id="back-to-signin">Back to sign in</button><p id="resend-status" class="quiet-note" role="status" aria-live="polite"></p></div>`;
       document.getElementById('back-to-signin')?.addEventListener('click',showSignIn);
       document.getElementById('resend-confirmation')?.addEventListener('click',async()=>{
         const button=document.getElementById('resend-confirmation');
@@ -92,13 +115,22 @@
       authStatus.textContent='Creating account…';
       try{
         const result=await PathBackend.signUp(email,password);
-        if(result?.access_token){authForm.reset();authStatus.textContent='Account created. Opening your ASCEND Path…';setTimeout(()=>location.reload(),250);return}
+        if(result?.access_token){
+          // Confirmation is disabled only if Supabase explicitly issued a session.
+          await syncAuthGate();
+          location.reload();
+          return;
+        }
         showConfirmation(email);
       }catch(err){authStatus.textContent=err?.message||'Could not create the account.'}
       finally{createAccount.disabled=false}
     });
   }
 
+  const signInForm=document.getElementById('auth-form');
+  signInForm?.addEventListener('submit',()=>setTimeout(syncAuthGate,400));
+  document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
+
   function escapeForAuth(value=''){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
-  window.ASCENDUX={activateScreen,syncOverlay};
+  window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate};
 })();
