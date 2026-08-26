@@ -27,13 +27,10 @@
   }
   function parentPrimary(m){return modules.filter(x=>x.branch_id===m.branch_id&&x.module_number<m.module_number&&!isApplied(x)).sort((a,b)=>b.module_number-a.module_number)[0]||null}
   function canOpen(m,branch,signedIn,current){
-    // Enhanced (intense) practices stay gated regardless of sequence: sign-in
-    // plus having actually passed Foundation Review (stage sort_order past 7,
-    // set only when a stage review is submitted and approved -- never by
-    // elapsed calendar time). Everything else previews freely so a visitor
-    // can see the app is populated before creating an account.
+    // The paid membership gate is enforced before branch data is loaded.
+    // Enhanced practices have an additional Foundation Review safety gate.
     if(m.safety_level==='enhanced'&&(!signedIn||!foundationCleared()))return false;
-    if(!signedIn)return true;
+    if(!signedIn)return false;
     if(isApplied(m)){
       const parent=parentPrimary(m),p=parent&&progressFor(parent);
       return !!p&&Number(p.repetitions||0)>0;
@@ -46,7 +43,7 @@
     const host=document.getElementById('practice-branches');if(!host)return;host.innerHTML='';
     branches.forEach(branch=>{
       const ms=modules.filter(m=>m.branch_id===branch.id),done=progress.filter(p=>p.branch_id===branch.id&&p.status==='completed').length,current=currentFor(branch);
-      const note=loadedSignedIn?`${done} of ${ms.length} modules integrated${current?` · Current primary: ${esc(current.title)}`:' · Pathway complete'}`:`${ms.length} modules · Sign in to track progress`;
+      const note=`${done} of ${ms.length} modules integrated${current?` · Current primary: ${esc(current.title)}`:' · Pathway complete'}`;
       const card=document.createElement('article');card.className='rhythm-card branch-card';
       card.innerHTML=`<div class="branch-card-main"><div><h2>${esc(branch.title)}</h2><p>${esc(branch.subtitle||branch.description||'Specialized training')}</p></div><button class="secondary branch-open" type="button">${done?'Continue':'View'}</button></div><p class="quiet-note">${note}</p>`;
       card.querySelector('.branch-open').onclick=()=>openBranch(branch,current);host.appendChild(card);
@@ -56,7 +53,7 @@
   function openBranch(branch,current=currentFor(branch)){
     const overlay=document.getElementById('branch-overlay'),body=document.getElementById('branch-body');if(!overlay||!body)return;
     const ms=modules.filter(m=>m.branch_id===branch.id),signedIn=PathBackend.isSignedIn();
-    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p>${signedIn?'':'<p class="quiet-note">You can explore this pathway now. Sign in when you are ready to record repetitions and progression.</p>'}<div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';const lockedReason=m.safety_level==='enhanced'&&(!signedIn||!foundationCleared())?'Enhanced practice · opens after signing in and passing the Foundation Review (Impartial Retrospect stage review, not elapsed time).':isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):lockedReason)}</span></article>`}).join('')}</div>`;
+    body.innerHTML=`<div class="eyebrow">${branch.slug==='sphere-of-attention'?'PRIMARY PATH':'INDEPENDENT PATHWAY'}</div><h1>${esc(branch.title)}</h1><p>${esc(branch.description||branch.subtitle||'')}</p><div class="branch-modules">${ms.map(m=>{const p=progressFor(m),open=canOpen(m,branch,signedIn,current);const state=p?.status==='completed'?' · COMPLETE':p?.status==='review'?' · READINESS REVIEW':p?.repetitions?` · ${p.repetitions}/${m.minimum_repetitions||1}`:'';const parallel=isApplied(m)?' · PARALLEL APPLICATION':'';const lockedReason=m.safety_level==='enhanced'&&(!signedIn||!foundationCleared())?'Enhanced practice · opens after passing the Foundation Review (Impartial Retrospect stage review, not elapsed time).':isApplied(m)?'Begin its parent primary practice first.':'Complete the current primary module and readiness gate first.';return `<article class="content-card ${open?'':'locked'}" data-module="${m.id}"><small>PHASE ${m.phase_number} · SESSION ${m.module_number}${parallel}${state}</small><strong>${esc(m.title)}</strong><span>${esc(open?(m.summary||m.outcome||'Training module'):lockedReason)}</span></article>`}).join('')}</div>`;
     body.querySelectorAll('.content-card:not(.locked)').forEach(el=>el.onclick=()=>openModule(ms.find(m=>m.id===el.dataset.module),branch));overlay.classList.remove('hidden');
   }
 
