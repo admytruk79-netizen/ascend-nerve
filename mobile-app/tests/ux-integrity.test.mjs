@@ -125,6 +125,14 @@ test('ASCEND Path has no free-access state and gates curriculum behind entitleme
   assert.doesNotMatch(backend,/PUBLIC_READ_TABLES/);
 });
 
+test('active entitlement always provides a route from Account into the Path',()=>{
+  const app=read('app.js');
+  assert.match(app,/button\.textContent='Enter ASCEND Path'/);
+  assert.match(app,/classList\.toggle\('auth-required',!user\)/);
+  assert.match(app,/ensureEnterButton\(\)\?\.classList\.toggle\('hidden',!user\|\|!hasAccess\)/);
+  assert.match(app,/activateScreen\?\.\('today'\)/);
+});
+
 test('Account entry supports Android Google OAuth with a safe email fallback',()=>{
   const html=read('index.html');
   const app=read('app.js');
