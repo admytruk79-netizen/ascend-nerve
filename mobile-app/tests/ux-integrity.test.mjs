@@ -117,12 +117,16 @@ test('ASCEND Path has no free-access state and gates curriculum behind entitleme
   const html=read('index.html');
   const app=read('app.js');
   const backend=read('backend.js');
+  const ux=read('ux-fixes.js');
   assert.doesNotMatch(app,/Free Access/);
   assert.match(html,/ASCEND Path requires active paid access/);
+  assert.match(html,/ux-fixes\.js\?v=20260827-auth-gate-1/);
   assert.match(app,/access-required/);
   assert.match(app,/if\(!hasAccess\).*return/);
   assert.match(backend,/entitlementIsActive/);
   assert.doesNotMatch(backend,/PUBLIC_READ_TABLES/);
+  assert.match(ux,/if\(!confirmedUser\)\{/);
+  assert.doesNotMatch(ux,/classList\.toggle\('auth-required',locked\)/);
 });
 
 test('active entitlement always provides a route from Account into the Path',()=>{

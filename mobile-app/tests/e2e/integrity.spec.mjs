@@ -90,3 +90,21 @@ test('Finish Practice cannot advance before the timer completes',async({page})=>
   expect(days).toBe(0);
   await expect(page.locator('#primary-check')).not.toBeChecked();
 });
+
+test('refresh never exposes the Path before entitlement is verified',async({page})=>{
+  await page.addInitScript(()=>localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'unpaid-token',refresh_token:'unpaid-refresh',expires_in:3600,token_type:'bearer'})));
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)}));
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',async route=>{
+    const table=new URL(route.request().url()).pathname.split('/').pop();
+    if(table==='ascend_entitlements')await new Promise(resolve=>setTimeout(resolve,500));
+    await route.fulfill({status:200,contentType:'application/json',body:'[]'});
+  });
+  await page.goto('/');
+  await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(page.locator('body')).toHaveClass(/access-required/);
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
+  await page.reload();
+  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(page.locator('body')).toHaveClass(/access-required/);
+});

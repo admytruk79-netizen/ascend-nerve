@@ -25,9 +25,10 @@
   async function syncAuthGate(){
     let confirmedUser=null;
     try{confirmedUser=await PathBackend.me()}catch{}
-    const locked=!confirmedUser;
-    document.body.classList.toggle('auth-required',locked);
-    if(locked)activateScreen('me');
+    if(!confirmedUser){
+      document.body.classList.add('auth-required');
+      activateScreen('me');
+    }
     return confirmedUser;
   }
   syncAuthGate();
