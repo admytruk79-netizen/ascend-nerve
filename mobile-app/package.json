@@ -13,6 +13,7 @@
     "@capacitor/android": "^7.4.3",
     "@capacitor/browser": "7.0.5",
     "@capacitor/core": "^7.4.3",
+    "@capacitor/haptics": "7.0.5",
     "cordova-plugin-purchase": "^13.18.0"
   },
   "devDependencies": {

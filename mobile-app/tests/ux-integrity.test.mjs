@@ -185,3 +185,22 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   assert.match(app,/listLabel\.textContent=grouped\?'BROWSE LIBRARY':'RESULTS'/);
   assert.match(css,/\.library-group summary/);
 });
+
+test('Begin Practice is a press-and-hold ritual with haptics, a Begin Practice fallback, and a quick-tap hint',()=>{
+  const html=read('index.html');
+  const press=read('press-hold.js');
+  const css=read('living-object.css');
+  const pkg=JSON.parse(read('../package.json'));
+  assert.match(html,/id="living-object" role="button" tabindex="0"/);
+  assert.match(html,/id="press-hold-hint"/);
+  assert.match(html,/press-hold\.js\?v=20260827-press-hold-1/);
+  assert.ok(pkg.dependencies['@capacitor/haptics'],'expected @capacitor/haptics as a dependency');
+  assert.match(press,/HOLD_MS=1500/);
+  assert.match(press,/QUICK_TAP_MS=250/);
+  assert.match(press,/addEventListener\('pointerdown'/);
+  assert.match(press,/addEventListener\('pointerup'/);
+  assert.match(press,/window\.Capacitor\?\.Plugins\?\.Haptics/);
+  assert.match(press,/navigator\.vibrate/);
+  assert.match(press,/showHint\(\)/);
+  assert.match(press,/window\.ASCENDOpenPractice\?\.\(\)/);
+});

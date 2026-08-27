@@ -91,6 +91,34 @@ test('Finish Practice cannot advance before the timer completes',async({page})=>
   await expect(page.locator('#primary-check')).not.toBeChecked();
 });
 
+test('the living circle is a press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
+  await boot(page);
+  const circle=page.locator('#living-object');
+  const box=await circle.boundingBox();
+  const center={x:box.x+box.width/2,y:box.y+box.height/2};
+
+  // Quick tap: shows the hint, never opens the overlay.
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.mouse.up();
+  await expect(page.locator('#press-hold-hint')).toHaveClass(/visible/);
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+
+  // Early release: the ring retreats, nothing opens.
+  await page.mouse.down();
+  await expect(circle).toHaveClass(/charging/);
+  await page.waitForTimeout(400);
+  await page.mouse.up();
+  await expect(circle).not.toHaveClass(/charging/);
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+
+  // Completing the hold opens the overlay without ever clicking the button.
+  await page.mouse.down();
+  await page.waitForTimeout(1650);
+  await page.mouse.up();
+  await expect(page.locator('#practice-overlay')).not.toHaveClass(/hidden/);
+});
+
 test('refresh never exposes the Path before entitlement is verified',async({page})=>{
   await page.addInitScript(()=>localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'unpaid-token',refresh_token:'unpaid-refresh',expires_in:3600,token_type:'bearer'})));
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)}));
