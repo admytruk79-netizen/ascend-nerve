@@ -188,12 +188,14 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
 
 test('Today uses the approved ritual portal with hold feedback and an accessible button fallback',()=>{
   const html=read('index.html');
+  const app=read('app.js');
   const ritual=read('today-ritual.js');
   const css=read('ritual-today.css');
   assert.match(html,/id="ritual-portal"/);
   assert.match(html,/Press &amp; Hold/);
   assert.match(html,/data-action="practice"[^>]*>Begin Practice/);
   assert.match(html,/Month 1 of 24/);
+  assert.match(app,/stage-title'\)\.textContent=p\?\.title\|\|currentStage\.title/);
   assert.match(ritual,/const HOLD_MS=1500/);
   assert.match(ritual,/window\.Capacitor\?\.Plugins\?\.Haptics/);
   assert.match(ritual,/navigator\.vibrate/);

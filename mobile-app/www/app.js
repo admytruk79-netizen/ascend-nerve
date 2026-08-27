@@ -21,7 +21,7 @@ function stageMarkers(){return curriculum?.markers?.filter(m=>m.stage_id===curre
 function renderStage(){if(!currentStage)return;currentPractice=stagePractice(currentStage);const p=currentPractice;
   window.curriculum=curriculum;window.currentStage=currentStage;
   document.getElementById('stage-eyebrow').textContent='CORE FORMATION';
-  document.getElementById('stage-title').textContent=currentStage.title;
+  document.getElementById('stage-title').textContent=p?.title||currentStage.title;
   document.getElementById('profile-stage').textContent=currentStage.title;
   document.getElementById('practice-name').textContent=`${p?.default_minutes||10} min`;
   document.getElementById('overlay-practice-title').textContent=p?.title||'Practice';
