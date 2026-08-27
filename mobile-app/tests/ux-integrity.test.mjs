@@ -120,7 +120,7 @@ test('ASCEND Path has no free-access state and gates curriculum behind entitleme
   const ux=read('ux-fixes.js');
   assert.doesNotMatch(app,/Free Access/);
   assert.match(html,/ASCEND Path requires active paid access/);
-  assert.match(html,/ux-fixes\.js\?v=20260827-single-screen-1/);
+  assert.match(html,/ux-fixes\.js\?v=20260827-intro-1/);
   assert.match(app,/access-required/);
   assert.match(app,/if\(!hasAccess\).*return/);
   assert.match(backend,/entitlementIsActive/);
@@ -135,6 +135,30 @@ test('active entitlement always provides a route from Account into the Path',()=
   assert.match(app,/classList\.toggle\('auth-required',!user\)/);
   assert.match(app,/ensureEnterButton\(\)\?\.classList\.toggle\('hidden',!user\|\|!hasAccess\)/);
   assert.match(app,/activateScreen\?\.\('today'\)/);
+});
+
+test('first login introduction explains the Path and is account-bound',()=>{
+  const html=read('index.html'),backend=read('backend.js'),intro=read('path-intro.js'),css=read('path-intro.css');
+  assert.match(html,/id="path-intro"/);
+  assert.match(html,/A path you live/);
+  assert.match(html,/Begin with Today/);
+  assert.match(html,/Practice → Journal/);
+  assert.match(intro,/Begin My ASCEND Path/);
+  assert.match(html,/id="menu-how"/);
+  assert.match(backend,/getIntroductionStatus/);
+  assert.match(backend,/completeIntroduction/);
+  assert.match(intro,/ascendPathIntroComplete:/);
+  assert.match(intro,/onboarding_completed_at/);
+  assert.match(css,/ascend-path-intro-instrument\.jpg/);
+});
+
+test('practice entry opens a briefing before the timer',()=>{
+  const html=read('index.html'),app=read('app.js');
+  assert.match(html,/id="practice-briefing"/);
+  assert.match(html,/id="briefing-begin"/);
+  assert.match(html,/HOW TO PRACTICE/);
+  assert.match(app,/function openPracticeOverlay\(\)\{briefing\.classList\.remove\('hidden'\)\}/);
+  assert.match(app,/function beginPractice\(\)\{briefing\.classList\.add\('hidden'\)/);
 });
 
 test('Account entry supports Android Google OAuth with a safe email fallback',()=>{
@@ -178,7 +202,7 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const css=read('ux-fixes.css');
-  assert.match(html,/app\.js\?v=20260827-ritual-today-1/);
+  assert.match(html,/app\.js\?v=20260827-intro-1/);
   assert.match(app,/document\.createElement\('details'\)/);
   assert.match(app,/details\.className='library-group'/);
   assert.match(app,/\['teaching','Teachings'\]/);

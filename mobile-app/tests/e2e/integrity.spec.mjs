@@ -9,6 +9,7 @@ const fixtures={
   ],
   path_practices:[{id:'practice-1',slug:'self-contemplation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',is_published:true}],
   path_stage_practices:[{stage_id:'stage-1',practice_id:'practice-1',role:'primary'}],
+  path_profiles:[{user_id:'00000000-0000-0000-0000-000000000001',display_name:'Integrity',current_stage_id:'stage-1',onboarding_completed_at:'2026-08-27T00:00:00Z'}],
   path_attainment_markers:[],
   path_content_items:[
     {id:'content-1',slug:'available-teaching',title:'Available Teaching',summary:'Available now',content_type:'teaching',body:'Current-stage material.',metadata:{month:1},is_published:true},
@@ -84,6 +85,8 @@ test('Library recommendations never surface locked future material and cards wor
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
   await page.getByRole('button',{name:'Begin Practice'}).click();
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
   await page.getByRole('button',{name:'Finish Practice'}).click();
   await expect(page.locator('#timer-hint')).toContainText('Complete the full practice timer');
   const days=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"practiceDays":0}').practiceDays||0);
@@ -112,11 +115,12 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   await expect(circle).not.toHaveClass(/is-holding/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
-  // Completing the hold opens the overlay without ever clicking the button.
+  // Completing the hold opens the briefing without ever clicking the fallback button.
   await page.mouse.down();
   await page.waitForTimeout(1650);
   await page.mouse.up();
-  await expect(page.locator('#practice-overlay')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 });
 
 test('refresh never exposes the Path before entitlement is verified',async({page})=>{

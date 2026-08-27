@@ -48,7 +48,7 @@
   if(practiceTitle&&!practiceTitle.textContent.trim())practiceTitle.textContent='Self-Contemplation';
   if(practiceInstructions&&!practiceInstructions.textContent.trim())practiceInstructions.textContent='Sit quietly and observe the movement of thought without suppressing, following, or judging it. Return to simple observation whenever attention wanders.';
 
-  const overlays=[...document.querySelectorAll('.practice-overlay,.library-overlay')];
+  const overlays=[...document.querySelectorAll('.practice-overlay,.library-overlay,.path-intro')];
   const app=document.getElementById('app'),bottom=document.querySelector('.bottom-nav');
   let lastFocused=null;
   function activeOverlay(){return overlays.find(item=>!item.classList.contains('hidden'))}
@@ -69,7 +69,7 @@
   }
   function handleBack(){
     const open=activeOverlay();
-    if(open){open.classList.add('hidden');backPulse();return true}
+    if(open){if(open.id==='path-intro')window.ASCENDIntro?.close?.();else open.classList.add('hidden');backPulse();return true}
     const current=currentScreen();
     let target=screenTrail.pop();
     if(document.body.classList.contains('auth-required')||document.body.classList.contains('access-required'))target='me';
