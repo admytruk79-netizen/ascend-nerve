@@ -33,7 +33,9 @@
     try{confirmedUser=await PathBackend.me()}catch{}
     if(!confirmedUser){
       document.body.classList.add('auth-required');
-      activateScreen('me');
+      activateScreen('me',{record:false});
+    }else{
+      activateScreen('today',{record:false});
     }
     return confirmedUser;
   }
