@@ -198,7 +198,7 @@ test('Today uses the approved ritual portal with hold feedback and an accessible
   assert.match(ritual,/window\.Capacitor\?\.Plugins\?\.Haptics/);
   assert.match(ritual,/navigator\.vibrate/);
   assert.match(ritual,/pointercancel/);
-  assert.match(css,/ascend-twilight-ritual-bg\.png/);
+  assert.match(css,/ascend-twilight-ritual-bg\.jpg/);
 });
 
 test('active members never see purchase prices or Restore Purchases',()=>{
