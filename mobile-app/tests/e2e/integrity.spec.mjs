@@ -70,7 +70,7 @@ test('Library recommendations never surface locked future material and cards wor
   await expect(page.locator('#library-list [data-slug="future-teaching"]')).toHaveAttribute('aria-disabled','true');
   const available=page.locator('#library-list [data-slug="available-teaching"]');
   await expect(available).toHaveAttribute('role','button');
-  const group=page.locator('details.library-group').filter({has:available});
+  const group=page.locator('details.library-group:has([data-slug="available-teaching"])');
   const summary=group.locator('summary');
   await summary.focus();
   await page.keyboard.press('Enter');
