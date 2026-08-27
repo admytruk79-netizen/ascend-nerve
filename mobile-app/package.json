@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "node scripts/dev-server.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:e2e": "playwright test",
     "sync:android": "npx cap sync android",

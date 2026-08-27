@@ -91,25 +91,25 @@ test('Finish Practice cannot advance before the timer completes',async({page})=>
   await expect(page.locator('#primary-check')).not.toBeChecked();
 });
 
-test('the living circle is a press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
+test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
   await boot(page);
-  const circle=page.locator('#living-object');
+  const circle=page.locator('#ritual-portal');
   const box=await circle.boundingBox();
   const center={x:box.x+box.width/2,y:box.y+box.height/2};
 
-  // Quick tap: shows the hint, never opens the overlay.
+  // Quick tap: restores the hold instruction and never opens the overlay.
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.mouse.up();
-  await expect(page.locator('#press-hold-hint')).toHaveClass(/visible/);
+  await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
   // Early release: the ring retreats, nothing opens.
   await page.mouse.down();
-  await expect(circle).toHaveClass(/charging/);
+  await expect(circle).toHaveClass(/is-holding/);
   await page.waitForTimeout(400);
   await page.mouse.up();
-  await expect(circle).not.toHaveClass(/charging/);
+  await expect(circle).not.toHaveClass(/is-holding/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
   // Completing the hold opens the overlay without ever clicking the button.

@@ -93,7 +93,7 @@ test('Journal is unmistakable from Today and remains in primary navigation',()=>
   const html=read('index.html');
   const ux=read('ux-fixes.js');
   assert.match(html,/id="today-reflect" data-go-journal/);
-  assert.match(html,/>Open Journal</);
+  assert.match(html,/After practice · Journal reflection/);
   assert.match(html,/data-screen="journal">Journal</);
   assert.match(ux,/closest\('\[data-go-journal\]'\)/);
   assert.match(ux,/textarea\[name="observation"\]/);
@@ -178,7 +178,7 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const css=read('ux-fixes.css');
-  assert.match(html,/app\.js\?v=20260827-library-groups-1/);
+  assert.match(html,/app\.js\?v=20260827-ritual-today-1/);
   assert.match(app,/document\.createElement\('details'\)/);
   assert.match(app,/details\.className='library-group'/);
   assert.match(app,/\['teaching','Teachings'\]/);
@@ -186,21 +186,35 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   assert.match(css,/\.library-group summary/);
 });
 
-test('Begin Practice is a press-and-hold ritual with haptics, a Begin Practice fallback, and a quick-tap hint',()=>{
+test('Today uses the approved ritual portal with hold feedback and an accessible button fallback',()=>{
   const html=read('index.html');
-  const press=read('press-hold.js');
-  const css=read('living-object.css');
-  const pkg=JSON.parse(read('../package.json'));
-  assert.match(html,/id="living-object" role="button" tabindex="0"/);
-  assert.match(html,/id="press-hold-hint"/);
-  assert.match(html,/press-hold\.js\?v=20260827-press-hold-1/);
-  assert.ok(pkg.dependencies['@capacitor/haptics'],'expected @capacitor/haptics as a dependency');
-  assert.match(press,/HOLD_MS=1500/);
-  assert.match(press,/QUICK_TAP_MS=250/);
-  assert.match(press,/addEventListener\('pointerdown'/);
-  assert.match(press,/addEventListener\('pointerup'/);
-  assert.match(press,/window\.Capacitor\?\.Plugins\?\.Haptics/);
-  assert.match(press,/navigator\.vibrate/);
-  assert.match(press,/showHint\(\)/);
-  assert.match(press,/window\.ASCENDOpenPractice\?\.\(\)/);
+  const ritual=read('today-ritual.js');
+  const css=read('ritual-today.css');
+  assert.match(html,/id="ritual-portal"/);
+  assert.match(html,/Press &amp; Hold/);
+  assert.match(html,/data-action="practice"[^>]*>Begin Practice/);
+  assert.match(html,/Month 1 of 24/);
+  assert.match(ritual,/const HOLD_MS=1500/);
+  assert.match(ritual,/window\.Capacitor\?\.Plugins\?\.Haptics/);
+  assert.match(ritual,/navigator\.vibrate/);
+  assert.match(ritual,/pointercancel/);
+  assert.match(css,/ascend-twilight-ritual-bg\.png/);
+});
+
+test('active members never see purchase prices or Restore Purchases',()=>{
+  const html=read('index.html');
+  const app=read('app.js');
+  assert.match(html,/id="paywall-purchase"/);
+  assert.match(app,/purchase\?\.classList\.toggle\('hidden',active\)/);
+  assert.match(app,/form\?\.classList\.toggle\('hidden',active\)/);
+});
+
+test('Android Back stays inside ASCEND and unwinds overlays and screens',()=>{
+  const ux=read('ux-fixes.js');
+  assert.match(ux,/Plugins\?\.App\?\.addListener\?\.\('backButton'/);
+  assert.match(ux,/const open=activeOverlay\(\)/);
+  assert.match(ux,/screenTrail\.pop\(\)/);
+  assert.match(ux,/current!=='today'/);
+  assert.match(ux,/window\.addEventListener\('popstate'/);
+  assert.match(ux,/window\.ASCENDUX=\{activateScreen,syncOverlay,syncAuthGate,handleBack\}/);
 });

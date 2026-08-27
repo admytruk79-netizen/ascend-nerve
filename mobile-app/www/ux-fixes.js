@@ -1,9 +1,15 @@
 (()=>{
   const screens=[...document.querySelectorAll('.screen')];
   const nav=[...document.querySelectorAll('.bottom-nav button')];
-  function activateScreen(id){
+  const screenTrail=[];
+  let historyReady=false;
+  const currentScreen=()=>screens.find(screen=>screen.classList.contains('active'))?.id||'today';
+  function activateScreen(id,{record=true}={}){
+    const previous=currentScreen();
+    if(record&&previous!==id)screenTrail.push(previous);
     screens.forEach(screen=>{const active=screen.id===id;screen.classList.toggle('active',active);if(!active)screen.classList.remove('motion-enter');screen.setAttribute('aria-hidden',String(!active))});
     nav.forEach(button=>{const active=button.dataset.screen===id;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false')});
+    if(historyReady&&record&&previous!==id)history.pushState({ascend:true,screen:id},'',location.href);
     window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   }
   nav.forEach(button=>button.addEventListener('click',()=>activateScreen(button.dataset.screen),true));
@@ -51,6 +57,34 @@
     else{app?.removeAttribute('inert');bottom?.removeAttribute('inert');lastFocused?.focus?.();lastFocused=null}
   }
   overlays.forEach(item=>new MutationObserver(syncOverlay).observe(item,{attributes:true,attributeFilter:['class']}));
+
+  function backPulse(){
+    try{
+      const Haptics=window.Capacitor?.Plugins?.Haptics;
+      if(Haptics?.impact){Haptics.impact({style:'LIGHT'});return}
+    }catch{}
+    try{navigator.vibrate?.(8)}catch{}
+  }
+  function handleBack(){
+    const open=activeOverlay();
+    if(open){open.classList.add('hidden');backPulse();return true}
+    const current=currentScreen();
+    let target=screenTrail.pop();
+    if(document.body.classList.contains('auth-required')||document.body.classList.contains('access-required'))target='me';
+    else if(!target&&current!=='today')target='today';
+    if(target&&target!==current){activateScreen(target,{record:false});backPulse();return true}
+    backPulse();
+    return true;
+  }
+
+  history.replaceState({ascend:true,screen:currentScreen()},'',location.href);
+  history.pushState({ascend:true,guard:true},'',location.href);
+  historyReady=true;
+  window.addEventListener('popstate',()=>{
+    handleBack();
+    history.pushState({ascend:true,guard:true},'',location.href);
+  });
+  try{window.Capacitor?.Plugins?.App?.addListener?.('backButton',()=>handleBack())}catch{}
   document.addEventListener('keydown',event=>{
     const open=activeOverlay();if(!open)return;
     if(event.key==='Escape'){event.preventDefault();open.classList.add('hidden');return}
@@ -112,5 +146,5 @@
 
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
-  window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate};
+  window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate,handleBack};
 })();

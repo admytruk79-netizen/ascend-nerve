@@ -77,9 +77,6 @@
     const items=relatedItems();
     document.querySelectorAll('.related-teaching').forEach(x=>x.remove());
     if(items.length){
-      const practiceName=document.getElementById('practice-name');
-      const begin=document.querySelector('[data-action="practice"]');
-      if(practiceName&&begin) begin.before(makeButton(items[0],'stage'));
       const instructions=document.getElementById('overlay-practice-instructions');
       if(instructions) instructions.after(makeButton(items[0],'practice'));
     }
