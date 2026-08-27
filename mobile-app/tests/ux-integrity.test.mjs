@@ -158,3 +158,14 @@ test('Library cards are keyboard operable and month-locked recommendations are r
   assert.match(contextual,/card\.closest\('#library-recommended'\)/);
   assert.match(contextual,/card\.remove\(\)/);
 });
+
+test('Library mobile controls stay in document flow above the content cards',()=>{
+  const html=read('index.html');
+  const css=read('ux-fixes.css');
+  assert.match(html,/ux-fixes\.css\?v=20260827-library-layout-1/);
+  assert.match(css,/\.library-tools\{position:relative;top:auto/);
+  assert.match(css,/\.library-filters\{[^}]*overflow-x:auto/);
+  assert.match(css,/\.library-filter\{flex:0 0 auto/);
+  assert.match(css,/\.library-count\{position:relative;display:block;min-height:17px/);
+  assert.match(css,/#library-recommended,#library-list\{display:flow-root;clear:both\}/);
+});
