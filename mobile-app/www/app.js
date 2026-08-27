@@ -37,7 +37,7 @@ function contentAccess(item){const rules=(curriculum?.contentRules||[]).filter(r
 function renderLibrary(){if(!curriculum)return;
   const list=document.getElementById('library-list'),count=document.getElementById('library-count');list.innerHTML='';
   const query=libraryQuery.toLowerCase(),typed=curriculum.content.filter(item=>libraryType==='all'||item.content_type===libraryType),visible=typed.filter(item=>!query||[item.title,item.summary,item.content_type].some(value=>String(value||'').toLowerCase().includes(query)));
-  visible.forEach(item=>{const access=contentAccess(item),a=document.createElement('article');a.className='content-card'+(access.unlocked?'':' locked');a.dataset.slug=item.slug;if(access.unlocked){a.setAttribute('role','button');a.setAttribute('tabindex','0');a.setAttribute('aria-label',`Open ${item.title}`)}else{a.setAttribute('aria-disabled','true');a.setAttribute('tabindex','-1')}a.innerHTML=access.unlocked?contentCardHTML(item):`<small>LATER</small><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(access.label)}</span>`;list.appendChild(a)});
+  visible.forEach(item=>{const access=contentAccess(item),a=document.createElement('article');a.className='content-card'+(access.unlocked?'':' locked');if(item.slug)a.dataset.slug=item.slug;if(access.unlocked){a.setAttribute('role','button');a.setAttribute('tabindex','0');a.setAttribute('aria-label',`Open ${item.title}`)}else{a.setAttribute('aria-disabled','true');a.setAttribute('tabindex','-1')}a.innerHTML=access.unlocked?contentCardHTML(item):`<small>LATER</small><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(access.label)}</span>`;list.appendChild(a)});
   if(!visible.length){list.innerHTML='<div class="empty-state"><h2>No matching teaching</h2><p>Try another word or content type.</p></div>'}
   if(count)count.textContent=`${visible.length} of ${curriculum.content.length} Library items`;
   const rail=document.getElementById('library-recommended'),listLabel=document.getElementById('library-list-label');
@@ -50,7 +50,7 @@ function renderLibrary(){if(!curriculum)return;
       if(picks.length){
         hasPicks=true;
         const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.textContent='RECOMMENDED FOR YOU';rail.appendChild(eyebrow);
-        picks.forEach(item=>{const a=document.createElement('article');a.className='content-card';a.dataset.slug=item.slug;a.setAttribute('role','button');a.setAttribute('tabindex','0');a.setAttribute('aria-label',`Open ${item.title}`);a.innerHTML=contentCardHTML(item);rail.appendChild(a)});
+        picks.forEach(item=>{const a=document.createElement('article');a.className='content-card';if(item.slug)a.dataset.slug=item.slug;a.setAttribute('role','button');a.setAttribute('tabindex','0');a.setAttribute('aria-label',`Open ${item.title}`);a.innerHTML=contentCardHTML(item);rail.appendChild(a)});
       }
     }
   }
