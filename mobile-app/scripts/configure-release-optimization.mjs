@@ -3,17 +3,36 @@ import path from 'node:path';
 
 const androidDir = path.resolve('android');
 const appGradle = path.join(androidDir, 'app', 'build.gradle');
+const rootGradle = path.join(androidDir, 'build.gradle');
+const variablesGradle = path.join(androidDir, 'variables.gradle');
 const proguardFile = path.join(androidDir, 'app', 'proguard-rules.pro');
 
-if (!fs.existsSync(appGradle)) {
-  throw new Error(`Android app Gradle file not found: ${appGradle}`);
+for (const required of [appGradle, rootGradle, variablesGradle]) {
+  if (!fs.existsSync(required)) {
+    throw new Error(`Required Android Gradle file not found: ${required}`);
+  }
 }
 
 let gradle = fs.readFileSync(appGradle, 'utf8');
+let root = fs.readFileSync(rootGradle, 'utf8');
+let variables = fs.readFileSync(variablesGradle, 'utf8');
+
+// Google Play requires Android 16 / API 36 for new apps and app updates
+// submitted from Aug 31, 2026. Capacitor 7.6.x still generates API 35,
+// so enforce API 36 after every fresh `cap add android`.
+variables = variables.replace(/compileSdkVersion\s*=\s*\d+/, 'compileSdkVersion = 36');
+variables = variables.replace(/targetSdkVersion\s*=\s*\d+/, 'targetSdkVersion = 36');
+
+// API 36 requires Android Gradle Plugin 8.9.1 or newer. Capacitor 7.6.x
+// generates AGP 8.7.2 while its Gradle 8.11.1 wrapper is already compatible.
+root = root.replace(
+  /classpath ['"]com\.android\.tools\.build:gradle:[^'"]+['"]/,
+  "classpath 'com.android.tools.build:gradle:8.9.1'"
+);
 
 // Google Play requires each uploaded bundle to have a higher versionCode.
-gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 3');
-gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.2'");
+gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 4');
+gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.3'");
 
 // Capacitor's generated release block is intentionally minimal. Turn on R8
 // code shrinking/obfuscation and Android resource shrinking for Play builds.
@@ -37,6 +56,8 @@ if (!/proguardFiles\s+getDefaultProguardFile\('proguard-android-optimize\.txt'\)
 }
 
 fs.writeFileSync(appGradle, gradle);
+fs.writeFileSync(rootGradle, root);
+fs.writeFileSync(variablesGradle, variables);
 
 const keepRules = `# ASCEND Path release rules\n# Keep Capacitor bridge/plugin entry points that are discovered dynamically.\n-keep class com.getcapacitor.** { *; }\n-keep interface com.getcapacitor.** { *; }\n-keep class org.apache.cordova.** { *; }\n-keepattributes *Annotation*\n-keepattributes Signature\n`;
 
@@ -45,4 +66,4 @@ if (!existingRules.includes('# ASCEND Path release rules')) {
   fs.writeFileSync(proguardFile, `${existingRules.trim()}\n\n${keepRules}`.trimStart());
 }
 
-console.log('Configured release optimization: versionCode=3, versionName=1.2, R8 minification enabled, resource shrinking enabled.');
+console.log('Configured Play release: versionCode=4, versionName=1.3, compileSdk=36, targetSdk=36, AGP=8.9.1, R8/resource shrinking enabled.');
