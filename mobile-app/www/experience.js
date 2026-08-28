@@ -5,6 +5,26 @@
   const MAX_SPLASH_MS=12000;
   let splashDismissed=false;
 
+  // Repair logo references if a stale Android/web asset bundle fails to resolve
+  // the local image. This keeps the header, splash and intro branding visible.
+  const LOGO_FALLBACK='https://raw.githubusercontent.com/admytruk79-netizen/ascend-nerve/ascend-path-foundation/mobile-app/www/assets/ascend-logo.png';
+  const repairLogos=()=>{
+    document.querySelectorAll('img[src$="assets/ascend-logo.png"],img[src="assets/ascend-logo.png"]').forEach(img=>{
+      if(img.dataset.logoFallbackBound)return;
+      img.dataset.logoFallbackBound='true';
+      const useFallback=()=>{
+        if(img.dataset.logoFallbackUsed)return;
+        img.dataset.logoFallbackUsed='true';
+        img.src=LOGO_FALLBACK;
+      };
+      img.addEventListener('error',useFallback,{once:true});
+      if(img.complete&&img.naturalWidth===0)useFallback();
+    });
+  };
+  repairLogos();
+  document.addEventListener('DOMContentLoaded',repairLogos,{once:true});
+  window.addEventListener('load',repairLogos,{once:true});
+
   // The splash is the first-paint boot shield. Keep the app completely hidden
   // while auth, entitlement, curriculum and the intro decision hydrate behind it.
   // The existing ASCEND Path cinematic intro remains untouched and is revealed
@@ -25,8 +45,6 @@
   const dismissSplash=()=>{
     if(splashDismissed)return;
     splashDismissed=true;
-    // First expose the already-resolved destination (or the existing cinematic
-    // intro), then fade this boot shield. This prevents login/practice flashes.
     requestAnimationFrame(()=>{
       document.documentElement.classList.remove('ascend-booting');
       requestAnimationFrame(()=>splash?.classList.add('done'));
