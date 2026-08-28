@@ -59,4 +59,9 @@
   apply();
   window.PathTheme={apply,set,get:getPref};
   const historyScript=document.createElement('script');historyScript.src='day-history.js?v=20260823b';historyScript.defer=true;document.head.appendChild(historyScript);
+
+  // Seasonal presentation is intentionally independent from the curriculum.
+  // Load it from the theme bootstrap so existing HTML/app routing stays untouched.
+  const seasonalStyle=document.createElement('link');seasonalStyle.rel='stylesheet';seasonalStyle.href='seasonal-layer.css?v=20260828-1';document.head.appendChild(seasonalStyle);
+  const seasonalScript=document.createElement('script');seasonalScript.src='seasonal-layer.js?v=20260828-1';seasonalScript.defer=true;document.head.appendChild(seasonalScript);
 })();
