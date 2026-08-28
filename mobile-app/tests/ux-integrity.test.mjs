@@ -220,7 +220,7 @@ test('Today uses the approved ritual portal with hold feedback and an accessible
   assert.match(html,/data-action="practice"[^>]*>Begin Practice/);
   assert.match(html,/Month 1 of 24/);
   assert.match(app,/stage-title'\)\.textContent=p\?\.title\|\|currentStage\.title/);
-  assert.match(ritual,/const HOLD_MS=1500/);
+  assert.match(ritual,/const HOLD_MS=2000/);
   assert.match(ritual,/window\.Capacitor\?\.Plugins\?\.Haptics/);
   assert.match(ritual,/navigator\.vibrate/);
   assert.match(ritual,/pointercancel/);

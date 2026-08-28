@@ -43,7 +43,7 @@ async function holdPortal(page){
   const center={x:box.x+box.width/2,y:box.y+box.height/2};
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
-  await page.waitForTimeout(1650);
+  await page.waitForTimeout(2150);
   await page.mouse.up();
 }
 
@@ -111,7 +111,7 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   await page.mouse.up();
   await expect(circle).not.toHaveClass(/is-holding/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
-  await page.mouse.down();await page.waitForTimeout(1650);await page.mouse.up();
+  await page.mouse.down();await page.waitForTimeout(2150);await page.mouse.up();
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 });
