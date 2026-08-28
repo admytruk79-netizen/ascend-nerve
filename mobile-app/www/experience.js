@@ -2,19 +2,15 @@
   const splash=document.getElementById('splash');
   const splashStartedAt=Date.now();
   const MIN_SPLASH_MS=2400;
-  const MAX_SPLASH_MS=10000;
+  const MAX_SPLASH_MS=12000;
   let splashDismissed=false;
 
   const startupStateSettled=()=>{
     try{
-      // Signed-out users can land directly on the account screen once the
-      // opening animation has completed. For an existing session, keep the
-      // entire app behind the splash until auth, entitlement, curriculum and
-      // onboarding routing have all resolved.
       if(!window.PathBackend?.isSignedIn?.())return true;
       if(document.body.classList.contains('access-required'))return true;
       const appReady=!document.body.classList.contains('auth-required')&&!!window.curriculum;
-      const introReady=window.__ASCEND_INTRO_DECIDED!==false;
+      const introReady=window.__ASCEND_INTRO_DECIDED===true;
       return appReady&&introReady;
     }catch{return false}
   };
@@ -22,6 +18,8 @@
   const dismissSplash=()=>{
     if(splashDismissed)return;
     splashDismissed=true;
+    // Reveal exactly one resolved route under the cinematic layer.
+    document.documentElement.classList.remove('ascend-booting');
     splash?.classList.add('done');
   };
 
@@ -31,8 +29,6 @@
     const minimumComplete=elapsed>=MIN_SPLASH_MS;
     const hardLimitReached=elapsed>=MAX_SPLASH_MS;
     if(minimumComplete&&(startupStateSettled()||hardLimitReached)){
-      // Let the final route render commit before the cinematic layer fades,
-      // so Today, Login, Paywall or onboarding can never flash underneath.
       requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
       return;
     }
@@ -82,7 +78,6 @@
   document.getElementById('library-list')?.addEventListener('keydown',openLibraryItemFromKeyboard);
   document.getElementById('library-recommended')?.addEventListener('keydown',openLibraryItemFromKeyboard);
 
-  // Expose curriculum to the reader without changing the Path engine contract.
   const wait=()=>{
     try{if(typeof curriculum!=='undefined'&&curriculum){window.curriculum=curriculum;return}}catch{}
     setTimeout(wait,350);
