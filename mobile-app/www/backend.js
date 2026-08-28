@@ -4,6 +4,7 @@
   const STORAGE='ascendPathSession';
   const RECOVERY='ascendPasswordRecovery';
   const NATIVE_REDIRECT='com.ascend.path://auth-callback';
+  const CONFIRM_REDIRECT='https://admytruk79-netizen.github.io/ascend-nerve/';
   let session=JSON.parse(localStorage.getItem(STORAGE)||'null');
   const headers=(extra={})=>({apikey:KEY,'Content-Type':'application/json',...(session?.access_token?{Authorization:`Bearer ${session.access_token}`}:{}) ,...extra});
   const persist=(next)=>{session=next;if(next)localStorage.setItem(STORAGE,JSON.stringify(next));else localStorage.removeItem(STORAGE)};
@@ -40,9 +41,9 @@
     await Browser.open({url,toolbarColor:'#081521'});
   }
   async function signIn(email,password){const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',body:JSON.stringify({email,password})});persist(body);return body.user}
-  async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})})}
-  async function resendSignup(email){const url=`${BASE}/auth/v1/resend?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({type:'signup',email})})}
-  async function requestPasswordReset(email){const url=`${BASE}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo())}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email})})}
+  async function signUp(email,password){const url=`${BASE}/auth/v1/signup?redirect_to=${encodeURIComponent(CONFIRM_REDIRECT)}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email,password})})}
+  async function resendSignup(email){const url=`${BASE}/auth/v1/resend?redirect_to=${encodeURIComponent(CONFIRM_REDIRECT)}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({type:'signup',email})})}
+  async function requestPasswordReset(email){const url=`${BASE}/auth/v1/recover?redirect_to=${encodeURIComponent(CONFIRM_REDIRECT)}`;return jsonFetch(url,{method:'POST',body:JSON.stringify({email})})}
   async function updatePassword(password){const body=await jsonFetch(`${BASE}/auth/v1/user`,{method:'PUT',body:JSON.stringify({password})});sessionStorage.removeItem(RECOVERY);return body}
   function listenForOAuthCallback(onComplete){
     if(!isNative())return;
