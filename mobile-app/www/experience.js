@@ -1,8 +1,47 @@
 (()=>{
   const splash=document.getElementById('splash');
-  const dismissSplash=()=>splash?.classList.add('done');
-  window.addEventListener('load',()=>setTimeout(dismissSplash,2400),{once:true});
-  setTimeout(dismissSplash,4200);
+  const splashStartedAt=Date.now();
+  const MIN_SPLASH_MS=2400;
+  const MAX_SPLASH_MS=10000;
+  let splashDismissed=false;
+
+  const startupStateSettled=()=>{
+    try{
+      // Signed-out users can land directly on the account screen once the
+      // opening animation has completed. For an existing session, keep the
+      // entire app behind the splash until auth + entitlement have resolved.
+      if(!window.PathBackend?.isSignedIn?.())return true;
+      if(document.body.classList.contains('access-required'))return true;
+      if(!document.body.classList.contains('auth-required')&&window.curriculum)return true;
+      return false;
+    }catch{return false}
+  };
+
+  const dismissSplash=()=>{
+    if(splashDismissed)return;
+    splashDismissed=true;
+    splash?.classList.add('done');
+  };
+
+  const finishSplashWhenReady=()=>{
+    if(splashDismissed)return;
+    const elapsed=Date.now()-splashStartedAt;
+    const minimumComplete=elapsed>=MIN_SPLASH_MS;
+    const hardLimitReached=elapsed>=MAX_SPLASH_MS;
+    if(minimumComplete&&(startupStateSettled()||hardLimitReached)){
+      // Let the final auth/access render commit before the cinematic layer
+      // fades, so no login/paywall/intermediate frame can flash underneath.
+      requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
+      return;
+    }
+    setTimeout(finishSplashWhenReady,80);
+  };
+
+  // The splash is the only visible startup state. It remains in control until
+  // the app knows its real destination, while still providing a hard escape if
+  // a network request stalls indefinitely.
+  window.addEventListener('load',finishSplashWhenReady,{once:true});
+  setTimeout(finishSplashWhenReady,60);
 
   const overlay=document.getElementById('library-overlay');
   const close=()=>overlay?.classList.add('hidden');
