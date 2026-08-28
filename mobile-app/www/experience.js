@@ -61,7 +61,7 @@
   document.querySelector('.about-close')?.addEventListener('click',closeAbout);
   aboutOverlay?.addEventListener('click',e=>{if(e.target===aboutOverlay)closeAbout()});
 
-  const escapeText=(value='')=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const escapeText=(value='')=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const paragraphs=(text='')=>String(text).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${escapeText(p)}</p>`).join('');
 
   const openLibraryItem=e=>{
@@ -96,3 +96,4 @@
   wait();
 })();
 // Build trigger: signed Play AAB
+// Build trigger: signed Play AAB 2026-08-27
