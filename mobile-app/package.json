@@ -15,7 +15,8 @@
     "@capacitor/browser": "7.0.5",
     "@capacitor/core": "^7.4.3",
     "@capacitor/haptics": "7.0.5",
-    "cordova-plugin-purchase": "^13.18.0"
+    "cordova-plugin-purchase": "^13.18.0",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
