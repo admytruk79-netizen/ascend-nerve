@@ -95,3 +95,4 @@
   };
   wait();
 })();
+// Build trigger: signed Play AAB
