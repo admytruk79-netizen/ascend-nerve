@@ -4,16 +4,15 @@
   const begin=document.querySelector('#today [data-action="practice"]');
   if(!portal||!begin)return;
 
-  const HOLD_MS=1500;
-  const PULSES=[0,.34,.67,.92];
-  let frame=0,startAt=0,pulseIndex=0,holding=false,completed=false,pointerId=null;
+  const HOLD_MS=2000;
+  let frame=0,startAt=0,holding=false,completed=false,pointerId=null;
 
-  const vibrate=(pattern,style='LIGHT')=>{
+  const haptic=(style='LIGHT')=>{
     try{
       const Haptics=window.Capacitor?.Plugins?.Haptics;
       if(Haptics?.impact){Haptics.impact({style});return}
     }catch{}
-    try{navigator.vibrate?.(pattern)}catch{}
+    try{navigator.vibrate?.(12)}catch{}
   };
   const setProgress=value=>{
     const progress=Math.max(0,Math.min(1,value));
@@ -21,9 +20,9 @@
     portal.setAttribute('aria-valuenow',String(Math.round(progress*100)));
   };
   const reset=({message='Press and hold to begin.'}={})=>{
-    cancelAnimationFrame(frame);frame=0;holding=false;completed=false;pointerId=null;pulseIndex=0;
+    cancelAnimationFrame(frame);frame=0;holding=false;completed=false;pointerId=null;
     portal.classList.remove('is-holding','is-opening');
-    portal.setAttribute('aria-label','Press and hold to begin Self-Contemplation');
+    portal.setAttribute('aria-label','Press and hold for two seconds to begin Self-Contemplation');
     portal.removeAttribute('aria-valuenow');
     setProgress(0);
     if(feedback)feedback.textContent=message;
@@ -37,7 +36,8 @@
     completed=true;holding=false;setProgress(1);portal.classList.add('is-opening');
     portal.setAttribute('aria-label','Opening practice');
     if(feedback)feedback.textContent='The path is open.';
-    vibrate([35,35,55],'MEDIUM');
+    // One restrained confirmation only. No repeated pulses while holding.
+    haptic('LIGHT');
     setTimeout(openPractice,260);
   };
   const tick=now=>{
@@ -45,10 +45,6 @@
     const progress=(now-startAt)/HOLD_MS;
     setProgress(progress);
     portal.classList.add('is-holding');
-    while(pulseIndex<PULSES.length&&progress>=PULSES[pulseIndex]){
-      vibrate(pulseIndex===0?9:pulseIndex===3?22:13,pulseIndex===3?'MEDIUM':'LIGHT');
-      pulseIndex++;
-    }
     if(progress>=1){finishHold();return}
     frame=requestAnimationFrame(tick);
   };
@@ -73,7 +69,7 @@
   portal.addEventListener('click',event=>{
     if(event.detail!==0){event.preventDefault();return}
     if(feedback)feedback.textContent='Opening practice.';
-    vibrate(18,'MEDIUM');openPractice();
+    openPractice();
   });
 
   function syncJourney(event){
