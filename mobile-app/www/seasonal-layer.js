@@ -37,38 +37,74 @@
   function current(){const s=resolve(),cfg=data[s],mi=monthIndex(s);return {s,cfg,month:cfg.months[mi]||cfg.months[0]}}
 
   function apply(){
-    const {s,cfg,month}=current();
+    const {s}=current();
     document.documentElement.dataset.season=s;
     document.documentElement.dataset.seasonPreference=getPref();
-    if(month)document.documentElement.style.setProperty('--season-art',`url("${A+month[2]}")`);
-    const subtle=document.querySelectorAll('[data-season-context]');
-    subtle.forEach(el=>{el.textContent=`${month?.[0]||cfg.label} · ${cfg.theme}`});
+    renderReflection();
     renderLibrary();
   }
-
   function set(v){localStorage.setItem(KEY,v);apply()}
 
-  // Manual season choice belongs in Library exploration, not main navigation/Today.
+  function mountReflectionShell(){
+    const journal=document.getElementById('journal');if(!journal||journal.dataset.reflectionMounted)return;
+    journal.dataset.reflectionMounted='true';
+    const nav=document.querySelector('.bottom-nav [data-screen="journal"]');if(nav)nav.textContent='Reflection';
+    const old=[...journal.children];
+    const journalPanel=document.createElement('div');journalPanel.id='reflection-journal-panel';journalPanel.className='reflection-journal-panel hidden';
+    old.forEach(n=>journalPanel.appendChild(n));
+    const shell=document.createElement('div');shell.id='reflection-shell';shell.className='reflection-shell';
+    journal.append(shell,journalPanel);
+    const handoff=document.getElementById('today-reflect');
+    if(handoff){
+      const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');
+      if(strong)strong.textContent='After practice · Reflection';
+      if(small)small.textContent='Contemplate, then record what you noticed';
+    }
+  }
+
+  function reflectionChoice(cfg){
+    // Deterministic daily choice: changes gently without becoming a feed.
+    const d=new Date();const index=(d.getFullYear()*366+d.getMonth()*31+d.getDate())%cfg.art.length;
+    return cfg.art[index]||[cfg.months[0][1],cfg.months[0][2]];
+  }
+
+  function renderReflection(){
+    mountReflectionShell();
+    const shell=document.getElementById('reflection-shell');if(!shell)return;
+    const {cfg,month}=current();
+    const [title,img]=reflectionChoice(cfg);
+    shell.innerHTML=`
+      <div class="reflection-intro"><div class="eyebrow">REFLECTION · ${cfg.label.toUpperCase()}</div><h1>What is asking for your attention?</h1><p>Nothing to complete. Stay with the image, notice what arises, then choose whether to write.</p></div>
+      <article class="reflection-art-card">
+        <img src="${A+img}" alt="" class="reflection-art"/>
+        <div class="reflection-art-caption"><small>${month?.[0]||cfg.label} · ${cfg.theme}</small><strong>${title}</strong></div>
+      </article>
+      <div class="reflection-prompt"><span aria-hidden="true">✦</span><p>Remain with one detail. Notice the first response before interpreting it.</p></div>
+      <div class="reflection-actions"><button type="button" class="secondary" id="reflection-next">Another image</button><button type="button" class="primary" id="reflection-write">Write reflection</button></div>`;
+    shell.querySelector('#reflection-write')?.addEventListener('click',()=>{
+      shell.classList.add('hidden');
+      const panel=document.getElementById('reflection-journal-panel');panel?.classList.remove('hidden');
+      panel?.querySelector('textarea')?.focus();
+    });
+    shell.querySelector('#reflection-next')?.addEventListener('click',()=>{
+      const choices=cfg.art;const currentSrc=shell.querySelector('.reflection-art')?.getAttribute('src')||'';
+      const i=Math.max(0,choices.findIndex(([,f])=>currentSrc.endsWith(f)));const next=choices[(i+1)%choices.length];
+      const image=shell.querySelector('.reflection-art'),label=shell.querySelector('.reflection-art-caption strong');
+      if(image)image.src=A+next[1];if(label)label.textContent=next[0];
+    });
+  }
+
   function renderLibrary(){
     const library=document.getElementById('library');if(!library)return;
     let block=document.getElementById('seasonal-wisdom');
     if(!block){block=document.createElement('section');block.id='seasonal-wisdom';block.className='seasonal-wisdom';library.querySelector('.library-tools')?.insertAdjacentElement('afterend',block)}
-    const {s,cfg}=current();
-    block.innerHTML=`<div class="seasonal-head"><div><div class="eyebrow">SEASONAL WISDOM</div><h2>${cfg.label} · ${cfg.theme}</h2></div><small>Atmosphere, not progression</small></div>
-      <div class="season-choice-grid seasonal-library-choice">
-        <button type="button" data-season-choice="auto"><strong>Current</strong><small>Calendar</small></button>
-        ${Object.entries(data).map(([id,v])=>`<button type="button" data-season-choice="${id}"><strong>${v.label}</strong><small>${v.theme}</small></button>`).join('')}
-      </div>
-      <div class="season-months">${cfg.months.map(([m,t,img])=>`<article class="season-month"><img src="${A+img}" alt="" loading="lazy"><div><small>${m}</small><strong>${t}</strong></div></article>`).join('')}</div>
-      <details class="season-art-more"><summary>Explore ${cfg.label} artwork</summary><div class="season-art-grid">${cfg.art.map(([t,img])=>`<figure><img src="${A+img}" alt="" loading="lazy"><figcaption>${t}</figcaption></figure>`).join('')}</div></details>`;
+    const {cfg}=current();
+    block.innerHTML=`<div class="seasonal-head"><div><div class="eyebrow">SEASONAL LENS</div><h2>${cfg.label} · ${cfg.theme}</h2></div><small>Reflection layer</small></div>
+      <div class="season-choice-grid seasonal-library-choice"><button type="button" data-season-choice="auto"><strong>Current</strong><small>Calendar</small></button>${Object.entries(data).map(([id,v])=>`<button type="button" data-season-choice="${id}"><strong>${v.label}</strong><small>${v.theme}</small></button>`).join('')}</div>`;
     block.querySelectorAll('[data-season-choice]').forEach(b=>{b.classList.toggle('active',b.dataset.seasonChoice===getPref());b.addEventListener('click',()=>set(b.dataset.seasonChoice))});
   }
 
-  function mount(){
-    // Remove the old prominent settings card if an earlier build created it.
-    document.getElementById('season-card')?.remove();
-    apply();
-  }
+  function mount(){document.getElementById('season-card')?.remove();apply()}
   document.addEventListener('DOMContentLoaded',mount);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getPref()==='auto')apply()});
   window.ASCENDSeason={apply,set,get:getPref,resolve,data};
