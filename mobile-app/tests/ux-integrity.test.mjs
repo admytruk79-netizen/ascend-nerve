@@ -26,16 +26,10 @@ test('readiness milestones open Core ranges without allowing delayed reviews to 
   assert.equal(p.capForStage(7),7);
   assert.equal(p.capForStage(8),18);
   assert.equal(p.capForStage(9),24);
-
-  // Foundation months are readiness stages, not elapsed-calendar counters.
   assert.equal(p.monthFor({stageSortOrder:7,stageStartedAt:'2024-01-01',now:new Date('2026-12-01')}),7);
-
-  // Passing Foundation Review after a long delay must begin month 8, not jump to 18.
   assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2026-12-01')}),8);
   assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2027-02-01')}),10);
   assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2029-01-01')}),18);
-
-  // Passing the Part II gate begins month 19 regardless of total age of the Path.
   assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-06-01')}),19);
   assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-11-01')}),24);
 });
@@ -243,4 +237,24 @@ test('Android Back stays inside ASCEND and unwinds overlays and screens',()=>{
   assert.match(ux,/current!=='today'/);
   assert.match(ux,/window\.addEventListener\('popstate'/);
   assert.match(ux,/window\.ASCENDUX=\{activateScreen,syncOverlay,syncAuthGate,handleBack\}/);
+});
+
+test('Day Night and Twilight modes remain distinct across all primary surfaces',()=>{
+  const theme=read('theme.css');
+  const themeJs=read('theme.js');
+  const ritual=read('ritual-today.css');
+  assert.match(themeJs,/\['day','twilight','night','auto'\]/);
+  assert.match(themeJs,/mode==='twilight'\?'#0a2634'/);
+  assert.match(theme,/html\[data-theme="day"\] body/);
+  assert.match(theme,/html\[data-theme="twilight"\] body/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.rhythm-card/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.journal-form textarea/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.bottom-nav/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.practice-overlay/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.practice-briefing/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.library-overlay/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.primary/);
+  assert.match(theme,/html\[data-theme="twilight"\] \.secondary/);
+  assert.match(ritual,/html\[data-theme="twilight"\]/);
+  assert.notEqual(theme.match(/html\[data-theme="day"\] body\{background:([^}]*)\}/)?.[1],theme.match(/html\[data-theme="twilight"\] body\{background:([^}]*)\}/)?.[1]);
 });
