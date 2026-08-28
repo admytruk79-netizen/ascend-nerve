@@ -1,5 +1,6 @@
+.screen.active{animation:none!important;opacity:1!important;transform:none!important}
 .screen.motion-enter:not(.active){display:none!important}
-.screen.active.motion-enter{display:block;animation:ascendScreenIn .28s cubic-bezier(.2,.8,.2,1) both}
+.screen.active.motion-enter{display:block;animation:none!important}
 .today-reflect{margin-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left}
 .today-reflect span{display:flex;flex-direction:column;gap:3px}
 .today-reflect strong{font-size:.98rem;font-weight:600}
