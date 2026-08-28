@@ -5,9 +5,16 @@
   const MAX_SPLASH_MS=12000;
   let splashDismissed=false;
 
+  // The splash is the first-paint boot shield. Keep the app completely hidden
+  // while auth, entitlement, curriculum and the intro decision hydrate behind it.
+  // The existing ASCEND Path cinematic intro remains untouched and is revealed
+  // only after this boot layer has completed.
   const startupStateSettled=()=>{
     try{
-      if(!window.PathBackend?.isSignedIn?.())return true;
+      if(!window.PathBackend)return false;
+      if(!window.PathBackend?.isSignedIn?.()){
+        return !document.body.classList.contains('access-required');
+      }
       if(document.body.classList.contains('access-required'))return true;
       const appReady=!document.body.classList.contains('auth-required')&&!!window.curriculum;
       const introReady=window.__ASCEND_INTRO_DECIDED===true;
@@ -18,9 +25,12 @@
   const dismissSplash=()=>{
     if(splashDismissed)return;
     splashDismissed=true;
-    // Reveal exactly one resolved route under the cinematic layer.
-    document.documentElement.classList.remove('ascend-booting');
-    splash?.classList.add('done');
+    // First expose the already-resolved destination (or the existing cinematic
+    // intro), then fade this boot shield. This prevents login/practice flashes.
+    requestAnimationFrame(()=>{
+      document.documentElement.classList.remove('ascend-booting');
+      requestAnimationFrame(()=>splash?.classList.add('done'));
+    });
   };
 
   const finishSplashWhenReady=()=>{
@@ -29,7 +39,7 @@
     const minimumComplete=elapsed>=MIN_SPLASH_MS;
     const hardLimitReached=elapsed>=MAX_SPLASH_MS;
     if(minimumComplete&&(startupStateSettled()||hardLimitReached)){
-      requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
+      dismissSplash();
       return;
     }
     setTimeout(finishSplashWhenReady,80);
@@ -37,6 +47,7 @@
 
   window.addEventListener('load',finishSplashWhenReady,{once:true});
   document.addEventListener('ascend:intro-decided',finishSplashWhenReady);
+  document.addEventListener('ascend:curriculum',finishSplashWhenReady);
   setTimeout(finishSplashWhenReady,60);
 
   const overlay=document.getElementById('library-overlay');
@@ -79,7 +90,7 @@
   document.getElementById('library-recommended')?.addEventListener('keydown',openLibraryItemFromKeyboard);
 
   const wait=()=>{
-    try{if(typeof curriculum!=='undefined'&&curriculum){window.curriculum=curriculum;return}}catch{}
+    try{if(typeof curriculum!=='undefined'&&curriculum){window.curriculum=curriculum;finishSplashWhenReady();return}}catch{}
     setTimeout(wait,350);
   };
   wait();
