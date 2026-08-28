@@ -23,25 +23,28 @@ const testUser={id:'00000000-0000-0000-0000-000000000001',email:'integrity@ascen
 
 async function boot(page){
   await page.addInitScript(()=>{
-    localStorage.setItem('ascendPathSession',JSON.stringify({
-      access_token:'test-access-token',
-      refresh_token:'test-refresh-token',
-      expires_in:3600,
-      token_type:'bearer'
-    }));
+    localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'test-access-token',refresh_token:'test-refresh-token',expires_in:3600,token_type:'bearer'}));
   });
-  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',async route=>{
-    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)});
-  });
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)}));
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',async route=>{
     const url=new URL(route.request().url());
     const table=url.pathname.split('/').pop();
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixtures[table]||[])});
   });
   await page.goto('/');
-  await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await page.evaluate(()=>{document.documentElement.classList.remove('ascend-booting');document.getElementById('splash')?.classList.add('done')});
   await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
+}
+
+async function holdPortal(page){
+  const circle=page.locator('#ritual-portal');
+  const box=await circle.boundingBox();
+  const center={x:box.x+box.width/2,y:box.y+box.height/2};
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.waitForTimeout(1650);
+  await page.mouse.up();
 }
 
 test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
@@ -51,7 +54,6 @@ test('empty Journal never persists and meaningful Journal persists remotely when
   await expect(page.locator('#journal-status')).toContainText('at least one observation');
   const count=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
   expect(count).toBe(0);
-
   await page.locator('textarea[name="life_application"]').fill('Paused before responding.');
   const requestPromise=page.waitForRequest(request=>request.url().includes('/rest/v1/path_journal_entries')&&request.method()==='POST');
   await page.getByRole('button',{name:'Save Reflection'}).click();
@@ -84,7 +86,7 @@ test('Library recommendations never surface locked future material and cards wor
 
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
-  await page.getByRole('button',{name:'Begin Practice'}).click();
+  await holdPortal(page);
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
   await page.getByRole('button',{name:'Finish Practice'}).click();
@@ -99,26 +101,17 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   const circle=page.locator('#ritual-portal');
   const box=await circle.boundingBox();
   const center={x:box.x+box.width/2,y:box.y+box.height/2};
-
-  // Quick tap: restores the hold instruction and never opens the overlay.
   await page.mouse.move(center.x,center.y);
-  await page.mouse.down();
-  await page.mouse.up();
+  await page.mouse.down();await page.mouse.up();
   await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
-
-  // Early release: the ring retreats, nothing opens.
   await page.mouse.down();
   await expect(circle).toHaveClass(/is-holding/);
   await page.waitForTimeout(400);
   await page.mouse.up();
   await expect(circle).not.toHaveClass(/is-holding/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
-
-  // Completing the hold opens the briefing without ever clicking the fallback button.
-  await page.mouse.down();
-  await page.waitForTimeout(1650);
-  await page.mouse.up();
+  await page.mouse.down();await page.waitForTimeout(1650);await page.mouse.up();
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 });
@@ -132,7 +125,7 @@ test('refresh never exposes the Path before entitlement is verified',async({page
     await route.fulfill({status:200,contentType:'application/json',body:'[]'});
   });
   await page.goto('/');
-  await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await page.evaluate(()=>{document.documentElement.classList.remove('ascend-booting');document.getElementById('splash')?.classList.add('done')});
   await expect(page.locator('body')).toHaveClass(/auth-required/);
   await expect(page.locator('body')).toHaveClass(/access-required/);
   await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
