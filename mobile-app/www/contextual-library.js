@@ -20,6 +20,11 @@
     .related-teaching-copy{min-width:0;display:block}.related-teaching-copy small{display:block;color:var(--gold);font:9px Arial,sans-serif;letter-spacing:.14em;margin-bottom:3px}.related-teaching-copy strong{display:block;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.related-teaching-arrow{margin-left:auto;color:var(--gold);font-size:22px}
     .practice-overlay .related-teaching{max-width:360px;margin:8px 0 18px}
     .content-card.month-locked{pointer-events:none;opacity:.42}
+    .library-current-practice{margin:0 0 18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+    .library-current-practice .eyebrow{margin-bottom:8px}
+    .library-practice-card{width:100%;display:grid;grid-template-columns:1fr auto;gap:5px 14px;align-items:center;text-align:left;padding:15px 16px;border:1px solid rgba(85,200,189,.28);border-radius:16px;background:linear-gradient(135deg,rgba(85,200,189,.08),var(--panel));color:var(--ivory);font:inherit}
+    .library-practice-card small{grid-column:1;color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.13em}.library-practice-card strong{grid-column:1;font-size:15px;font-weight:500}.library-practice-card span{grid-column:1;color:var(--muted);font-size:11px}.library-practice-card i{grid-column:2;grid-row:1/4;font-style:normal;font-size:24px;color:var(--teal)}
+    .library-practice-card:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
   `;
   document.head.appendChild(style);
 
@@ -29,6 +34,12 @@
   function currentStageTitle(){return document.getElementById('stage-title')?.textContent?.trim()||''}
   function minMonth(item){const exact=Number(item?.metadata?.month)||0;const minimum=Number(item?.metadata?.min_month)||0;return exact||minimum||1}
   function eligible(item){return minMonth(item)<=currentMonth}
+  function currentPractice(){
+    const c=window.curriculum,stage=window.currentStage;
+    if(!c||!stage)return null;
+    const link=c.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
+    return link?c.practices?.find(item=>item.id===link.practice_id)||null:null;
+  }
   function relatedItems(){
     const c=window.curriculum;
     if(!c?.content?.length)return[];
@@ -59,8 +70,20 @@
     b.addEventListener('click',()=>openItem(item));return b;
   }
 
+  function mountCurrentPractice(){
+    document.getElementById('library-current-practice')?.remove();
+    const filter=document.querySelector('.library-filter.active')?.dataset.libraryType||'all';
+    if(filter!=='all'&&filter!=='practice')return;
+    const practice=currentPractice(),list=document.getElementById('library-list');
+    if(!practice||!list)return;
+    const section=document.createElement('section');section.id='library-current-practice';section.className='library-current-practice';
+    section.innerHTML=`<div class="eyebrow">CURRENT PRACTICE</div><button class="library-practice-card" type="button" aria-label="Open current practice ${esc(practice.title||'Practice')}"><small>MONTH ${currentMonth} · PRACTICE</small><strong>${esc(practice.title||window.currentStage?.title||'Current Practice')}</strong><span>${Number(practice.default_minutes)||10} min · Continue from Today</span><i aria-hidden="true">›</i></button>`;
+    section.querySelector('button').addEventListener('click',()=>window.ASCENDOpenPractice?.());
+    list.prepend(section);
+  }
+
   function gateLibraryCards(){
-    const c=window.curriculum;if(!c?.content?.length)return;
+    const c=window.curriculum;if(!c?.content?.length){mountCurrentPractice();return}
     document.querySelectorAll('#library-list .content-card,#library-recommended .content-card').forEach(card=>{
       const item=c.content.find(x=>x.slug===card.dataset.slug);if(!item)return;
       const needed=minMonth(item),locked=needed>currentMonth;
@@ -71,6 +94,7 @@
     });
     const rail=document.getElementById('library-recommended');
     if(rail&&!rail.querySelector('.content-card'))rail.innerHTML='';
+    mountCurrentPractice();
   }
 
   function render(){
@@ -91,6 +115,8 @@
     if(key!==lastKey&&window.curriculum?.content?.length){lastKey=key;render()}else gateLibraryCards();
     setTimeout(tick,700);
   }
+  document.querySelectorAll('.library-filter').forEach(button=>button.addEventListener('click',()=>setTimeout(mountCurrentPractice,0)));
   document.addEventListener('ascend:month',async event=>{currentMonth=Math.max(1,Math.min(24,Number(event.detail?.month)||currentMonth));lastKey='';render()});
+  document.addEventListener('ascend:curriculum',()=>setTimeout(render,0));
   document.addEventListener('DOMContentLoaded',tick);
 })();
