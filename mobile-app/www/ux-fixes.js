@@ -33,7 +33,9 @@
     .journal-history h2{margin-bottom:4px}
     .journal-history-intro{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.5}
     .journal-history-list{display:grid;gap:8px}
-    .journal-history-entry{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+    .journal-history-entry{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);cursor:pointer;position:relative;padding-right:34px;-webkit-tap-highlight-color:transparent}
+    .journal-history-entry:after{content:'›';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--muted)}
+    .journal-history-entry:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
     .journal-history-entry small{display:block;color:var(--gold);font-size:8px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
     .journal-history-entry p{margin:0;color:var(--ivory);font-size:12px;line-height:1.45}
     #today-reflect.complete{border-color:rgba(85,200,189,.48);background:linear-gradient(135deg,rgba(85,200,189,.10),var(--panel))}
@@ -154,7 +156,7 @@
     historyWrap=document.createElement('section');
     historyWrap.id='journal-history';
     historyWrap.className='journal-history';
-    historyWrap.innerHTML='<h2>Saved reflections</h2><p class="journal-history-intro">Your recent Journal entries live here. Mirror reads recurring patterns from this private record.</p><div class="journal-history-list" id="journal-history-list"><p class="quiet-note">Loading saved reflections…</p></div>';
+    historyWrap.innerHTML='<h2>Saved reflections</h2><p class="journal-history-intro">Your recent Journal entries live here. Tap one to review the complete reflection.</p><div class="journal-history-list" id="journal-history-list"><p class="quiet-note">Loading saved reflections…</p></div>';
     savedPanel?.insertAdjacentElement('afterend',historyWrap);
   }
 
@@ -165,13 +167,14 @@
     let rows=[];
     try{
       const me=await PathBackend.me();
-      if(me)rows=await PathBackend.rest('path_journal_entries',{query:`user_id=eq.${me.id}&select=entry_date,created_at,observation,inner_state,life_application,interpretation,unresolved&order=entry_date.desc,created_at.desc&limit=8`});
+      if(me)rows=await PathBackend.rest('path_journal_entries',{query:`user_id=eq.${me.id}&select=id,stage_id,entry_date,created_at,observation,inner_state,life_application,interpretation,unresolved&order=entry_date.desc,created_at.desc&limit=8`});
     }catch{}
     if(!rows.length){
       try{rows=(JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries||[]).slice(-8).reverse()}catch{}
     }
+    window.__ASCEND_JOURNAL_HISTORY=rows;
     if(!rows.length){list.innerHTML='<p class="quiet-note">No saved reflections yet. Your first saved entry will appear here.</p>';return}
-    list.innerHTML=rows.map(row=>`<article class="journal-history-entry"><small>${dateLabel(row.entry_date||row.created_at)}</small><p>${String(shortText(row)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).slice(0,220)}</p></article>`).join('');
+    list.innerHTML=rows.map((row,index)=>`<article class="journal-history-entry" role="button" tabindex="0" data-journal-index="${index}" aria-label="Review journal entry from ${dateLabel(row.entry_date||row.created_at)}"><small>${dateLabel(row.entry_date||row.created_at)}</small><p>${String(shortText(row)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).slice(0,220)}</p></article>`).join('');
   }
 
   function markJournalComplete(){
@@ -219,4 +222,34 @@
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
   window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate,handleBack,loadJournalHistory};
+})();
+
+// Full Journal review: saved rows open into a readable detail sheet instead of
+// being dead summaries. This is review-only; progression and stored text are not mutated.
+(()=>{
+  const list=document.getElementById('journal-history-list');
+  if(!list)return;
+  const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const labels={observation:'Observation',inner_state:'Inner State',life_application:'Life Application',interpretation:'Interpretation',unresolved:'Unresolved'};
+  const style=document.createElement('style');
+  style.textContent=`.journal-review-sheet{position:fixed;inset:0;z-index:10030;display:flex;align-items:flex-end;justify-content:center;padding:18px;background:rgba(3,7,9,.72);backdrop-filter:blur(12px)}.journal-review-sheet.hidden{display:none}.journal-review-panel{width:min(100%,620px);max-height:84vh;overflow:auto;padding:22px;border:1px solid rgba(255,255,255,.12);border-radius:26px 26px 20px 20px;background:var(--surface,#101718);box-shadow:0 -18px 70px rgba(0,0,0,.35)}.journal-review-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.journal-review-close{border:0;background:transparent;color:inherit;font-size:1.8rem;line-height:1;padding:2px 7px}.journal-review-date{color:var(--gold);font-size:9px;letter-spacing:.1em;text-transform:uppercase}.journal-review-field{padding:14px 0;border-top:1px solid var(--line)}.journal-review-field small{display:block;color:var(--teal);font-size:8px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}.journal-review-field p{margin:0;line-height:1.6}`;
+  document.head.appendChild(style);
+  const sheet=document.createElement('div');
+  sheet.className='journal-review-sheet hidden';sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-labelledby','journal-review-title');
+  sheet.innerHTML='<div class="journal-review-panel"><div class="journal-review-head"><div><div class="journal-review-date" id="journal-review-date"></div><h2 id="journal-review-title">Journal Reflection</h2></div><button class="journal-review-close" type="button" aria-label="Close journal reflection">×</button></div><div id="journal-review-body"></div></div>';
+  document.body.appendChild(sheet);
+  const close=()=>sheet.classList.add('hidden');
+  sheet.querySelector('.journal-review-close').addEventListener('click',close);
+  sheet.addEventListener('click',e=>{if(e.target===sheet)close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!sheet.classList.contains('hidden'))close()});
+  const dateLabel=value=>{try{return new Intl.DateTimeFormat(undefined,{weekday:'short',month:'long',day:'numeric',year:'numeric'}).format(new Date(value))}catch{return value||'Saved reflection'}};
+  const open=index=>{
+    const row=window.__ASCEND_JOURNAL_HISTORY?.[index];if(!row)return;
+    document.getElementById('journal-review-date').textContent=dateLabel(row.entry_date||row.created_at);
+    const fields=Object.entries(labels).filter(([key])=>String(row[key]||'').trim());
+    document.getElementById('journal-review-body').innerHTML=fields.length?fields.map(([key,label])=>`<section class="journal-review-field"><small>${label}</small><p>${esc(row[key])}</p></section>`).join(''):'<p class="quiet-note">This saved reflection has no additional fields to display.</p>';
+    sheet.classList.remove('hidden');sheet.querySelector('.journal-review-close').focus();
+  };
+  list.addEventListener('click',e=>{const row=e.target.closest('[data-journal-index]');if(row)open(Number(row.dataset.journalIndex))});
+  list.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const row=e.target.closest('[data-journal-index]');if(!row)return;e.preventDefault();open(Number(row.dataset.journalIndex))});
 })();
