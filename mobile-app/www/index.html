@@ -5,435 +5,73 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#081521"/>
 <title>ASCEND Path</title>
+<script>document.documentElement.classList.add('ascend-booting')</script>
 <link rel="stylesheet" href="styles.css?v=20260824-populated-1"/>
 <link rel="stylesheet" href="living-object.css?v=20260824-populated-1"/>
 <link rel="stylesheet" href="theme.css?v=20260827-twilight-1"/>
 <link rel="stylesheet" href="experience.css?v=20260824-populated-1"/>
 <link rel="stylesheet" href="ux-fixes.css?v=20260827-library-groups-1"/>
-<link rel="stylesheet" href="ritual-today.css?v=20260827-circle-clear-1"/>
-<link rel="stylesheet" href="path-intro.css?v=20260827-intro-1"/>
-<script src="theme.js?v=20260827-twilight-1">
-</script>
-<style>body.auth-required #app .topbar,body.auth-required #app .screen:not(#me),body.auth-required #me> :not(.auth-card),body.auth-required .bottom-nav,body.access-required #app .topbar,body.access-required #app .screen:not(#me),body.access-required #me> :not(.auth-card),body.access-required .bottom-nav{display:none!important}body.auth-required #me,body.access-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}body.auth-required #me .auth-card,body.access-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}</style>
+<link rel="stylesheet" href="ritual-today.css?v=20260827-circle-align-2"/>
+<link rel="stylesheet" href="path-intro.css?v=20260827-startup-4"/>
+<script src="theme.js?v=20260827-twilight-1"></script>
+<style>html.ascend-booting body>*:not(#splash){visibility:hidden!important}body.auth-required #app .topbar,body.auth-required #app .screen:not(#me),body.auth-required #me> :not(.auth-card),body.auth-required .bottom-nav,body.access-required #app .topbar,body.access-required #app .screen:not(#me),body.access-required #me> :not(.auth-card),body.access-required .bottom-nav{display:none!important}body.auth-required #me,body.access-required #me{display:flex!important;min-height:100vh;align-items:center;justify-content:center;padding:32px 20px!important}body.auth-required #me .auth-card,body.access-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}</style>
 </head>
 <body class="auth-required">
 <div id="splash" class="splash" aria-hidden="true">
-<div class="splash-logo-wrap">
-<div class="splash-orbit">
-</div>
-<img src="assets/ascend-logo.png" class="splash-logo" alt=""/>
-</div>
-<div class="splash-title">ASCEND<span>PATH</span>
-</div>
+<div class="splash-logo-wrap"><div class="splash-orbit"></div><img src="assets/ascend-logo.png" class="splash-logo" alt=""/></div>
+<div class="splash-title">ASCEND<span>PATH</span></div>
 <div class="splash-subtitle">A LIVING PATH OF CONSCIOUS DEVELOPMENT</div>
 </div>
 <main id="app" class="app-shell">
 <header class="topbar">
 <button class="icon-button" id="menu-button" type="button" aria-label="Open navigation menu" title="Menu">☰</button>
-<div class="brand-lockup">
-<img src="assets/ascend-logo.png" class="brand-logo" alt="ASCEND"/>
-<div class="brand">ASCEND <span>PATH</span>
-</div>
-</div>
-<button id="theme-cycle" class="mode-pill" type="button" aria-label="Change appearance mode">
-<span class="mode-symbol" aria-hidden="true">◐</span>
-<span id="mode-label">AUTO</span>
-</button>
+<div class="brand-lockup"><img src="assets/ascend-logo.png" class="brand-logo" alt="ASCEND"/><div class="brand">ASCEND <span>PATH</span></div></div>
+<button id="theme-cycle" class="mode-pill" type="button" aria-label="Change appearance mode"><span class="mode-symbol" aria-hidden="true">◐</span><span id="mode-label">AUTO</span></button>
 <div id="sync-state" class="visually-hidden" role="status" aria-live="polite">LOCAL</div>
 </header>
 <section id="today" class="screen active today-ritual-screen" data-dashboard="minimal" aria-hidden="false">
-<div class="ritual-context">
-<div class="eyebrow" id="stage-eyebrow">TONIGHT · CORE FORMATION</div>
-<h1 id="stage-title">Self-Contemplation</h1>
-<div class="ritual-meta">
-<span id="stage-day">DAY 1</span>
-<span aria-hidden="true">·</span>
-<span class="practice-name" id="practice-name">10 min</span>
-</div>
-</div>
-<div class="ritual-scene">
-<button class="ritual-portal" id="ritual-portal" type="button" aria-describedby="ritual-hint" aria-label="Press and hold to begin Self-Contemplation">
-<span class="ritual-progress" aria-hidden="true">
-</span>
-<span class="ritual-copy">
-<strong>Press &amp; Hold</strong>
-<small id="ritual-hint">Feel each pulse as the path opens</small>
-</span>
-</button>
-</div>
-<p id="ritual-feedback" class="ritual-feedback" role="status" aria-live="polite">
-</p>
-<button class="primary ritual-begin" data-action="practice" type="button">Begin Practice</button>
-<section class="journey-rail" aria-label="Current journey progress">
-<div class="journey-progress">
-<strong id="today-month-label">Month 1 of 24</strong>
-<span class="journey-track" aria-hidden="true">
-<i id="today-month-progress">
-</i>
-</span>
-</div>
-<div class="journey-waypoints">
-<div class="journey-waypoint active">
-<span class="waypoint-mark" aria-hidden="true">
-</span>
-<strong>Now</strong>
-<small id="journey-now-day">Day 1</small>
-</div>
-<div class="journey-waypoint">
-<span class="waypoint-mark" aria-hidden="true">
-</span>
-<strong>Reflect</strong>
-<small>After practice</small>
-</div>
-<div class="journey-waypoint">
-<span class="waypoint-mark" aria-hidden="true">
-</span>
-<strong>Next</strong>
-<small>Tomorrow</small>
-</div>
-</div>
+<div class="ritual-context"><div class="eyebrow" id="stage-eyebrow">TONIGHT · CORE FORMATION</div><h1 id="stage-title">Self-Contemplation</h1><div class="ritual-meta"><span id="stage-day">DAY 1</span><span aria-hidden="true">·</span><span class="practice-name" id="practice-name">10 min</span></div></div>
+<div class="ritual-scene"><button class="ritual-portal" id="ritual-portal" type="button" aria-describedby="ritual-hint" aria-label="Press and hold to begin Self-Contemplation"><span class="ritual-progress" aria-hidden="true"></span><span class="ritual-copy"><strong>Press &amp; Hold</strong><small id="ritual-hint">Feel each pulse as the path opens</small></span></button></div>
+<p id="ritual-feedback" class="ritual-feedback" role="status" aria-live="polite"></p>
+<button class="primary ritual-begin" data-action="practice" type="button" aria-hidden="true" tabindex="-1">Begin Practice</button>
+<section class="journey-rail" aria-label="Current journey progress"><div class="journey-progress"><strong id="today-month-label">Month 1 of 24</strong><span class="journey-track" aria-hidden="true"><i id="today-month-progress"></i></span></div><div class="journey-waypoints"><div class="journey-waypoint active"><span class="waypoint-mark" aria-hidden="true"></span><strong>Now</strong><small id="journey-now-day">Day 1</small></div><div class="journey-waypoint"><span class="waypoint-mark" aria-hidden="true"></span><strong>Reflect</strong><small>After practice</small></div><div class="journey-waypoint"><span class="waypoint-mark" aria-hidden="true"></span><strong>Next</strong><small>Tomorrow</small></div></div></section>
+<button class="today-reflect journal-handoff" id="today-reflect" data-go-journal type="button"><span class="journal-mark" aria-hidden="true">✦</span><span><strong>After practice · Journal reflection</strong><small>Record what you noticed</small></span><span class="reflect-arrow" aria-hidden="true">›</span></button>
+<section class="rhythm-card visually-hidden" aria-hidden="true"><label><span>Primary Practice</span><input type="checkbox" id="primary-check"/></label></section>
+<p class="quiet-note visually-hidden"><strong id="practice-days">0</strong> practice days · <span id="stage-requirement">7 required</span></p>
 </section>
-<button class="today-reflect journal-handoff" id="today-reflect" data-go-journal type="button">
-<span class="journal-mark" aria-hidden="true">✦</span>
-<span>
-<strong>After practice · Journal reflection</strong>
-<small>Record what you noticed</small>
-</span>
-<span class="reflect-arrow" aria-hidden="true">›</span>
-</button>
-<section class="rhythm-card visually-hidden" aria-hidden="true">
-<label>
-<span>Primary Practice</span>
-<input type="checkbox" id="primary-check"/>
-</label>
-</section>
-<p class="quiet-note visually-hidden">
-<strong id="practice-days">0</strong> practice days · <span id="stage-requirement">7 required</span>
-</p>
-</section>
-<section id="path" class="screen" aria-hidden="true">
-<div class="eyebrow">YOUR TRAINING</div>
-<h1>Your Path</h1>
-<p class="path-summary-copy">Core Formation and the specialized pathways keep separate progression records.</p>
-<div id="path-list" aria-label="24-month Core Formation">
-</div>
-<article id="stage-review-card" class="rhythm-card hidden">
-<div class="eyebrow">STAGE REVIEW</div>
-<h2 id="review-title">Attainment Reflection</h2>
-<div id="marker-list">
-</div>
-<button class="primary" id="submit-stage-review">Request Progression Review</button>
-<button class="secondary" id="continue-stage">Continue This Stage</button>
-<p id="review-status" class="quiet-note" role="status" aria-live="polite">
-</p>
-</article>
-<header class="pathway-section-header">
-<div>
-<strong>Independent Pathways</strong>
-<span>Separate from Core Formation</span>
-</div>
-</header>
-<div id="practice-branches">
-<article class="rhythm-card">
-<h2>Loading pathways…</h2>
-<p>Preparing the independent training programs.</p>
-</article>
-</div>
-</section>
-<section id="journal" class="screen" aria-hidden="true">
-<div class="eyebrow">OBSERVE · REFLECT · UNDERSTAND</div>
-<h1>Journal</h1>
-<form id="journal-form" class="journal-form">
-<label>Observation<textarea name="observation">
-</textarea>
-</label>
-<label>Inner State<textarea name="inner_state">
-</textarea>
-</label>
-<label>Life Application<textarea name="life_application">
-</textarea>
-</label>
-<label>Interpretation<textarea name="interpretation">
-</textarea>
-</label>
-<label>Unresolved<textarea name="unresolved">
-</textarea>
-</label>
-<label class="journal-share-teacher">
-<input type="checkbox" name="share_with_teacher"/>
-<span>Share this entry with your teacher</span>
-</label>
-<button class="primary">Save Reflection</button>
-</form>
-<div id="journal-status" class="quiet-note" role="status" aria-live="polite">
-</div>
-</section>
-<section id="library" class="screen" aria-hidden="true">
-<div class="eyebrow">TEACHINGS FOR YOUR STAGE</div>
-<h1>Library</h1>
-<div class="library-tools">
-<label class="visually-hidden" for="library-search">Search the Library</label>
-<input class="library-search" id="library-search" type="search" placeholder="Search teachings and practices"/>
-<div class="library-filters" aria-label="Filter Library by type">
-<button class="library-filter active" type="button" data-library-type="all">All</button>
-<button class="library-filter" type="button" data-library-type="teaching">Teachings</button>
-<button class="library-filter" type="button" data-library-type="practice">Practices</button>
-<button class="library-filter" type="button" data-library-type="reading">Readings</button>
-<button class="library-filter" type="button" data-library-type="reference">References</button>
-</div>
-<div class="library-count" id="library-count" aria-live="polite">
-</div>
-</div>
-<div id="library-recommended">
-</div>
-<div id="library-list-label" class="eyebrow hidden">ALL TEACHINGS</div>
-<div id="library-list">
-</div>
-</section>
-<section id="me" class="screen" aria-hidden="true">
-<div class="eyebrow">YOUR RHYTHM</div>
-<h1>Me</h1>
-<article class="rhythm-card">
-<h2>Current Stage</h2>
-<p id="profile-stage">Beginning</p>
-<p>Practice days: <strong id="profile-days">0</strong>
-</p>
-</article>
-<article class="rhythm-card">
-<h2>Mirror</h2>
-<div id="mirror-content" class="mirror-content">
-</div>
-<button class="secondary" id="refresh-mirror">Refresh Mirror</button>
-</article>
-<div id="teacher-section">
-</div>
-<article class="rhythm-card auth-card">
-<h2>ASCEND Account</h2>
-<div id="account-signed-out">
-<p class="google-signin-copy">Create or sign in to your account. ASCEND Path requires active paid access.</p>
-<button class="primary google-sign-in" type="button" id="google-sign-in">Continue with Google</button>
-<div class="auth-divider">
-<span>or use email</span>
-</div>
-<form id="auth-form">
-<label class="auth-field">
-<span>Email</span>
-<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required/>
-</label>
-<label class="auth-field password-field">
-<span>Password</span>
-<input name="password" id="account-password" type="password" autocomplete="current-password" minlength="6" required/>
-<button type="button" class="password-toggle" id="toggle-password" aria-controls="account-password" aria-pressed="false">Show</button>
-</label>
-<button class="secondary" type="submit">Sign In</button>
-<button class="text-button" type="button" id="create-account">Create Account</button>
-<button class="text-button" type="button" id="forgot-password">Forgot Password?</button>
-</form>
-<p id="auth-status" role="status" aria-live="polite">
-</p>
-</div>
-<div id="account-signed-in" class="hidden">
-<p id="account-email">
-</p>
-<div class="access-panel">
-<div class="access-state">
-<span>MEMBERSHIP</span>
-<strong id="access-level">Checking…</strong>
-</div>
-<p id="access-message" class="access-message">Verifying your ASCEND membership…</p>
-<div id="paywall-purchase">
-<div class="paywall-plans" id="paywall-plans">
-<button class="secondary paywall-buy" type="button" data-tier="annual">
-<strong>Annual</strong>
-<span id="price-annual">$299.00/year</span>
-<small>Best value</small>
-</button>
-<button class="secondary paywall-buy" type="button" data-tier="monthly">
-<strong>Monthly</strong>
-<span id="price-monthly">$45.00/month</span>
-</button>
-<button class="secondary paywall-buy" type="button" data-tier="lifetime">
-<strong>Lifetime</strong>
-<span id="price-lifetime">$649.00</span>
-<small>One time</small>
-</button>
-</div>
-<button class="text-button" id="paywall-restore" type="button">Restore Purchases</button>
-<p id="paywall-status" class="quiet-note" role="status" aria-live="polite">
-</p>
-</div>
-<form id="lifetime-key-form">
-<label class="auth-field" for="lifetime-key">
-<span>Lifetime tester key</span>
-<input id="lifetime-key" name="lifetime_key" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ASCEND-XXXX-XXXX-XXXX-XXXX"/>
-</label>
-<button class="primary" type="submit">Activate Lifetime Access</button>
-</form>
-<p id="lifetime-key-status" class="quiet-note" role="status" aria-live="polite">
-</p>
-</div>
-<button class="secondary" id="sign-out">Sign Out</button>
-<a class="account-delete-link" href="delete-account.html">Delete Account &amp; Data</a>
-</div>
-</article>
-</section>
+<section id="path" class="screen" aria-hidden="true"><div class="eyebrow">YOUR TRAINING</div><h1>Your Path</h1><p class="path-summary-copy">Core Formation and the specialized pathways keep separate progression records.</p><div id="path-list" aria-label="24-month Core Formation"></div><article id="stage-review-card" class="rhythm-card hidden"><div class="eyebrow">STAGE REVIEW</div><h2 id="review-title">Attainment Reflection</h2><div id="marker-list"></div><button class="primary" id="submit-stage-review">Request Progression Review</button><button class="secondary" id="continue-stage">Continue This Stage</button><p id="review-status" class="quiet-note" role="status" aria-live="polite"></p></article><header class="pathway-section-header"><div><strong>Independent Pathways</strong><span>Separate from Core Formation</span></div></header><div id="practice-branches"><article class="rhythm-card"><h2>Loading pathways…</h2><p>Preparing the independent training programs.</p></article></div></section>
+<section id="journal" class="screen" aria-hidden="true"><div class="eyebrow">OBSERVE · REFLECT · UNDERSTAND</div><h1>Journal</h1><form id="journal-form" class="journal-form"><label>Observation<textarea name="observation"></textarea></label><label>Inner State<textarea name="inner_state"></textarea></label><label>Life Application<textarea name="life_application"></textarea></label><label>Interpretation<textarea name="interpretation"></textarea></label><label>Unresolved<textarea name="unresolved"></textarea></label><label class="journal-share-teacher"><input type="checkbox" name="share_with_teacher"/><span>Share this entry with your teacher</span></label><button class="primary">Save Reflection</button></form><div id="journal-status" class="quiet-note" role="status" aria-live="polite"></div></section>
+<section id="library" class="screen" aria-hidden="true"><div class="eyebrow">TEACHINGS FOR YOUR STAGE</div><h1>Library</h1><div class="library-tools"><label class="visually-hidden" for="library-search">Search the Library</label><input class="library-search" id="library-search" type="search" placeholder="Search teachings and practices"/><div class="library-filters" aria-label="Filter Library by type"><button class="library-filter active" type="button" data-library-type="all">All</button><button class="library-filter" type="button" data-library-type="teaching">Teachings</button><button class="library-filter" type="button" data-library-type="practice">Practices</button><button class="library-filter" type="button" data-library-type="reading">Readings</button><button class="library-filter" type="button" data-library-type="reference">References</button></div><div class="library-count" id="library-count" aria-live="polite"></div></div><div id="library-recommended"></div><div id="library-list-label" class="eyebrow hidden">ALL TEACHINGS</div><div id="library-list"></div></section>
+<section id="me" class="screen" aria-hidden="true"><div class="eyebrow">YOUR RHYTHM</div><h1>Me</h1><article class="rhythm-card"><h2>Current Stage</h2><p id="profile-stage">Beginning</p><p>Practice days: <strong id="profile-days">0</strong></p></article><article class="rhythm-card"><h2>Mirror</h2><div id="mirror-content" class="mirror-content"></div><button class="secondary" id="refresh-mirror">Refresh Mirror</button></article><div id="teacher-section"></div><article class="rhythm-card auth-card"><h2>ASCEND Account</h2><div id="account-signed-out"><p class="google-signin-copy">Create or sign in to your account. ASCEND Path requires active paid access.</p><button class="primary google-sign-in" type="button" id="google-sign-in">Continue with Google</button><div class="auth-divider"><span>or use email</span></div><form id="auth-form"><label class="auth-field"><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="you@example.com" required/></label><label class="auth-field password-field"><span>Password</span><input name="password" id="account-password" type="password" autocomplete="current-password" minlength="6" required/><button type="button" class="password-toggle" id="toggle-password" aria-controls="account-password" aria-pressed="false">Show</button></label><button class="secondary" type="submit">Sign In</button><button class="text-button" type="button" id="create-account">Create Account</button><button class="text-button" type="button" id="forgot-password">Forgot Password?</button></form><p id="auth-status" role="status" aria-live="polite"></p></div><div id="account-signed-in" class="hidden"><p id="account-email"></p><div class="access-panel"><div class="access-state"><span>MEMBERSHIP</span><strong id="access-level">Checking…</strong></div><p id="access-message" class="access-message">Verifying your ASCEND membership…</p><div id="paywall-purchase"><div class="paywall-plans" id="paywall-plans"><button class="secondary paywall-buy" type="button" data-tier="annual"><strong>Annual</strong><span id="price-annual">$299.00/year</span><small>Best value</small></button><button class="secondary paywall-buy" type="button" data-tier="monthly"><strong>Monthly</strong><span id="price-monthly">$45.00/month</span></button><button class="secondary paywall-buy" type="button" data-tier="lifetime"><strong>Lifetime</strong><span id="price-lifetime">$649.00</span><small>One time</small></button></div><button class="text-button" id="paywall-restore" type="button">Restore Purchases</button><p id="paywall-status" class="quiet-note" role="status" aria-live="polite"></p></div><form id="lifetime-key-form"><label class="auth-field" for="lifetime-key"><span>Lifetime tester key</span><input id="lifetime-key" name="lifetime_key" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ASCEND-XXXX-XXXX-XXXX-XXXX"/></label><button class="primary" type="submit">Activate Lifetime Access</button></form><p id="lifetime-key-status" class="quiet-note" role="status" aria-live="polite"></p></div><button class="secondary" id="sign-out">Sign Out</button><a class="account-delete-link" href="delete-account.html">Delete Account &amp; Data</a></div></article></section>
 </main>
-<nav class="bottom-nav" aria-label="Primary navigation">
-<button type="button" class="active" data-screen="today" aria-current="page">Today</button>
-<button type="button" data-screen="path">Path</button>
-<button type="button" data-screen="journal">Journal</button>
-<button type="button" data-screen="library">Library</button>
-<button type="button" data-screen="me">Me</button>
-</nav>
-<div id="path-intro" class="path-intro hidden is-cinematic" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-hidden="true">
-<button class="intro-skip" id="intro-skip" type="button">Skip introduction</button>
-<section class="intro-cinematic" aria-label="ASCEND Path opening">
-<img class="intro-instrument" src="assets/ascend-path-intro-instrument.jpg" alt=""/>
-<div class="intro-emblem"><img src="assets/ascend-logo.png" alt=""/></div>
-<div class="intro-identity"><strong>ASCEND</strong><span>PATH</span><small>A LIVING PATH OF CONSCIOUS DEVELOPMENT</small></div>
-</section>
-<section class="intro-guide" aria-live="polite">
-<div class="intro-step active" data-intro-step="0"><div class="intro-step-mark">01</div><div class="eyebrow">WELCOME TO ASCEND</div><h1 id="intro-title">A path you live,<br/>not a course you finish.</h1><p>ASCEND is a structured 24-month practice in attention, self-observation and conscious development.</p><div class="intro-cycle"><span>Practice</span><i></i><span>Observe</span><i></i><span>Reflect</span></div></div>
-<div class="intro-step" data-intro-step="1"><div class="intro-step-mark">02</div><div class="eyebrow">YOUR DAILY RHYTHM</div><h1>Begin with Today.</h1><p>Each day gives you one clear practice. Press and hold the circle, read the briefing, then begin when you are ready.</p><div class="intro-callout"><strong>About 10 minutes</strong><span>Consistency matters more than speed.</span></div></div>
-<div class="intro-step" data-intro-step="2"><div class="intro-step-mark">03</div><div class="eyebrow">AFTER PRACTICE</div><h1>Record what you actually observed.</h1><p>The Journal is part of the daily practice. One honest observation is enough; you do not need to complete every field.</p><div class="intro-callout"><strong>Practice → Journal</strong><span>Your reflection becomes a living record.</span></div></div>
-<div class="intro-step" data-intro-step="3"><div class="intro-step-mark">04</div><div class="eyebrow">PROGRESSION</div><h1>The Path unfolds stage by stage.</h1><p>Your 24-month Core Formation opens through sustained practice and reflection. Library teachings support the stage you are living now.</p><div class="intro-months" aria-label="24 month path"><span class="awake"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
-<div class="intro-step" data-intro-step="4"><div class="intro-step-mark">05</div><div class="intro-final-emblem"><img src="assets/ascend-logo.png" alt="ASCEND Path"/></div><div class="eyebrow">YOUR PATH IS READY</div><h1>Return tomorrow.<br/>Continue from where you are.</h1><p>There is no need to rush ahead. Begin with the practice in Today and let the Path accumulate.</p></div>
-<div class="intro-progress" aria-label="Introduction progress"><button type="button" data-intro-dot="0" class="active" aria-label="Page 1"></button><button type="button" data-intro-dot="1" aria-label="Page 2"></button><button type="button" data-intro-dot="2" aria-label="Page 3"></button><button type="button" data-intro-dot="3" aria-label="Page 4"></button><button type="button" data-intro-dot="4" aria-label="Page 5"></button></div>
-<div class="intro-actions"><button class="intro-back" id="intro-back" type="button">Back</button><button class="primary intro-next" id="intro-next" type="button">Continue</button></div>
-</section>
-</div>
-<div id="practice-briefing" class="practice-briefing library-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-hidden="true">
-<button class="overlay-close briefing-close" type="button" aria-label="Close practice briefing">×</button>
-<div class="briefing-inner"><div class="eyebrow">TODAY'S PRACTICE</div><div class="briefing-orbit"><img src="assets/ascend-logo.png" alt=""/></div><h1 id="briefing-title">Self-Contemplation</h1><div class="briefing-meta"><span id="briefing-duration">10 minutes</span><span>Quiet sitting</span></div><section><small>INTENTION</small><p id="briefing-intention">Observe the movement of thought without suppressing, following or judging it.</p></section><section><small>HOW TO PRACTICE</small><ol><li>Sit comfortably and let the body settle.</li><li>Observe thoughts as they appear.</li><li>When attention wanders, return to simple observation.</li></ol></section><p class="briefing-note">When the timer ends, finish the practice and record one observation in your Journal.</p><button class="primary" id="briefing-begin" type="button">Begin 10-Minute Practice</button></div>
-</div>
-<div id="practice-overlay" class="practice-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="overlay-practice-title" aria-hidden="true">
-<button class="overlay-close" type="button" aria-label="Close practice">×</button>
-<div class="eyebrow">PRACTICE</div>
-<h1 id="overlay-practice-title">Self-Contemplation</h1>
-<p id="overlay-practice-instructions" class="practice-context">Sit quietly and observe the movement of thought without suppressing, following, or judging it. Return to simple observation whenever attention wanders.</p>
-<div class="timer" id="timer">10:00</div>
-<p id="timer-hint" class="quiet-note" role="status" aria-live="polite">
-</p>
-<button class="primary" id="timer-toggle">Begin</button>
-<button class="secondary" id="finish-practice">Finish Practice</button>
-</div>
-<div id="library-overlay" class="library-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="library-title" aria-hidden="true">
-<button class="overlay-close library-close" type="button" aria-label="Close Library item">×</button>
-<div id="library-type" class="eyebrow">
-</div>
-<h1 id="library-title">
-</h1>
-<div id="library-body">
-</div>
-</div>
-<div id="branch-overlay" class="library-overlay hidden" role="dialog" aria-modal="true" aria-label="Practice Branch" aria-hidden="true">
-<button class="overlay-close branch-close" type="button" aria-label="Close branch">×</button>
-<div id="branch-body" class="library-body">
-</div>
-</div>
-<div id="menu-overlay" class="library-overlay menu-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true">
-<button class="overlay-close menu-close" type="button" aria-label="Close menu">×</button>
-<div class="menu-inner">
-<div class="eyebrow">NAVIGATION</div>
-<h1 id="menu-title">ASCEND Path</h1>
-<div class="menu-links">
-<button class="menu-link" type="button" data-menu-screen="today">Today <span>→</span>
-</button>
-<button class="menu-link" type="button" data-menu-screen="path">Your Path <span>→</span>
-</button>
-<button class="menu-link" type="button" data-menu-screen="journal">Journal <span>→</span>
-</button>
-<button class="menu-link" type="button" data-menu-screen="library">Library <span>→</span>
-</button>
-<button class="menu-link" type="button" data-menu-screen="me">Me <span>→</span>
-</button>
-</div>
-<button class="secondary" id="menu-how" type="button">How ASCEND Works</button>
-<button class="secondary" id="menu-about" type="button">About ASCEND</button>
-</div>
-</div>
-<div id="about-overlay" class="library-overlay about-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true">
-<button class="overlay-close about-close" type="button" aria-label="Close About ASCEND">×</button>
-<div class="about-inner">
-<div class="eyebrow">ABOUT ASCEND</div>
-<h1 id="about-title">ASCEND Path</h1>
-<p class="about-lead">A structured training environment for sustained practice, self-observation and integration into ordinary life.</p>
-<div class="about-rule">
-</div>
-<section>
-<small>THE PATH</small>
-<h2>24-Month Core Formation</h2>
-<p>A progressive curriculum that develops attention, thought, will, equanimity, perception, discernment and the ability to carry inner practice into daily life. Progress is cumulative: earlier capacities remain alive through maintenance rather than disappearing when a new stage begins.</p>
-</section>
-<section>
-<small>DAILY TRAINING</small>
-<h2>Practice beyond the exercise</h2>
-<p>ASCEND connects a primary practice with Training in Life, maintenance and reflection. The purpose is not simply to complete exercises, but to observe how practice changes attention, conduct, relationships and response under ordinary conditions.</p>
-</section>
-<section>
-<small>SPECIALIZED WORK</small>
-<h2>Practice Branches</h2>
-<p>Independent branches extend the Core into focused areas of training. Branch progress is tracked separately so specialized work deepens the Path without replacing its foundation.</p>
-</section>
-<section>
-<small>REFLECTION</small>
-<h2>Journal & Mirror</h2>
-<p>The Journal preserves the student's own observations. Mirror surfaces patterns in that record and supports reflection over time. Mirror does not certify attainment, determine spiritual truth or replace the evidence-based progression system.</p>
-</section>
-<section>
-<small>DESIGN PRINCIPLE</small>
-<h2>A training app, not a reading app</h2>
-<p>Teachings and references support practice when they are needed. The center of ASCEND is repeated training, direct observation, application, integration and responsible progression.</p>
-</section>
-<div class="about-footer">
-<img src="assets/ascend-logo.png" alt=""/>
-<span>ASCEND PATH<br/>
-<small>A LIVING PATH OF CONSCIOUS DEVELOPMENT</small>
-</span>
-</div>
-</div>
-</div>
-<script src="backend.js?v=20260827-intro-1">
-</script>
-<script src="billing.js?v=20260826-paid-access-1">
-</script>
-<script src="path-progression.js?v=20260825-integrity-1">
-</script>
-<script src="stage-visual.js?v=20260825-integrity-1">
-</script>
-<script src="library-engine.js?v=20260825-integrity-1">
-</script>
-<script src="journal-validation.js?v=20260825-integrity-1">
-</script>
-<script src="path-intro.js?v=20260827-intro-1">
-</script>
-<script src="app.js?v=20260827-intro-1">
-</script>
-<script src="today-ritual.js?v=20260827-ritual-today-1">
-</script>
-<script src="progress-integrity.js?v=20260825-integrity-1">
-</script>
-<script src="month-path.js?v=20260825-integrity-1">
-</script>
-<script src="experience.js?v=20260825-integrity-1">
-</script>
-<script src="contextual-library.js?v=20260825-integrity-1">
-</script>
-<script src="branches.js?v=20260825-integrity-1">
-</script>
-<script src="practitioner-mode.js?v=20260825-integrity-1">
-</script>
-<script src="training-layers.js?v=20260825-integrity-1">
-</script>
-<script src="training-dashboard.js?v=20260825-integrity-1">
-</script>
-<script src="readiness-evidence.js?v=20260825-integrity-1">
-</script>
-<script src="ux-fixes.js?v=20260827-intro-1">
-</script>
-<script src="mirror-engine.js?v=20260826-mirror-v1-1">
-</script>
-<script src="teacher-console.js?v=20260825-integrity-1">
-</script>
+<nav class="bottom-nav" aria-label="Primary navigation"><button type="button" class="active" data-screen="today" aria-current="page">Today</button><button type="button" data-screen="path">Path</button><button type="button" data-screen="journal">Journal</button><button type="button" data-screen="library">Library</button><button type="button" data-screen="me">Me</button></nav>
+<div id="path-intro" class="path-intro hidden is-cinematic" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-hidden="true"><button class="intro-skip" id="intro-skip" type="button">Skip introduction</button><section class="intro-cinematic" aria-label="ASCEND Path opening"><img class="intro-instrument" src="assets/ascend-path-intro-instrument.jpg" alt=""/><div class="intro-emblem"><img src="assets/ascend-logo.png" alt=""/></div><div class="intro-identity"><strong>ASCEND</strong><span>PATH</span><small>A LIVING PATH OF CONSCIOUS DEVELOPMENT</small></div></section><section class="intro-guide" aria-live="polite"><div class="intro-step active" data-intro-step="0"><div class="intro-step-mark">01</div><div class="eyebrow">WELCOME TO ASCEND</div><h1 id="intro-title">A path you live,<br/>not a course you finish.</h1><p>ASCEND is a structured 24-month practice in attention, self-observation and conscious development.</p><div class="intro-cycle"><span>Practice</span><i></i><span>Observe</span><i></i><span>Reflect</span></div></div><div class="intro-step" data-intro-step="1"><div class="intro-step-mark">02</div><div class="eyebrow">YOUR DAILY RHYTHM</div><h1>Begin with Today.</h1><p>Each day gives you one clear practice. Press and hold the circle, read the briefing, then begin when you are ready.</p><div class="intro-callout"><strong>About 10 minutes</strong><span>Consistency matters more than speed.</span></div></div><div class="intro-step" data-intro-step="2"><div class="intro-step-mark">03</div><div class="eyebrow">AFTER PRACTICE</div><h1>Record what you actually observed.</h1><p>The Journal is part of the daily practice. One honest observation is enough; you do not need to complete every field.</p><div class="intro-callout"><strong>Practice → Journal</strong><span>Your reflection becomes a living record.</span></div></div><div class="intro-step" data-intro-step="3"><div class="intro-step-mark">04</div><div class="eyebrow">PROGRESSION</div><h1>The Path unfolds stage by stage.</h1><p>Your 24-month Core Formation opens through sustained practice and reflection. Library teachings support the stage you are living now.</p><div class="intro-months" aria-label="24 month path"><span class="awake"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div><div class="intro-step" data-intro-step="4"><div class="intro-step-mark">05</div><div class="intro-final-emblem"><img src="assets/ascend-logo.png" alt="ASCEND Path"/></div><div class="eyebrow">YOUR PATH IS READY</div><h1>Return tomorrow.<br/>Continue from where you are.</h1><p>There is no need to rush ahead. Begin with the practice in Today and let the Path accumulate.</p></div><div class="intro-progress" aria-label="Introduction progress"><button type="button" data-intro-dot="0" class="active" aria-label="Page 1"></button><button type="button" data-intro-dot="1" aria-label="Page 2"></button><button type="button" data-intro-dot="2" aria-label="Page 3"></button><button type="button" data-intro-dot="3" aria-label="Page 4"></button><button type="button" data-intro-dot="4" aria-label="Page 5"></button></div><div class="intro-actions"><button class="intro-back" id="intro-back" type="button">Back</button><button class="primary intro-next" id="intro-next" type="button">Continue</button></div></section></div>
+<div id="practice-briefing" class="practice-briefing library-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="briefing-title" aria-hidden="true"><button class="overlay-close briefing-close" type="button" aria-label="Close practice briefing">×</button><div class="briefing-inner"><div class="eyebrow">TODAY'S PRACTICE</div><div class="briefing-orbit"><img src="assets/ascend-logo.png" alt=""/></div><h1 id="briefing-title">Self-Contemplation</h1><div class="briefing-meta"><span id="briefing-duration">10 minutes</span><span>Quiet sitting</span></div><section><small>INTENTION</small><p id="briefing-intention">Observe the movement of thought without suppressing, following or judging it.</p></section><section><small>HOW TO PRACTICE</small><ol><li>Sit comfortably and let the body settle.</li><li>Observe thoughts as they appear.</li><li>When attention wanders, return to simple observation.</li></ol></section><p class="briefing-note">When the timer ends, finish the practice and record one observation in your Journal.</p><button class="primary" id="briefing-begin" type="button">Begin 10-Minute Practice</button></div></div>
+<div id="practice-overlay" class="practice-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="overlay-practice-title" aria-hidden="true"><button class="overlay-close" type="button" aria-label="Close practice">×</button><div class="eyebrow">PRACTICE</div><h1 id="overlay-practice-title">Self-Contemplation</h1><p id="overlay-practice-instructions" class="practice-context">Sit quietly and observe the movement of thought without suppressing, following, or judging it. Return to simple observation whenever attention wanders.</p><div class="timer" id="timer">10:00</div><p id="timer-hint" class="quiet-note" role="status" aria-live="polite"></p><button class="primary" id="timer-toggle">Begin</button><button class="secondary" id="finish-practice">Finish Practice</button></div>
+<div id="library-overlay" class="library-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="library-title" aria-hidden="true"><button class="overlay-close library-close" type="button" aria-label="Close Library item">×</button><div id="library-type" class="eyebrow"></div><h1 id="library-title"></h1><div id="library-body"></div></div>
+<div id="branch-overlay" class="library-overlay hidden" role="dialog" aria-modal="true" aria-label="Practice Branch" aria-hidden="true"><button class="overlay-close branch-close" type="button" aria-label="Close branch">×</button><div id="branch-body" class="library-body"></div></div>
+<div id="menu-overlay" class="library-overlay menu-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="menu-title" aria-hidden="true"><button class="overlay-close menu-close" type="button" aria-label="Close menu">×</button><div class="menu-inner"><div class="eyebrow">NAVIGATION</div><h1 id="menu-title">ASCEND Path</h1><div class="menu-links"><button class="menu-link" type="button" data-menu-screen="today">Today <span>→</span></button><button class="menu-link" type="button" data-menu-screen="path">Your Path <span>→</span></button><button class="menu-link" type="button" data-menu-screen="journal">Journal <span>→</span></button><button class="menu-link" type="button" data-menu-screen="library">Library <span>→</span></button><button class="menu-link" type="button" data-menu-screen="me">Me <span>→</span></button></div><button class="secondary" id="menu-how" type="button">How ASCEND Works</button><button class="secondary" id="menu-about" type="button">About ASCEND</button></div></div>
+<div id="about-overlay" class="library-overlay about-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true"><button class="overlay-close about-close" type="button" aria-label="Close About ASCEND">×</button><div class="about-inner"><div class="eyebrow">ABOUT ASCEND</div><h1 id="about-title">ASCEND Path</h1><p class="about-lead">A structured training environment for sustained practice, self-observation and integration into ordinary life.</p><div class="about-rule"></div><section><small>THE PATH</small><h2>24-Month Core Formation</h2><p>A progressive curriculum that develops attention, thought, will, equanimity, perception, discernment and the ability to carry inner practice into daily life. Progress is cumulative: earlier capacities remain alive through maintenance rather than disappearing when a new stage begins.</p></section><section><small>DAILY TRAINING</small><h2>Practice beyond the exercise</h2><p>ASCEND connects a primary practice with Training in Life, maintenance and reflection. The purpose is not simply to complete exercises, but to observe how practice changes attention, conduct, relationships and response under ordinary conditions.</p></section><section><small>SPECIALIZED WORK</small><h2>Practice Branches</h2><p>Independent branches extend the Core into focused areas of training. Branch progress is tracked separately so specialized work deepens the Path without replacing its foundation.</p></section><section><small>REFLECTION</small><h2>Journal & Mirror</h2><p>The Journal preserves the student's own observations. Mirror surfaces patterns in that record and supports reflection over time. Mirror does not certify attainment, determine spiritual truth or replace the evidence-based progression system.</p></section><section><small>DESIGN PRINCIPLE</small><h2>A training app, not a reading app</h2><p>Teachings and references support practice when they are needed. The center of ASCEND is repeated training, direct observation, application, integration and responsible progression.</p></section><div class="about-footer"><img src="assets/ascend-logo.png" alt=""/><span>ASCEND PATH<br/><small>A LIVING PATH OF CONSCIOUS DEVELOPMENT</small></span></div></div></div>
+<script src="backend.js?v=20260827-intro-1"></script>
+<script src="billing.js?v=20260826-paid-access-1"></script>
+<script src="path-progression.js?v=20260825-integrity-1"></script>
+<script src="stage-visual.js?v=20260825-integrity-1"></script>
+<script src="library-engine.js?v=20260825-integrity-1"></script>
+<script src="journal-validation.js?v=20260825-integrity-1"></script>
+<script src="path-intro.js?v=20260827-startup-4"></script>
+<script src="app.js?v=20260827-startup-4"></script>
+<script src="today-ritual.js?v=20260827-circle-align-2"></script>
+<script src="progress-integrity.js?v=20260825-integrity-1"></script>
+<script src="month-path.js?v=20260825-integrity-1"></script>
+<script src="experience.js?v=20260827-startup-4"></script>
+<script src="contextual-library.js?v=20260825-integrity-1"></script>
+<script src="branches.js?v=20260825-integrity-1"></script>
+<script src="practitioner-mode.js?v=20260825-integrity-1"></script>
+<script src="training-layers.js?v=20260825-integrity-1"></script>
+<script src="training-dashboard.js?v=20260825-integrity-1"></script>
+<script src="readiness-evidence.js?v=20260825-integrity-1"></script>
+<script src="ux-fixes.js?v=20260827-intro-1"></script>
+<script src="mirror-engine.js?v=20260826-mirror-v1-1"></script>
+<script src="teacher-console.js?v=20260825-integrity-1"></script>
 </body>
 </html>
