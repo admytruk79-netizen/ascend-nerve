@@ -12,8 +12,8 @@ if (!fs.existsSync(appGradle)) {
 let gradle = fs.readFileSync(appGradle, 'utf8');
 
 // Google Play requires each uploaded bundle to have a higher versionCode.
-gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 2');
-gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.1'");
+gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 3');
+gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.2'");
 
 // Capacitor's generated release block is intentionally minimal. Turn on R8
 // code shrinking/obfuscation and Android resource shrinking for Play builds.
@@ -45,4 +45,4 @@ if (!existingRules.includes('# ASCEND Path release rules')) {
   fs.writeFileSync(proguardFile, `${existingRules.trim()}\n\n${keepRules}`.trimStart());
 }
 
-console.log('Configured release optimization: versionCode=2, versionName=1.1, R8 minification enabled, resource shrinking enabled.');
+console.log('Configured release optimization: versionCode=3, versionName=1.2, R8 minification enabled, resource shrinking enabled.');
