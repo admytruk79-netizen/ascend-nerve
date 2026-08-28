@@ -43,8 +43,18 @@
       set(order[(order.indexOf(current)+1)%order.length]);
     });
     apply();
+
+    // Practice/briefing overlays are mounted by app.js. Re-assert the user's
+    // stored appearance whenever either overlay opens so entering a practice
+    // can never fall back to a dark/default surface.
+    ['practice-briefing','practice-overlay'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      new MutationObserver(()=>{if(!el.classList.contains('hidden'))apply(getPref())}).observe(el,{attributes:true,attributeFilter:['class']});
+    });
   }
   mq.addEventListener?.('change',()=>{if(getPref()==='auto')apply('auto')});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply(getPref())});
   document.addEventListener('DOMContentLoaded',mount);
   apply();
   window.PathTheme={apply,set,get:getPref};
