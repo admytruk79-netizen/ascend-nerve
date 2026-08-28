@@ -236,7 +236,7 @@ test('Android Back stays inside ASCEND and unwinds overlays and screens',()=>{
   assert.match(ux,/screenTrail\.pop\(\)/);
   assert.match(ux,/current!=='today'/);
   assert.match(ux,/window\.addEventListener\('popstate'/);
-  assert.match(ux,/window\.ASCENDUX=\{activateScreen,syncOverlay,syncAuthGate,handleBack\}/);
+  assert.match(ux,/window\.ASCENDUX=\{activateScreen,syncOverlay,syncAuthGate,handleBack(?:,loadJournalHistory)?\}/);
 });
 
 test('Day Night and Twilight modes remain distinct across all primary surfaces',()=>{
