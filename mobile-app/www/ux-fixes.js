@@ -25,6 +25,19 @@
     body.auth-required #me .auth-card{display:block!important;width:min(100%,460px);margin:0 auto}
     body.auth-required #me .auth-card:before{content:'ASCEND PATH';display:block;letter-spacing:.18em;font-size:.78rem;margin-bottom:14px;opacity:.72}
     .journal-context{margin:-4px 0 20px;opacity:.72;line-height:1.5}
+    .journal-saved-panel{margin:18px 0 10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+    .journal-saved-panel strong{display:block;color:var(--teal);font-size:13px}
+    .journal-saved-panel p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+    .journal-saved-panel button{margin-top:11px}
+    .journal-history{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+    .journal-history h2{margin-bottom:4px}
+    .journal-history-intro{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.5}
+    .journal-history-list{display:grid;gap:8px}
+    .journal-history-entry{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+    .journal-history-entry small{display:block;color:var(--gold);font-size:8px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
+    .journal-history-entry p{margin:0;color:var(--ivory);font-size:12px;line-height:1.45}
+    #today-reflect.complete{border-color:rgba(85,200,189,.48);background:linear-gradient(135deg,rgba(85,200,189,.10),var(--panel))}
+    #today-reflect.complete .journal-mark{color:var(--teal)}
   `;
   document.head.appendChild(authGateStyle);
 
@@ -124,6 +137,54 @@
     journalHeading.insertAdjacentElement('afterend',context);
   }
 
+  const journalStatus=document.getElementById('journal-status');
+  const journalForm=document.getElementById('journal-form');
+  let savedPanel=document.getElementById('journal-saved-panel');
+  if(journalStatus&&!savedPanel){
+    savedPanel=document.createElement('div');
+    savedPanel.id='journal-saved-panel';
+    savedPanel.className='journal-saved-panel hidden';
+    savedPanel.innerHTML='<strong>Saved to your private Journal ✓</strong><p>This reflection is stored with your ASCEND Path account and appears below in Saved reflections.</p><button class="secondary" type="button" id="journal-back-today">Back to Today</button>';
+    journalStatus.insertAdjacentElement('afterend',savedPanel);
+    savedPanel.querySelector('#journal-back-today')?.addEventListener('click',()=>activateScreen('today'));
+  }
+
+  let historyWrap=document.getElementById('journal-history');
+  if(journalStatus&&!historyWrap){
+    historyWrap=document.createElement('section');
+    historyWrap.id='journal-history';
+    historyWrap.className='journal-history';
+    historyWrap.innerHTML='<h2>Saved reflections</h2><p class="journal-history-intro">Your recent Journal entries live here. Mirror reads recurring patterns from this private record.</p><div class="journal-history-list" id="journal-history-list"><p class="quiet-note">Loading saved reflections…</p></div>';
+    savedPanel?.insertAdjacentElement('afterend',historyWrap);
+  }
+
+  const shortText=(row)=>String(row?.observation||row?.inner_state||row?.life_application||row?.interpretation||row?.unresolved||'Reflection saved.').trim();
+  const dateLabel=(value)=>{try{return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'}).format(new Date(value))}catch{return value||'Saved reflection'}};
+  async function loadJournalHistory(){
+    const list=document.getElementById('journal-history-list');if(!list)return;
+    let rows=[];
+    try{
+      const me=await PathBackend.me();
+      if(me)rows=await PathBackend.rest('path_journal_entries',{query:`user_id=eq.${me.id}&select=entry_date,created_at,observation,inner_state,life_application,interpretation,unresolved&order=entry_date.desc,created_at.desc&limit=8`});
+    }catch{}
+    if(!rows.length){
+      try{rows=(JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries||[]).slice(-8).reverse()}catch{}
+    }
+    if(!rows.length){list.innerHTML='<p class="quiet-note">No saved reflections yet. Your first saved entry will appear here.</p>';return}
+    list.innerHTML=rows.map(row=>`<article class="journal-history-entry"><small>${dateLabel(row.entry_date||row.created_at)}</small><p>${String(shortText(row)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])).slice(0,220)}</p></article>`).join('');
+  }
+
+  function markJournalComplete(){
+    const reflect=document.getElementById('today-reflect');if(!reflect)return;
+    reflect.classList.add('complete');
+    const strong=reflect.querySelector('strong'),small=reflect.querySelector('small'),mark=reflect.querySelector('.journal-mark');
+    if(strong)strong.textContent='Journal reflection saved ✓';
+    if(small)small.textContent='Stored in your private Journal';
+    if(mark)mark.textContent='✓';
+    localStorage.setItem(`ascendJournalDone:${new Date().toISOString().slice(0,10)}`,'1');
+  }
+  if(localStorage.getItem(`ascendJournalDone:${new Date().toISOString().slice(0,10)}`)==='1')markJournalComplete();
+
   // After a genuinely completed practice, move naturally into reflection.
   const finishPractice=document.getElementById('finish-practice');
   finishPractice?.addEventListener('click',()=>{
@@ -137,16 +198,25 @@
     },250);
   });
 
-  // When a reflection is saved successfully, return to Today to complete the daily loop.
-  const journalForm=document.getElementById('journal-form');
+  // Saving keeps the user in Journal, makes storage explicit, and updates the daily loop.
   journalForm?.addEventListener('submit',()=>{
-    setTimeout(()=>{
-      const text=document.getElementById('journal-status')?.textContent||'';
-      if(/Reflection saved privately/i.test(text))activateScreen('today');
-    },700);
+    savedPanel?.classList.add('hidden');
+    setTimeout(async()=>{
+      const text=journalStatus?.textContent||'';
+      if(/Reflection saved privately|Connection unavailable\. Reflection saved|Reflection saved privately on this device/i.test(text)){
+        if(journalStatus)journalStatus.textContent=/Connection unavailable|on this device/i.test(text)?text:'Saved. This reflection is now in your private Journal below.';
+        savedPanel?.classList.remove('hidden');
+        markJournalComplete();
+        await loadJournalHistory();
+      }
+    },800);
   });
+
+  document.querySelector('.bottom-nav button[data-screen="journal"]')?.addEventListener('click',()=>setTimeout(loadJournalHistory,80));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentScreen()==='journal')loadJournalHistory()});
+  setTimeout(loadJournalHistory,1200);
 
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
-  window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate,handleBack};
+  window.ASCENDUX={activateScreen,syncOverlay,syncAuthGate,handleBack,loadJournalHistory};
 })();
