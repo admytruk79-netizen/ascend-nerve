@@ -2,22 +2,29 @@
  const BASE='https://nqionqvuudamqkfbaopk.supabase.co';
  const KEY='sb_publishable_Z8KPlgoyxv4RC0yaZpuLSQ_5SBzrxbR';
  const SESSION='ascendPathSession';
- let scope='stage',stageId=null;
+ let scope='stage',stageId=null,busy=false;
  const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
  const session=()=>{try{return JSON.parse(localStorage.getItem(SESSION)||'null')}catch{return null}};
  async function resolveStage(){try{const me=await PathBackend.me();if(!me)return null;const progress=await PathBackend.getProgress(me.id);const active=progress.find(p=>p.status==='active'||p.status==='review')||progress[progress.length-1];return active?.stage_id||null}catch{return null}}
  async function requestResonance(nextScope,token){const r=await fetch(`${BASE}/functions/v1/ascend-resonance`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({stage_id:stageId,scope:nextScope})});let data={};try{data=await r.json()}catch{}return{r,data}}
- async function invoke(nextScope=scope){
+ async function validSession(){
   const me=await PathBackend.me().catch(()=>null);
-  if(!me)throw new Error('Mirror needs you to sign in again.');
-  stageId=stageId||await resolveStage();
+  if(!me)return null;
   let s=session();
-  if(!s?.access_token)throw new Error('Mirror needs you to sign in again.');
+  if(s?.access_token)return s;
+  await PathBackend.refresh().catch(()=>null);
+  s=session();
+  return s?.access_token?s:null;
+ }
+ async function invoke(nextScope=scope){
+  let s=await validSession();
+  if(!s)throw new Error('Mirror could not access your current ASCEND session.');
+  stageId=stageId||await resolveStage();
   let {r,data}=await requestResonance(nextScope,s.access_token);
   if(r.status===401){
     const refreshed=await PathBackend.refresh().catch(()=>null);
     s=session();
-    if(!refreshed||!s?.access_token)throw new Error('Mirror could not refresh your session. Sign in again to reconnect.');
+    if(!refreshed||!s?.access_token)throw new Error('Mirror could not refresh your current ASCEND session.');
     ({r,data}=await requestResonance(nextScope,s.access_token));
   }
   if(!r.ok)throw new Error(data?.message||data?.error||`Resonance request failed (${r.status})`);
@@ -36,9 +43,45 @@
   <div class="mirror-metrics"><span><strong>${m.life_application||0}</strong> applied-life notes</span><span><strong>${m.unresolved||0}</strong> unresolved</span><span><strong>${m.training_logs||0}</strong> training logs</span></div>
   ${bal.ratio!==null&&bal.ratio!==undefined?`<div class="mirror-balance"><span>OBSERVATION / INTERPRETATION BALANCE</span><strong>${Math.round(Number(bal.ratio)*100)}%</strong></div>`:''}
   <p class="mirror-boundary">${esc(data.boundary||'Resonance reflects recurring patterns in your record. It does not determine attainment, diagnose you, or establish spiritual claims as fact.')}</p>
- </div>`;box.querySelectorAll('[data-mirror-scope]').forEach(b=>b.onclick=()=>load(b.dataset.mirrorScope));}
- function loading(){const box=document.getElementById('mirror-content');if(box)box.innerHTML='<div class="mirror-loading"><i></i><p>Reading resonance across your record…</p></div>'}
- async function load(nextScope=scope){scope=nextScope;loading();try{render(await invoke(scope))}catch(e){const box=document.getElementById('mirror-content');if(box){box.innerHTML=`<p>${esc(e.message)}</p><p class="mirror-boundary">Your journal remains intact. Mirror will not move you away from this screen.</p><button class="secondary mirror-reconnect" type="button">Reconnect Mirror</button>`;box.querySelector('.mirror-reconnect')?.addEventListener('click',()=>load(scope))}}}
- function wire(){const card=document.querySelector('#me .rhythm-card:has(#mirror-content)');const heading=card?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';const old=document.getElementById('refresh-mirror');if(!old||old.dataset.resonance==='1')return;const btn=old.cloneNode(true);btn.dataset.resonance='1';btn.textContent='Read Resonance';old.replaceWith(btn);btn.onclick=()=>load(scope);setTimeout(()=>{if(PathBackend?.isSignedIn?.())load('stage')},900)}
- const style=document.createElement('style');style.textContent=`#me .rhythm-card:has(#mirror-content){position:relative;overflow:hidden;border-color:rgba(85,200,189,.18);background:radial-gradient(circle at 100% 0,rgba(85,200,189,.045),transparent 42%),var(--panel)}.mirror-shell{display:grid;gap:12px}.mirror-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.05)}.mirror-tabs button{border:0;border-radius:9px;padding:8px;background:transparent;color:var(--muted);font:8px Arial,sans-serif;letter-spacing:.14em}.mirror-tabs button.active{background:rgba(85,200,189,.10);color:var(--teal)}.mirror-status{display:flex;justify-content:space-between;gap:10px;align-items:center}.mirror-status span{color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.15em}.mirror-status small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.1em}.mirror-block{padding:13px 0;border-top:1px solid rgba(214,179,106,.10)}.mirror-block .eyebrow{text-align:left;margin:0 0 7px;font-size:7px}.mirror-block p{margin:0;font-size:13px;line-height:1.55}.mirror-themes{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}.mirror-themes span{padding:5px 8px;border:1px solid rgba(85,200,189,.22);border-radius:99px;color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.06em}.mirror-compare{padding:9px 10px;margin-top:7px;border-left:1px solid var(--line);background:rgba(255,255,255,.018)}.mirror-compare.recent{border-left-color:var(--teal)}.mirror-compare small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.14em}.mirror-compare p{margin-top:4px;font-size:11px}.mirror-question{padding:14px;border:1px solid rgba(214,179,106,.16);border-radius:13px;background:rgba(214,179,106,.025)}.mirror-question p{font-family:Georgia,serif;font-size:15px}.mirror-related{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}.mirror-related span{font:7px Arial,sans-serif;letter-spacing:.13em;color:var(--muted)}.mirror-related strong{font:11px Georgia,serif;font-weight:400;color:var(--gold2)}.mirror-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mirror-metrics span{padding:8px 5px;text-align:center;border:1px solid rgba(255,255,255,.06);border-radius:9px;color:var(--muted);font:7px Arial,sans-serif}.mirror-metrics strong{display:block;color:var(--gold2);font:14px Georgia,serif}.mirror-balance{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}.mirror-balance span{font:7px Arial,sans-serif;letter-spacing:.12em;color:var(--muted)}.mirror-balance strong{font:15px Georgia,serif;color:var(--teal)}.mirror-subhead{margin-top:10px!important;color:var(--muted);font:8px Arial,sans-serif!important;letter-spacing:.1em}.mirror-boundary{margin:5px 0 0!important;color:var(--muted)!important;font:9px/1.5 Arial,sans-serif!important}.mirror-loading{display:grid;place-items:center;padding:28px 0;color:var(--muted)}.mirror-loading i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(214,179,106,.15);border-top-color:var(--teal);animation:mirrorSpin 1s linear infinite}.mirror-loading p{font:9px Arial,sans-serif;letter-spacing:.1em}.mirror-reconnect{margin-top:12px}@keyframes mirrorSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.mirror-loading i{animation:none}}`;document.head.appendChild(style);document.addEventListener('DOMContentLoaded',wire);setTimeout(wire,1500);window.ASCENDMirror={load};
+ </div>`;}
+ function setButtonState(active){const btn=document.getElementById('refresh-mirror');if(!btn)return;btn.disabled=active;btn.textContent=active?'Reading…':'Read Resonance';btn.setAttribute('aria-busy',String(active))}
+ function loading(){const box=document.getElementById('mirror-content');if(box)box.innerHTML='<div class="mirror-loading" role="status" aria-live="polite"><i></i><p>Reading resonance across your record…</p></div>'}
+ function renderError(message){const box=document.getElementById('mirror-content');if(!box)return;box.innerHTML=`<p>${esc(message)}</p><p class="mirror-boundary">Your journal remains intact. Mirror stays on this screen.</p><button class="secondary mirror-reconnect" type="button">Reconnect Mirror</button>`}
+ async function load(nextScope=scope){
+  if(busy)return;
+  scope=nextScope;busy=true;setButtonState(true);loading();
+  try{render(await invoke(scope))}
+  catch(e){renderError(e?.message||'Mirror could not read resonance right now.')}
+  finally{busy=false;setButtonState(false)}
+ }
+ async function reconnect(){
+  if(busy)return;
+  busy=true;setButtonState(true);loading();
+  try{
+    const me=await PathBackend.me().catch(()=>null);
+    if(!me)throw new Error('Your ASCEND account session is no longer active. Please sign in again from Account.');
+    let s=session();
+    if(!s?.access_token){await PathBackend.refresh().catch(()=>null);s=session()}
+    if(!s?.access_token)throw new Error('Mirror could not reconnect to your current ASCEND session.');
+    render(await invoke(scope));
+  }catch(e){renderError(e?.message||'Mirror could not reconnect right now.')}
+  finally{busy=false;setButtonState(false)}
+ }
+ function wire(){
+  const card=document.querySelector('#me .rhythm-card:has(#mirror-content)');
+  const heading=card?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';
+  const btn=document.getElementById('refresh-mirror');
+  if(btn){btn.dataset.resonance='1';btn.textContent='Read Resonance';btn.removeAttribute('onclick')}
+  if(card&&!card.dataset.mirrorDelegated){
+    card.dataset.mirrorDelegated='1';
+    card.addEventListener('click',event=>{
+      const scopeButton=event.target.closest('[data-mirror-scope]');
+      if(scopeButton){event.preventDefault();load(scopeButton.dataset.mirrorScope);return}
+      if(event.target.closest('#refresh-mirror')){event.preventDefault();load(scope);return}
+      if(event.target.closest('.mirror-reconnect')){event.preventDefault();reconnect()}
+    });
+  }
+  setTimeout(()=>{if(PathBackend?.isSignedIn?.()&&!busy)load('stage')},900)
+ }
+ const style=document.createElement('style');style.textContent=`#me .rhythm-card:has(#mirror-content){position:relative;overflow:hidden;border-color:rgba(85,200,189,.18);background:radial-gradient(circle at 100% 0,rgba(85,200,189,.045),transparent 42%),var(--panel)}.mirror-shell{display:grid;gap:12px}.mirror-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.05)}.mirror-tabs button{border:0;border-radius:9px;padding:8px;background:transparent;color:var(--muted);font:8px Arial,sans-serif;letter-spacing:.14em}.mirror-tabs button.active{background:rgba(85,200,189,.10);color:var(--teal)}.mirror-status{display:flex;justify-content:space-between;gap:10px;align-items:center}.mirror-status span{color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.15em}.mirror-status small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.1em}.mirror-block{padding:13px 0;border-top:1px solid rgba(214,179,106,.10)}.mirror-block .eyebrow{text-align:left;margin:0 0 7px;font-size:7px}.mirror-block p{margin:0;font-size:13px;line-height:1.55}.mirror-themes{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}.mirror-themes span{padding:5px 8px;border:1px solid rgba(85,200,189,.22);border-radius:99px;color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.06em}.mirror-compare{padding:9px 10px;margin-top:7px;border-left:1px solid var(--line);background:rgba(255,255,255,.018)}.mirror-compare.recent{border-left-color:var(--teal)}.mirror-compare small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.14em}.mirror-compare p{margin-top:4px;font-size:11px}.mirror-question{padding:14px;border:1px solid rgba(214,179,106,.16);border-radius:13px;background:rgba(214,179,106,.025)}.mirror-question p{font-family:Georgia,serif;font-size:15px}.mirror-related{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}.mirror-related span{font:7px Arial,sans-serif;letter-spacing:.13em;color:var(--muted)}.mirror-related strong{font:11px Georgia,serif;font-weight:400;color:var(--gold2)}.mirror-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mirror-metrics span{padding:8px 5px;text-align:center;border:1px solid rgba(255,255,255,.06);border-radius:9px;color:var(--muted);font:7px Arial,sans-serif}.mirror-metrics strong{display:block;color:var(--gold2);font:14px Georgia,serif}.mirror-balance{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}.mirror-balance span{font:7px Arial,sans-serif;letter-spacing:.12em;color:var(--muted)}.mirror-balance strong{font:15px Georgia,serif;color:var(--teal)}.mirror-subhead{margin-top:10px!important;color:var(--muted);font:8px Arial,sans-serif!important;letter-spacing:.1em}.mirror-boundary{margin:5px 0 0!important;color:var(--muted)!important;font:9px/1.5 Arial,sans-serif!important}.mirror-loading{display:grid;place-items:center;padding:28px 0;color:var(--muted)}.mirror-loading i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(214,179,106,.15);border-top-color:var(--teal);animation:mirrorSpin 1s linear infinite}.mirror-loading p{font:9px Arial,sans-serif;letter-spacing:.1em}.mirror-reconnect{margin-top:12px}#refresh-mirror[disabled]{opacity:.58;pointer-events:none}@keyframes mirrorSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.mirror-loading i{animation:none}}`;document.head.appendChild(style);document.addEventListener('DOMContentLoaded',wire);setTimeout(wire,1500);window.ASCENDMirror={load,reconnect};
 })();
