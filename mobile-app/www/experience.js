@@ -9,11 +9,13 @@
     try{
       // Signed-out users can land directly on the account screen once the
       // opening animation has completed. For an existing session, keep the
-      // entire app behind the splash until auth + entitlement have resolved.
+      // entire app behind the splash until auth, entitlement, curriculum and
+      // onboarding routing have all resolved.
       if(!window.PathBackend?.isSignedIn?.())return true;
       if(document.body.classList.contains('access-required'))return true;
-      if(!document.body.classList.contains('auth-required')&&window.curriculum)return true;
-      return false;
+      const appReady=!document.body.classList.contains('auth-required')&&!!window.curriculum;
+      const introReady=window.__ASCEND_INTRO_DECIDED!==false;
+      return appReady&&introReady;
     }catch{return false}
   };
 
@@ -29,18 +31,16 @@
     const minimumComplete=elapsed>=MIN_SPLASH_MS;
     const hardLimitReached=elapsed>=MAX_SPLASH_MS;
     if(minimumComplete&&(startupStateSettled()||hardLimitReached)){
-      // Let the final auth/access render commit before the cinematic layer
-      // fades, so no login/paywall/intermediate frame can flash underneath.
+      // Let the final route render commit before the cinematic layer fades,
+      // so Today, Login, Paywall or onboarding can never flash underneath.
       requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
       return;
     }
     setTimeout(finishSplashWhenReady,80);
   };
 
-  // The splash is the only visible startup state. It remains in control until
-  // the app knows its real destination, while still providing a hard escape if
-  // a network request stalls indefinitely.
   window.addEventListener('load',finishSplashWhenReady,{once:true});
+  document.addEventListener('ascend:intro-decided',finishSplashWhenReady);
   setTimeout(finishSplashWhenReady,60);
 
   const overlay=document.getElementById('library-overlay');
