@@ -42,6 +42,7 @@ jobs:
           fi
           npx cap sync android
           node scripts/configure-android-oauth.mjs
+          node scripts/configure-release-optimization.mjs
 
       - name: Verify Play signing secrets
         env:
@@ -94,13 +95,18 @@ jobs:
 
           KEYSTORE="$RUNNER_TEMP/ascend-upload.jks"
 
-          if keytool -list -v             -keystore "$KEYSTORE"             -storepass "$ANDROID_STORE_PASSWORD"             -alias "$ANDROID_KEY_ALIAS" 2>/dev/null |
+          if keytool -list -v \
+            -keystore "$KEYSTORE" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" 2>/dev/null |
             grep -q 'Entry type: PrivateKeyEntry'; then
             RESOLVED_KEY_ALIAS="$ANDROID_KEY_ALIAS"
             echo 'Configured signing alias is a private-key entry.'
           else
             mapfile -t PRIVATE_ALIASES < <(
-              keytool -list -v                 -keystore "$KEYSTORE"                 -storepass "$ANDROID_STORE_PASSWORD" |
+              keytool -list -v \
+                -keystore "$KEYSTORE" \
+                -storepass "$ANDROID_STORE_PASSWORD" |
               awk -F': ' '/Alias name:/{alias=$2} /Entry type: PrivateKeyEntry/{print alias}'
             )
 
