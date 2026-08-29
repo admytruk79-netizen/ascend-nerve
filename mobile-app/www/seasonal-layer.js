@@ -1,111 +1,23 @@
 (()=>{
   const KEY='ascendPathSeason';
   const A='assets/seasonal-art/';
-
-  // Seasonal atmosphere is independent from curriculum and practice progression.
-  // Auto follows the real calendar. Artwork is reused by semantic fit rather than
-  // being locked to the month/page for which it was originally created.
   const data={
-    spring:{label:'Spring',theme:'Awakening',months:[
-      ['March','Awakening Perception','spring-march-awakening-perception.png'],
-      ['April','Clarifying the Will','spring-april-clarifying-the-will.png'],
-      ['May','Crossing the Threshold','spring-may-crossing-the-threshold.png']
-    ],art:[
-      ['Focused Thought','march-focused-thought.png'],['Object Contemplation','march-object-contemplation.png'],['Reverence & Patience','march-reverence-patience.png'],['What Am I Noticing?','march-what-am-i-noticing.png'],['Training the Will','april-training-the-will.png'],['Deliberate Action','april-deliberate-action.png'],['Truth vs Imagination','may-truth-vs-imagination.png'],['Openness & Readiness','may-openness-readiness.png'],['The Heart Opening','heart-opening.png']
-    ]},
-    summer:{label:'Summer',theme:'Embodied Will',months:[
-      ['June','Gathering Energy','june-gathering-energy.png'],['July','Discipline of Fire','july-discipline-fire.png'],['August','Presence & Devotion','august-presence-devotion.png']
-    ],art:[
-      ['Two Currents Meeting','two-currents-meeting.png'],['Morning & Evening Energy','morning-evening-energy.png'],['Confidence & Humanity','confidence-humanity.png'],['Building or Draining?','building-or-draining.png'],['Mastery of Feeling','mastery-of-feeling.png'],['Star Energy Practice','star-energy-practice.png'],['Self-Control & Gentleness','self-control-gentleness.png'],['The Heart Opening','heart-opening.png'],['Presence & Devotion','presence-devotion.png']
-    ]},
-    autumn:{label:'Autumn',theme:'Harvest & Integration',months:[
-      ['September','Harvest & Reflection','self-observation-humility.png'],['October','Transformation of Forces','discipline-or-freedom.png'],['November','Release & Preparation','ready-to-release.png']
-    ],art:[
-      ['Self-Observation & Humility','self-observation-humility.png'],['Truth vs Imagination','truth-vs-imagination.png'],['Discipline or Freedom?','discipline-or-freedom.png'],['What Am I Ready to Release?','ready-to-release.png'],['What Am I Refusing?','what-am-i-refusing.png'],['Building or Draining?','building-or-draining.png'],['Acceptance Practice','acceptance-practice.png'],['Reverence & Patience','march-reverence-patience.png'],['Presence & Devotion','presence-devotion.png']
-    ]},
-    winter:{label:'Winter',theme:'Interiorization',months:[
-      ['December','Stillness & Discernment','march-object-contemplation.png'],['January','Consolidation & Inner Will','where-does-will-begin.png'],['February','Renewal & Readiness','openness-readiness.png']
-    ],art:[
-      ['Object Contemplation','march-object-contemplation.png'],['Focused Thought','march-focused-thought.png'],['Where Does Will Begin?','where-does-will-begin.png'],['Truth vs Imagination','truth-vs-imagination.png'],['Self-Observation & Humility','self-observation-humility.png'],['Morning & Evening Energy','morning-evening-energy.png'],['Openness & Readiness','openness-readiness.png'],['Acceptance Practice','acceptance-practice.png'],['What Am I Ready to Release?','ready-to-release.png']
-    ]}
+    spring:{label:'Spring',theme:'Awakening',months:[['March','Awakening Perception','spring-march-awakening-perception.png'],['April','Clarifying the Will','spring-april-clarifying-the-will.png'],['May','Crossing the Threshold','spring-may-crossing-the-threshold.png']],art:[['Focused Thought','march-focused-thought.png'],['Object Contemplation','march-object-contemplation.png'],['Reverence & Patience','march-reverence-patience.png'],['What Am I Noticing?','march-what-am-i-noticing.png'],['Training the Will','april-training-the-will.png'],['Deliberate Action','april-deliberate-action.png'],['Truth vs Imagination','may-truth-vs-imagination.png'],['Openness & Readiness','may-openness-readiness.png'],['The Heart Opening','heart-opening.png']]},
+    summer:{label:'Summer',theme:'Embodied Will',months:[['June','Gathering Energy','june-gathering-energy.png'],['July','Discipline of Fire','july-discipline-fire.png'],['August','Presence & Devotion','august-presence-devotion.png']],art:[['Two Currents Meeting','two-currents-meeting.png'],['Morning & Evening Energy','morning-evening-energy.png'],['Confidence & Humanity','confidence-humanity.png'],['Building or Draining?','building-or-draining.png'],['Mastery of Feeling','mastery-of-feeling.png'],['Star Energy Practice','star-energy-practice.png'],['Self-Control & Gentleness','self-control-gentleness.png'],['The Heart Opening','heart-opening.png'],['Presence & Devotion','presence-devotion.png']]},
+    autumn:{label:'Autumn',theme:'Harvest & Integration',months:[['September','Harvest & Reflection','self-observation-humility.png'],['October','Transformation of Forces','discipline-or-freedom.png'],['November','Release & Preparation','ready-to-release.png']],art:[['Self-Observation & Humility','self-observation-humility.png'],['Truth vs Imagination','truth-vs-imagination.png'],['Discipline or Freedom?','discipline-or-freedom.png'],['What Am I Ready to Release?','ready-to-release.png'],['What Am I Refusing?','what-am-i-refusing.png'],['Building or Draining?','building-or-draining.png'],['Acceptance Practice','acceptance-practice.png'],['Reverence & Patience','march-reverence-patience.png'],['Presence & Devotion','presence-devotion.png']]},
+    winter:{label:'Winter',theme:'Interiorization',months:[['December','Stillness & Discernment','march-object-contemplation.png'],['January','Consolidation & Inner Will','where-does-will-begin.png'],['February','Renewal & Readiness','openness-readiness.png']],art:[['Object Contemplation','march-object-contemplation.png'],['Focused Thought','march-focused-thought.png'],['Where Does Will Begin?','where-does-will-begin.png'],['Truth vs Imagination','truth-vs-imagination.png'],['Self-Observation & Humility','self-observation-humility.png'],['Morning & Evening Energy','morning-evening-energy.png'],['Openness & Readiness','openness-readiness.png'],['Acceptance Practice','acceptance-practice.png'],['What Am I Ready to Release?','ready-to-release.png']]}
   };
-
   function natural(){const m=new Date().getMonth()+1;return m>=3&&m<=5?'spring':m>=6&&m<=8?'summer':m>=9&&m<=11?'autumn':'winter'}
   function getPref(){return localStorage.getItem(KEY)||'auto'}
   function resolve(){const p=getPref();return p==='auto'?natural():p}
   function monthIndex(s){const m=new Date().getMonth()+1;if(s==='winter')return m===12?0:m===1?1:2;const start={spring:3,summer:6,autumn:9}[s];return Math.max(0,Math.min(2,m-start))}
-  function current(){const s=resolve(),cfg=data[s],mi=monthIndex(s);return {s,cfg,month:cfg.months[mi]||cfg.months[0]}}
-
-  function apply(){
-    const {s}=current();
-    document.documentElement.dataset.season=s;
-    document.documentElement.dataset.seasonPreference=getPref();
-    renderReflection();
-    renderLibrary();
-  }
+  function current(){const s=resolve(),cfg=data[s],mi=monthIndex(s);return{s,cfg,month:cfg.months[mi]||cfg.months[0]}}
+  async function apply(){const{s}=current();document.documentElement.dataset.season=s;document.documentElement.dataset.seasonPreference=getPref();await renderReflection();renderLibrary()}
   function set(v){localStorage.setItem(KEY,v);apply()}
-
-  function mountReflectionShell(){
-    const journal=document.getElementById('journal');if(!journal||journal.dataset.reflectionMounted)return;
-    journal.dataset.reflectionMounted='true';
-    const nav=document.querySelector('.bottom-nav [data-screen="journal"]');if(nav)nav.textContent='Reflection';
-    const old=[...journal.children];
-    const journalPanel=document.createElement('div');journalPanel.id='reflection-journal-panel';journalPanel.className='reflection-journal-panel hidden';
-    old.forEach(n=>journalPanel.appendChild(n));
-    const shell=document.createElement('div');shell.id='reflection-shell';shell.className='reflection-shell';
-    journal.append(shell,journalPanel);
-    const handoff=document.getElementById('today-reflect');
-    if(handoff){
-      const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');
-      if(strong)strong.textContent='After practice · Reflection';
-      if(small)small.textContent='Contemplate, then record what you noticed';
-    }
-  }
-
-  function reflectionChoice(cfg){
-    // Deterministic daily choice: changes gently without becoming a feed.
-    const d=new Date();const index=(d.getFullYear()*366+d.getMonth()*31+d.getDate())%cfg.art.length;
-    return cfg.art[index]||[cfg.months[0][1],cfg.months[0][2]];
-  }
-
-  function renderReflection(){
-    mountReflectionShell();
-    const shell=document.getElementById('reflection-shell');if(!shell)return;
-    const {cfg,month}=current();
-    const [title,img]=reflectionChoice(cfg);
-    shell.innerHTML=`
-      <div class="reflection-intro"><div class="eyebrow">REFLECTION · ${cfg.label.toUpperCase()}</div><h1>What is asking for your attention?</h1><p>Nothing to complete. Stay with the image, notice what arises, then choose whether to write.</p></div>
-      <article class="reflection-art-card">
-        <img src="${A+img}" alt="" class="reflection-art"/>
-        <div class="reflection-art-caption"><small>${month?.[0]||cfg.label} · ${cfg.theme}</small><strong>${title}</strong></div>
-      </article>
-      <div class="reflection-prompt"><span aria-hidden="true">✦</span><p>Remain with one detail. Notice the first response before interpreting it.</p></div>
-      <div class="reflection-actions"><button type="button" class="secondary" id="reflection-next">Another image</button><button type="button" class="primary" id="reflection-write">Write reflection</button></div>`;
-    shell.querySelector('#reflection-write')?.addEventListener('click',()=>{
-      shell.classList.add('hidden');
-      const panel=document.getElementById('reflection-journal-panel');panel?.classList.remove('hidden');
-      panel?.querySelector('textarea')?.focus();
-    });
-    shell.querySelector('#reflection-next')?.addEventListener('click',()=>{
-      const choices=cfg.art;const currentSrc=shell.querySelector('.reflection-art')?.getAttribute('src')||'';
-      const i=Math.max(0,choices.findIndex(([,f])=>currentSrc.endsWith(f)));const next=choices[(i+1)%choices.length];
-      const image=shell.querySelector('.reflection-art'),label=shell.querySelector('.reflection-art-caption strong');
-      if(image)image.src=A+next[1];if(label)label.textContent=next[0];
-    });
-  }
-
-  function renderLibrary(){
-    const library=document.getElementById('library');if(!library)return;
-    let block=document.getElementById('seasonal-wisdom');
-    if(!block){block=document.createElement('section');block.id='seasonal-wisdom';block.className='seasonal-wisdom';library.querySelector('.library-tools')?.insertAdjacentElement('afterend',block)}
-    const {cfg}=current();
-    block.innerHTML=`<div class="seasonal-head"><div><div class="eyebrow">SEASONAL LENS</div><h2>${cfg.label} · ${cfg.theme}</h2></div><small>Reflection layer</small></div>
-      <div class="season-choice-grid seasonal-library-choice"><button type="button" data-season-choice="auto"><strong>Current</strong><small>Calendar</small></button>${Object.entries(data).map(([id,v])=>`<button type="button" data-season-choice="${id}"><strong>${v.label}</strong><small>${v.theme}</small></button>`).join('')}</div>`;
-    block.querySelectorAll('[data-season-choice]').forEach(b=>{b.classList.toggle('active',b.dataset.seasonChoice===getPref());b.addEventListener('click',()=>set(b.dataset.seasonChoice))});
-  }
-
+  function mountReflectionShell(){const journal=document.getElementById('journal');if(!journal||journal.dataset.reflectionMounted)return;journal.dataset.reflectionMounted='true';const nav=document.querySelector('.bottom-nav [data-screen="journal"]');if(nav)nav.textContent='Reflection';const old=[...journal.children];const journalPanel=document.createElement('div');journalPanel.id='reflection-journal-panel';journalPanel.className='reflection-journal-panel hidden';old.forEach(n=>journalPanel.appendChild(n));const shell=document.createElement('div');shell.id='reflection-shell';shell.className='reflection-shell';journal.append(shell,journalPanel);const handoff=document.getElementById('today-reflect');if(handoff){const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');if(strong)strong.textContent='After practice · Reflection';if(small)small.textContent='Contemplate, then record what you noticed'}}
+  function reflectionChoice(cfg,pathMonth=1){const d=new Date();const day=Math.max(1,d.getDate());const seed=(Math.max(1,pathMonth)-1)*31+day;return cfg.art[seed%cfg.art.length]||[cfg.months[0][1],cfg.months[0][2]]}
+  async function renderReflection(){mountReflectionShell();const shell=document.getElementById('reflection-shell');if(!shell)return;const{cfg,month}=current();let pathMonth=1;try{pathMonth=(await window.ASCENDProgression?.current?.())?.month||1}catch{}const[title,img]=reflectionChoice(cfg,pathMonth);shell.innerHTML=`<div class="reflection-intro"><div class="eyebrow">REFLECTION · ${cfg.label.toUpperCase()}</div><h1>What is asking for your attention?</h1><p>Stay with today's reflection. Notice what arises, then choose whether to write.</p></div><article class="reflection-art-card"><img src="${A+img}" alt="" class="reflection-art"/><div class="reflection-art-caption"><small>${month?.[0]||cfg.label} · ${cfg.theme}</small><strong>${title}</strong></div></article><div class="reflection-prompt"><span aria-hidden="true">✦</span><p>Remain with one detail. Notice the first response before interpreting it.</p></div><p class="reflection-sequence-note">Today's reflection follows your current Path. Future reflections are not browsable ahead of progression.</p><div class="reflection-actions"><button type="button" class="primary" id="reflection-write">Write reflection</button></div>`;shell.querySelector('#reflection-write')?.addEventListener('click',()=>{shell.classList.add('hidden');const panel=document.getElementById('reflection-journal-panel');panel?.classList.remove('hidden');panel?.querySelector('textarea')?.focus()})}
+  function renderLibrary(){const library=document.getElementById('library');if(!library)return;let block=document.getElementById('seasonal-wisdom');if(!block){block=document.createElement('section');block.id='seasonal-wisdom';block.className='seasonal-wisdom';library.querySelector('.library-tools')?.insertAdjacentElement('afterend',block)}const{cfg}=current();block.innerHTML=`<div class="seasonal-head"><div><div class="eyebrow">SEASONAL LENS</div><h2>${cfg.label} · ${cfg.theme}</h2></div><small>Reflection layer</small></div><div class="season-choice-grid seasonal-library-choice"><button type="button" data-season-choice="auto"><strong>Current</strong><small>Calendar</small></button>${Object.entries(data).map(([id,v])=>`<button type="button" data-season-choice="${id}"><strong>${v.label}</strong><small>${v.theme}</small></button>`).join('')}</div>`;block.querySelectorAll('[data-season-choice]').forEach(b=>{b.classList.toggle('active',b.dataset.seasonChoice===getPref());b.addEventListener('click',()=>set(b.dataset.seasonChoice))})}
   function mount(){document.getElementById('season-card')?.remove();apply()}
-  document.addEventListener('DOMContentLoaded',mount);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getPref()==='auto')apply()});
-  window.ASCENDSeason={apply,set,get:getPref,resolve,data};
+  document.addEventListener('DOMContentLoaded',mount);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getPref()==='auto')apply()});window.ASCENDSeason={apply,set,get:getPref,resolve,data};
 })();
