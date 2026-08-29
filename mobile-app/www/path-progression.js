@@ -47,11 +47,20 @@
     const applicationUnits=lifeEvidence(evidence);
     return Math.max(0,Math.min(practiceUnits,durationUnits,reflectionUnits,applicationUnits));
   };
-  const monthFor=({stageSortOrder=1,evidence=null})=>{
+  const elapsedMonth=(startedAt,now=new Date())=>{
+    const started=new Date(startedAt||now);
+    if(Number.isNaN(started.getTime()))return 1;
+    return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
+  };
+  const monthFor=({stageSortOrder=1,evidence,stageStartedAt,now=new Date()})=>{
     const range=rangeForStage(stageSortOrder);
     if(range.start===range.end)return range.start;
     const span=range.end-range.start;
-    return range.start+Math.min(span,completedFormationUnits(evidence));
+    if(evidence!==undefined)return range.start+Math.min(span,completedFormationUnits(evidence));
+    // Deprecated compatibility path for older callers/tests only. Production
+    // current() always supplies evidence and never advances by calendar alone.
+    if(stageStartedAt)return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now)-1);
+    return range.start;
   };
 
   let cache=null,cacheAt=0;
@@ -87,5 +96,5 @@
     return cache;
   }
   function invalidate(){cache=null;cacheAt=0}
-  window.ASCENDProgression={MONTHS,FORMATION_UNIT_DAYS,rangeForStage,capForStage,completedFormationUnits,monthFor,current,invalidate};
+  window.ASCENDProgression={MONTHS,FORMATION_UNIT_DAYS,rangeForStage,capForStage,elapsedMonth,completedFormationUnits,monthFor,current,invalidate};
 })();
