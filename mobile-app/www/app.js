@@ -2,6 +2,7 @@ const screens=[...document.querySelectorAll('.screen')];
 const nav=[...document.querySelectorAll('.bottom-nav button')];
 const localState=JSON.parse(localStorage.getItem('ascendPathState')||'{"practiceDays":0,"entries":[]}');
 let user=null,entitlement=null,curriculum=null,currentStage=null,currentPractice=null,progressRow=null,markerObservations=[],recentJournalText='',libraryQuery='',libraryType='all';
+const surfaceState={path:false,journal:false,library:false,me:false};
 
 function saveLocal(){localStorage.setItem('ascendPathState',JSON.stringify(localState));renderCounts(localState.practiceDays)}
 function renderCounts(days){document.getElementById('practice-days').textContent=days;document.getElementById('profile-days').textContent=days}
@@ -32,7 +33,7 @@ function renderStage(){if(!currentStage)return;currentPractice=stagePractice(cur
   document.getElementById('briefing-begin').textContent=`Begin ${p?.default_minutes||10}-Minute Practice`;
   document.getElementById('stage-requirement').textContent=`${currentStage.required_practice_days} required`;
   const days=progressRow?.practice_days??localState.practiceDays;renderCounts(days);document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;const journeyDay=document.getElementById('journey-now-day');if(journeyDay)journeyDay.textContent=`Day ${Math.max(1,days+1)}`;window.PathTheme?.apply?.();
-  remaining=(p?.default_minutes||10)*60;drawTimer();renderPath();renderLibrary();renderStageReview();window.ASCENDProgression?.invalidate?.();document.dispatchEvent(new CustomEvent('ascend:curriculum'));
+  remaining=(p?.default_minutes||10)*60;drawTimer();window.ASCENDProgression?.invalidate?.();document.dispatchEvent(new CustomEvent('ascend:curriculum'));
 }
 
 function renderPath(){if(!curriculum)return;const list=document.getElementById('path-list');list.innerHTML='';curriculum.stages.forEach(stage=>{const li=document.createElement('li');const row=progressFor(stage);const status=stage.id===currentStage?.id?'current':(row?.status==='established'?'done':'');if(status)li.classList.add(status);const phase=curriculum.phases.find(p=>p.id===stage.phase_id);let label='Later on the Path';if(stage.id===currentStage?.id)label='Current stage';else if(status==='done')label='Established';else if(row?.status==='review')label='In review';else if(phase?.gate_label)label=phase.gate_label;li.innerHTML=`<span></span><div><strong>${escapeHtml(stage.title)}</strong><small>${escapeHtml(label)}</small></div>`;list.appendChild(li)});const li=document.createElement('li');li.className='future';li.innerHTML='<span></span><div><strong>Further stages</strong><small>Revealed as the curriculum unfolds</small></div>';list.appendChild(li)}
@@ -51,14 +52,12 @@ function renderLibrary(){if(!curriculum)return;
   if(!visible.length){list.innerHTML='<div class="empty-state"><h2>No matching teaching</h2><p>Try another word or content type.</p></div>'}
   if(count)count.textContent=`${visible.length} of ${curriculum.content.length} Library items`;
   const rail=document.getElementById('library-recommended'),listLabel=document.getElementById('library-list-label');
-  let hasPicks=false;
   if(rail){
     rail.innerHTML='';
     const unlocked=curriculum.content.filter(item=>contentAccess(item).unlocked);
     if(!libraryQuery&&libraryType==='all'&&unlocked.length&&window.LibraryEngine){
       const picks=window.LibraryEngine.recommend(unlocked,{history:window.LibraryEngine.loadLibraryHistory(),journalText:recentJournalText,n:3});
       if(picks.length){
-        hasPicks=true;
         const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.textContent='RECOMMENDED FOR YOU';rail.appendChild(eyebrow);
         picks.forEach(item=>{const a=document.createElement('article');a.className='content-card';if(item.slug)a.dataset.slug=item.slug;a.setAttribute('role','button');a.setAttribute('tabindex','0');a.setAttribute('aria-label',`Open ${item.title}`);a.innerHTML=contentCardHTML(item);rail.appendChild(a)});
       }
@@ -71,9 +70,44 @@ function renderStageReview(){const card=document.getElementById('stage-review-ca
 
 async function saveMarker(markerId,state,reflection){if(!user||!currentStage)return;try{setSync('SYNCING…');await PathBackend.saveMarkerObservation(user.id,currentStage.id,markerId,state,reflection);const old=markerObservations.find(o=>o.marker_id===markerId);if(old){old.state=state;old.reflection=reflection}else markerObservations.push({marker_id:markerId,state,reflection});setSync('SYNCED',true)}catch(e){console.error(e);document.getElementById('review-status').textContent='Could not save this reflection yet.';setSync('LOCAL')}}
 
-async function refreshMirror(){const box=document.getElementById('mirror-content');if(!user||!currentStage){box.innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';return}if(window.ASCENDMirror?.load){await window.ASCENDMirror.load();return}box.innerHTML='<p>Reading your recent journal…</p>'}
+async function refreshMirror(){const box=document.getElementById('mirror-content');if(!user||!currentStage){box.innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';return}if(window.ASCENDMirror?.load){await window.ASCENDMirror.load();return}box.innerHTML='<p>Mirror is ready when you are. Read Resonance to reflect on patterns in your journal.</p>'}
 
-async function loadRemote(){try{user=await PathBackend.me();showAccount();window.__pathProgress=[];recentJournalText='';markerObservations=[];curriculum=null;currentStage=null;progressRow=null;if(!user){entitlement=null;applyAccessGate(false);setSync('SIGN IN');return}setSync('CHECKING ACCESS…');const hasAccess=await refreshAccess();if(!hasAccess){setSync('LOCKED');return}setSync('LOADING…');curriculum=await PathBackend.loadCurriculum();const profile=await PathBackend.ensureStudent(user);window.__pathProgress=await PathBackend.getProgress(user.id);recentJournalText=await PathBackend.getRecentJournalText(user.id).catch(()=>'');progressRow=window.__pathProgress.find(p=>p.status==='active'||p.status==='review')||window.__pathProgress[window.__pathProgress.length-1]||null;currentStage=curriculum.stages.find(s=>s.id===progressRow?.stage_id)||curriculum.stages[0]||null;if(currentStage)markerObservations=await PathBackend.getMarkerObservations(user.id,currentStage.id);renderStage();await refreshMirror();window.ASCENDBranches?.load?.();window.ASCENDTrainingLayers?.load?.();window.ASCENDReadinessEvidence?.load?.();setSync('SYNCED',true);window.ASCENDIntro?.consider?.({currentUser:user,profile})}catch(e){console.error(e);setSync('UNAVAILABLE');showAccount();applyAccessGate(false)}}
+async function loadSurface(id){
+  if(!user||!currentStage)return;
+  if(id==='journal'){
+    if(surfaceState.journal)return;
+    surfaceState.journal=true;
+    window.ASCENDUX?.loadJournalHistory?.();
+    return;
+  }
+  if(id==='library'){
+    if(surfaceState.library){renderLibrary();return}
+    surfaceState.library=true;
+    recentJournalText=await PathBackend.getRecentJournalText(user.id).catch(()=>'');
+    renderLibrary();
+    return;
+  }
+  if(id==='path'){
+    renderPath();
+    if(surfaceState.path)return;
+    surfaceState.path=true;
+    window.ASCENDBranches?.load?.();
+    window.ASCENDTrainingLayers?.load?.();
+    return;
+  }
+  if(id==='me'){
+    if(surfaceState.me)return;
+    surfaceState.me=true;
+    markerObservations=currentStage?await PathBackend.getMarkerObservations(user.id,currentStage.id).catch(()=>[]):[];
+    renderStageReview();
+    window.ASCENDReadinessEvidence?.load?.();
+    window.ASCENDMirror?.showCached?.('stage');
+  }
+}
+window.ASCENDLoadSurface=loadSurface;
+nav.forEach(button=>button.addEventListener('click',()=>setTimeout(()=>loadSurface(button.dataset.screen),0)));
+
+async function loadRemote(){try{user=await PathBackend.me();showAccount();window.__pathProgress=[];recentJournalText='';markerObservations=[];curriculum=null;currentStage=null;progressRow=null;Object.keys(surfaceState).forEach(key=>surfaceState[key]=false);if(!user){entitlement=null;applyAccessGate(false);setSync('SIGN IN');return}setSync('CHECKING ACCESS…');const hasAccess=await refreshAccess();if(!hasAccess){setSync('LOCKED');return}setSync('LOADING…');const [loadedCurriculum,profile,progress]=await Promise.all([PathBackend.loadCurriculum(),PathBackend.ensureStudent(user),PathBackend.getProgress(user.id)]);curriculum=loadedCurriculum;window.__pathProgress=progress;progressRow=window.__pathProgress.find(p=>p.status==='active'||p.status==='review')||window.__pathProgress[window.__pathProgress.length-1]||null;currentStage=curriculum.stages.find(s=>s.id===progressRow?.stage_id)||curriculum.stages[0]||null;renderStage();setSync('SYNCED',true);window.ASCENDIntro?.consider?.({currentUser:user,profile})}catch(e){console.error(e);setSync('UNAVAILABLE');showAccount();applyAccessGate(false)}}
 
 const overlay=document.getElementById('practice-overlay'),briefing=document.getElementById('practice-briefing');function openPracticeOverlay(){briefing.classList.remove('hidden')}function beginPractice(){briefing.classList.add('hidden');resetTimerUI();overlay.classList.remove('hidden')}window.ASCENDOpenPractice=openPracticeOverlay;document.querySelector('[data-action="practice"]').addEventListener('click',openPracticeOverlay);document.getElementById('briefing-begin').addEventListener('click',beginPractice);document.querySelector('.briefing-close').addEventListener('click',()=>briefing.classList.add('hidden'));document.querySelector('#practice-overlay .overlay-close').addEventListener('click',()=>overlay.classList.add('hidden'));
 let remaining=600,interval=null,running=false;const timer=document.getElementById('timer'),toggle=document.getElementById('timer-toggle'),finishBtn=document.getElementById('finish-practice'),timerHint=document.getElementById('timer-hint');const defaultTimerHint='Sit with this until the timer ends, then tap Finish Practice to record today.';
@@ -82,9 +116,9 @@ function resetTimerUI(){toggle.disabled=false;toggle.textContent='Begin';finishB
 function stop(){clearInterval(interval);interval=null;running=false;if(remaining>0)toggle.textContent='Begin'}
 toggle.addEventListener('click',()=>{if(running){stop();return}running=true;toggle.textContent='Pause';interval=setInterval(()=>{remaining--;drawTimer();if(remaining<=0){stop();toggle.disabled=true;toggle.textContent='Complete';finishBtn.classList.add('ready');timerHint.textContent='Timer complete — tap Finish Practice below.'}},1000)});
 
-document.getElementById('finish-practice').addEventListener('click',async()=>{stop();const check=document.getElementById('primary-check');if(!check.checked){check.checked=true;if(user&&currentStage&&currentPractice){try{setSync('SYNCING…');const duration=(currentPractice.default_minutes||10)*60;const result=await PathBackend.completePractice({stageId:currentStage.id,practiceId:currentPractice.id,durationSeconds:duration});const days=result?.practice_days??progressRow?.practice_days??0;if(progressRow){progressRow.practice_days=days;progressRow.last_practice_date=new Date().toISOString().slice(0,10);progressRow.status=result?.stage_status||progressRow.status}renderCounts(days);document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){await loadRemote()}else{renderPath();renderStageReview();setSync('SYNCED',true)}}catch(e){console.error(e);localState.practiceDays+=1;saveLocal();setSync('LOCAL')}}else{localState.practiceDays+=1;saveLocal()}}resetTimerUI();overlay.classList.add('hidden');const reflect=document.getElementById('today-reflect');if(reflect){reflect.classList.add('invite');setTimeout(()=>reflect.classList.remove('invite'),2600)}});
+document.getElementById('finish-practice').addEventListener('click',async()=>{stop();const check=document.getElementById('primary-check');if(!check.checked){check.checked=true;if(user&&currentStage&&currentPractice){try{setSync('SYNCING…');const duration=(currentPractice.default_minutes||10)*60;const result=await PathBackend.completePractice({stageId:currentStage.id,practiceId:currentPractice.id,durationSeconds:duration});const days=result?.practice_days??progressRow?.practice_days??0;if(progressRow){progressRow.practice_days=days;progressRow.last_practice_date=new Date().toISOString().slice(0,10);progressRow.status=result?.stage_status||progressRow.status}renderCounts(days);document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){await loadRemote()}else{if(surfaceState.path)renderPath();if(surfaceState.me)renderStageReview();setSync('SYNCED',true)}}catch(e){console.error(e);localState.practiceDays+=1;saveLocal();setSync('LOCAL')}}else{localState.practiceDays+=1;saveLocal()}}resetTimerUI();overlay.classList.add('hidden');const reflect=document.getElementById('today-reflect');if(reflect){reflect.classList.add('invite');setTimeout(()=>reflect.classList.remove('invite'),2600)}});
 
-document.getElementById('journal-form').addEventListener('submit',async e=>{e.preventDefault();const status=document.getElementById('journal-status');if(!window.ASCENDJournalValidation?.hasMeaningfulContent(e.currentTarget)){status.textContent='Write at least one observation before saving this reflection.';e.currentTarget.elements?.namedItem('observation')?.focus();return}const form=new FormData(e.currentTarget),entry={created_at:new Date().toISOString()};for(const [k,v] of form.entries())entry[k]=String(v).trim();if(user&&currentStage){try{setSync('SYNCING…');await PathBackend.saveJournal(user.id,currentStage.id,entry);status.textContent='Reflection saved privately to your ASCEND Path journal.';setSync('SYNCED',true);await refreshMirror()}catch(err){console.error(err);localState.entries.push(entry);saveLocal();status.textContent='Connection unavailable. Reflection saved on this device and can be synchronized later.';setSync('LOCAL')}}else{localState.entries.push(entry);saveLocal();status.textContent='Reflection saved privately on this device. Sign in to synchronize it.'}e.currentTarget.reset()});
+document.getElementById('journal-form').addEventListener('submit',async e=>{e.preventDefault();const status=document.getElementById('journal-status');if(!window.ASCENDJournalValidation?.hasMeaningfulContent(e.currentTarget)){status.textContent='Write at least one observation before saving this reflection.';e.currentTarget.elements?.namedItem('observation')?.focus();return}const form=new FormData(e.currentTarget),entry={created_at:new Date().toISOString()};for(const [k,v] of form.entries())entry[k]=String(v).trim();if(user&&currentStage){try{setSync('SYNCING…');await PathBackend.saveJournal(user.id,currentStage.id,entry);status.textContent='Reflection saved privately to your ASCEND Path journal.';recentJournalText='';surfaceState.library=false;window.ASCENDMirror?.invalidate?.();setSync('SYNCED',true)}catch(err){console.error(err);localState.entries.push(entry);saveLocal();status.textContent='Connection unavailable. Reflection saved on this device and can be synchronized later.';setSync('LOCAL')}}else{localState.entries.push(entry);saveLocal();status.textContent='Reflection saved privately on this device. Sign in to synchronize it.'}e.currentTarget.reset()});
 
 document.getElementById('submit-stage-review').addEventListener('click',async()=>{if(!user||!currentStage)return;const status=document.getElementById('review-status');status.textContent='Checking practice history and attainment reflections…';try{setSync('SYNCING…');const result=await PathBackend.submitReadinessReview(currentStage.id);status.textContent=result?.message||'Readiness review submitted.';await loadRemote();setSync('SYNCED',true)}catch(e){console.error(e);status.textContent=e.message||'The stage is not ready for progression yet.';setSync('SYNCED',true)}});
 document.getElementById('continue-stage').addEventListener('click',()=>{document.getElementById('review-status').textContent='Continue the current practice. Nothing is lost by taking more time.';nav.find(n=>n.dataset.screen==='today')?.click()});
@@ -98,7 +132,7 @@ document.getElementById('create-account')?.addEventListener('click',async()=>{co
 document.getElementById('forgot-password')?.addEventListener('click',async()=>{const email=new FormData(authForm).get('email');if(!email){authStatus.textContent='Enter your email first.';return}authStatus.textContent='Sending password reset…';try{await PathBackend.requestPasswordReset(email);authStatus.textContent='Password reset requested. Check your email.'}catch(err){authStatus.textContent=err.message||'Password reset could not be sent.'}});
 document.getElementById('toggle-password')?.addEventListener('click',event=>{const input=document.getElementById('account-password'),show=input.type==='password';input.type=show?'text':'password';event.currentTarget.textContent=show?'Hide':'Show';event.currentTarget.setAttribute('aria-pressed',String(show))});
 document.getElementById('lifetime-key-form')?.addEventListener('submit',async event=>{event.preventDefault();const input=document.getElementById('lifetime-key'),status=document.getElementById('lifetime-key-status'),button=event.currentTarget.querySelector('button');status.textContent='Checking key…';button.disabled=true;try{const result=await PathBackend.redeemLifetimeKey(input.value);if(result.status==='redeemed'||result.status==='already_redeemed'){status.textContent='Lifetime access is active on this account.';input.value='';await loadRemote()}else if(result.status==='already_used'){status.textContent='This key has already been used by another account.'}else{status.textContent='That key is not valid. Check every letter and number.'}}catch(err){console.error(err);status.textContent=err.message||'The key could not be checked right now.'}finally{button.disabled=false}});
-document.getElementById('sign-out').addEventListener('click',()=>{PathBackend.signOut();user=null;entitlement=null;progressRow=null;markerObservations=[];recentJournalText='';window.__pathProgress=[];window.ASCENDProgression?.invalidate?.();document.body.classList.remove('access-required');showAccount();renderCounts(localState.practiceDays);document.getElementById('stage-review-card').classList.add('hidden');document.getElementById('mirror-content').innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';loadRemote()});
+document.getElementById('sign-out').addEventListener('click',()=>{PathBackend.signOut();user=null;entitlement=null;progressRow=null;markerObservations=[];recentJournalText='';window.__pathProgress=[];Object.keys(surfaceState).forEach(key=>surfaceState[key]=false);window.ASCENDProgression?.invalidate?.();window.ASCENDMirror?.invalidate?.();document.body.classList.remove('access-required');showAccount();renderCounts(localState.practiceDays);document.getElementById('stage-review-card').classList.add('hidden');document.getElementById('mirror-content').innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';loadRemote()});
 
 function refreshPaywallPrices(){['monthly','annual','lifetime'].forEach(tier=>{const el=document.getElementById(`price-${tier}`),price=window.AscendBilling?.getPriceString(tier);if(el&&price)el.textContent=price})}
 window.AscendBilling?.onStatusChange(()=>{refreshPaywallPrices();if(user)loadRemote()});
