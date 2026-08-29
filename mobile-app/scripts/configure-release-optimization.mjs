@@ -32,8 +32,8 @@ root = root.replace(
 );
 
 // Google Play requires each uploaded bundle to have a higher versionCode.
-gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 4');
-gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.3'");
+gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 5');
+gradle = gradle.replace(/versionName\s+['"][^'"]+['"]/, "versionName '1.4'");
 
 // Capacitor's generated release block is intentionally minimal. Turn on R8
 // code shrinking/obfuscation and Android resource shrinking for Play builds.
@@ -102,4 +102,4 @@ if (converted > 0) {
   console.log(`Optimized ${converted} seasonal images: ${(originalBytes / 1048576).toFixed(2)} MB -> ${(optimizedBytes / 1048576).toFixed(2)} MB (${percent}% smaller).`);
 }
 
-console.log('Configured Play release: versionCode=4, versionName=1.3, compileSdk=36, targetSdk=36, AGP=8.9.1, R8/resource shrinking enabled.');
+console.log('Configured Play release: versionCode=5, versionName=1.4, compileSdk=36, targetSdk=36, AGP=8.9.1, R8/resource shrinking enabled.');
