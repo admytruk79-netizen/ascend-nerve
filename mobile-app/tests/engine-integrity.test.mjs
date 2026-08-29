@@ -60,9 +60,10 @@ test('practice completion integrity never advances locally after failed verifica
   assert.match(integrity,/remaining>0/);
 });
 
-test('training-in-life evidence is attached to Today and recorded through the server progression gate',()=>{
+test('training-in-life is the Apply layer and contributes formation evidence without self-advancing',()=>{
   const layers=read('training-layers.js');
-  assert.match(layers,/TRAINING BEYOND THE FORMAL PRACTICE/);
+  assert.match(layers,/APPLY · IN ORDINARY LIFE/);
+  assert.match(layers,/Learn → Practice → Observe → Apply → Review/);
   assert.match(layers,/APPLIED LIFE/);
   assert.match(layers,/CONDUCT & CHARACTER/);
   assert.match(layers,/RELATIONSHIP PRACTICE/);
@@ -72,7 +73,7 @@ test('training-in-life evidence is attached to Today and recorded through the se
   assert.match(layers,/path_record_training_assignment/);
   assert.doesNotMatch(layers,/rest\('path_training_assignment_logs',\{method:'POST'/);
   assert.match(layers,/ASCENDReadinessEvidence\?\.load/);
-  assert.match(layers,/They do not replace the primary practice and they do not advance the Path by themselves/);
+  assert.match(layers,/contribute evidence of integration, but never advance the Path by themselves/);
 });
 
 test('readiness evidence includes life application and maintenance without replacing deterministic progression',()=>{
