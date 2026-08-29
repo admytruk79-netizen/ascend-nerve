@@ -12,12 +12,55 @@
   function resolve(){const p=getPref();return p==='auto'?natural():p}
   function monthIndex(s){const m=new Date().getMonth()+1;if(s==='winter')return m===12?0:m===1?1:2;const start={spring:3,summer:6,autumn:9}[s];return Math.max(0,Math.min(2,m-start))}
   function current(){const s=resolve(),cfg=data[s],mi=monthIndex(s);return{s,cfg,month:cfg.months[mi]||cfg.months[0]}}
-  async function apply(){const{s}=current();document.documentElement.dataset.season=s;document.documentElement.dataset.seasonPreference=getPref();await renderReflection();renderLibrary()}
+  function practiceCompleteToday(){return !!window.ASCENDPracticeState?.isCompleteToday?.()}
+  async function apply(){const{s}=current();document.documentElement.dataset.season=s;document.documentElement.dataset.seasonPreference=getPref();await renderReflection();renderLibrary();syncReflectionAccess()}
   function set(v){localStorage.setItem(KEY,v);apply()}
-  function mountReflectionShell(){const journal=document.getElementById('journal');if(!journal||journal.dataset.reflectionMounted)return;journal.dataset.reflectionMounted='true';const nav=document.querySelector('.bottom-nav [data-screen="journal"]');if(nav)nav.textContent='Reflection';const old=[...journal.children];const journalPanel=document.createElement('div');journalPanel.id='reflection-journal-panel';journalPanel.className='reflection-journal-panel hidden';old.forEach(n=>journalPanel.appendChild(n));const shell=document.createElement('div');shell.id='reflection-shell';shell.className='reflection-shell';journal.append(shell,journalPanel);const handoff=document.getElementById('today-reflect');if(handoff){const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');if(strong)strong.textContent='After practice · Reflection';if(small)small.textContent='Contemplate, then record what you noticed'}}
+  function mountReflectionShell(){
+    const journal=document.getElementById('journal');if(!journal||journal.dataset.reflectionMounted)return;
+    journal.dataset.reflectionMounted='true';
+    const nav=document.querySelector('.bottom-nav [data-screen="journal"]');if(nav)nav.textContent='Journal';
+    const old=[...journal.children];
+    const journalPanel=document.createElement('div');journalPanel.id='reflection-journal-panel';journalPanel.className='reflection-journal-panel';old.forEach(n=>journalPanel.appendChild(n));
+    const shell=document.createElement('div');shell.id='reflection-shell';shell.className='reflection-shell hidden';journal.append(shell,journalPanel);
+    const handoff=document.getElementById('today-reflect');if(handoff){const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');if(strong)strong.textContent='After practice · Reflection';if(small)small.textContent='Contemplate, then record what you noticed'}
+    nav?.addEventListener('click',()=>showJournal());
+    handoff?.addEventListener('click',event=>{
+      if(!practiceCompleteToday())return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.ASCENDUX?.activateScreen?.('journal');
+      showReflection();
+    },true);
+  }
+  function showJournal(){document.getElementById('reflection-shell')?.classList.add('hidden');document.getElementById('reflection-journal-panel')?.classList.remove('hidden')}
+  function showReflection(){if(!practiceCompleteToday()){showJournal();return false}document.getElementById('reflection-journal-panel')?.classList.add('hidden');document.getElementById('reflection-shell')?.classList.remove('hidden');return true}
+  function syncReflectionAccess(){
+    const handoff=document.getElementById('today-reflect');if(!handoff)return;
+    const ready=practiceCompleteToday();
+    handoff.disabled=!ready;
+    handoff.setAttribute('aria-disabled',String(!ready));
+    handoff.classList.toggle('reflection-locked',!ready);
+    handoff.classList.toggle('reflection-ready',ready&&!handoff.classList.contains('complete'));
+    const strong=handoff.querySelector('strong'),small=handoff.querySelector('small');
+    if(handoff.classList.contains('complete'))return;
+    if(strong)strong.textContent=ready?'Reflection ready':'After practice · Reflection';
+    if(small)small.textContent=ready?'Contemplate, then record what you noticed':'Complete today’s practice to open this reflection';
+    const waypoints=document.querySelectorAll('.journey-waypoint');
+    if(waypoints[1])waypoints[1].classList.toggle('active',ready);
+  }
   function reflectionChoice(cfg,pathMonth=1){const d=new Date();const day=Math.max(1,d.getDate());const seed=(Math.max(1,pathMonth)-1)*31+day;return cfg.art[seed%cfg.art.length]||[cfg.months[0][1],cfg.months[0][2]]}
-  async function renderReflection(){mountReflectionShell();const shell=document.getElementById('reflection-shell');if(!shell)return;const{cfg,month}=current();let pathMonth=1;try{pathMonth=(await window.ASCENDProgression?.current?.())?.month||1}catch{}const[title,img]=reflectionChoice(cfg,pathMonth);shell.innerHTML=`<div class="reflection-intro"><div class="eyebrow">REFLECTION · ${cfg.label.toUpperCase()}</div><h1>What is asking for your attention?</h1><p>Stay with today's reflection. Notice what arises, then choose whether to write.</p></div><article class="reflection-art-card"><img src="${A+img}" alt="" class="reflection-art"/><div class="reflection-art-caption"><small>${month?.[0]||cfg.label} · ${cfg.theme}</small><strong>${title}</strong></div></article><div class="reflection-prompt"><span aria-hidden="true">✦</span><p>Remain with one detail. Notice the first response before interpreting it.</p></div><p class="reflection-sequence-note">Today's reflection follows your current Path. Future reflections are not browsable ahead of progression.</p><div class="reflection-actions"><button type="button" class="primary" id="reflection-write">Write reflection</button></div>`;shell.querySelector('#reflection-write')?.addEventListener('click',()=>{shell.classList.add('hidden');const panel=document.getElementById('reflection-journal-panel');panel?.classList.remove('hidden');panel?.querySelector('textarea')?.focus()})}
+  async function renderReflection(){
+    mountReflectionShell();const shell=document.getElementById('reflection-shell');if(!shell)return;
+    const{cfg,month}=current();let pathMonth=1;try{pathMonth=(await window.ASCENDProgression?.current?.())?.month||1}catch{}
+    const[title,img]=reflectionChoice(cfg,pathMonth);
+    shell.innerHTML=`<div class="reflection-intro"><div class="eyebrow">TODAY'S REFLECTION · ${cfg.label.toUpperCase()}</div><h1>What is asking for your attention?</h1><p>Stay with today's reflection. Notice what arises before you turn it into explanation.</p></div><article class="reflection-art-card"><img src="${A+img}" alt="" class="reflection-art"/><div class="reflection-art-caption"><small>${month?.[0]||cfg.label} · ${cfg.theme}</small><strong>${title}</strong></div></article><div class="reflection-prompt"><span aria-hidden="true">✦</span><p>Remain with one detail. Notice the first response before interpreting it.</p></div><p class="reflection-sequence-note">This reflection belongs to today's completed practice. Future reflections remain unavailable until their practice day arrives.</p><div class="reflection-actions"><button type="button" class="primary" id="reflection-write">Write in Journal</button><button type="button" class="secondary" id="reflection-close">Journal without prompt</button></div>`;
+    shell.querySelector('#reflection-write')?.addEventListener('click',()=>{showJournal();document.getElementById('journal-status').textContent='Today’s reflection is open. Record only what you actually noticed.';document.querySelector('#reflection-journal-panel textarea[name="observation"]')?.focus()});
+    shell.querySelector('#reflection-close')?.addEventListener('click',()=>{showJournal();document.querySelector('#reflection-journal-panel textarea[name="observation"]')?.focus()});
+  }
   function renderLibrary(){const library=document.getElementById('library');if(!library)return;let block=document.getElementById('seasonal-wisdom');if(!block){block=document.createElement('section');block.id='seasonal-wisdom';block.className='seasonal-wisdom';library.querySelector('.library-tools')?.insertAdjacentElement('afterend',block)}const{cfg}=current();block.innerHTML=`<div class="seasonal-head"><div><div class="eyebrow">SEASONAL LENS</div><h2>${cfg.label} · ${cfg.theme}</h2></div><small>Reflection layer</small></div><div class="season-choice-grid seasonal-library-choice"><button type="button" data-season-choice="auto"><strong>Current</strong><small>Calendar</small></button>${Object.entries(data).map(([id,v])=>`<button type="button" data-season-choice="${id}"><strong>${v.label}</strong><small>${v.theme}</small></button>`).join('')}</div>`;block.querySelectorAll('[data-season-choice]').forEach(b=>{b.classList.toggle('active',b.dataset.seasonChoice===getPref());b.addEventListener('click',()=>set(b.dataset.seasonChoice))})}
   function mount(){document.getElementById('season-card')?.remove();apply()}
-  document.addEventListener('DOMContentLoaded',mount);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getPref()==='auto')apply()});window.ASCENDSeason={apply,set,get:getPref,resolve,data};
+  document.addEventListener('DOMContentLoaded',mount);
+  document.addEventListener('ascend:practice-complete',()=>{syncReflectionAccess();showReflection()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(getPref()==='auto')apply();else syncReflectionAccess()}});
+  window.ASCENDSeason={apply,set,get:getPref,resolve,data,showJournal,showReflection,syncReflectionAccess};
 })();
