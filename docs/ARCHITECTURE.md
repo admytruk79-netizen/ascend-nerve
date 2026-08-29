@@ -6,6 +6,8 @@ ASCEND Path measures formation, not content consumption.
 
 The application presents one clear daily action while a deeper 24-month curriculum engine manages prerequisites, continuing practices, minimum duration, readiness, gated content, and teacher review.
 
+Within the multi-month consolidation stages, calendar time alone never opens the next monthly unit. A formation unit requires a minimum 21-day span plus confirmed practice days, at least one journal reflection, and ordinary-life application evidence. Major stage gates remain server-side readiness decisions and, where configured, teacher-reviewed.
+
 ## UX surfaces
 
 ### Today
