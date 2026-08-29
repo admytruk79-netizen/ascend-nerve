@@ -124,7 +124,6 @@
 
   document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),250)});
 
-  // Journal is a first-class part of Today, not a destination users must remember.
   document.addEventListener('click',event=>{
     if(!event.target.closest('[data-go-journal]'))return;
     activateScreen('journal');
@@ -156,13 +155,14 @@
     historyWrap=document.createElement('section');
     historyWrap.id='journal-history';
     historyWrap.className='journal-history';
-    historyWrap.innerHTML='<h2>Saved reflections</h2><p class="journal-history-intro">Your recent Journal entries live here. Tap one to review the complete reflection.</p><div class="journal-history-list" id="journal-history-list"><p class="quiet-note">Loading saved reflections…</p></div>';
+    historyWrap.innerHTML='<h2>Saved reflections</h2><p class="journal-history-intro">Your recent Journal entries live here. Tap one to review the complete reflection.</p><div class="journal-history-list" id="journal-history-list"><p class="quiet-note">Saved reflections load when you open Journal.</p></div>';
     savedPanel?.insertAdjacentElement('afterend',historyWrap);
   }
 
   const shortText=(row)=>String(row?.observation||row?.inner_state||row?.life_application||row?.interpretation||row?.unresolved||'Reflection saved.').trim();
   const dateLabel=(value)=>{try{return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'}).format(new Date(value))}catch{return value||'Saved reflection'}};
-  async function loadJournalHistory(){
+  async function loadJournalHistory({force=false}={}){
+    if(!force&&currentScreen()!=='journal')return;
     const list=document.getElementById('journal-history-list');if(!list)return;
     let rows=[];
     try{
@@ -188,7 +188,6 @@
   }
   if(localStorage.getItem(`ascendJournalDone:${new Date().toISOString().slice(0,10)}`)==='1')markJournalComplete();
 
-  // After a genuinely completed practice, move naturally into reflection.
   const finishPractice=document.getElementById('finish-practice');
   finishPractice?.addEventListener('click',()=>{
     if(!finishPractice.classList.contains('ready'))return;
@@ -201,7 +200,6 @@
     },250);
   });
 
-  // Saving keeps the user in Journal, makes storage explicit, and updates the daily loop.
   journalForm?.addEventListener('submit',()=>{
     savedPanel?.classList.add('hidden');
     setTimeout(async()=>{
@@ -210,14 +208,13 @@
         if(journalStatus)journalStatus.textContent=/Connection unavailable|on this device/i.test(text)?text:'Saved. This reflection is now in your private Journal below.';
         savedPanel?.classList.remove('hidden');
         markJournalComplete();
-        await loadJournalHistory();
+        await loadJournalHistory({force:true});
       }
     },800);
   });
 
-  document.querySelector('.bottom-nav button[data-screen="journal"]')?.addEventListener('click',()=>setTimeout(loadJournalHistory,80));
+  document.querySelector('.bottom-nav button[data-screen="journal"]')?.addEventListener('click',()=>setTimeout(()=>loadJournalHistory(),80));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentScreen()==='journal')loadJournalHistory()});
-  setTimeout(loadJournalHistory,1200);
 
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
