@@ -3,6 +3,8 @@
   if(!finish)return;
 
   let submitting=false;
+  const dayKey=()=>new Date().toISOString().slice(0,10);
+  const practiceDoneKey=()=>`ascendPracticeDone:${dayKey()}`;
 
   function persistPendingAttempt(reason){
     try{
@@ -17,6 +19,11 @@
     }catch(err){
       console.error('Could not persist pending practice attempt',err);
     }
+  }
+
+  function markVerifiedPracticeComplete(){
+    try{localStorage.setItem(practiceDoneKey(),'1')}catch{}
+    document.dispatchEvent(new CustomEvent('ascend:practice-complete',{detail:{date:dayKey(),verified:true}}));
   }
 
   finish.addEventListener('click',async e=>{
@@ -56,7 +63,7 @@
       const days=result?.practice_days??progressRow?.practice_days??0;
       if(progressRow){
         progressRow.practice_days=days;
-        progressRow.last_practice_date=new Date().toISOString().slice(0,10);
+        progressRow.last_practice_date=dayKey();
         progressRow.status=result?.stage_status||progressRow.status;
       }
 
@@ -64,6 +71,7 @@
       renderCounts(days);
       document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;
       timerHint.textContent='Practice confirmed and counted toward your Path.';
+      markVerifiedPracticeComplete();
 
       if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){
         await loadRemote();
@@ -87,4 +95,9 @@
       finish.textContent='Finish Practice';
     }
   },true);
+
+  window.ASCENDPracticeState={
+    isCompleteToday:()=>localStorage.getItem(practiceDoneKey())==='1',
+    key:practiceDoneKey
+  };
 })();
