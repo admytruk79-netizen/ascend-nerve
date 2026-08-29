@@ -49,15 +49,19 @@ jobs:
           node scripts/configure-android-oauth.mjs
           node scripts/configure-release-optimization.mjs
 
-      - name: Verify Android 16 Play target
+      - name: Verify Android release configuration and launcher icon
         working-directory: mobile-app/android
         run: |
           grep -Eq 'compileSdkVersion\s*=\s*36' variables.gradle
           grep -Eq 'targetSdkVersion\s*=\s*36' variables.gradle
           grep -q "com.android.tools.build:gradle:8.9.1" build.gradle
-          grep -Eq 'versionCode\s+5' app/build.gradle
-          grep -Eq "versionName\s+'1.4'" app/build.gradle
-          echo 'Verified compileSdk=36, targetSdk=36, AGP=8.9.1, versionCode=5, versionName=1.4.'
+          grep -Eq 'versionCode\s+6' app/build.gradle
+          grep -Eq "versionName\s+'1.5'" app/build.gradle
+          test -s app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          test -s app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+          test -s app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          grep -q '#07131D' app/src/main/res/values/ic_launcher_background.xml
+          echo 'Verified ASCEND Path 1.5, API 36 target, and branded launcher resources.'
 
       - name: Verify Play signing secrets
         env:
@@ -86,26 +90,22 @@ jobs:
           raw = re.sub(r'[^A-Za-z0-9+/=]', '', raw)
           if not raw:
               raise SystemExit('Keystore secret became empty after normalization')
-
           if '=' in raw:
               first = raw.index('=')
               end = first
               while end < len(raw) and raw[end] == '=':
                   end += 1
               raw = raw[:end]
-
           raw += '=' * ((4 - len(raw) % 4) % 4)
-
           try:
               data = base64.b64decode(raw, validate=True)
           except Exception as exc:
               raise SystemExit(f'Invalid Base64 secret after recovery: {exc}; recovered length={len(raw)}')
-
           out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'ascend-upload.jks'
           out.write_bytes(data)
           if len(data) < 100:
               raise SystemExit('Decoded keystore is unexpectedly small')
-          print(f'Restored keystore bytes: {len(data)}; recovered Base64 length: {len(raw)}')
+          print(f'Restored keystore bytes: {len(data)}')
           PY
 
           KEYSTORE="$RUNNER_TEMP/ascend-upload.jks"
@@ -116,7 +116,6 @@ jobs:
             -alias "$ANDROID_KEY_ALIAS" 2>/dev/null |
             grep -q 'Entry type: PrivateKeyEntry'; then
             RESOLVED_KEY_ALIAS="$ANDROID_KEY_ALIAS"
-            echo 'Configured signing alias is a private-key entry.'
           else
             mapfile -t PRIVATE_ALIASES < <(
               keytool -list -v \
@@ -124,34 +123,28 @@ jobs:
                 -storepass "$ANDROID_STORE_PASSWORD" |
               awk -F': ' '/Alias name:/{alias=$2} /Entry type: PrivateKeyEntry/{print alias}'
             )
-
             if [ "${#PRIVATE_ALIASES[@]}" -eq 1 ]; then
               RESOLVED_KEY_ALIAS="${PRIVATE_ALIASES[0]}"
-              echo 'Configured alias was certificate-only; selected the keystore private-key entry.'
             elif [ "${#PRIVATE_ALIASES[@]}" -eq 0 ]; then
-              echo 'The uploaded keystore contains no PrivateKeyEntry. A certificate file cannot sign an AAB.'
-              echo 'Encode the original upload-key .jks/.keystore file and replace ANDROID_KEYSTORE_BASE64.'
+              echo 'The uploaded keystore contains no PrivateKeyEntry.'
               exit 1
             else
-              echo 'Configured alias is not a private key and the keystore contains multiple private keys.'
-              echo 'Set ANDROID_KEY_ALIAS to the alias of the intended PrivateKeyEntry.'
+              echo 'Multiple private keys found; set ANDROID_KEY_ALIAS to the intended key.'
               exit 1
             fi
           fi
-
           echo "RESOLVED_KEY_ALIAS=$RESOLVED_KEY_ALIAS" >> "$GITHUB_ENV"
 
           printf 'ASCEND signing probe' > "$RUNNER_TEMP/signing-probe.txt"
           jar --create --file "$RUNNER_TEMP/signing-probe.jar" -C "$RUNNER_TEMP" signing-probe.txt
-
           cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-keypass.jar"
+
           if jarsigner \
             -keystore "$KEYSTORE" \
             -storepass "$ANDROID_STORE_PASSWORD" \
             -keypass "$ANDROID_KEY_PASSWORD" \
             "$RUNNER_TEMP/signing-probe-keypass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
             RESOLVED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
-            echo 'Private signing key unlocked with ANDROID_KEY_PASSWORD.'
           else
             NORMALIZED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
             if [[ "$NORMALIZED_KEY_PASSWORD" == ANDROID_KEY_PASSWORD=* ]]; then
@@ -160,7 +153,6 @@ jobs:
             if [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\".*\"$ ]] || [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\'.*\'$ ]]; then
               NORMALIZED_KEY_PASSWORD="${NORMALIZED_KEY_PASSWORD:1:${#NORMALIZED_KEY_PASSWORD}-2}"
             fi
-
             cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-normalized.jar"
             if [ "$NORMALIZED_KEY_PASSWORD" != "$ANDROID_KEY_PASSWORD" ] && jarsigner \
               -keystore "$KEYSTORE" \
@@ -168,7 +160,6 @@ jobs:
               -keypass "$NORMALIZED_KEY_PASSWORD" \
               "$RUNNER_TEMP/signing-probe-normalized.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
               RESOLVED_KEY_PASSWORD="$NORMALIZED_KEY_PASSWORD"
-              echo 'Recovered the private-key password from a prefixed or quoted secret value.'
             else
               cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-storepass.jar"
               if jarsigner \
@@ -177,17 +168,14 @@ jobs:
                 -keypass "$ANDROID_STORE_PASSWORD" \
                 "$RUNNER_TEMP/signing-probe-storepass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
                 RESOLVED_KEY_PASSWORD="$ANDROID_STORE_PASSWORD"
-                echo 'ANDROID_KEY_PASSWORD was incorrect; using the keystore password for the private key.'
               else
-                echo 'A PrivateKeyEntry exists, but the supplied, normalized, and store passwords cannot unlock it.'
-                echo 'Replace ANDROID_KEY_PASSWORD with the password originally assigned to the private-key alias.'
+                echo 'Unable to unlock upload private key.'
                 exit 1
               fi
             fi
           fi
-
           echo "RESOLVED_KEY_PASSWORD=$RESOLVED_KEY_PASSWORD" >> "$GITHUB_ENV"
-          echo 'Upload keystore, signing alias, and private-key password validated.'
+          echo 'Upload signing key validated.'
 
       - name: Build release app bundle
         working-directory: mobile-app/android
@@ -213,5 +201,3 @@ jobs:
           name: ascend-path-play-aab
           path: mobile-app/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
-
-# Build trigger: 2026-08-29
