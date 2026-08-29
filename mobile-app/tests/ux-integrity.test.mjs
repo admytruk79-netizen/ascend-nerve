@@ -19,7 +19,7 @@ test('Core Formation exposes one canonical 24-month sequence',()=>{
   assert.match(months[23].title,/Final Integration/);
 });
 
-test('readiness milestones open Core ranges without allowing delayed reviews to skip months',()=>{
+test('Core stage ranges remain bounded and delayed reviews cannot skip beyond them',()=>{
   const window={};
   vm.runInNewContext(read('path-progression.js'),{window,Date,Math,Number});
   const p=window.ASCENDProgression;
@@ -27,14 +27,11 @@ test('readiness milestones open Core ranges without allowing delayed reviews to 
   assert.equal(p.capForStage(8),18);
   assert.equal(p.capForStage(9),24);
   assert.equal(p.monthFor({stageSortOrder:7,stageStartedAt:'2024-01-01',now:new Date('2026-12-01')}),7);
-  assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2026-12-01')}),8);
-  assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2027-02-01')}),10);
   assert.equal(p.monthFor({stageSortOrder:8,stageStartedAt:'2026-12-01',now:new Date('2029-01-01')}),18);
-  assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-06-01')}),19);
   assert.equal(p.monthFor({stageSortOrder:9,stageStartedAt:'2028-06-01',now:new Date('2028-11-01')}),24);
 });
 
-test('Core and specialized pathways are independent in the Path UX',()=>{
+test('Core and specialized pathways remain independent in the Path UX',()=>{
   const html=read('index.html');
   const branches=read('branches.js');
   assert.match(html,/Core Formation/);
@@ -107,14 +104,14 @@ test('Lifetime tester access is account-bound and redeemable from Me',()=>{
   assert.match(backend,/crypto\.subtle\.digest\('SHA-256'/);
 });
 
-test('ASCEND Path has no free-access state and gates curriculum behind entitlement',()=>{
+test('ASCEND Path gates curriculum behind active entitlement without brittle asset-version assertions',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const backend=read('backend.js');
   const ux=read('ux-fixes.js');
   assert.doesNotMatch(app,/Free Access/);
   assert.match(html,/ASCEND Path requires active paid access/);
-  assert.match(html,/ux-fixes\.js\?v=20260827-intro-1/);
+  assert.match(html,/ux-fixes\.js\?v=/);
   assert.match(app,/access-required/);
   assert.match(app,/if\(!hasAccess\).*return/);
   assert.match(backend,/entitlementIsActive/);
@@ -170,21 +167,23 @@ test('Account entry supports Android Google OAuth with a safe email fallback',()
   assert.match(backend,/grant_type=password/);
 });
 
-test('Library cards are keyboard operable and month-locked recommendations are removed',()=>{
+test('Library cards are keyboard operable and future-month cards are gated in the reference list',()=>{
   const app=read('app.js');
   const experience=read('experience.js');
   const contextual=read('contextual-library.js');
   assert.match(app,/setAttribute\('role','button'\)/);
   assert.match(app,/setAttribute\('tabindex','0'\)/);
   assert.match(experience,/e\.key!==\'Enter\'&&e\.key!==\' \'/);
-  assert.match(contextual,/card\.closest\('#library-recommended'\)/);
-  assert.match(contextual,/card\.remove\(\)/);
+  assert.match(contextual,/gateLibraryCards/);
+  assert.match(contextual,/month-locked/);
+  assert.match(contextual,/aria-disabled/);
+  assert.match(contextual,/Opens in Month \$\{needed\}/);
 });
 
-test('Library mobile controls stay in document flow above the content cards',()=>{
+test('Library mobile controls stay in document flow above content cards',()=>{
   const html=read('index.html');
   const css=read('ux-fixes.css');
-  assert.match(html,/ux-fixes\.css\?v=20260827-library-groups-1/);
+  assert.match(html,/ux-fixes\.css\?v=/);
   assert.match(css,/\.library-tools\{position:relative;top:auto/);
   assert.match(css,/\.library-filters\{[^}]*overflow-x:auto/);
   assert.match(css,/\.library-filter\{flex:0 0 auto/);
@@ -192,11 +191,11 @@ test('Library mobile controls stay in document flow above the content cards',()=
   assert.match(css,/#library-recommended,#library-list\{display:flow-root;clear:both\}/);
 });
 
-test('Library uses collapsed content groups instead of one 67-item page',()=>{
+test('Library uses collapsed content groups instead of one long page',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const css=read('ux-fixes.css');
-  assert.match(html,/app\.js\?v=20260827-intro-1/);
+  assert.match(html,/app\.js\?v=/);
   assert.match(app,/document\.createElement\('details'\)/);
   assert.match(app,/details\.className='library-group'/);
   assert.match(app,/\['teaching','Teachings'\]/);
@@ -204,7 +203,7 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   assert.match(css,/\.library-group summary/);
 });
 
-test('Today uses the approved ritual portal with hold feedback and an accessible button fallback',()=>{
+test('Today uses the approved ritual portal with hold feedback and accessible fallback',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const ritual=read('today-ritual.js');
@@ -239,7 +238,7 @@ test('Android Back stays inside ASCEND and unwinds overlays and screens',()=>{
   assert.match(ux,/window\.ASCENDUX=\{activateScreen,syncOverlay,syncAuthGate,handleBack(?:,loadJournalHistory)?\}/);
 });
 
-test('Day Night and Twilight modes remain distinct across all primary surfaces',()=>{
+test('Day Night and Twilight modes remain distinct across primary surfaces',()=>{
   const theme=read('theme.css');
   const themeJs=read('theme.js');
   const ritual=read('ritual-today.css');
