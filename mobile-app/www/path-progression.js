@@ -26,10 +26,10 @@
     {month:24,title:'Final Integration',gate:'PATH REVIEW'}
   ];
 
-  // Stages are readiness milestones, not substitutes for the 24 monthly units.
-  // Stages 1-7 map directly to Foundation months 1-7. Passing Foundation Review
-  // opens month 8; passing Part II opens month 19. Time spent before a gate can
-  // never be used to skip the monthly work after that gate.
+  // One formation unit is deliberately slower than content consumption.
+  // Calendar time is only a minimum condition. A later month opens only after
+  // confirmed practice, reflection, and ordinary-life application accumulate.
+  const FORMATION_UNIT_DAYS=21;
   const rangeForStage=sortOrder=>{
     const s=Math.max(1,Number(sortOrder)||1);
     if(s<=7)return{start:s,end:s};
@@ -37,40 +37,55 @@
     return{start:19,end:24};
   };
   const capForStage=sortOrder=>rangeForStage(sortOrder).end;
-  const elapsedMonth=(startedAt,now=new Date())=>{
-    const started=new Date(startedAt||now);
-    if(Number.isNaN(started.getTime()))return 1;
-    return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
+  const evidenceCount=value=>Math.max(0,Number(value)||0);
+  const lifeEvidence=evidence=>evidenceCount(evidence?.life_application_entries)+evidenceCount(evidence?.training_in_life_logs);
+  const completedFormationUnits=evidence=>{
+    if(!evidence)return 0;
+    const practiceUnits=Math.floor(evidenceCount(evidence.practice_days)/FORMATION_UNIT_DAYS);
+    const durationUnits=Math.floor(evidenceCount(evidence.elapsed_days)/FORMATION_UNIT_DAYS);
+    const reflectionUnits=evidenceCount(evidence.journal_entries);
+    const applicationUnits=lifeEvidence(evidence);
+    return Math.max(0,Math.min(practiceUnits,durationUnits,reflectionUnits,applicationUnits));
   };
-  const monthFor=({stageSortOrder=1,stageStartedAt,now=new Date()})=>{
+  const monthFor=({stageSortOrder=1,evidence=null})=>{
     const range=rangeForStage(stageSortOrder);
     if(range.start===range.end)return range.start;
-    return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now)-1);
+    const span=range.end-range.start;
+    return range.start+Math.min(span,completedFormationUnits(evidence));
   };
 
   let cache=null,cacheAt=0;
   async function current({fresh=false}={}){
-    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false,formationUnits:0};
     if(!fresh&&cache&&Date.now()-cacheAt<15000)return cache;
     const user=await PathBackend.me();
-    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false,formationUnits:0};
     const [profiles,stages,progress]=await Promise.all([
       PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id`}),
       PathBackend.rest('path_stages',{query:'select=id,sort_order,title&is_published=eq.true&order=sort_order.asc'}),
-      PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
+      PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at,practice_days&order=started_at.asc`})
     ]);
     const profile=profiles[0]||{};
     const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
     const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
+    const stageSortOrder=Number(stage.sort_order)||1;
+    let evidence=null;
+    if(stageSortOrder>7&&active?.stage_id){
+      try{evidence=await PathBackend.rpc('path_get_readiness_evidence',{p_stage_id:active.stage_id})}
+      catch(err){console.error('Could not load formation evidence; holding current monthly unit.',err)}
+    }
+    const formationUnits=completedFormationUnits(evidence);
     cache={
-      month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at}),
-      stageSortOrder:Number(stage.sort_order)||1,
+      month:monthFor({stageSortOrder,evidence}),
+      stageSortOrder,
       stageTitle:stage.title||'Beginning',
-      signedIn:true
+      signedIn:true,
+      formationUnits,
+      evidenceReady:!!evidence?.evidence_ready
     };
     cacheAt=Date.now();
     return cache;
   }
   function invalidate(){cache=null;cacheAt=0}
-  window.ASCENDProgression={MONTHS,rangeForStage,capForStage,elapsedMonth,monthFor,current,invalidate};
+  window.ASCENDProgression={MONTHS,FORMATION_UNIT_DAYS,rangeForStage,capForStage,completedFormationUnits,monthFor,current,invalidate};
 })();
