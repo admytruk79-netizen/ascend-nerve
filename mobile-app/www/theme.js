@@ -49,4 +49,5 @@
   apply();
   window.PathTheme={apply,set,get:getPref};
   const historyScript=document.createElement('script');historyScript.src='day-history.js?v=20260823b';historyScript.defer=true;document.head.appendChild(historyScript);
+  const todayV3=document.createElement('script');todayV3.src='design-v3-today.js?v=20260830-1';todayV3.defer=true;document.head.appendChild(todayV3);
 })();
