@@ -1,0 +1,43 @@
+/* ASCEND Path v3 — Today only. Scoped visual implementation. */
+#today.today-ritual-screen{max-width:760px;margin:0 auto;padding:0 16px 112px!important}
+#today>.ritual-context,#today>.ritual-scene,#today>#ritual-feedback,#today>.ritual-begin,#today>.journey-rail,#today>.journal-handoff,#today>.rhythm-card,#today>.quiet-note{display:none!important}
+.today-v3{display:grid;gap:18px;width:100%;padding-top:0}
+.today-v3-hero{position:relative;min-height:390px;margin:0 -16px 4px;padding:38px 24px 34px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;overflow:hidden;background:linear-gradient(180deg,rgba(3,10,16,.06) 0%,rgba(3,10,16,.18) 42%,rgba(3,10,16,.96) 100%),url('assets/ascend-path-intro-instrument.jpg') center 44%/cover no-repeat}
+.today-v3-hero:after{content:"";position:absolute;inset:auto 0 0;height:90px;background:linear-gradient(180deg,transparent,#030a10);pointer-events:none}
+.today-v3-logo{position:absolute;top:34px;left:50%;transform:translateX(-50%);z-index:1}
+.today-v3-logo img{width:116px;height:116px;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(0,0,0,.38))}
+.today-v3-hero h1{position:relative;z-index:1;margin:0;color:#f4efe4;font:400 clamp(38px,9vw,54px)/1.04 Georgia,serif;letter-spacing:-.02em}
+.today-v3-hero p{position:relative;z-index:1;margin:10px 0 0;color:#aaa69e;font:400 17px/1.4 Arial,sans-serif}
+.today-v3-card{position:relative;border:1px solid rgba(198,145,61,.62);border-radius:23px;background:linear-gradient(180deg,rgba(8,25,36,.96),rgba(4,17,27,.96));box-shadow:0 16px 40px rgba(0,0,0,.22);overflow:hidden}
+.today-v3-eyebrow{color:#d59a42;font:600 12px/1.2 Arial,sans-serif;letter-spacing:.14em}
+.today-v3-card h2{margin:10px 0 8px;color:#f1eadf;font:400 31px/1.08 Georgia,serif;letter-spacing:-.015em}
+.today-v3-card p{margin:0;color:#aaa69e;font:400 16px/1.45 Arial,sans-serif}
+.today-v3-action{min-height:270px;padding:28px 26px;display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:16px;align-items:center}
+.today-v3-copy{position:relative;z-index:2}
+.today-v3-medallion{position:absolute;right:8px;top:50%;width:170px;height:170px;transform:translateY(-50%);border-radius:50%;border:2px solid rgba(214,164,77,.72);background:radial-gradient(circle at 50% 38%,rgba(255,192,78,.96) 0 3%,rgba(255,179,48,.4) 4%,transparent 24%),linear-gradient(180deg,rgba(3,10,16,.06),rgba(3,10,16,.5)),url('assets/ascend-path-intro-instrument.jpg') center/cover no-repeat;box-shadow:0 0 26px rgba(207,151,61,.13)}
+.today-v3-primary{margin-top:24px;min-height:54px;padding:0 22px;border:1px solid #d9a64d;border-radius:11px;background:linear-gradient(180deg,#d9a64d,#b57d2d);color:#fff9ee;font:500 16px Arial,sans-serif;box-shadow:0 10px 26px rgba(183,125,40,.18)}
+.today-v3-path{padding:26px}
+.today-v3-progress{height:6px;margin:20px 0 15px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
+.today-v3-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#c38a34,#efc76b);box-shadow:0 0 14px rgba(241,191,94,.45)}
+.today-v3-path button,.today-v3-journal button{width:100%;min-height:48px;padding:14px 0 0;border:0;border-top:1px solid rgba(255,255,255,.08);background:transparent;color:#d59a42;text-align:left;font:500 15px Arial,sans-serif;display:flex;justify-content:space-between;align-items:flex-end}
+.today-v3-path button span,.today-v3-journal button span{font-size:30px;line-height:.7}
+.today-v3-journal{padding:26px}
+.today-v3-prompt{display:grid;grid-template-columns:52px minmax(0,1fr);gap:16px;align-items:start;margin-top:14px}
+.today-v3-prompt h2{margin:0;font-size:25px;line-height:1.18}
+.today-v3-quote{width:48px;height:48px;border-radius:50%;border:1px solid rgba(214,164,77,.24);display:grid;place-items:center;color:#d59a42;background:rgba(255,255,255,.035);font:700 33px Georgia,serif}
+.today-v3-journal button{margin-top:20px}
+.today-v3-seasonal{min-height:180px;padding:25px 84px 25px 26px;background:linear-gradient(90deg,rgba(4,17,27,.96) 0%,rgba(4,17,27,.74) 46%,rgba(4,17,27,.15) 100%),url('assets/ascend-path-intro-instrument.jpg') center 58%/cover no-repeat}
+.today-v3-seasonal h2{font-size:30px}.today-v3-seasonal button{position:absolute;right:20px;top:50%;width:50px;height:50px;transform:translateY(-50%);border:1px solid #d59a42;border-radius:50%;background:rgba(181,125,45,.75);color:#fff7e8;font-size:30px;line-height:1}
+html[data-theme="day"] #today.today-ritual-screen{background:#07131e!important;color:#f4efe4!important}
+html[data-theme="day"] .today-v3-card{background:linear-gradient(180deg,rgba(8,25,36,.97),rgba(4,17,27,.98))}
+@media(max-width:560px){
+ #today.today-ritual-screen{padding-left:12px!important;padding-right:12px!important}
+ .today-v3-hero{margin-left:-12px;margin-right:-12px;min-height:360px}
+ .today-v3-logo img{width:102px;height:102px}
+ .today-v3-action{grid-template-columns:minmax(0,1fr) 118px;min-height:250px;padding:24px 20px}
+ .today-v3-medallion{width:140px;height:140px;right:-6px}
+ .today-v3-card h2{font-size:28px}.today-v3-action h2{max-width:72%}
+ .today-v3-action p{max-width:70%}
+ .today-v3-primary{padding:0 17px}
+}
+@media(prefers-reduced-motion:reduce){.today-v3 *,#today *{transition:none!important;animation:none!important}}
