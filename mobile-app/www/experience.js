@@ -1,23 +1,6 @@
 (()=>{
   const splash=document.getElementById('splash');
-  const splashStartedAt=Date.now();
-  const MIN_SPLASH_MS=2400;
-  const MAX_SPLASH_MS=10000;
   let splashDismissed=false;
-
-  const startupStateSettled=()=>{
-    try{
-      // Signed-out users can land directly on the account screen once the
-      // opening animation has completed. For an existing session, keep the
-      // entire app behind the splash until auth, entitlement, curriculum and
-      // onboarding routing have all resolved.
-      if(!window.PathBackend?.isSignedIn?.())return true;
-      if(document.body.classList.contains('access-required'))return true;
-      const appReady=!document.body.classList.contains('auth-required')&&!!window.curriculum;
-      const introReady=window.__ASCEND_INTRO_DECIDED!==false;
-      return appReady&&introReady;
-    }catch{return false}
-  };
 
   const dismissSplash=()=>{
     if(splashDismissed)return;
@@ -25,23 +8,18 @@
     splash?.classList.add('done');
   };
 
-  const finishSplashWhenReady=()=>{
-    if(splashDismissed)return;
-    const elapsed=Date.now()-splashStartedAt;
-    const minimumComplete=elapsed>=MIN_SPLASH_MS;
-    const hardLimitReached=elapsed>=MAX_SPLASH_MS;
-    if(minimumComplete&&(startupStateSettled()||hardLimitReached)){
-      // Let the final route render commit before the cinematic layer fades,
-      // so Today, Login, Paywall or onboarding can never flash underneath.
-      requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
-      return;
-    }
-    setTimeout(finishSplashWhenReady,80);
+  // Fail-safe startup: the splash is decorative only and must never block the app.
+  // Dismiss after first paint regardless of auth, entitlement, curriculum, or intro state.
+  const scheduleSplashDismiss=()=>{
+    requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
   };
-
-  window.addEventListener('load',finishSplashWhenReady,{once:true});
-  document.addEventListener('ascend:intro-decided',finishSplashWhenReady);
-  setTimeout(finishSplashWhenReady,60);
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',scheduleSplashDismiss,{once:true});
+  }else{
+    scheduleSplashDismiss();
+  }
+  window.addEventListener('load',scheduleSplashDismiss,{once:true});
+  setTimeout(dismissSplash,1200);
 
   const overlay=document.getElementById('library-overlay');
   const close=()=>overlay?.classList.add('hidden');
