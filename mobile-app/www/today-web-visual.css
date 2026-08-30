@@ -1,3 +1,4 @@
+@import url("design-v3-today.css?v=20260830-1");
 /* Web-only visual refinement for Today. No application logic lives here. */
 @media (min-width: 0px){
   #today.today-ritual-screen{
