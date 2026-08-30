@@ -1,6 +1,7 @@
 name: Deploy ASCEND Path Web Preview
 
 # deploy source: ascend-path-foundation
+# restored pre-route-lock deploy: 2026-08-30
 
 on:
   push:
