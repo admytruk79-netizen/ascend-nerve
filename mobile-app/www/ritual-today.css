@@ -1,83 +1,30 @@
-/* ASCEND Path — approved Today/Self-Contemplation visual layer only.
-   Scoped to the Today screen. No curriculum, auth, progression, engine or data logic changes. */
-
-/* Hard-stop the stale injected dashboard/card layer if an older cached script still mounts it. */
-#today .today-v3,
-#today #today-v3,
-.today-v3,
-#today .today-v3-card,
-#today .today-v3-hero { display:none !important; }
-
-.mode-pill{min-width:84px;min-height:36px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;border:1px solid rgba(214,179,106,.30);border-radius:22px;background:rgba(4,14,22,.50);color:var(--gold2);font:600 10px/1 Arial,sans-serif;letter-spacing:.12em}
-.mode-symbol{font-size:15px;line-height:1}
-
-#today.today-ritual-screen{box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:18px 18px 96px!important;overflow-x:hidden;background:radial-gradient(circle at 50% 17%,rgba(24,63,76,.20),transparent 34%),linear-gradient(180deg,#06131f 0%,#04101a 100%)!important}
-#today.today-ritual-screen .training-layers,
-#today.today-ritual-screen>.related-teaching{display:none!important}
-
-.ritual-context{position:relative;z-index:3;margin:0 0 12px;text-align:center}
-.ritual-context .eyebrow{margin:0 0 7px;color:var(--gold2);font:600 10px/1.2 Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase}
-.ritual-context h1{margin:0 auto;max-width:360px;color:#f3eee4;font:400 clamp(31px,8vw,38px)/1.06 Georgia,serif;letter-spacing:-.01em}
-.ritual-context h1:after{content:'A quiet return to the inner witness.';display:block;margin-top:8px;color:#a8aaa6;font:400 12px/1.35 Arial,sans-serif;letter-spacing:.01em}
-.ritual-meta{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:9px;color:#d6b36a;font:500 11px/1 Arial,sans-serif;letter-spacing:.10em;text-transform:uppercase}
-
-.ritual-scene{position:relative;width:min(86vw,350px);height:min(86vw,350px);margin:14px auto 0;border-radius:50%;background-image:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.16)),url('assets/ascend-twilight-ritual-bg.jpg');background-repeat:no-repeat;background-position:center 48%;background-size:cover;border:1px solid rgba(214,179,106,.56);box-shadow:0 0 0 5px rgba(214,179,106,.025),0 24px 58px rgba(0,0,0,.38),0 0 34px rgba(33,151,154,.10);overflow:visible;isolation:isolate}
-.ritual-scene:after{content:'';position:absolute;inset:-1px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 50% 38%,transparent 54%,rgba(2,10,16,.14) 75%,rgba(2,10,16,.42) 100%)}
-
-.ritual-portal{--hold-progress:0deg;position:absolute;z-index:4;left:50%;top:100%;width:148px;height:148px;transform:translate(-50%,-42%);display:flex;align-items:center;justify-content:center;padding:21px;border:1px solid rgba(214,179,106,.28);border-radius:50%;background:radial-gradient(circle at 50% 48%,rgba(7,22,31,.96) 0 57%,rgba(6,19,28,.93) 58% 100%);color:#f4efe4;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 0 28px rgba(31,168,160,.17),0 0 22px rgba(214,179,106,.13),inset 0 0 24px rgba(255,255,255,.02)}
-.ritual-progress{position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from -90deg,#e5b85f 0deg,#e5b85f calc(var(--hold-progress)*.48),#59d5cf var(--hold-progress),rgba(255,255,255,.09) var(--hold-progress));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));filter:drop-shadow(0 0 8px rgba(78,211,204,.42));pointer-events:none}
-.ritual-copy{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;text-shadow:0 2px 8px #02070b}
-.ritual-copy:before{content:'◎';margin-bottom:8px;color:#e4b75b;font:28px/1 Arial,sans-serif}
-.ritual-copy strong{text-transform:uppercase;color:#e8bd66;font:600 11px/1.1 Arial,sans-serif;letter-spacing:.13em}
-.ritual-copy small{display:none}
-.ritual-portal.is-holding{transform:translate(-50%,-42%) scale(1.015)}
-.ritual-portal.is-opening{animation:ritualOpen .42s cubic-bezier(.2,.8,.2,1) both}
-.ritual-portal:focus-visible{outline:2px solid #5dd4cd;outline-offset:5px}
-
-.ritual-feedback{min-height:14px;margin:82px 0 2px;text-align:center;color:#6bd5cf;font:500 10px/1.2 Arial,sans-serif;letter-spacing:.03em}
-.ritual-begin{display:none!important}
-
-/* The approved Today composition does not show the old long-card dashboard stack. */
-#today .journey-rail,
-#today .journal-handoff,
-#today>.rhythm-card,
-#today>.quiet-note{display:none!important}
-
-/* Compact status line beneath the hold control, sourced from existing DOM values only. */
-#today:after{content:'TODAY  •  PRACTICE READY';display:block;margin-top:10px;text-align:center;color:#8d918f;font:500 10px/1 Arial,sans-serif;letter-spacing:.10em}
-
-html[data-theme="twilight"]{color-scheme:dark;--bg0:#06131f;--bg1:#0a2634;--bg2:#183745;--panel:rgba(8,31,42,.72);--nav:rgba(4,15,23,.97)}
-html[data-theme="twilight"] body{background:#04101a}
-html[data-theme="twilight"] .bottom-nav{background:rgba(4,15,23,.97)}
-
-html[data-theme="day"] #today.today-ritual-screen{background:linear-gradient(180deg,#071723,#06131f)!important;color:#f4efe4!important}
-html[data-theme="day"] .ritual-scene{filter:saturate(.82) brightness(1.04)}
-html[data-theme="day"] .mode-pill{background:rgba(7,19,28,.72)}
-
-@keyframes ritualOpen{0%{filter:brightness(1);transform:translate(-50%,-42%) scale(1.015)}55%{filter:brightness(1.35);transform:translate(-50%,-42%) scale(1.05)}100%{filter:brightness(1.08);transform:translate(-50%,-42%) scale(1)}}
-
-@media(max-width:420px){
- #today.today-ritual-screen{padding-left:16px!important;padding-right:16px!important;padding-top:14px!important}
- .ritual-context h1{font-size:31px}
- .ritual-scene{width:min(84vw,326px);height:min(84vw,326px)}
- .ritual-portal{width:142px;height:142px}
- .ritual-feedback{margin-top:78px}
-}
-
-@media(max-height:760px){
- #today.today-ritual-screen{padding-top:9px!important}
- .ritual-context{margin-bottom:8px}
- .ritual-context .eyebrow{margin-bottom:4px}
- .ritual-context h1{font-size:28px}
- .ritual-context h1:after{margin-top:5px;font-size:11px}
- .ritual-meta{margin-top:6px}
- .ritual-scene{width:min(72vw,292px);height:min(72vw,292px);margin-top:9px}
- .ritual-portal{width:132px;height:132px}
- .ritual-feedback{margin-top:70px}
-}
-
-@media(min-width:700px){
- #today.today-ritual-screen{max-width:520px}
-}
-
-@media(prefers-reduced-motion:reduce){.ritual-portal,.ritual-portal.is-opening{animation:none!important;transition:none!important}}
+/* ASCEND Path approved visual system. UI only: preserves existing ids, data, auth, engines, progression and event wiring. */
+:root{--ap-bg:#06131f;--ap-bg2:#0a1d2a;--ap-panel:#0a1b27;--ap-panel2:#0d2230;--ap-gold:#d9a34d;--ap-gold2:#f0c56b;--ap-ivory:#f3eee4;--ap-muted:#9ba1a3;--ap-teal:#62d5cf;--ap-line:rgba(217,163,77,.36)}
+html,body{background:#04101a!important;color:var(--ap-ivory)!important}body{font-family:Arial,sans-serif!important}h1,h2,h3,.brand,.content-card strong,#path-list strong{font-family:Georgia,'Times New Roman',serif!important}
+.app-shell{max-width:520px!important;margin:0 auto!important;padding:env(safe-area-inset-top) 18px 96px!important;background:linear-gradient(180deg,rgba(4,16,26,.2),rgba(4,16,26,.98))!important;min-height:100vh!important}
+.topbar{height:76px!important;border-bottom:0!important;position:relative!important}.brand-lockup{display:flex!important;align-items:center!important;gap:9px!important}.brand-logo{width:42px!important;height:42px!important;object-fit:contain!important}.brand{font-size:15px!important;letter-spacing:.19em!important;color:var(--ap-gold2)!important}.brand span{font-size:9px!important;letter-spacing:.38em!important}.icon-button,.mode-pill{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;border:1px solid var(--ap-line)!important;border-radius:50%!important;background:rgba(4,17,27,.58)!important;color:var(--ap-gold2)!important;padding:0!important}.mode-pill #mode-label{display:none!important}.mode-symbol{font-size:18px!important}
+.screen{padding:22px 0 16px!important}.screen>.eyebrow{margin:2px 0 8px!important;text-align:left!important;color:var(--ap-gold)!important;font:600 11px/1 Arial,sans-serif!important;letter-spacing:.16em!important}.screen>h1{margin:0 0 8px!important;text-align:left!important;color:var(--ap-ivory)!important;font:400 42px/1 Georgia,serif!important;letter-spacing:-.02em!important}.screen>h1:after{display:block;margin-top:9px;color:var(--ap-muted);font:400 14px/1.45 Arial,sans-serif;letter-spacing:0}
+#path>h1:after{content:'A staged curriculum of formation.'}#journal>h1:after{content:'Tracking your inner work.'}#library>h1:after{content:'Teachings for your stage.'}#me>h1:after{content:'Your rhythm and reflection.'}
+/* TODAY — exact compact Self-Contemplation composition */
+.today-v3,#today-v3,#today .today-v3-card,#today .today-v3-hero{display:none!important}
+#today.today-ritual-screen{width:100%!important;max-width:480px!important;margin:0 auto!important;padding:8px 0 90px!important;background:transparent!important;overflow:visible!important}
+#today .training-layers,#today>.related-teaching,#today .journey-rail,#today .journal-handoff,#today>.rhythm-card,#today>.quiet-note{display:none!important}
+.ritual-context{text-align:center!important;margin:0 0 10px!important}.ritual-context .eyebrow{text-align:center!important;color:var(--ap-gold)!important;font:600 10px/1.2 Arial,sans-serif!important;letter-spacing:.16em!important;margin-bottom:7px!important}.ritual-context h1{margin:0 auto!important;color:var(--ap-ivory)!important;font:400 31px/1.05 Georgia,serif!important;letter-spacing:-.015em!important}.ritual-context h1:after{content:'A quiet return to the inner witness.';display:block;margin-top:7px;color:var(--ap-muted);font:400 12px/1.35 Arial,sans-serif}.ritual-meta{display:flex!important;justify-content:center!important;gap:7px!important;margin-top:8px!important;color:var(--ap-gold2)!important;font:500 10px/1 Arial,sans-serif!important;letter-spacing:.10em!important;text-transform:uppercase!important}
+.ritual-scene{position:relative!important;width:min(82vw,330px)!important;height:min(82vw,330px)!important;margin:16px auto 0!important;border-radius:50%!important;background:url('assets/ascend-twilight-ritual-bg.jpg') center 48%/cover no-repeat!important;border:1px solid rgba(217,163,77,.6)!important;box-shadow:0 0 0 5px rgba(217,163,77,.03),0 22px 50px rgba(0,0,0,.4)!important;overflow:visible!important}.ritual-scene:after{content:'';position:absolute;inset:-1px;border-radius:50%;background:radial-gradient(circle at 50% 42%,transparent 55%,rgba(3,11,18,.18) 76%,rgba(3,11,18,.5) 100%);pointer-events:none}
+.ritual-portal{--hold-progress:0deg;position:absolute!important;left:50%!important;top:100%!important;width:145px!important;height:145px!important;transform:translate(-50%,-40%)!important;border:1px solid rgba(217,163,77,.25)!important;border-radius:50%!important;background:radial-gradient(circle,#091b27 0 57%,#07131e 58% 100%)!important;color:var(--ap-ivory)!important;display:flex!important;align-items:center!important;justify-content:center!important;box-shadow:0 0 28px rgba(98,213,207,.16),0 0 20px rgba(217,163,77,.14)!important}.ritual-progress{position:absolute!important;inset:-5px!important;border-radius:50%!important;background:conic-gradient(from -90deg,var(--ap-gold2) 0deg,var(--ap-gold2) calc(var(--hold-progress)*.48),var(--ap-teal) var(--hold-progress),rgba(255,255,255,.08) var(--hold-progress))!important;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 calc(100% - 5px));filter:drop-shadow(0 0 8px rgba(98,213,207,.4))}.ritual-copy:before{content:'◎';display:block;color:var(--ap-gold2);font:28px/1 Arial,sans-serif;margin-bottom:8px}.ritual-copy strong{color:var(--ap-gold2)!important;font:600 11px/1 Arial,sans-serif!important;letter-spacing:.13em!important;text-transform:uppercase!important}.ritual-copy small{display:none!important}.ritual-feedback{min-height:13px!important;margin:78px 0 0!important;text-align:center!important;color:var(--ap-teal)!important;font:500 10px/1 Arial,sans-serif!important}.ritual-begin{display:none!important}#today:after{content:'DAY  •  OBSERVATION PENDING';display:block;margin-top:9px;text-align:center;color:var(--ap-muted);font:500 10px/1 Arial,sans-serif;letter-spacing:.08em}
+/* PATH */
+.path-summary-copy{display:none!important}#path-list{display:grid!important;gap:14px!important;margin:24px 0 26px!important}#path-list li{list-style:none!important;position:relative!important;display:grid!important;grid-template-columns:58px 1fr 24px!important;align-items:center!important;gap:14px!important;min-height:112px!important;padding:18px!important;border:1px solid var(--ap-line)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(10,28,40,.95),rgba(7,21,31,.96))!important}#path-list li:after{content:'›';grid-column:3;color:var(--ap-gold2);font:34px/1 Georgia,serif}#path-list li>span{grid-column:1;width:54px!important;height:54px!important;border:1px solid var(--ap-gold)!important;border-radius:50%!important;background:radial-gradient(circle,rgba(217,163,77,.13),transparent 65%)!important}#path-list li>div{grid-column:2}#path-list strong{display:block!important;color:var(--ap-ivory)!important;font-size:24px!important;font-weight:400!important}#path-list small{display:block!important;margin-top:6px!important;color:var(--ap-muted)!important;font:13px/1.3 Arial,sans-serif!important}#path-list li.current{box-shadow:0 0 0 1px rgba(98,213,207,.22),0 0 24px rgba(98,213,207,.08)!important}#path-list li.current>span{border-color:var(--ap-teal)!important;box-shadow:0 0 18px rgba(98,213,207,.28)!important}#path-list li.current small{color:var(--ap-teal)!important}.pathway-section-header{margin:28px 0 12px!important;color:var(--ap-gold)!important}.pathway-section-header strong{font:600 11px Arial,sans-serif!important;letter-spacing:.15em!important}.pathway-section-header span{display:none!important}#practice-branches .rhythm-card{border:1px solid var(--ap-line)!important;border-radius:20px!important;background:var(--ap-panel)!important}
+/* JOURNAL */
+#journal .journal-form{margin-top:26px!important;padding:22px!important;border:1px solid var(--ap-line)!important;border-radius:22px!important;background:linear-gradient(180deg,rgba(10,27,39,.96),rgba(7,21,31,.96))!important}#journal .journal-form:before{content:'TODAY’S PROMPT';display:block;margin-bottom:8px;color:var(--ap-gold);font:600 11px Arial,sans-serif;letter-spacing:.16em}#journal .journal-form:after{content:'Where did I choose discipline over comfort today?';display:block;order:-1;margin:0 0 18px;color:var(--ap-ivory);font:400 25px/1.25 Georgia,serif}.journal-form label{color:var(--ap-gold)!important;font:600 10px Arial,sans-serif!important;letter-spacing:.10em!important;margin:14px 0!important}.journal-form textarea{height:86px!important;border:1px solid rgba(217,163,77,.22)!important;border-radius:14px!important;background:#071722!important;color:var(--ap-ivory)!important;font:15px/1.45 Arial,sans-serif!important}.journal-form .primary{margin-top:12px!important;background:linear-gradient(180deg,#d5a048,#b87c2b)!important;color:#fff8eb!important;border-radius:12px!important}.journal-share-teacher{display:flex!important;align-items:center!important;gap:10px!important;color:var(--ap-muted)!important}
+/* LIBRARY */
+.library-tools{margin:24px 0 18px!important}.library-search{width:100%!important;height:52px!important;border:1px solid var(--ap-line)!important;border-radius:16px!important;background:#071722!important;color:var(--ap-ivory)!important;padding:0 16px!important;font:14px Arial,sans-serif!important}.library-filters{display:flex!important;gap:8px!important;overflow-x:auto!important;padding:12px 0 4px!important;scrollbar-width:none!important}.library-filter{flex:0 0 auto!important;min-height:38px!important;padding:0 15px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:18px!important;background:#0a1b27!important;color:var(--ap-muted)!important;font:12px Arial,sans-serif!important}.library-filter.active{border-color:var(--ap-gold)!important;color:var(--ap-gold2)!important}.library-count{display:none!important}#library-recommended>.eyebrow,#library-list-label{text-align:left!important;color:var(--ap-gold)!important;margin:20px 0 10px!important}.content-card{position:relative!important;min-height:92px!important;margin:10px 0!important;padding:17px 46px 17px 18px!important;border:1px solid rgba(217,163,77,.24)!important;border-radius:18px!important;background:linear-gradient(180deg,#0b202d,#091924)!important}.content-card:after{content:'›';position:absolute;right:17px;top:50%;transform:translateY(-50%);color:var(--ap-gold2);font:30px Georgia,serif}.content-card small{color:var(--ap-gold)!important;font:600 9px Arial,sans-serif!important;letter-spacing:.13em!important}.content-card strong{color:var(--ap-ivory)!important;font-size:22px!important;font-weight:400!important}.content-card span{color:var(--ap-muted)!important;font:12px Arial,sans-serif!important}.library-group{border:0!important}.library-group summary{padding:14px 0!important;color:var(--ap-gold2)!important}
+/* ME */
+#me .rhythm-card{margin-top:16px!important;border:1px solid var(--ap-line)!important;border-radius:20px!important;background:linear-gradient(180deg,#0a1d2a,#081722)!important;padding:18px!important}#me .rhythm-card h2{margin:0 0 10px!important;color:var(--ap-gold)!important}.mirror-content{color:var(--ap-muted)!important}.secondary{border:1px solid var(--ap-line)!important;background:transparent!important;color:var(--ap-gold2)!important}.primary{background:linear-gradient(180deg,#d5a048,#b87c2b)!important;color:#fff8eb!important;border:1px solid #e0b765!important}
+/* NAV */
+.bottom-nav{height:76px!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;background:rgba(4,15,23,.98)!important;border-top:1px solid rgba(217,163,77,.16)!important;backdrop-filter:blur(18px)!important}.bottom-nav button{position:relative!important;padding-top:26px!important;color:#818a8d!important;font:11px Arial,sans-serif!important}.bottom-nav button:before{position:absolute;top:4px;left:50%;transform:translateX(-50%);font:20px/1 Arial,sans-serif}.bottom-nav button[data-screen='today']:before{content:'☼'}.bottom-nav button[data-screen='path']:before{content:'△'}.bottom-nav button[data-screen='journal']:before{content:'▢'}.bottom-nav button[data-screen='library']:before{content:'♧'}.bottom-nav button[data-screen='me']:before{content:'○'}.bottom-nav button.active{color:var(--ap-gold2)!important}.bottom-nav button.active:after{content:'';position:absolute;left:28%;right:28%;bottom:0;height:2px;background:var(--ap-gold2);border-radius:2px}
+/* overlays */
+.practice-overlay{background:radial-gradient(circle at 50% 28%,#12333e 0,#071721 38%,#02070b 86%)!important}.timer{border-color:var(--ap-gold)!important;color:var(--ap-gold2)!important;box-shadow:0 0 70px rgba(98,213,207,.12) inset!important}
+/* desktop treatment based on approved dashboard while retaining same DOM */
+@media(min-width:900px){body{padding-bottom:0!important}.app-shell{max-width:1180px!important;padding:24px 32px 50px 250px!important;min-height:100vh!important}.topbar{height:92px!important}.bottom-nav{position:fixed!important;top:0!important;left:0!important;bottom:0!important;right:auto!important;width:220px!important;height:100vh!important;display:flex!important;flex-direction:column!important;padding:180px 18px 24px!important;border-top:0!important;border-right:1px solid rgba(217,163,77,.18)!important}.bottom-nav button{height:54px!important;text-align:left!important;padding:0 14px 0 52px!important;border-radius:12px!important;font-size:13px!important}.bottom-nav button:before{left:26px!important;top:17px!important;transform:none!important}.bottom-nav button.active{background:linear-gradient(90deg,rgba(217,163,77,.16),rgba(217,163,77,.03))!important;border:1px solid var(--ap-line)!important}.bottom-nav button.active:after{display:none!important}.screen{max-width:900px!important;margin:0 auto!important}#today.today-ritual-screen{max-width:720px!important}.ritual-scene{width:420px!important;height:420px!important}.ritual-portal{width:160px!important;height:160px!important}.ritual-feedback{margin-top:92px!important}#path-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}.screen>h1{font-size:54px!important}.library-tools{max-width:760px!important}.content-card{min-height:110px!important}}
+@media(max-width:420px){.app-shell{padding-left:15px!important;padding-right:15px!important}.screen>h1{font-size:38px!important}#path-list li{grid-template-columns:50px 1fr 20px!important;padding:15px!important;min-height:100px!important}#path-list li>span{width:48px!important;height:48px!important}#path-list strong{font-size:21px!important}.ritual-scene{width:min(80vw,310px)!important;height:min(80vw,310px)!important}.ritual-portal{width:138px!important;height:138px!important}.ritual-feedback{margin-top:74px!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
