@@ -57,7 +57,6 @@
     reset({message:'Keep holding…'});
     holding=true;pointerId=event.pointerId??null;startAt=performance.now();
     portal.classList.add('is-holding');
-    if(pointerId!==null)portal.setPointerCapture?.(pointerId);
     frame=requestAnimationFrame(tick);
   };
   const stopEarly=event=>{
@@ -67,9 +66,8 @@
   };
 
   portal.addEventListener('pointerdown',start);
-  portal.addEventListener('pointerup',stopEarly);
-  portal.addEventListener('pointercancel',stopEarly);
-  portal.addEventListener('lostpointercapture',stopEarly);
+  document.addEventListener('pointerup',stopEarly);
+  document.addEventListener('pointercancel',stopEarly);
   portal.addEventListener('contextmenu',event=>event.preventDefault());
   portal.addEventListener('click',event=>{
     if(event.detail!==0){
