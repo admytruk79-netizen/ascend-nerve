@@ -71,24 +71,24 @@ body:has(#today.active) .topbar{margin:0 -14px!important;padding:0 14px!importan
 .today-v3-logo,.today-v3-card,.today-v3-copy,.today-v3-eyebrow,.today-v3-primary,.today-v3-path,.today-v3-journal,.today-v3-seasonal{display:none!important}
 
 /* DAY — ivory, editorial, luminous. */
-html[data-theme="day"] body:has(#today.active){background:var(--ascend-ivory)!important}
-html[data-theme="day"] body:has(#today.active) .topbar{background:rgba(244,239,227,.96)!important;border-bottom:1px solid rgba(151,113,52,.10)!important}
-html[data-theme="day"] body:has(#today.active) .brand{color:#8a6225!important}
-html[data-theme="day"] body:has(#today.active) .icon-button,html[data-theme="day"] body:has(#today.active) .mode-pill{border-color:rgba(151,113,52,.24)!important;background:rgba(250,247,239,.84)!important;color:#956b2c!important}
-html[data-theme="day"] body:has(#today.active) .bottom-nav{background:rgba(249,246,237,.98)!important;border-top:1px solid rgba(151,113,52,.12)!important;box-shadow:0 -7px 18px rgba(74,54,24,.05)!important}
-html[data-theme="day"] body:has(#today.active) .bottom-nav button,html[data-theme="day"] body:has(#today.active) .bottom-nav button:before{color:#887f72!important}
-html[data-theme="day"] body:has(#today.active) .bottom-nav button.active,html[data-theme="day"] body:has(#today.active) .bottom-nav button.active:before{color:#b47d28!important}
-html[data-theme="day"] #today.today-ritual-screen{background:transparent!important;color:var(--ascend-ink)!important}
-html[data-theme="day"] .today-v3-greeting{color:#5b554b!important}
-html[data-theme="day"] .today-v3-greeting>span{color:#b9822d!important}
-html[data-theme="day"] .today-v3-greeting small{color:#8c8377!important}
-html[data-theme="day"] .today-v3-intro h1{color:#75531f!important}
-html[data-theme="day"] .today-v3-hero{border:1px solid rgba(157,118,55,.26)!important;background-image:linear-gradient(180deg,rgba(255,250,238,.00),rgba(42,32,19,.04)),url('assets/ascend-today-morning-serenity.svg')!important;box-shadow:0 12px 29px rgba(88,64,29,.09)!important}
-html[data-theme="day"] .today-v3-hero:after{background:linear-gradient(180deg,rgba(255,246,221,.02),transparent 66%,rgba(60,43,21,.07) 100%)!important}
-html[data-theme="day"] .today-v3-caption{color:#423d35!important}
-html[data-theme="day"] .today-v3-chip{border:1px solid rgba(157,118,55,.28)!important;background:rgba(251,248,240,.92)!important;color:#39362f!important;box-shadow:0 4px 10px rgba(82,61,29,.04)!important}
-html[data-theme="day"] .today-v3-chip .chip-mark{border:1px solid rgba(157,118,55,.25)!important;color:#a67528!important;background:rgba(184,134,53,.06)!important}
-html[data-theme="day"] .today-v3-chip small{color:#777064!important}
+html[data-theme="day-disabled"] body:has(#today.active){background:var(--ascend-ivory)!important}
+html[data-theme="day-disabled"] body:has(#today.active) .topbar{background:rgba(244,239,227,.96)!important;border-bottom:1px solid rgba(151,113,52,.10)!important}
+html[data-theme="day-disabled"] body:has(#today.active) .brand{color:#8a6225!important}
+html[data-theme="day-disabled"] body:has(#today.active) .icon-button,html[data-theme="day-disabled"] body:has(#today.active) .mode-pill{border-color:rgba(151,113,52,.24)!important;background:rgba(250,247,239,.84)!important;color:#956b2c!important}
+html[data-theme="day-disabled"] body:has(#today.active) .bottom-nav{background:rgba(249,246,237,.98)!important;border-top:1px solid rgba(151,113,52,.12)!important;box-shadow:0 -7px 18px rgba(74,54,24,.05)!important}
+html[data-theme="day-disabled"] body:has(#today.active) .bottom-nav button,html[data-theme="day-disabled"] body:has(#today.active) .bottom-nav button:before{color:#887f72!important}
+html[data-theme="day-disabled"] body:has(#today.active) .bottom-nav button.active,html[data-theme="day-disabled"] body:has(#today.active) .bottom-nav button.active:before{color:#b47d28!important}
+html[data-theme="day-disabled"] #today.today-ritual-screen{background:transparent!important;color:var(--ascend-ink)!important}
+html[data-theme="day-disabled"] .today-v3-greeting{color:#5b554b!important}
+html[data-theme="day-disabled"] .today-v3-greeting>span{color:#b9822d!important}
+html[data-theme="day-disabled"] .today-v3-greeting small{color:#8c8377!important}
+html[data-theme="day-disabled"] .today-v3-intro h1{color:#75531f!important}
+html[data-theme="day-disabled"] .today-v3-hero{border:1px solid rgba(157,118,55,.26)!important;background-image:linear-gradient(180deg,rgba(255,250,238,.00),rgba(42,32,19,.04)),url('assets/ascend-today-morning-serenity.svg')!important;box-shadow:0 12px 29px rgba(88,64,29,.09)!important}
+html[data-theme="day-disabled"] .today-v3-hero:after{background:linear-gradient(180deg,rgba(255,246,221,.02),transparent 66%,rgba(60,43,21,.07) 100%)!important}
+html[data-theme="day-disabled"] .today-v3-caption{color:#423d35!important}
+html[data-theme="day-disabled"] .today-v3-chip{border:1px solid rgba(157,118,55,.28)!important;background:rgba(251,248,240,.92)!important;color:#39362f!important;box-shadow:0 4px 10px rgba(82,61,29,.04)!important}
+html[data-theme="day-disabled"] .today-v3-chip .chip-mark{border:1px solid rgba(157,118,55,.25)!important;color:#a67528!important;background:rgba(184,134,53,.06)!important}
+html[data-theme="day-disabled"] .today-v3-chip small{color:#777064!important}
 
 /* TWILIGHT — dusk, same composition. */
 html[data-theme="twilight"] body:has(#today.active){background:radial-gradient(circle at 50% -12%,#173647 0,#0b2634 35%,#071824 100%)!important}
