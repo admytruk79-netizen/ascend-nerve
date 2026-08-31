@@ -96,7 +96,9 @@
       </div>
       <section class="today-v3-action" aria-label="Begin today's practice"><div class="today-v3-medallion-slot" aria-hidden="true"></div></section>`;
     today.prepend(shell);
-    loadApprovedHero(shell.querySelector('.today-v3-hero'));
+    const hero=shell.querySelector('.today-v3-hero');
+    hero?.style.setProperty('background-image',"url('assets/seasonal-art/self-observation-humility.png')",'important');
+    loadApprovedHero(hero);
     const portal=document.getElementById('ritual-portal'),slot=shell.querySelector('.today-v3-medallion-slot');
     if(portal&&slot){portal.classList.add('today-v3-medallion');const strong=portal.querySelector('.ritual-copy strong');if(strong)strong.textContent='Press and Hold to Begin';slot.replaceWith(portal)}
     const originalBegin=today.querySelector('[data-action="practice"]');
