@@ -1,31 +1,21 @@
 @import url("approved-screens.css?v=20260830-supplied-1");
-/* Supplied Today design — explicit final overrides after the shared screen layer. */
-body:has(#today.active){background:#f7f1e3!important}
-body:has(#today.active) .app-shell{max-width:620px!important;padding-left:14px!important;padding-right:14px!important}
-body:has(#today.active) .topbar{height:68px!important;margin:0 -14px!important;padding:0 14px!important;background:rgba(247,241,227,.94)!important;border-bottom:1px solid rgba(169,128,59,.12)!important;backdrop-filter:blur(14px)!important}
-body:has(#today.active) .brand{color:#8a6225!important}
-body:has(#today.active) .brand-logo{background:transparent!important}
-body:has(#today.active) .icon-button,body:has(#today.active) .mode-pill{border-color:rgba(169,128,59,.34)!important;background:rgba(255,252,243,.74)!important;color:#9a6e27!important;box-shadow:none!important}
-body:has(#today.active) .bottom-nav{height:72px!important;background:rgba(250,246,235,.98)!important;border-top:1px solid rgba(169,128,59,.14)!important;box-shadow:0 -8px 22px rgba(86,61,25,.08)!important}
-body:has(#today.active) .bottom-nav button{color:#777064!important}
-body:has(#today.active) .bottom-nav button:before{color:#8a8173!important}
-body:has(#today.active) .bottom-nav button.active,body:has(#today.active) .bottom-nav button.active:before{color:#b67d21!important}
-#today.today-ritual-screen{max-width:620px!important;margin:0 auto!important;padding:18px 18px 104px!important;background:#f7f1e3!important;color:#27251f!important}
+/* Most recent supplied ASCEND Today composition. Geometry is fixed; Day/Twilight/Night change atmosphere only. */
+#today.today-ritual-screen{max-width:620px!important;margin:0 auto!important;padding:18px 18px 104px!important}
 #today>.ritual-context,#today>.ritual-scene,#today>#ritual-feedback,#today>.ritual-begin,#today>.journey-rail,#today>.journal-handoff,#today>.rhythm-card,#today>.quiet-note{display:none!important}
 .today-v3{display:flex!important;flex-direction:column!important;gap:15px!important;width:100%!important;min-height:calc(100vh - 150px)!important}
 .today-v3-intro{display:flex!important;flex-direction:column!important;gap:14px!important;padding:2px 4px 0!important}
-.today-v3-greeting{display:flex!important;align-items:center!important;gap:10px!important;color:#5e5648!important;font-family:Arial,sans-serif!important}
-.today-v3-greeting>span{font-size:27px!important;color:#b9862f!important}
+.today-v3-greeting{display:flex!important;align-items:center!important;gap:10px!important;font-family:Arial,sans-serif!important}
+.today-v3-greeting>span{font-size:27px!important}
 .today-v3-greeting strong{display:block!important;font-size:16px!important;font-weight:600!important;line-height:1.2!important}
-.today-v3-greeting small{display:block!important;margin-top:2px!important;font-size:13px!important;color:#8a8173!important}
-.today-v3-intro h1{display:block!important;margin:0!important;text-align:center!important;color:#76521d!important;font:400 clamp(34px,8vw,48px)/1.05 Georgia,serif!important;letter-spacing:-.02em!important}
-.today-v3-hero{position:relative!important;min-height:390px!important;margin:0!important;padding:0!important;border:1px solid rgba(171,128,53,.38)!important;border-radius:28px!important;overflow:hidden!important;background:linear-gradient(180deg,rgba(255,249,233,.03),rgba(43,31,17,.12)),url('assets/seasonal-art/self-observation-humility.png') center/cover no-repeat!important;box-shadow:0 14px 34px rgba(91,66,30,.12)!important}
-.today-v3-hero:after{content:""!important;position:absolute!important;inset:0!important;height:auto!important;background:linear-gradient(180deg,transparent 58%,rgba(54,40,22,.22) 100%)!important;pointer-events:none!important}
-.today-v3-hero p{position:absolute!important;z-index:2!important;left:18px!important;right:18px!important;bottom:14px!important;margin:0!important;padding:10px 14px!important;border-radius:15px!important;background:rgba(250,246,234,.9)!important;backdrop-filter:blur(8px)!important;color:#302d27!important;text-align:center!important;font:500 16px/1.35 Arial,sans-serif!important}
+.today-v3-greeting small{display:block!important;margin-top:2px!important;font-size:13px!important}
+.today-v3-intro h1{display:block!important;margin:0!important;text-align:center!important;font:400 clamp(34px,8vw,48px)/1.05 Georgia,serif!important;letter-spacing:-.02em!important}
+.today-v3-hero{position:relative!important;min-height:390px!important;margin:0!important;padding:0!important;border-radius:28px!important;overflow:hidden!important}
+.today-v3-hero:after{content:""!important;position:absolute!important;inset:0!important;height:auto!important;pointer-events:none!important}
+.today-v3-hero p{position:absolute!important;z-index:2!important;left:18px!important;right:18px!important;bottom:14px!important;margin:0!important;padding:10px 14px!important;border-radius:15px!important;backdrop-filter:blur(8px)!important;text-align:center!important;font:500 16px/1.35 Arial,sans-serif!important}
 .today-v3-chips{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-.today-v3-chip{appearance:none!important;display:block!important;min-height:62px!important;padding:9px 10px!important;border:1px solid rgba(167,123,47,.45)!important;border-radius:13px!important;background:rgba(255,252,243,.88)!important;color:#3c382f!important;text-align:left!important;box-shadow:0 5px 14px rgba(91,66,30,.06)!important;font-family:Arial,sans-serif!important}
-.today-v3-chip strong{display:block!important;font-size:12px!important;font-weight:600!important;line-height:1.2!important;color:#3c382f!important}
-.today-v3-chip small{display:block!important;margin-top:4px!important;color:#777064!important;font-size:10px!important;font-weight:400!important;line-height:1.2!important}
+.today-v3-chip{appearance:none!important;display:block!important;min-height:62px!important;padding:9px 10px!important;border-radius:13px!important;text-align:left!important;font-family:Arial,sans-serif!important}
+.today-v3-chip strong{display:block!important;font-size:12px!important;font-weight:600!important;line-height:1.2!important}
+.today-v3-chip small{display:block!important;margin-top:4px!important;font-size:10px!important;font-weight:400!important;line-height:1.2!important}
 .today-v3-action{min-height:164px!important;display:flex!important;grid-template-columns:none!important;align-items:center!important;justify-content:center!important;padding:6px 0 0!important;background:transparent!important;border:0!important;box-shadow:none!important}
 .today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:150px!important;height:150px!important;transform:none!important;border-radius:50%!important;border:2px solid #c99a3d!important;background:radial-gradient(circle at 50% 36%,#fff8bb 0 7%,#efd26e 20%,#d9a33b 48%,#9a651d 100%)!important;box-shadow:0 0 0 10px rgba(210,169,83,.14),0 12px 30px rgba(135,91,28,.22)!important}
 .today-v3-medallion{display:flex!important;align-items:center!important;justify-content:center!important;padding:20px!important;color:#2c2416!important;touch-action:none!important;cursor:pointer!important;overflow:hidden!important}
@@ -34,7 +24,72 @@ body:has(#today.active) .bottom-nav button.active,body:has(#today.active) .botto
 .today-v3-medallion .ritual-copy strong{display:block!important;color:#2c2416!important;font:700 14px/1.18 Arial,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
 .today-v3-medallion .ritual-copy small{display:none!important}
 .today-v3-logo,.today-v3-card,.today-v3-copy,.today-v3-eyebrow,.today-v3-primary,.today-v3-path,.today-v3-journal,.today-v3-seasonal{display:none!important}
-html[data-theme="day"] #today.today-ritual-screen,html[data-theme="twilight"] #today.today-ritual-screen,html[data-theme="night"] #today.today-ritual-screen{background:#f7f1e3!important;color:#27251f!important}
+
+/* DAY — supplied light Self-Contemplation design. */
+html[data-theme="day"] body:has(#today.active){background:#f7f1e3!important}
+html[data-theme="day"] body:has(#today.active) .app-shell{max-width:620px!important;padding-left:14px!important;padding-right:14px!important}
+html[data-theme="day"] body:has(#today.active) .topbar{height:68px!important;margin:0 -14px!important;padding:0 14px!important;background:rgba(247,241,227,.94)!important;border-bottom:1px solid rgba(169,128,59,.12)!important;backdrop-filter:blur(14px)!important}
+html[data-theme="day"] body:has(#today.active) .brand{color:#8a6225!important}
+html[data-theme="day"] body:has(#today.active) .brand-logo{background:transparent!important}
+html[data-theme="day"] body:has(#today.active) .icon-button,html[data-theme="day"] body:has(#today.active) .mode-pill{border-color:rgba(169,128,59,.34)!important;background:rgba(255,252,243,.74)!important;color:#9a6e27!important;box-shadow:none!important}
+html[data-theme="day"] body:has(#today.active) .bottom-nav{height:72px!important;background:rgba(250,246,235,.98)!important;border-top:1px solid rgba(169,128,59,.14)!important;box-shadow:0 -8px 22px rgba(86,61,25,.08)!important}
+html[data-theme="day"] body:has(#today.active) .bottom-nav button{color:#777064!important}
+html[data-theme="day"] body:has(#today.active) .bottom-nav button:before{color:#8a8173!important}
+html[data-theme="day"] body:has(#today.active) .bottom-nav button.active,html[data-theme="day"] body:has(#today.active) .bottom-nav button.active:before{color:#b67d21!important}
+html[data-theme="day"] #today.today-ritual-screen{background:#f7f1e3!important;color:#27251f!important}
+html[data-theme="day"] .today-v3-greeting{color:#5e5648!important}
+html[data-theme="day"] .today-v3-greeting>span{color:#b9862f!important}
+html[data-theme="day"] .today-v3-greeting small{color:#8a8173!important}
+html[data-theme="day"] .today-v3-intro h1{color:#76521d!important}
+html[data-theme="day"] .today-v3-hero{border:1px solid rgba(171,128,53,.38)!important;background:linear-gradient(180deg,rgba(255,249,233,.03),rgba(43,31,17,.12)),url('assets/seasonal-art/self-observation-humility.png') center/cover no-repeat!important;box-shadow:0 14px 34px rgba(91,66,30,.12)!important}
+html[data-theme="day"] .today-v3-hero:after{background:linear-gradient(180deg,transparent 58%,rgba(54,40,22,.22) 100%)!important}
+html[data-theme="day"] .today-v3-hero p{background:rgba(250,246,234,.9)!important;color:#302d27!important}
+html[data-theme="day"] .today-v3-chip{border:1px solid rgba(167,123,47,.45)!important;background:rgba(255,252,243,.88)!important;color:#3c382f!important;box-shadow:0 5px 14px rgba(91,66,30,.06)!important}
+html[data-theme="day"] .today-v3-chip strong{color:#3c382f!important}
+html[data-theme="day"] .today-v3-chip small{color:#777064!important}
+
+/* TWILIGHT — same supplied layout, cinematic dusk/slate atmosphere. */
+html[data-theme="twilight"] body:has(#today.active){background:radial-gradient(circle at 50% -10%,#183746 0,#0b2634 34%,#071824 100%)!important}
+html[data-theme="twilight"] body:has(#today.active) .app-shell{max-width:620px!important;padding-left:14px!important;padding-right:14px!important}
+html[data-theme="twilight"] body:has(#today.active) .topbar{height:68px!important;margin:0 -14px!important;padding:0 14px!important;background:rgba(7,24,36,.9)!important;border-bottom:1px solid rgba(213,162,74,.16)!important;backdrop-filter:blur(14px)!important}
+html[data-theme="twilight"] body:has(#today.active) .brand{color:#e5bd6b!important}
+html[data-theme="twilight"] body:has(#today.active) .icon-button,html[data-theme="twilight"] body:has(#today.active) .mode-pill{border-color:rgba(213,162,74,.34)!important;background:rgba(7,27,39,.72)!important;color:#e0b45d!important;box-shadow:none!important}
+html[data-theme="twilight"] body:has(#today.active) .bottom-nav{height:72px!important;background:rgba(5,20,31,.97)!important;border-top:1px solid rgba(213,162,74,.16)!important;box-shadow:0 -10px 26px rgba(0,0,0,.18)!important}
+html[data-theme="twilight"] body:has(#today.active) .bottom-nav button,html[data-theme="twilight"] body:has(#today.active) .bottom-nav button:before{color:#818b8d!important}
+html[data-theme="twilight"] body:has(#today.active) .bottom-nav button.active,html[data-theme="twilight"] body:has(#today.active) .bottom-nav button.active:before{color:#e2b75f!important}
+html[data-theme="twilight"] #today.today-ritual-screen{background:transparent!important;color:#f1eadf!important}
+html[data-theme="twilight"] .today-v3-greeting{color:#c8cfce!important}
+html[data-theme="twilight"] .today-v3-greeting>span{color:#e0b45d!important}
+html[data-theme="twilight"] .today-v3-greeting small{color:#90999a!important}
+html[data-theme="twilight"] .today-v3-intro h1{color:#f1eadf!important}
+html[data-theme="twilight"] .today-v3-hero{border:1px solid rgba(213,162,74,.36)!important;background:linear-gradient(180deg,rgba(5,18,29,.06),rgba(5,18,29,.42)),url('assets/ascend-twilight-ritual-bg.jpg') center/cover no-repeat!important;box-shadow:0 16px 38px rgba(0,0,0,.24)!important}
+html[data-theme="twilight"] .today-v3-hero:after{background:linear-gradient(180deg,transparent 48%,rgba(5,18,29,.48) 100%)!important}
+html[data-theme="twilight"] .today-v3-hero p{background:rgba(7,25,37,.82)!important;color:#e7e1d6!important;border:1px solid rgba(213,162,74,.16)!important}
+html[data-theme="twilight"] .today-v3-chip{border:1px solid rgba(213,162,74,.28)!important;background:rgba(8,29,42,.82)!important;color:#f1eadf!important;box-shadow:0 6px 18px rgba(0,0,0,.15)!important}
+html[data-theme="twilight"] .today-v3-chip strong{color:#f1eadf!important}
+html[data-theme="twilight"] .today-v3-chip small{color:#9da6a5!important}
+
+/* NIGHT — same supplied layout, deep navy/charcoal reading-state palette. */
+html[data-theme="night"] body:has(#today.active){background:radial-gradient(circle at 50% -8%,#0b2332 0,#051420 36%,#020b12 100%)!important}
+html[data-theme="night"] body:has(#today.active) .app-shell{max-width:620px!important;padding-left:14px!important;padding-right:14px!important}
+html[data-theme="night"] body:has(#today.active) .topbar{height:68px!important;margin:0 -14px!important;padding:0 14px!important;background:rgba(2,11,18,.94)!important;border-bottom:1px solid rgba(213,162,74,.12)!important;backdrop-filter:blur(14px)!important}
+html[data-theme="night"] body:has(#today.active) .brand{color:#d6a956!important}
+html[data-theme="night"] body:has(#today.active) .icon-button,html[data-theme="night"] body:has(#today.active) .mode-pill{border-color:rgba(213,162,74,.26)!important;background:rgba(5,19,30,.72)!important;color:#d8aa55!important;box-shadow:none!important}
+html[data-theme="night"] body:has(#today.active) .bottom-nav{height:72px!important;background:rgba(2,12,19,.98)!important;border-top:1px solid rgba(213,162,74,.12)!important;box-shadow:0 -10px 28px rgba(0,0,0,.26)!important}
+html[data-theme="night"] body:has(#today.active) .bottom-nav button,html[data-theme="night"] body:has(#today.active) .bottom-nav button:before{color:#707b7f!important}
+html[data-theme="night"] body:has(#today.active) .bottom-nav button.active,html[data-theme="night"] body:has(#today.active) .bottom-nav button.active:before{color:#dbae58!important}
+html[data-theme="night"] #today.today-ritual-screen{background:transparent!important;color:#eee8de!important}
+html[data-theme="night"] .today-v3-greeting{color:#c2c8c8!important}
+html[data-theme="night"] .today-v3-greeting>span{color:#d6a956!important}
+html[data-theme="night"] .today-v3-greeting small{color:#7f8a8d!important}
+html[data-theme="night"] .today-v3-intro h1{color:#eee8de!important}
+html[data-theme="night"] .today-v3-hero{border:1px solid rgba(213,162,74,.28)!important;background:linear-gradient(180deg,rgba(2,10,17,.12),rgba(2,10,17,.58)),url('assets/ascend-path-intro-instrument.jpg') center 45%/cover no-repeat!important;box-shadow:0 18px 42px rgba(0,0,0,.32)!important}
+html[data-theme="night"] .today-v3-hero:after{background:linear-gradient(180deg,transparent 42%,rgba(2,10,17,.62) 100%)!important}
+html[data-theme="night"] .today-v3-hero p{background:rgba(3,14,23,.86)!important;color:#e5dfd4!important;border:1px solid rgba(213,162,74,.13)!important}
+html[data-theme="night"] .today-v3-chip{border:1px solid rgba(213,162,74,.2)!important;background:rgba(5,21,32,.86)!important;color:#eee8de!important;box-shadow:0 7px 20px rgba(0,0,0,.2)!important}
+html[data-theme="night"] .today-v3-chip strong{color:#eee8de!important}
+html[data-theme="night"] .today-v3-chip small{color:#889294!important}
+
 @media(max-width:560px){#today.today-ritual-screen{padding:14px 14px 94px!important}.today-v3{gap:12px!important}.today-v3-intro h1{font-size:37px!important}.today-v3-hero{min-height:355px!important;border-radius:23px!important}.today-v3-medallion-slot,.today-v3-medallion{width:142px!important;height:142px!important}.today-v3-chip{padding:8px!important}}
 @media(max-height:760px){.today-v3-hero{min-height:300px!important}.today-v3-medallion-slot,.today-v3-medallion{width:126px!important;height:126px!important}.today-v3-action{min-height:140px!important}}
 @media(prefers-reduced-motion:reduce){.today-v3 *,#today *{transition:none!important;animation:none!important}}
