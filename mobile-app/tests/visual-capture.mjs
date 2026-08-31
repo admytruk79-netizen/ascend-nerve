@@ -6,6 +6,7 @@ const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:430,height:932},deviceScaleFactor:1});
 await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#today-v3',{state:'attached'});
+await page.waitForSelector('.today-v3-hero[data-approved-hero-loaded="true"]',{state:'attached',timeout:10000});
 
 for(const mode of ['day','twilight','night']){
   await page.evaluate(theme=>{
@@ -18,7 +19,7 @@ for(const mode of ['day','twilight','night']){
     document.documentElement.dataset.theme=theme;
     window.scrollTo(0,0);
   },mode);
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(200);
   await page.screenshot({path:`visual-preview/today-${mode}.png`,fullPage:false});
 }
 

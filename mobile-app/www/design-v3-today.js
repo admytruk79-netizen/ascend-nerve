@@ -24,11 +24,15 @@
     if(window.ASCENDMirror||document.querySelector('script[data-resonance-engine]'))return;
     const script=document.createElement('script');script.src='mirror-engine.js?v=20260831-resonance-2';script.dataset.resonanceEngine='true';document.body.appendChild(script);
   }
+  function ensureApprovedRenderStyles(){
+    if(document.querySelector('link[data-approved-render-overrides]'))return;
+    const link=document.createElement('link');link.rel='stylesheet';link.href='approved-render-overrides.css?v=20260831-approved-2';link.dataset.approvedRenderOverrides='true';document.head.appendChild(link);
+  }
   async function loadApprovedHero(hero){
     if(!hero||hero.dataset.approvedHeroLoaded==='true')return;
     try{
       const parts=await Promise.all([1,2,3,4,5,6].map(async index=>{
-        const response=await fetch(`assets/approved-today-hero-${index}.txt?v=20260831-approved-1`,{cache:'force-cache'});
+        const response=await fetch(`assets/approved-today-hero-${index}.txt?v=20260831-approved-2`,{cache:'reload'});
         if(!response.ok)throw new Error(`hero chunk ${index}`);
         return (await response.text()).trim();
       }));
@@ -69,12 +73,14 @@
       #today.today-ritual-screen>#ritual-feedback{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
       #today .today-v3-action{display:flex!important;width:100%!important;align-items:center!important;justify-content:center!important}
       #today #ritual-portal.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;margin:0 auto!important;transform:none!important;flex:0 0 auto!important}
+      #today .today-v3-hero{height:auto!important;min-height:0!important;max-height:236px!important;aspect-ratio:804/575!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+      #today .today-v3-hero:before{display:none!important}
     `;
     document.head.appendChild(style);
   }
   function mount(){
     const today=document.getElementById('today');if(!today||document.getElementById('today-v3'))return;
-    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();
+    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();ensureApprovedRenderStyles();
     const shell=document.createElement('div');shell.id='today-v3';shell.className='today-v3';
     shell.innerHTML=`
       <header class="today-v3-intro">
@@ -90,7 +96,9 @@
       </div>
       <section class="today-v3-action" aria-label="Begin today's practice"><div class="today-v3-medallion-slot" aria-hidden="true"></div></section>`;
     today.prepend(shell);
-    loadApprovedHero(shell.querySelector('.today-v3-hero'));
+    const hero=shell.querySelector('.today-v3-hero');
+    hero?.style.setProperty('background-image',"url('assets/seasonal-art/self-observation-humility.png')",'important');
+    loadApprovedHero(hero);
     const portal=document.getElementById('ritual-portal'),slot=shell.querySelector('.today-v3-medallion-slot');
     if(portal&&slot){portal.classList.add('today-v3-medallion');const strong=portal.querySelector('.ritual-copy strong');if(strong)strong.textContent='Press and Hold to Begin';slot.replaceWith(portal)}
     const originalBegin=today.querySelector('[data-action="practice"]');
