@@ -51,9 +51,6 @@
       </section>`;
     today.prepend(shell);
 
-    // The approved circular medallion is the real press-and-hold ritual control,
-    // not a decorative duplicate. Moving the existing button preserves its
-    // already-bound hold, haptic and briefing behavior.
     const portal=document.getElementById('ritual-portal');
     const slot=shell.querySelector('.today-v3-medallion-slot');
     if(portal&&slot){
@@ -85,4 +82,11 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   document.addEventListener('ascend:curriculum',sync);
+
+  if(!document.querySelector('script[data-approved-screens]')){
+    const script=document.createElement('script');
+    script.src='approved-screens.js?v=20260830-supplied-1';
+    script.dataset.approvedScreens='true';
+    document.body.appendChild(script);
+  }
 })();
