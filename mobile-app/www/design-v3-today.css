@@ -1,3 +1,4 @@
+@import url("approved-screens.css?v=20260830-supplied-1");
 /* ASCEND Path v3 — Today only. Scoped visual implementation. */
 #today.today-ritual-screen{max-width:760px;margin:0 auto;padding:0 16px 112px!important}
 #today>.ritual-context,#today>.ritual-scene,#today>#ritual-feedback,#today>.ritual-begin,#today>.journey-rail,#today>.journal-handoff,#today>.rhythm-card,#today>.quiet-note{display:none!important}
