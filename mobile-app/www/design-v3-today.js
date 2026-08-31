@@ -4,6 +4,7 @@
   function formattedDate(){return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date())}
   function ensureLibraryReaderHead(){const overlay=document.getElementById('library-overlay'),body=document.getElementById('library-body');if(!overlay||!body||document.getElementById('library-title'))return;const head=document.createElement('div');head.className='library-reader-head';head.innerHTML='<div id="library-reader-type" class="eyebrow"></div><h1 id="library-title"></h1>';body.before(head)}
   function displayPracticeTitle(raw=''){const text=String(raw||'').trim();if(!text)return'Self-Contemplation';if(/^self[-\s]?contemplation/i.test(text))return'Self-Contemplation';return text.length>36?text.split(/\s+[·|—-]\s+|\s+at\s+|\s+of\s+the\s+/i)[0]||text:text}
+  function ensureMirrorEngine(){if(window.ASCENDMirror||document.querySelector('script[data-resonance-engine]'))return;const script=document.createElement('script');script.src='mirror-engine.js?v=20260831-resonance-1';script.dataset.resonanceEngine='true';document.body.appendChild(script)}
   function installLayoutGuard(){
     if(document.getElementById('today-v3-layout-guard'))return;
     const style=document.createElement('style');style.id='today-v3-layout-guard';
@@ -25,7 +26,7 @@
   }
   function mount(){
     const today=document.getElementById('today');if(!today||document.getElementById('today-v3'))return;
-    installLayoutGuard();
+    installLayoutGuard();ensureMirrorEngine();
     const shell=document.createElement('div');shell.id='today-v3';shell.className='today-v3';
     shell.innerHTML=`
       <header class="today-v3-intro">
@@ -45,6 +46,7 @@
     if(portal&&slot){portal.classList.add('today-v3-medallion');const strong=portal.querySelector('.ritual-copy strong');if(strong)strong.textContent='Press and Hold to Begin';slot.replaceWith(portal)}
     const originalBegin=today.querySelector('[data-action="practice"]');
     shell.querySelectorAll('.today-v3-chip').forEach(chip=>chip.addEventListener('click',()=>{if(chip.dataset.chip==='breathing')originalBegin?.click();else if(chip.dataset.chip==='focus')navTo('path');else navTo('library')}));
+    document.querySelector('.bottom-nav button[data-screen="me"]')?.addEventListener('click',()=>setTimeout(()=>window.ASCENDMirror?.load?.('stage'),250));
     ensureLibraryReaderHead();sync();
     const source=document.getElementById('stage-title');if(source)new MutationObserver(sync).observe(source,{childList:true,subtree:true,characterData:true});
     document.documentElement.classList.add('today-v3-ready');
