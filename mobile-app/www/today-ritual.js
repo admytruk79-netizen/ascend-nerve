@@ -34,7 +34,7 @@
   };
   const finishHold=()=>{
     if(completed)return;
-    completed=true;holding=false;setProgress(1);portal.classList.add('is-opening');
+    completed=true;holding=false;setProgress(1);portal.classList.remove('is-holding');portal.classList.add('is-opening');
     portal.setAttribute('aria-label','Opening practice');
     if(feedback)feedback.textContent='The path is open.';
     vibrate([35,35,55],'MEDIUM');
@@ -44,7 +44,6 @@
     if(!holding)return;
     const progress=(now-startAt)/HOLD_MS;
     setProgress(progress);
-    portal.classList.add('is-holding');
     while(pulseIndex<PULSES.length&&progress>=PULSES[pulseIndex]){
       vibrate(pulseIndex===0?9:pulseIndex===3?22:13,pulseIndex===3?'MEDIUM':'LIGHT');
       pulseIndex++;
@@ -55,8 +54,10 @@
   const start=event=>{
     if(event.button!==undefined&&event.button!==0)return;
     event.preventDefault();
-    reset({message:'Keep holding…'});holding=true;pointerId=event.pointerId??null;startAt=performance.now();
-    portal.setPointerCapture?.(pointerId);
+    reset({message:'Keep holding…'});
+    holding=true;pointerId=event.pointerId??null;startAt=performance.now();
+    portal.classList.add('is-holding');
+    if(pointerId!==null)portal.setPointerCapture?.(pointerId);
     frame=requestAnimationFrame(tick);
   };
   const stopEarly=event=>{
