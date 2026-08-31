@@ -113,8 +113,8 @@
     box-shadow:0 0 12px rgba(214,179,106,.28);
   }
 
-  html[data-theme="day-disabled"] #today .journey-rail,
-  html[data-theme="day-disabled"] #today .journal-handoff{
+  html[data-theme="day"] #today .journey-rail,
+  html[data-theme="day"] #today .journal-handoff{
     background:rgba(255,255,255,.72);
   }
 }

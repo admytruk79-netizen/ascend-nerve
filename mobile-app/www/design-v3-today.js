@@ -26,7 +26,7 @@
   }
   function ensureApprovedRenderStyles(){
     if(document.querySelector('link[data-approved-render-overrides]'))return;
-    const link=document.createElement('link');link.rel='stylesheet';link.href='approved-render-overrides.css?v=20260831-approved-2';link.dataset.approvedRenderOverrides='true';document.head.appendChild(link);
+    const link=document.createElement('link');link.rel='stylesheet';link.href='approved-render-overrides.css?v=20260831-daynight-1';link.dataset.approvedRenderOverrides='true';document.head.appendChild(link);
   }
   async function loadApprovedHero(hero){
     if(!hero||hero.dataset.approvedHeroLoaded==='true')return;
