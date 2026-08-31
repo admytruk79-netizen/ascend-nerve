@@ -1,6 +1,7 @@
 (()=>{
   const screens=[...document.querySelectorAll('.screen')];
   const nav=[...document.querySelectorAll('.bottom-nav button')];
+  nav.forEach(button=>{if(!button.hasAttribute('aria-label'))button.setAttribute('aria-label',button.textContent.trim())});
   const screenTrail=[];
   let historyReady=false;
   const currentScreen=()=>screens.find(screen=>screen.classList.contains('active'))?.id||'today';
@@ -34,8 +35,6 @@
     if(!confirmedUser){
       document.body.classList.add('auth-required');
       activateScreen('me',{record:false});
-    }else{
-      activateScreen('today',{record:false});
     }
     return confirmedUser;
   }
@@ -109,7 +108,6 @@
 
   document.addEventListener('click',event=>{if(!event.target.closest('[data-go-signin]'))return;activateScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),250)});
 
-  // Journal is a first-class part of Today, not a destination users must remember.
   document.addEventListener('click',event=>{
     if(!event.target.closest('[data-go-journal]'))return;
     activateScreen('journal');
@@ -124,7 +122,6 @@
     journalHeading.insertAdjacentElement('afterend',context);
   }
 
-  // After a genuinely completed practice, move naturally into reflection.
   const finishPractice=document.getElementById('finish-practice');
   finishPractice?.addEventListener('click',()=>{
     if(!finishPractice.classList.contains('ready'))return;
@@ -137,7 +134,6 @@
     },250);
   });
 
-  // When a reflection is saved successfully, return to Today to complete the daily loop.
   const journalForm=document.getElementById('journal-form');
   journalForm?.addEventListener('submit',()=>{
     setTimeout(()=>{
