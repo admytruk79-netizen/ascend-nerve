@@ -30,7 +30,7 @@
   };
   const openPractice=()=>{
     begin.click();
-    setTimeout(()=>reset({message:''}),420);
+    setTimeout(()=>reset({message:'Press and hold to begin.'}),420);
   };
   const finishHold=()=>{
     if(completed)return;
@@ -71,7 +71,11 @@
   portal.addEventListener('lostpointercapture',stopEarly);
   portal.addEventListener('contextmenu',event=>event.preventDefault());
   portal.addEventListener('click',event=>{
-    if(event.detail!==0){event.preventDefault();return}
+    if(event.detail!==0){
+      event.preventDefault();
+      if(!holding&&!completed&&feedback)feedback.textContent='Press and hold to begin.';
+      return;
+    }
     if(feedback)feedback.textContent='Opening practice.';
     vibrate(18,'MEDIUM');openPractice();
   });
@@ -85,6 +89,6 @@
   }
   document.addEventListener('ascend:month',syncJourney);
   syncJourney();
-  reset({message:''});
+  reset();
   window.ASCENDTodayRitual={reset,syncJourney,HOLD_MS};
 })();
