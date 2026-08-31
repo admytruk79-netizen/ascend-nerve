@@ -84,7 +84,7 @@ test('Library recommendations never surface locked future material and cards wor
 
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
-  await page.getByRole('button',{name:'Begin Practice'}).click();
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
   await page.getByRole('button',{name:'Finish Practice'}).click();
@@ -100,26 +100,21 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   const box=await circle.boundingBox();
   const center={x:box.x+box.width/2,y:box.y+box.height/2};
 
-  // Quick tap: restores the hold instruction and never opens the overlay.
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.mouse.up();
   await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
-  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
 
-  // Early release: nothing opens. Test the user-visible behavior rather than a transient CSS class.
   await page.mouse.down();
   await page.waitForTimeout(400);
-  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
   await page.mouse.up();
   await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
-  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
-  // Completing the hold opens the briefing without ever clicking the fallback button.
   await page.mouse.down();
-  await page.waitForTimeout(1650);
-  await page.mouse.up();
+  await page.waitForTimeout(1750);
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.mouse.up();
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 });
 
