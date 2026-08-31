@@ -1,6 +1,15 @@
 (()=>{
   function navTo(screen){document.querySelector(`.bottom-nav button[data-screen="${screen}"]`)?.click()}
   function greeting(){const h=new Date().getHours();return h<12?'Good morning.':h<18?'Good afternoon.':'Good evening.'}
+  function ensureLibraryReaderHead(){
+    const overlay=document.getElementById('library-overlay');
+    const body=document.getElementById('library-body');
+    if(!overlay||!body||document.getElementById('library-title'))return;
+    const head=document.createElement('div');
+    head.className='library-reader-head';
+    head.innerHTML='<div id="library-reader-type" class="eyebrow"></div><h1 id="library-title"></h1>';
+    body.before(head);
+  }
   function mount(){
     const today=document.getElementById('today');
     if(!today||document.getElementById('today-v3'))return;
@@ -20,7 +29,7 @@
           <p id="today-v3-practice-note">One clear practice. Begin when you are ready.</p>
           <button type="button" id="today-v3-begin" class="today-v3-primary">Begin Practice</button>
         </div>
-        <div class="today-v3-medallion" aria-hidden="true"></div>
+        <div class="today-v3-medallion-slot" aria-hidden="true"></div>
       </section>
       <section class="today-v3-card today-v3-path">
         <div class="today-v3-eyebrow">YOUR PATH</div>
@@ -38,13 +47,25 @@
         <div class="today-v3-eyebrow">SEASONAL LIBRARY</div>
         <h2>Autumn Collection</h2>
         <p>Explore practices for this season.</p>
-        <button type="button" id="today-v3-library" aria-label="Open seasonal Library">›</button>
+        <button type="button" id="today-v3-library" aria-label="Open seasonal collection">›</button>
       </section>`;
     today.prepend(shell);
+
+    // The approved circular medallion is the real press-and-hold ritual control,
+    // not a decorative duplicate. Moving the existing button preserves its
+    // already-bound hold, haptic and briefing behavior.
+    const portal=document.getElementById('ritual-portal');
+    const slot=shell.querySelector('.today-v3-medallion-slot');
+    if(portal&&slot){
+      portal.classList.add('today-v3-medallion');
+      slot.replaceWith(portal);
+    }
+
     document.getElementById('today-v3-begin')?.addEventListener('click',()=>window.ASCENDOpenPractice?.()||document.querySelector('[data-action="practice"]')?.click());
     document.getElementById('today-v3-path')?.addEventListener('click',()=>navTo('path'));
     document.getElementById('today-v3-journal')?.addEventListener('click',()=>navTo('journal'));
     document.getElementById('today-v3-library')?.addEventListener('click',()=>navTo('library'));
+    ensureLibraryReaderHead();
     sync();
     const source=document.getElementById('stage-title');
     if(source)new MutationObserver(sync).observe(source,{childList:true,subtree:true,characterData:true});
