@@ -154,6 +154,8 @@ body:has(#path.active) .bottom-nav{background:rgba(3,14,22,.98)!important;border
 #path-list>li.done>span{border-color:rgba(208,163,84,.55)!important;background:rgba(208,163,84,.40)!important}
 #path-list>li.future{opacity:.38!important}
 #stage-review-card,.branch-card,#practice-branches>.rhythm-card{border-radius:14px!important;border-color:rgba(213,162,74,.12)!important;background:rgba(7,25,36,.68)!important;box-shadow:none!important}
+.stage-review-image{min-height:120px;margin:0 0 16px;border:1px solid rgba(213,162,74,.2);border-radius:12px;background:linear-gradient(180deg,rgba(4,18,27,0) 45%,rgba(4,18,27,.92)),#071b28;background-size:cover;background-position:center}
+.stage-review-image.hidden{display:none}
 .pathway-section-header{border-top:1px solid rgba(213,162,74,.12)!important}
 
 /* LIBRARY OVERVIEW — unified with the Today/Path/Journal/Me night identity. */
