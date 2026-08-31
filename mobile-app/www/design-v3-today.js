@@ -73,7 +73,7 @@
       #today.today-ritual-screen>#ritual-feedback{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important}
       #today .today-v3-action{display:flex!important;width:100%!important;align-items:center!important;justify-content:center!important}
       #today #ritual-portal.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;margin:0 auto!important;transform:none!important;flex:0 0 auto!important}
-      #today .today-v3-hero{height:auto!important;min-height:0!important;aspect-ratio:804/575!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+      #today .today-v3-hero{height:auto!important;min-height:0!important;max-height:236px!important;aspect-ratio:804/575!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
       #today .today-v3-hero:before{display:none!important}
     `;
     document.head.appendChild(style);
