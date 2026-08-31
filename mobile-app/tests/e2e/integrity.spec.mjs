@@ -41,6 +41,8 @@ async function boot(page){
   await page.goto('/');
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
   await expect(page.locator('body')).not.toHaveClass(/auth-required/);
+  await expect(page.locator('body')).not.toHaveClass(/access-required/);
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
   await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
 }
 
@@ -106,11 +108,13 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
   await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
 
+  await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.waitForTimeout(400);
   await page.mouse.up();
   await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
 
+  await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.waitForTimeout(1750);
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
