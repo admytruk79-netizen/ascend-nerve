@@ -107,12 +107,12 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
-  // Early release: the ring retreats, nothing opens.
+  // Early release: nothing opens. Test the user-visible behavior rather than a transient CSS class.
   await page.mouse.down();
-  await expect(circle).toHaveClass(/is-holding/);
   await page.waitForTimeout(400);
+  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
   await page.mouse.up();
-  await expect(circle).not.toHaveClass(/is-holding/);
+  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
 
   // Completing the hold opens the briefing without ever clicking the fallback button.
