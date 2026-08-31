@@ -157,7 +157,7 @@ test('practice entry opens a briefing before the timer',()=>{
   assert.match(html,/id="practice-briefing"/);
   assert.match(html,/id="briefing-begin"/);
   assert.match(html,/HOW TO PRACTICE/);
-  assert.match(app,/function openPracticeOverlay\(\)\{briefing\.classList\.remove\('hidden'\)\}/);
+  assert.match(app,/function openPracticeOverlay\(\)\{tuneBriefingImage\(\);briefing\.classList\.remove\('hidden'\)\}/);
   assert.match(app,/function beginPractice\(\)\{briefing\.classList\.add\('hidden'\)/);
 });
 

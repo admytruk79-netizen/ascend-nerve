@@ -156,6 +156,11 @@ body:has(#path.active) .bottom-nav{background:rgba(3,14,22,.98)!important;border
 #stage-review-card,.branch-card,#practice-branches>.rhythm-card{border-radius:14px!important;border-color:rgba(213,162,74,.12)!important;background:rgba(7,25,36,.68)!important;box-shadow:none!important}
 .stage-review-image{min-height:120px;margin:0 0 16px;border:1px solid rgba(213,162,74,.2);border-radius:12px;background:linear-gradient(180deg,rgba(4,18,27,0) 45%,rgba(4,18,27,.92)),#071b28;background-size:cover;background-position:center}
 .stage-review-image.hidden{display:none}
+.gateway-moment{min-height:220px;margin:0 0 18px;padding:24px 20px 20px;border:1px solid rgba(213,162,74,.4);border-radius:16px;background:linear-gradient(180deg,rgba(4,18,27,.1),rgba(4,18,27,.95)),#0a2230;background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:flex-end}
+.gateway-moment.hidden{display:none}
+.gateway-moment small{color:#d5a24a;font:600 9px/1 Arial,sans-serif;letter-spacing:.18em}
+.gateway-moment h2{margin:8px 0 6px;color:#f4eee2;font:400 26px/1.1 Georgia,serif}
+.gateway-moment p{margin:0;max-width:340px;color:#c8cbc9;font:12px/1.5 Arial,sans-serif}
 .pathway-section-header{border-top:1px solid rgba(213,162,74,.12)!important}
 
 /* LIBRARY OVERVIEW — unified with the Today/Path/Journal/Me night identity. */
