@@ -15,13 +15,28 @@
     prependHero('path','Your Path','A staged curriculum of formation.','ASCEND PATH');
   }
 
+  function dayIndex(){return Math.floor((Date.now()-Date.UTC(new Date().getUTCFullYear(),0,0))/864e5)}
+
+  async function tuneLibraryFeature(){
+    const feature=document.getElementById('approved-library-feature');if(!feature)return;
+    try{
+      const{stageTitle,stageMetadata}=await window.ASCENDProgression?.current?.()||{};
+      const images=Array.isArray(stageMetadata?.seasonal_images)?stageMetadata.seasonal_images:[];
+      if(images.length){
+        const pick=images[dayIndex()%images.length];
+        feature.style.setProperty('background-image',`linear-gradient(90deg,rgba(4,18,27,.96),rgba(4,18,27,.74) 45%,rgba(4,18,27,.12)),url("assets/seasonal-art/${pick}")`,'important');
+      }
+      const heading=feature.querySelector('h2');if(heading&&stageTitle)heading.textContent=stageTitle;
+    }catch(error){console.warn('ASCEND seasonal library image unavailable',error)}
+  }
+
   function decorateLibrary(){
     const screen=document.getElementById('library');if(!screen)return;
     prependHero('library','Library','Teachings for your stage.','ASCEND PATH');
     if(!document.getElementById('approved-library-feature')){
       const feature=document.createElement('article');
       feature.id='approved-library-feature';feature.className='approved-library-feature';
-      feature.innerHTML='<small>SEASONAL LIBRARY</small><h2>Autumn Collection</h2><p>Explore practices for the season of reflection, integration and release.</p>';
+      feature.innerHTML='<small>SEASON OF PRACTICE</small><h2>Beginning</h2><p>Practices that reinforce the quality you are currently forming.</p>';
       const tools=screen.querySelector('.library-tools');
       tools?.insertAdjacentElement('afterend',feature);
     }
@@ -32,6 +47,7 @@
       const feature=document.getElementById('approved-library-feature');
       feature?.insertAdjacentElement('afterend',now);
     }
+    tuneLibraryFeature();
   }
 
   function latestLocalEntry(){

@@ -50,13 +50,13 @@
 
   let cache=null,cacheAt=0;
   async function current({fresh=false}={}){
-    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},signedIn:false};
     if(!fresh&&cache&&Date.now()-cacheAt<15000)return cache;
     const user=await PathBackend.me();
-    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',signedIn:false};
+    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},signedIn:false};
     const [profiles,stages,progress]=await Promise.all([
       PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id`}),
-      PathBackend.rest('path_stages',{query:'select=id,sort_order,title&is_published=eq.true&order=sort_order.asc'}),
+      PathBackend.rest('path_stages',{query:'select=id,sort_order,title,metadata&is_published=eq.true&order=sort_order.asc'}),
       PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
     ]);
     const profile=profiles[0]||{};
@@ -66,6 +66,7 @@
       month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at}),
       stageSortOrder:Number(stage.sort_order)||1,
       stageTitle:stage.title||'Beginning',
+      stageMetadata:stage.metadata||{},
       signedIn:true
     };
     cacheAt=Date.now();
