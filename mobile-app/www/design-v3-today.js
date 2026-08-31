@@ -3,6 +3,7 @@
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
   function formattedDate(){return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date())}
   function ensureLibraryReaderHead(){const overlay=document.getElementById('library-overlay'),body=document.getElementById('library-body');if(!overlay||!body||document.getElementById('library-title'))return;const head=document.createElement('div');head.className='library-reader-head';head.innerHTML='<div id="library-reader-type" class="eyebrow"></div><h1 id="library-title"></h1>';body.before(head)}
+  function displayPracticeTitle(raw=''){const text=String(raw||'').trim();if(!text)return'Self-Contemplation';if(/^self[-\s]?contemplation/i.test(text))return'Self-Contemplation';return text.length>36?text.split(/\s+[·|—-]\s+|\s+at\s+|\s+of\s+the\s+/i)[0]||text:text}
   function installLayoutGuard(){
     if(document.getElementById('today-v3-layout-guard'))return;
     const style=document.createElement('style');style.id='today-v3-layout-guard';
@@ -31,7 +32,8 @@
         <div class="today-v3-greeting"><span aria-hidden="true">☼</span><div><strong>${greeting()}</strong><small>${formattedDate()}</small></div></div>
         <h1 id="today-v3-practice">Self-Contemplation</h1>
       </header>
-      <section class="today-v3-hero" aria-label="Today's Self-Contemplation practice"><p>Morning Serenity | Find Inner Peace</p></section>
+      <section class="today-v3-hero" aria-label="Today's Self-Contemplation practice"></section>
+      <p class="today-v3-caption">Morning Serenity | Find Inner Peace</p>
       <div class="today-v3-chips" aria-label="Practice options">
         <button type="button" class="today-v3-chip" data-chip="breathing"><strong>Breathing</strong><small>10 Min · Guided</small></button>
         <button type="button" class="today-v3-chip" data-chip="focus"><strong>Focus</strong><small>15 Min · Stillness</small></button>
@@ -47,7 +49,7 @@
     const source=document.getElementById('stage-title');if(source)new MutationObserver(sync).observe(source,{childList:true,subtree:true,characterData:true});
     document.documentElement.classList.add('today-v3-ready');
   }
-  function sync(){const practice=document.getElementById('stage-title')?.textContent?.trim();if(practice)document.getElementById('today-v3-practice').textContent=practice}
+  function sync(){const raw=document.getElementById('stage-title')?.textContent?.trim();const title=document.getElementById('today-v3-practice');if(title)title.textContent=displayPracticeTitle(raw)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   document.addEventListener('ascend:curriculum',sync);
   if(!document.querySelector('script[data-approved-screens]')){const script=document.createElement('script');script.src='approved-screens.js?v=20260830-supplied-1';script.dataset.approvedScreens='true';document.body.appendChild(script)}
