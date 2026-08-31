@@ -33,7 +33,8 @@
     if(feedback)feedback.textContent=message;
   };
   const openPractice=()=>{
-    begin.click();
+    if(typeof window.ASCENDOpenPractice==='function')window.ASCENDOpenPractice();
+    else begin.click();
     setTimeout(()=>reset({message:'Press and hold to begin.'}),420);
   };
   const finishHold=()=>{
