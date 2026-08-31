@@ -19,9 +19,26 @@
       </div>
       <section class="today-v3-action" aria-label="Begin today's practice"><div class="today-v3-medallion-slot" aria-hidden="true"></div></section>`;
     today.prepend(shell);
+    const action=shell.querySelector('.today-v3-action');
     const portal=document.getElementById('ritual-portal'),slot=shell.querySelector('.today-v3-medallion-slot');
     if(portal&&slot){portal.classList.add('today-v3-medallion');const strong=portal.querySelector('.ritual-copy strong');if(strong)strong.textContent='Press and Hold to Begin';slot.replaceWith(portal)}
-    shell.querySelectorAll('.today-v3-chip').forEach(chip=>chip.addEventListener('click',()=>{if(chip.dataset.chip==='breathing')window.ASCENDOpenPractice?.();else if(chip.dataset.chip==='focus')navTo('path');else navTo('library')}));
+
+    const feedback=document.getElementById('ritual-feedback');
+    if(feedback&&action){
+      action.appendChild(feedback);
+      feedback.style.cssText='display:block;margin:10px 0 0;text-align:center;font:11px/1.35 Arial,sans-serif;min-height:15px;opacity:.72';
+    }
+
+    const originalBegin=today.querySelector('[data-action="practice"]');
+    if(originalBegin&&action&&!document.getElementById('today-v3-fallback')){
+      const fallback=document.createElement('button');
+      fallback.id='today-v3-fallback';fallback.type='button';fallback.textContent='Begin Practice';
+      fallback.style.cssText='display:block;margin:8px auto 0;padding:7px 12px;border:0;background:transparent;color:inherit;font:600 11px/1.2 Arial,sans-serif;text-decoration:underline;text-underline-offset:3px;opacity:.7;cursor:pointer';
+      fallback.addEventListener('click',()=>originalBegin.click());
+      action.appendChild(fallback);
+    }
+
+    shell.querySelectorAll('.today-v3-chip').forEach(chip=>chip.addEventListener('click',()=>{if(chip.dataset.chip==='breathing')originalBegin?.click();else if(chip.dataset.chip==='focus')navTo('path');else navTo('library')}));
     ensureLibraryReaderHead();sync();
     const source=document.getElementById('stage-title');if(source)new MutationObserver(sync).observe(source,{childList:true,subtree:true,characterData:true});
     document.documentElement.classList.add('today-v3-ready');
