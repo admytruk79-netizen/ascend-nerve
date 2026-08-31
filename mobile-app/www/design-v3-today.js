@@ -1,4 +1,5 @@
 (()=>{
+  let approvedHeroObjectUrl='';
   function navTo(screen){document.querySelector(`.bottom-nav button[data-screen="${screen}"]`)?.click()}
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
   function formattedDate(){return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date())}
@@ -22,6 +23,29 @@
   function ensureMirrorEngine(){
     if(window.ASCENDMirror||document.querySelector('script[data-resonance-engine]'))return;
     const script=document.createElement('script');script.src='mirror-engine.js?v=20260831-resonance-2';script.dataset.resonanceEngine='true';document.body.appendChild(script);
+  }
+  function ensureApprovedRenderStyles(){
+    if(document.querySelector('link[data-approved-render-overrides]'))return;
+    const link=document.createElement('link');link.rel='stylesheet';link.href='approved-render-overrides.css?v=20260831-approved-1';link.dataset.approvedRenderOverrides='true';document.head.appendChild(link);
+  }
+  async function loadApprovedHero(hero){
+    if(!hero||hero.dataset.approvedHeroLoaded==='true')return;
+    try{
+      const parts=await Promise.all([1,2,3,4,5,6].map(async index=>{
+        const response=await fetch(`assets/approved-today-hero-${index}.txt?v=20260831-approved-1`,{cache:'force-cache'});
+        if(!response.ok)throw new Error(`hero chunk ${index}`);
+        return (await response.text()).trim();
+      }));
+      const binary=atob(parts.join(''));
+      const bytes=new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+      if(approvedHeroObjectUrl)URL.revokeObjectURL(approvedHeroObjectUrl);
+      approvedHeroObjectUrl=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
+      hero.style.setProperty('background-image',`url("${approvedHeroObjectUrl}")`,'important');
+      hero.dataset.approvedHeroLoaded='true';
+    }catch(error){
+      console.warn('ASCEND approved Today hero fallback in use',error);
+    }
   }
   function tuneApprovedScreens(){
     const pathHero=document.querySelector('#path>.approved-hero');
@@ -54,7 +78,7 @@
   }
   function mount(){
     const today=document.getElementById('today');if(!today||document.getElementById('today-v3'))return;
-    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();
+    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();ensureApprovedRenderStyles();
     const shell=document.createElement('div');shell.id='today-v3';shell.className='today-v3';
     shell.innerHTML=`
       <header class="today-v3-intro">
@@ -70,6 +94,7 @@
       </div>
       <section class="today-v3-action" aria-label="Begin today's practice"><div class="today-v3-medallion-slot" aria-hidden="true"></div></section>`;
     today.prepend(shell);
+    loadApprovedHero(shell.querySelector('.today-v3-hero'));
     const portal=document.getElementById('ritual-portal'),slot=shell.querySelector('.today-v3-medallion-slot');
     if(portal&&slot){portal.classList.add('today-v3-medallion');const strong=portal.querySelector('.ritual-copy strong');if(strong)strong.textContent='Press and Hold to Begin';slot.replaceWith(portal)}
     const originalBegin=today.querySelector('[data-action="practice"]');
