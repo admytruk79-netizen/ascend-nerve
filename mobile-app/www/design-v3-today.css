@@ -156,46 +156,39 @@ body:has(#path.active) .bottom-nav{background:rgba(3,14,22,.98)!important;border
 #stage-review-card,.branch-card,#practice-branches>.rhythm-card{border-radius:14px!important;border-color:rgba(213,162,74,.12)!important;background:rgba(7,25,36,.68)!important;box-shadow:none!important}
 .pathway-section-header{border-top:1px solid rgba(213,162,74,.12)!important}
 
-/* LIBRARY OVERVIEW — supplied light editorial screen. */
-body:has(#library.active){background:var(--ascend-ivory)!important;color:var(--ascend-ink)!important}
-body:has(#library.active) .topbar{background:rgba(244,239,227,.96)!important;border-bottom:1px solid rgba(151,113,52,.10)!important}
-body:has(#library.active) .brand{color:#8a6225!important}
-body:has(#library.active) .icon-button,body:has(#library.active) .mode-pill{border-color:rgba(151,113,52,.24)!important;background:rgba(250,247,239,.84)!important;color:#956b2c!important}
-body:has(#library.active) .bottom-nav{background:rgba(249,246,237,.98)!important;border-top:1px solid rgba(151,113,52,.12)!important;box-shadow:0 -7px 18px rgba(74,54,24,.05)!important}
-body:has(#library.active) .bottom-nav button,body:has(#library.active) .bottom-nav button:before{color:#887f72!important}
-body:has(#library.active) .bottom-nav button.active,body:has(#library.active) .bottom-nav button.active:before{color:#b47d28!important}
-#library{padding:12px 8px 98px!important;color:var(--ascend-ink)!important}
+/* LIBRARY OVERVIEW — unified with the Today/Path/Journal/Me night identity. */
+#library{padding:12px 8px 98px!important;color:#f4eee2!important}
 #library>.eyebrow,#library>h1{display:none!important}
 #library>.approved-hero.approved-library-head{min-height:0!important;margin:4px 0 20px!important;padding:16px 4px 2px!important;display:block!important;text-align:left!important;background:none!important;overflow:visible!important}
 #library>.approved-hero.approved-library-head:after,#library>.approved-hero.approved-library-head img{display:none!important}
 #library>.approved-hero .approved-kicker{display:none!important}
-#library>.approved-hero h1{margin:0!important;color:#6f5122!important;font:400 32px/1.05 Georgia,serif!important;letter-spacing:.025em!important;text-align:left!important}
-#library>.approved-hero p{margin:7px 0 0!important;max-width:410px!important;color:#7d756a!important;font:12px/1.45 Arial,sans-serif!important;text-align:left!important}
+#library>.approved-hero h1{margin:0!important;color:#f4eee2!important;font:400 32px/1.05 Georgia,serif!important;letter-spacing:.025em!important;text-align:left!important}
+#library>.approved-hero p{margin:7px 0 0!important;max-width:410px!important;color:#a0a6a3!important;font:12px/1.45 Arial,sans-serif!important;text-align:left!important}
 .library-tools{margin:0 0 16px!important;padding:0!important}
-.library-search{height:44px!important;min-height:44px!important;border:1px solid rgba(151,113,52,.22)!important;border-radius:14px!important;background:rgba(251,248,240,.94)!important;color:#3d3932!important;font-size:12px!important;box-shadow:none!important}
-.library-search::placeholder{color:#948b7f!important}
+.library-search{height:44px!important;min-height:44px!important;border:1px solid rgba(213,162,74,.24)!important;border-radius:14px!important;background:#071d2a!important;color:#f4eee2!important;font-size:12px!important;box-shadow:none!important}
+.library-search::placeholder{color:#89918f!important}
 .library-filters{padding:9px 0 0!important;gap:6px!important;display:flex!important;overflow-x:auto!important;scrollbar-width:none!important}
 .library-filters::-webkit-scrollbar{display:none!important}
-.library-filter{min-height:30px!important;flex:0 0 auto!important;padding:0 12px!important;border-radius:18px!important;background:rgba(251,248,240,.75)!important;border:1px solid rgba(151,113,52,.18)!important;color:#736b61!important;font-size:9px!important}
-.library-filter.active{color:#7d5520!important;border-color:rgba(151,113,52,.48)!important;background:#f5ead5!important}
-.library-count{font-size:9px!important;color:#8f877b!important;margin:8px 2px 0!important}
-.approved-library-feature{position:relative!important;min-height:190px!important;margin:6px 0 18px!important;padding:22px 20px!important;border:1px solid rgba(151,113,52,.22)!important;border-radius:22px!important;overflow:hidden!important;background:linear-gradient(90deg,rgba(46,35,21,.62),rgba(46,35,21,.14) 68%,rgba(46,35,21,.04)),url('assets/seasonal-art/august-presence-devotion.png') center/cover no-repeat!important;box-shadow:0 12px 25px rgba(79,58,29,.08)!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important}
-.approved-library-feature small{color:#f0d49b!important;font:600 8px/1 Arial,sans-serif!important;letter-spacing:.17em!important}
-.approved-library-feature h2{margin:8px 0 4px!important;color:#fff9ef!important;font:400 24px/1.08 Georgia,serif!important}
-.approved-library-feature p{max-width:260px!important;margin:0!important;color:rgba(255,249,239,.82)!important;font:10px/1.45 Arial,sans-serif!important}
-.approved-library-now{margin:0 0 17px!important;padding:13px 14px!important;display:grid!important;grid-template-columns:40px minmax(0,1fr) 18px!important;gap:10px!important;align-items:center!important;border:1px solid rgba(151,113,52,.18)!important;border-radius:14px!important;background:rgba(251,248,240,.88)!important;box-shadow:none!important}
-.approved-library-now .approved-icon{width:36px!important;height:36px!important;border-radius:50%!important;border:1px solid rgba(151,113,52,.20)!important;color:#9b6d27!important;background:#f7eedc!important}
-.approved-library-now strong{color:#3e3931!important;font:400 13px Georgia,serif!important}
-.approved-library-now small{color:#8b8276!important;font:8px Arial,sans-serif!important}
-.approved-library-now b{color:#9b6d27!important}
-#library-list-label{color:#8c6426!important;font-size:8px!important;letter-spacing:.16em!important}
-.library-group{margin-top:9px!important;border:1px solid rgba(151,113,52,.15)!important;border-radius:14px!important;background:rgba(251,248,240,.84)!important;box-shadow:none!important}
-.library-group summary{min-height:54px!important;padding:0 14px!important;color:#423d35!important;font:400 14px Georgia,serif!important}
+.library-filter{min-height:30px!important;flex:0 0 auto!important;padding:0 12px!important;border-radius:18px!important;background:#071b28!important;border:1px solid rgba(213,162,74,.18)!important;color:#89918f!important;font-size:9px!important}
+.library-filter.active{color:#f0c872!important;border-color:#d5a24a!important;background:rgba(213,162,74,.08)!important}
+.library-count{font-size:9px!important;color:#89918f!important;margin:8px 2px 0!important}
+.approved-library-feature{position:relative!important;min-height:190px!important;margin:6px 0 18px!important;padding:22px 20px!important;border:1px solid rgba(213,162,74,.36)!important;border-radius:22px!important;overflow:hidden!important;background:linear-gradient(90deg,rgba(4,18,27,.96),rgba(4,18,27,.74) 45%,rgba(4,18,27,.12)),url('assets/seasonal-art/self-observation-humility.png') center/cover no-repeat!important;box-shadow:0 12px 25px rgba(0,0,0,.16)!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important}
+.approved-library-feature small{color:#d5a24a!important;font:600 8px/1 Arial,sans-serif!important;letter-spacing:.17em!important}
+.approved-library-feature h2{margin:8px 0 4px!important;color:#f4eee2!important;font:400 24px/1.08 Georgia,serif!important}
+.approved-library-feature p{max-width:260px!important;margin:0!important;color:#a0a6a3!important;font:10px/1.45 Arial,sans-serif!important}
+.approved-library-now{margin:0 0 17px!important;padding:13px 14px!important;display:grid!important;grid-template-columns:40px minmax(0,1fr) 18px!important;gap:10px!important;align-items:center!important;border:1px solid rgba(213,162,74,.22)!important;border-radius:14px!important;background:#071b28!important;box-shadow:none!important}
+.approved-library-now .approved-icon{width:36px!important;height:36px!important;border-radius:50%!important;border:1px solid rgba(213,162,74,.28)!important;color:#d5a24a!important;background:#071d2a!important}
+.approved-library-now strong{color:#f4eee2!important;font:400 13px Georgia,serif!important}
+.approved-library-now small{color:#89918f!important;font:8px Arial,sans-serif!important}
+.approved-library-now b{color:#d5a24a!important}
+#library-list-label{color:#d5a24a!important;font-size:8px!important;letter-spacing:.16em!important}
+.library-group{margin-top:9px!important;border:1px solid rgba(213,162,74,.18)!important;border-radius:14px!important;background:#071b28!important;box-shadow:none!important}
+.library-group summary{min-height:54px!important;padding:0 14px!important;color:#f4eee2!important;font:400 14px Georgia,serif!important}
 .library-group-items{padding:0 9px 10px!important}
-.content-card{background:rgba(255,252,246,.94)!important;border:1px solid rgba(151,113,52,.14)!important;border-radius:12px!important;color:#3d3932!important;box-shadow:none!important}
-.content-card small{color:#9b6d27!important}
-.content-card strong{color:#3d3932!important}
-.content-card span{color:#827a70!important}
+.content-card{background:linear-gradient(180deg,rgba(9,30,43,.94),rgba(6,22,33,.96))!important;border:1px solid rgba(213,162,74,.16)!important;border-radius:12px!important;color:#f4eee2!important;box-shadow:none!important}
+.content-card small{color:#d5a24a!important}
+.content-card strong{color:#f4eee2!important}
+.content-card span{color:#a0a6a3!important}
 
 /* TEACHING READER — dedicated dark night mode, separate from the light Library. */
 #library-overlay{background:radial-gradient(circle at 50% 0,#0d2a3b 0,#061724 34%,#030d15 100%)!important;color:#f1ece4!important;padding:72px 22px 34px!important}

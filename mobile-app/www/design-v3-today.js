@@ -24,10 +24,6 @@
     if(window.ASCENDMirror||document.querySelector('script[data-resonance-engine]'))return;
     const script=document.createElement('script');script.src='mirror-engine.js?v=20260831-resonance-2';script.dataset.resonanceEngine='true';document.body.appendChild(script);
   }
-  function ensureApprovedRenderStyles(){
-    if(document.querySelector('link[data-approved-render-overrides]'))return;
-    const link=document.createElement('link');link.rel='stylesheet';link.href='approved-render-overrides.css?v=20260831-approved-1';link.dataset.approvedRenderOverrides='true';document.head.appendChild(link);
-  }
   async function loadApprovedHero(hero){
     if(!hero||hero.dataset.approvedHeroLoaded==='true')return;
     try{
@@ -78,7 +74,7 @@
   }
   function mount(){
     const today=document.getElementById('today');if(!today||document.getElementById('today-v3'))return;
-    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();ensureApprovedRenderStyles();
+    installLayoutGuard();ensureMirrorEngine();ensureLibraryReaderHead();
     const shell=document.createElement('div');shell.id='today-v3';shell.className='today-v3';
     shell.innerHTML=`
       <header class="today-v3-intro">
