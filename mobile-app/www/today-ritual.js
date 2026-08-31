@@ -53,10 +53,12 @@
       vibrate(pulseIndex===0?9:pulseIndex===3?22:13,pulseIndex===3?'MEDIUM':'LIGHT');
       pulseIndex++;
     }
+    if(progress>=1){finishHold();return}
     frame=requestAnimationFrame(tick);
   };
   const start=event=>{
     if(event.button!==undefined&&event.button!==0)return;
+    if(holding)return;
     event.preventDefault();
     reset({message:'Keep holding…'});
     holding=true;pointerId=event.pointerId??null;startAt=performance.now();
@@ -73,6 +75,8 @@
   portal.addEventListener('pointerdown',start);
   document.addEventListener('pointerup',stopEarly);
   document.addEventListener('pointercancel',stopEarly);
+  portal.addEventListener('mousedown',start);
+  document.addEventListener('mouseup',stopEarly);
   portal.addEventListener('contextmenu',event=>event.preventDefault());
   portal.addEventListener('click',event=>{
     if(event.detail!==0){
