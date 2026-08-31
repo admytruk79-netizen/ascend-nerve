@@ -1,25 +1,25 @@
 (()=>{
   const splash=document.getElementById('splash');
+  const splashStarted=performance.now();
   let splashDismissed=false;
 
   const dismissSplash=()=>{
     if(splashDismissed)return;
+    const remaining=Math.max(0,1200-(performance.now()-splashStarted));
     splashDismissed=true;
-    splash?.classList.add('done');
+    setTimeout(()=>{
+      splash?.classList.add('is-hidden');
+      splash?.setAttribute('aria-hidden','true');
+    },remaining);
   };
 
-  // Fail-safe startup: the splash is decorative only and must never block the app.
-  // Dismiss after first paint regardless of auth, entitlement, curriculum, or intro state.
-  const scheduleSplashDismiss=()=>{
-    requestAnimationFrame(()=>requestAnimationFrame(dismissSplash));
-  };
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',scheduleSplashDismiss,{once:true});
-  }else{
-    scheduleSplashDismiss();
-  }
-  window.addEventListener('load',scheduleSplashDismiss,{once:true});
-  setTimeout(dismissSplash,1200);
+  // Keep the branded opening visible long enough to register, then release it as
+  // soon as the application load completes. The timeout is only a fail-safe.
+  splash?.classList.remove('is-hidden');
+  splash?.setAttribute('aria-hidden','false');
+  if(document.readyState==='complete')dismissSplash();
+  else window.addEventListener('load',dismissSplash,{once:true});
+  setTimeout(dismissSplash,3500);
 
   const overlay=document.getElementById('library-overlay');
   const close=()=>overlay?.classList.add('hidden');
@@ -43,8 +43,10 @@
     const item=window.curriculum.content?.find(x=>slug?x.slug===slug:x.title===title);
     if(!item)return;
     window.LibraryEngine?.recordLibraryView(item);
-    document.getElementById('library-type').textContent=(item.content_type||'TEACHING').toUpperCase();
-    document.getElementById('library-title').textContent=item.title||'';
+    const typeTarget=document.getElementById('library-reader-type');
+    if(typeTarget)typeTarget.textContent=(item.content_type||'TEACHING').toUpperCase();
+    const titleTarget=document.getElementById('library-title');
+    if(titleTarget)titleTarget.textContent=item.title||'';
     const body=item.body||item.summary||'This item is available as part of your current Path stage.';
     document.getElementById('library-body').innerHTML=paragraphs(body)+`<div class="source-note">ASCEND Path Library · ${escapeText(item.metadata?.source||'ASCEND curriculum')}</div>`;
     overlay.classList.remove('hidden');
