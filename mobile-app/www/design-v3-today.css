@@ -1,29 +1,30 @@
 @import url("approved-screens.css?v=20260830-supplied-1");
-/* Approved supplied Today composition: light parchment, cinematic nature hero, compact chips, one hold control. */
+/* Supplied Today design: light parchment, large nature hero, compact practice chips, single gold hold control. */
 #today.today-ritual-screen{max-width:620px;margin:0 auto;padding:18px 18px 104px!important;background:#f7f1e3!important;color:#27251f!important}
 #today>.ritual-context,#today>.ritual-scene,#today>#ritual-feedback,#today>.ritual-begin,#today>.journey-rail,#today>.journal-handoff,#today>.rhythm-card,#today>.quiet-note{display:none!important}
 .today-v3{display:flex;flex-direction:column;gap:15px;width:100%;min-height:calc(100vh - 150px)}
-.today-v3-hero{position:relative;min-height:390px;border:1px solid rgba(171,128,53,.38);border-radius:28px;overflow:hidden;background:linear-gradient(180deg,rgba(255,249,233,.08),rgba(43,31,17,.12)),url('assets/seasonal-art/autumn/autumn_01.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(91,66,30,.12)}
-.today-v3-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(250,244,226,.02) 45%,rgba(250,244,226,.22) 100%);pointer-events:none}
-.today-v3-logo{display:none!important}
-.today-v3-hero h1{position:absolute;z-index:2;top:20px;left:22px;right:22px;margin:0;color:#6d4d17;text-align:center;font:400 clamp(34px,8vw,48px)/1.05 Georgia,serif;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(255,248,230,.8)}
-.today-v3-hero p{position:absolute;z-index:2;left:18px;right:18px;bottom:16px;margin:0;padding:11px 14px;border-radius:16px;background:rgba(250,246,234,.88);backdrop-filter:blur(8px);color:#302d27;text-align:center;font:500 16px/1.35 Arial,sans-serif}
-.today-v3-card{border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
-.today-v3-action{min-height:0;padding:0;display:flex;flex-direction:column;align-items:stretch;gap:13px}
-.today-v3-copy{display:contents}
-.today-v3-eyebrow{display:none}
-.today-v3-action h2,.today-v3-action p{display:none}
+.today-v3-intro{display:flex;flex-direction:column;gap:14px;padding:2px 4px 0}
+.today-v3-greeting{display:flex;align-items:center;gap:10px;color:#5e5648;font-family:Arial,sans-serif}
+.today-v3-greeting>span{font-size:27px;color:#b9862f}
+.today-v3-greeting strong{display:block;font-size:16px;font-weight:600;line-height:1.2}
+.today-v3-greeting small{display:block;margin-top:2px;font-size:13px;color:#8a8173}
+.today-v3-intro h1{margin:0;text-align:center;color:#76521d;font:400 clamp(34px,8vw,48px)/1.05 Georgia,serif;letter-spacing:-.02em}
+.today-v3-hero{position:relative;min-height:390px;border:1px solid rgba(171,128,53,.38);border-radius:28px;overflow:hidden;background:linear-gradient(180deg,rgba(255,249,233,.04),rgba(43,31,17,.12)),url('assets/seasonal-art/self-observation-humility.png') center/cover no-repeat;box-shadow:0 14px 34px rgba(91,66,30,.12)}
+.today-v3-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 58%,rgba(54,40,22,.22) 100%);pointer-events:none}
+.today-v3-hero p{position:absolute;z-index:2;left:18px;right:18px;bottom:14px;margin:0;padding:10px 14px;border-radius:15px;background:rgba(250,246,234,.9);backdrop-filter:blur(8px);color:#302d27;text-align:center;font:500 16px/1.35 Arial,sans-serif}
 .today-v3-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.today-v3-chip{min-height:58px;padding:9px 10px;border:1px solid rgba(167,123,47,.45);border-radius:13px;background:rgba(255,252,243,.8);color:#3c382f;font:600 12px/1.25 Arial,sans-serif;box-shadow:0 5px 14px rgba(91,66,30,.06)}
-.today-v3-chip small{display:block;margin-top:4px;color:#777064;font-weight:400}
-.today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:150px!important;height:150px!important;transform:none!important;align-self:center;border-radius:50%;border:2px solid #c99a3d!important;background:radial-gradient(circle at 50% 40%,#fff6b5 0 8%,#e8bd55 24%,#b77b23 58%,#8a5b1d 100%)!important;box-shadow:0 0 0 10px rgba(210,169,83,.14),0 12px 30px rgba(135,91,28,.22)!important}
-.today-v3-medallion{display:flex!important;align-items:center!important;justify-content:center!important;padding:22px!important;color:#2c2416!important;touch-action:none;cursor:pointer;overflow:hidden}
-.today-v3-medallion .ritual-copy{position:relative;z-index:2;display:block!important;max-width:110px;text-align:center;text-shadow:none!important}
-.today-v3-medallion .ritual-copy strong{display:block;color:#2c2416!important;font:700 14px/1.2 Arial,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
+.today-v3-chip{appearance:none;min-height:62px;padding:9px 10px;border:1px solid rgba(167,123,47,.45);border-radius:13px;background:rgba(255,252,243,.88);color:#3c382f;text-align:left;box-shadow:0 5px 14px rgba(91,66,30,.06);font-family:Arial,sans-serif}
+.today-v3-chip strong{display:block;font-size:12px;font-weight:600;line-height:1.2}
+.today-v3-chip small{display:block;margin-top:4px;color:#777064;font-size:10px;font-weight:400;line-height:1.2}
+.today-v3-action{min-height:164px;display:flex;align-items:center;justify-content:center;padding:6px 0 0}
+.today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:150px!important;height:150px!important;transform:none!important;border-radius:50%;border:2px solid #c99a3d!important;background:radial-gradient(circle at 50% 36%,#fff8bb 0 7%,#efd26e 20%,#d9a33b 48%,#9a651d 100%)!important;box-shadow:0 0 0 10px rgba(210,169,83,.14),0 12px 30px rgba(135,91,28,.22)!important}
+.today-v3-medallion{display:flex!important;align-items:center!important;justify-content:center!important;padding:20px!important;color:#2c2416!important;touch-action:none;cursor:pointer;overflow:hidden}
+.today-v3-medallion .ritual-progress{inset:5px!important}
+.today-v3-medallion .ritual-copy{position:relative;z-index:2;display:block!important;max-width:108px;text-align:center;text-shadow:none!important}
+.today-v3-medallion .ritual-copy strong{display:block;color:#2c2416!important;font:700 14px/1.18 Arial,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
 .today-v3-medallion .ritual-copy small{display:none!important}
-.today-v3-primary{display:none!important}
-.today-v3-path,.today-v3-journal,.today-v3-seasonal{display:none!important}
+.today-v3-logo,.today-v3-card,.today-v3-copy,.today-v3-eyebrow,.today-v3-primary,.today-v3-path,.today-v3-journal,.today-v3-seasonal{display:none!important}
 html[data-theme="day"] #today.today-ritual-screen,html[data-theme="twilight"] #today.today-ritual-screen,html[data-theme="night"] #today.today-ritual-screen{background:#f7f1e3!important;color:#27251f!important}
-@media(max-width:560px){#today.today-ritual-screen{padding:14px 14px 94px!important}.today-v3{gap:12px}.today-v3-hero{min-height:360px;border-radius:23px}.today-v3-hero h1{font-size:37px}.today-v3-medallion-slot,.today-v3-medallion{width:142px!important;height:142px!important}.today-v3-chip{font-size:11px;padding:8px}}
-@media(max-height:760px){.today-v3-hero{min-height:310px}.today-v3-medallion-slot,.today-v3-medallion{width:126px!important;height:126px!important}}
+@media(max-width:560px){#today.today-ritual-screen{padding:14px 14px 94px!important}.today-v3{gap:12px}.today-v3-intro h1{font-size:37px}.today-v3-hero{min-height:355px;border-radius:23px}.today-v3-medallion-slot,.today-v3-medallion{width:142px!important;height:142px!important}.today-v3-chip{padding:8px}}
+@media(max-height:760px){.today-v3-hero{min-height:300px}.today-v3-medallion-slot,.today-v3-medallion{width:126px!important;height:126px!important}.today-v3-action{min-height:140px}}
 @media(prefers-reduced-motion:reduce){.today-v3 *,#today *{transition:none!important;animation:none!important}}
