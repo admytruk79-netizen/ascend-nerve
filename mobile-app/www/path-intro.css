@@ -30,6 +30,14 @@
 .intro-months{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;max-width:290px;margin:40px auto 0}
 .intro-months span{height:4px;border-radius:3px;background:rgba(214,179,106,.24)}
 .intro-months .awake{background:#55c8bd;box-shadow:0 0 12px rgba(85,200,189,.7)}
+[data-intro-step="5"] p{max-width:340px;text-align:left;font-size:13px}
+[data-intro-step="5"] .eyebrow{text-align:center}
+[data-intro-step="5"] h1{max-width:340px}
+.intro-consent{display:flex;align-items:flex-start;gap:11px;max-width:340px;margin:22px auto 0;padding:14px 15px;border:1px solid rgba(214,179,106,.32);border-radius:14px;background:rgba(5,21,30,.72);text-align:left;transition:border-color .2s ease}
+.intro-consent input{flex:0 0 auto;width:18px;height:18px;margin-top:1px;accent-color:#55c8bd}
+.intro-consent span{color:#d1cbc1;font:12px/1.5 Arial,sans-serif}
+.intro-consent.needs-consent{border-color:#c4685a;animation:introConsentNudge .32s ease}
+@keyframes introConsentNudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .intro-final-emblem{width:100px;height:100px;margin:0 auto 24px}
 .intro-progress{display:flex;justify-content:center;gap:8px;margin:12px 0 18px}
 .intro-progress button{width:21px;height:3px;padding:0;border:0;border-radius:2px;background:rgba(214,179,106,.25)}

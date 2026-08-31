@@ -19,9 +19,17 @@
     window.__ASCEND_INTRO_DECIDED=true;
     document.dispatchEvent(new CustomEvent('ascend:intro-decided'));
   }
-  next.addEventListener('click',()=>{pulse();if(step===steps.length-1){complete();return}step++;render()});
+  const consentCheck=document.getElementById('intro-consent-check');
+  next.addEventListener('click',()=>{
+    if(step===steps.length-1){
+      if(consentCheck&&!consentCheck.checked){consentCheck.focus();consentCheck.closest('.intro-consent')?.classList.add('needs-consent');return}
+      pulse();complete();return;
+    }
+    pulse();step++;render();
+  });
+  consentCheck?.addEventListener('change',()=>{if(consentCheck.checked)consentCheck.closest('.intro-consent')?.classList.remove('needs-consent')});
   back.addEventListener('click',()=>{if(step>0){step--;pulse();render()}});
-  skip.addEventListener('click',()=>overlay.classList.contains('is-cinematic')?revealGuide():complete());
+  skip.addEventListener('click',()=>{if(overlay.classList.contains('is-cinematic')){revealGuide();return}step=steps.length-1;render()});
   dots.forEach(dot=>dot.addEventListener('click',()=>{step=Number(dot.dataset.introDot);pulse();render()}));
   document.getElementById('menu-how')?.addEventListener('click',()=>{document.getElementById('menu-overlay')?.classList.add('hidden');PathBackend.me().then(currentUser=>{user=currentUser;open({replay:true,cinematic:false})})});
   window.ASCENDIntro={consider,open,close:complete,revealGuide};
