@@ -14,7 +14,11 @@
 .today-v3-card p{margin:0;color:#aaa69e;font:400 16px/1.45 Arial,sans-serif}
 .today-v3-action{min-height:270px;padding:28px 26px;display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:16px;align-items:center}
 .today-v3-copy{position:relative;z-index:2}
-.today-v3-medallion{position:absolute;right:8px;top:50%;width:170px;height:170px;transform:translateY(-50%);border-radius:50%;border:2px solid rgba(214,164,77,.72);background:radial-gradient(circle at 50% 38%,rgba(255,192,78,.96) 0 3%,rgba(255,179,48,.4) 4%,transparent 24%),linear-gradient(180deg,rgba(3,10,16,.06),rgba(3,10,16,.5)),url('assets/ascend-path-intro-instrument.jpg') center/cover no-repeat;box-shadow:0 0 26px rgba(207,151,61,.13)}
+.today-v3-medallion-slot,.today-v3-medallion{position:absolute;z-index:3;left:auto;right:8px;top:50%;width:170px;height:170px;transform:translateY(-50%);border-radius:50%;border:2px solid rgba(214,164,77,.72);background:radial-gradient(circle at 50% 38%,rgba(255,192,78,.96) 0 3%,rgba(255,179,48,.4) 4%,transparent 24%),linear-gradient(180deg,rgba(3,10,16,.06),rgba(3,10,16,.5)),url('assets/ascend-path-intro-instrument.jpg') center/cover no-repeat;box-shadow:0 0 26px rgba(207,151,61,.13)}
+.today-v3-medallion{display:flex;align-items:flex-end;justify-content:center;padding:0 14px 20px;color:#fff9ee;touch-action:none;cursor:pointer;overflow:hidden}
+.today-v3-medallion .ritual-progress{inset:5px;filter:drop-shadow(0 0 8px rgba(239,199,107,.6))}
+.today-v3-medallion .ritual-copy{position:relative;z-index:2;max-width:120px;text-shadow:0 2px 10px #02070b}
+.today-v3-medallion .ritual-copy strong{color:#fff9ee;font:600 11px/1.25 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase}
 .today-v3-primary{margin-top:24px;min-height:54px;padding:0 22px;border:1px solid #d9a64d;border-radius:11px;background:linear-gradient(180deg,#d9a64d,#b57d2d);color:#fff9ee;font:500 16px Arial,sans-serif;box-shadow:0 10px 26px rgba(183,125,40,.18)}
 .today-v3-path{padding:26px}
 .today-v3-progress{height:6px;margin:20px 0 15px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
@@ -28,6 +32,7 @@
 .today-v3-journal button{margin-top:20px}
 .today-v3-seasonal{min-height:180px;padding:25px 84px 25px 26px;background:linear-gradient(90deg,rgba(4,17,27,.96) 0%,rgba(4,17,27,.74) 46%,rgba(4,17,27,.15) 100%),url('assets/ascend-path-intro-instrument.jpg') center 58%/cover no-repeat}
 .today-v3-seasonal h2{font-size:30px}.today-v3-seasonal button{position:absolute;right:20px;top:50%;width:50px;height:50px;transform:translateY(-50%);border:1px solid #d59a42;border-radius:50%;background:rgba(181,125,45,.75);color:#fff7e8;font-size:30px;line-height:1}
+.library-reader-head{max-width:520px;width:100%;margin:0 auto 12px}.library-reader-head .eyebrow{margin-bottom:6px}.library-reader-head h1{margin:0 0 18px}
 html[data-theme="day"] #today.today-ritual-screen{background:#07131e!important;color:#f4efe4!important}
 html[data-theme="day"] .today-v3-card{background:linear-gradient(180deg,rgba(8,25,36,.97),rgba(4,17,27,.98))}
 @media(max-width:560px){
@@ -35,7 +40,7 @@ html[data-theme="day"] .today-v3-card{background:linear-gradient(180deg,rgba(8,2
  .today-v3-hero{margin-left:-12px;margin-right:-12px;min-height:360px}
  .today-v3-logo img{width:102px;height:102px}
  .today-v3-action{grid-template-columns:minmax(0,1fr) 118px;min-height:250px;padding:24px 20px}
- .today-v3-medallion{width:140px;height:140px;right:-6px}
+ .today-v3-medallion-slot,.today-v3-medallion{width:140px;height:140px;right:-6px}
  .today-v3-card h2{font-size:28px}.today-v3-action h2{max-width:72%}
  .today-v3-action p{max-width:70%}
  .today-v3-primary{padding:0 17px}
