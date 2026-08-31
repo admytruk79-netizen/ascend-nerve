@@ -1,4 +1,4 @@
-@import url("approved-screens.css?v=20260831-supplied-2");
+@import url("approved-screens.css?v=20260831-fix-1");
 
 :root{
   --ascend-ivory:#f4efe3;
@@ -61,7 +61,8 @@ body:has(#today.active) .topbar{margin:0 -14px!important;padding:0 14px!importan
 .today-v3-chip strong{display:block!important;font-size:10.5px!important;font-weight:650!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 .today-v3-chip small{display:block!important;margin-top:4px!important;font-size:8.5px!important;font-weight:400!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 .today-v3-action{min-height:136px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:2px 0 0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-.today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:126px!important;height:126px!important;transform:none!important;border-radius:50%!important;border:1px solid rgba(167,117,35,.62)!important;background:radial-gradient(circle at 50% 33%,#fff9c7 0 6%,#f1d678 20%,#d8aa48 51%,#a97727 100%)!important;box-shadow:0 0 0 8px rgba(203,161,80,.10),0 11px 26px rgba(108,73,22,.18)!important}
+.today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:126px!important;height:126px!important;transform:none!important;border-radius:50%!important;border:1px solid rgba(167,117,35,.62)!important;background:radial-gradient(circle at 50% 33%,#fff9c7 0 6%,#f1d678 20%,#d8aa48 51%,#a97727 100%)!important;box-shadow:0 0 0 8px rgba(203,161,80,.10),0 11px 26px rgba(108,73,22,.18)!important;outline:none!important}
+#ritual-portal.today-v3-medallion:focus-visible{box-shadow:0 0 0 3px var(--approved-teal,#2eb7b0),0 0 0 8px rgba(203,161,80,.10),0 11px 26px rgba(108,73,22,.18)!important}
 .today-v3-medallion{display:flex!important;align-items:center!important;justify-content:center!important;padding:18px!important;color:#312717!important;touch-action:none!important;cursor:pointer!important;overflow:hidden!important}
 .today-v3-medallion .ritual-progress{inset:5px!important}
 .today-v3-medallion .ritual-copy{position:relative!important;z-index:2!important;display:block!important;max-width:92px!important;text-align:center!important;text-shadow:none!important}

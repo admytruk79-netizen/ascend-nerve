@@ -202,7 +202,7 @@ test('Library uses collapsed content groups instead of one 67-item page',()=>{
   const html=read('index.html');
   const app=read('app.js');
   const css=read('ux-fixes.css');
-  assert.match(html,/app\.js\?v=20260827-intro-1/);
+  assert.match(html,/app\.js\?v=20260831-fix-1/);
   assert.match(app,/document\.createElement\('details'\)/);
   assert.match(app,/details\.className='library-group'/);
   assert.match(app,/\['teaching','Teachings'\]/);
