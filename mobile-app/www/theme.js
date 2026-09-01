@@ -1,6 +1,5 @@
 (()=>{
   const KEY='ascendPathTheme';
-  const mq=window.matchMedia('(prefers-color-scheme: dark)');
   let revealTimer=0;
 
   function revealApp(){
@@ -37,16 +36,24 @@
   retireConflictingRenderStyles();
   new MutationObserver(retireConflictingRenderStyles).observe(document.head,{childList:true});
 
-  const getPref=()=>localStorage.getItem(KEY)||'auto';
-  const resolved=(pref)=>pref==='auto'?(mq.matches?'night':'day'):pref;
+  const VALID=['day','twilight','night'];
+  function normalizePref(pref){
+    return VALID.includes(pref)?pref:'day';
+  }
+  function getPref(){
+    const stored=localStorage.getItem(KEY);
+    const normalized=normalizePref(stored);
+    if(stored!==normalized)localStorage.setItem(KEY,normalized);
+    return normalized;
+  }
 
   function apply(pref=getPref()){
-    const mode=resolved(pref);
+    const mode=normalizePref(pref);
     document.documentElement.dataset.theme=mode;
-    document.documentElement.dataset.themePreference=pref;
+    document.documentElement.dataset.themePreference=mode;
     const meta=document.querySelector('meta[name="theme-color"]');
     if(meta)meta.setAttribute('content',mode==='day'?'#f4efe3':mode==='twilight'?'#0a2432':'#04131e');
-    document.querySelectorAll('.theme-choice').forEach(button=>button.classList.toggle('active',button.dataset.themeChoice===pref));
+    document.querySelectorAll('.theme-choice').forEach(button=>button.classList.toggle('active',button.dataset.themeChoice===mode));
     const modeLabel=document.getElementById('mode-label');
     const modeSymbol=document.querySelector('#theme-cycle .mode-symbol');
     const stageContext=document.getElementById('stage-eyebrow');
@@ -56,8 +63,9 @@
   }
 
   function set(pref){
-    localStorage.setItem(KEY,pref);
-    apply(pref);
+    const mode=normalizePref(pref);
+    localStorage.setItem(KEY,mode);
+    apply(mode);
   }
 
   function mount(){
@@ -67,25 +75,23 @@
     const card=document.createElement('article');
     card.id='appearance-card';
     card.className='rhythm-card';
-    card.innerHTML=`<h2>Appearance</h2><p class="review-intro">Choose one appearance for the whole ASCEND Path app.</p><div class="appearance-options">
-      <button type="button" class="theme-choice" data-theme-choice="auto"><span class="theme-icon">◐</span><span><strong>Auto</strong><small>Follow your device</small></span><span class="theme-check"></span></button>
+    card.innerHTML=`<h2>Appearance</h2><p class="review-intro">Choose one appearance for the whole ASCEND Path app. It stays fixed until you change it.</p><div class="appearance-options">
       <button type="button" class="theme-choice" data-theme-choice="day"><span class="theme-icon">☼</span><span><strong>Day</strong><small>Warm ivory interface</small></span><span class="theme-check"></span></button>
       <button type="button" class="theme-choice" data-theme-choice="twilight"><span class="theme-icon">◐</span><span><strong>Twilight</strong><small>Cinematic dusk interface</small></span><span class="theme-check"></span></button>
       <button type="button" class="theme-choice" data-theme-choice="night"><span class="theme-icon">☾</span><span><strong>Night</strong><small>Deep charcoal interface</small></span><span class="theme-check"></span></button>
-    </div><p class="appearance-note">The selected appearance stays consistent across Today, Path, Journal, Library and Me.</p>`;
+    </div><p class="appearance-note">ASCEND will not switch appearance automatically with the clock or your device theme.</p>`;
     me.insertBefore(card,account||null);
     card.querySelectorAll('.theme-choice').forEach(button=>button.addEventListener('click',()=>set(button.dataset.themeChoice)));
 
     const cycle=document.getElementById('theme-cycle');
     cycle?.addEventListener('click',()=>{
-      const order=['day','twilight','night','auto'];
+      const order=['day','twilight','night'];
       const current=getPref();
       set(order[(order.indexOf(current)+1)%order.length]);
     });
     apply();
   }
 
-  mq.addEventListener?.('change',()=>{if(getPref()==='auto')apply('auto')});
   document.addEventListener('DOMContentLoaded',mount);
   apply();
   window.PathTheme={apply,set,get:getPref};
