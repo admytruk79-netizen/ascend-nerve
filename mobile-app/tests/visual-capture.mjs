@@ -7,20 +7,38 @@ const page=await browser.newPage({viewport:{width:430,height:932},deviceScaleFac
 await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#today-v3',{state:'attached'});
 await page.waitForSelector('.today-v3-hero[data-approved-hero-loaded="true"]',{state:'attached',timeout:10000});
+await page.waitForFunction(()=>document.documentElement.classList.contains('theme-authority-ready'),null,{timeout:5000});
+
+await page.evaluate(()=>{
+  document.body.classList.remove('auth-required','access-required');
+  const splash=document.getElementById('splash');
+  splash?.classList.add('is-hidden','done');
+  splash?.setAttribute('aria-hidden','true');
+});
+// The real splash fades for 800ms. Do not mistake a partially fading splash for app UI.
+await page.waitForTimeout(900);
 
 for(const mode of ['day','twilight','night']){
   await page.evaluate(theme=>{
-    document.body.classList.remove('auth-required','access-required');
-    const splash=document.getElementById('splash');
-    splash?.classList.add('is-hidden','done');
-    splash?.setAttribute('aria-hidden','true');
     window.ASCENDUX?.activateScreen?.('today',{record:false});
     window.PathTheme?.set?.(theme);
     document.documentElement.dataset.theme=theme;
     window.scrollTo(0,0);
   },mode);
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(250);
   await page.screenshot({path:`visual-preview/today-${mode}.png`,fullPage:false});
+}
+
+// Regression proof for the actual bug: Day must remain Day while navigating.
+for(const screen of ['today','path','journal','library','me']){
+  await page.evaluate(screenId=>{
+    window.PathTheme?.set?.('day');
+    window.ASCENDUX?.activateScreen?.(screenId,{record:false});
+    document.body.classList.remove('auth-required','access-required');
+    window.scrollTo(0,0);
+  },screen);
+  await page.waitForTimeout(220);
+  await page.screenshot({path:`visual-preview/day-${screen}.png`,fullPage:false});
 }
 
 const candidates=[
