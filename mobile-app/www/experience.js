@@ -1,17 +1,30 @@
 (()=>{
   const splash=document.getElementById('splash');
-  const splashStarted=performance.now();
+  const MIN_VISIBLE_AFTER_REVEAL=2600;
+  let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?(window.ASCEND_THEME_REVEALED_AT??performance.now()):null;
+  let wantsDismiss=false;
   let splashDismissed=false;
 
-  const dismissSplash=()=>{
-    if(splashDismissed)return;
-    const remaining=Math.max(0,1200-(performance.now()-splashStarted));
+  // The splash's entrance animation only starts playing once theme.js actually
+  // reveals the page (see design-v3-today.css), so the minimum-visible window
+  // has to be measured from that reveal, not from this script's own start time —
+  // otherwise dismissal can fire while the title/subtitle are still animating in.
+  // Conversely, if reveal already happened a while ago, don't wait a fresh
+  // MIN_VISIBLE_AFTER_REVEAL on top of time the splash has already been visible.
+  const scheduleDismiss=()=>{
+    if(splashDismissed||revealedAt===null||!wantsDismiss)return;
     splashDismissed=true;
+    const remaining=Math.max(0,MIN_VISIBLE_AFTER_REVEAL-(performance.now()-revealedAt));
     setTimeout(()=>{
       splash?.classList.add('is-hidden');
       splash?.setAttribute('aria-hidden','true');
     },remaining);
   };
+  const onRevealed=()=>{if(revealedAt===null)revealedAt=performance.now();scheduleDismiss()};
+  if(revealedAt===null)document.addEventListener('ascend:theme-ready',onRevealed,{once:true});
+  setTimeout(onRevealed,5000);
+
+  const dismissSplash=()=>{wantsDismiss=true;scheduleDismiss()};
 
   // Keep the branded opening visible long enough to register, then release it as
   // soon as the application load completes. The timeout is only a fail-safe.

@@ -16,11 +16,22 @@
   if(splash){
     splash.classList.remove('is-hidden');
     splash.setAttribute('aria-hidden','false');
-    const started=performance.now();
-    const finish=()=>{
-      const wait=Math.max(0,1500-(performance.now()-started));
-      setTimeout(()=>{splash.classList.add('is-hidden');splash.setAttribute('aria-hidden','true')},wait);
+    // Mirrors experience.js's reveal-anchored minimum: the entrance animation only
+    // starts once theme.js reveals the page, so dismissal must wait on that too —
+    // but if reveal already happened a while ago, don't add a fresh wait on top.
+    let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?(window.ASCEND_THEME_REVEALED_AT??performance.now()):null;
+    let wantsFinish=false;
+    let splashDone=false;
+    const hide=()=>{
+      if(splashDone||revealedAt===null||!wantsFinish)return;
+      splashDone=true;
+      const remaining=Math.max(0,2600-(performance.now()-revealedAt));
+      setTimeout(()=>{splash.classList.add('is-hidden');splash.setAttribute('aria-hidden','true')},remaining);
     };
+    const onRevealed=()=>{if(revealedAt===null)revealedAt=performance.now();hide()};
+    if(revealedAt===null)document.addEventListener('ascend:theme-ready',onRevealed,{once:true});
+    setTimeout(onRevealed,5000);
+    const finish=()=>{wantsFinish=true;hide()};
     if(document.readyState==='complete')finish();else window.addEventListener('load',finish,{once:true});
     setTimeout(finish,3200);
   }

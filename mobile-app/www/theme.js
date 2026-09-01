@@ -7,6 +7,8 @@
     clearTimeout(revealTimer);
     document.documentElement.style.removeProperty('visibility');
     document.documentElement.classList.add('theme-authority-ready');
+    window.ASCEND_THEME_REVEALED_AT??=performance.now();
+    document.dispatchEvent(new CustomEvent('ascend:theme-ready'));
   }
 
   function ensureThemeAuthority(){
