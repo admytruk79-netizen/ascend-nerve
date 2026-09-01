@@ -1,0 +1,328 @@
+/* ASCEND Path — single visual authority.
+   Theme is controlled ONLY by html[data-theme]. Screen changes must never change palette. */
+
+html[data-theme="day"]{
+  color-scheme:light;
+  --ui-bg:#f4efe3;
+  --ui-bg-soft:#faf7ef;
+  --ui-surface:#fbf8f0;
+  --ui-surface-2:#f7f0e4;
+  --ui-field:#fffaf2;
+  --ui-ink:#312d27;
+  --ui-heading:#6f4d1d;
+  --ui-muted:#81786c;
+  --ui-gold:#b47d28;
+  --ui-gold-soft:#d4aa62;
+  --ui-teal:#238e88;
+  --ui-line:rgba(157,118,55,.22);
+  --ui-shadow:rgba(83,61,28,.08);
+  --ui-nav:rgba(249,246,237,.98);
+}
+html[data-theme="twilight"]{
+  color-scheme:dark;
+  --ui-bg:#0a2432;
+  --ui-bg-soft:#0e2d3d;
+  --ui-surface:#102f40;
+  --ui-surface-2:#0b2838;
+  --ui-field:#082333;
+  --ui-ink:#f0ece4;
+  --ui-heading:#f1e8d9;
+  --ui-muted:#9aa5a7;
+  --ui-gold:#dfb25a;
+  --ui-gold-soft:#ebc979;
+  --ui-teal:#45b8b0;
+  --ui-line:rgba(213,162,74,.22);
+  --ui-shadow:rgba(0,0,0,.18);
+  --ui-nav:rgba(5,20,31,.98);
+}
+html[data-theme="night"]{
+  color-scheme:dark;
+  --ui-bg:#04131e;
+  --ui-bg-soft:#071d2a;
+  --ui-surface:#0a2535;
+  --ui-surface-2:#071e2c;
+  --ui-field:#051b29;
+  --ui-ink:#f2eee6;
+  --ui-heading:#f3ede3;
+  --ui-muted:#929da1;
+  --ui-gold:#d5a956;
+  --ui-gold-soft:#e8c375;
+  --ui-teal:#39aaa4;
+  --ui-line:rgba(213,162,74,.20);
+  --ui-shadow:rgba(0,0,0,.26);
+  --ui-nav:rgba(2,12,19,.99);
+}
+
+/* ---------- APP-WIDE SHELL ---------- */
+html[data-theme] body{
+  background:var(--ui-bg)!important;
+  color:var(--ui-ink)!important;
+  transition:none!important;
+}
+html[data-theme] .app-shell{background:transparent!important;color:var(--ui-ink)!important}
+html[data-theme] .topbar{
+  background:color-mix(in srgb,var(--ui-bg) 95%,transparent)!important;
+  border-bottom:1px solid var(--ui-line)!important;
+  color:var(--ui-ink)!important;
+  box-shadow:none!important;
+}
+html[data-theme] .brand{color:var(--ui-gold)!important}
+html[data-theme] .icon-button,
+html[data-theme] .mode-pill{
+  color:var(--ui-gold)!important;
+  background:var(--ui-surface)!important;
+  border:1px solid var(--ui-line)!important;
+  box-shadow:none!important;
+}
+html[data-theme] .bottom-nav{
+  background:var(--ui-nav)!important;
+  border-top:1px solid var(--ui-line)!important;
+  box-shadow:0 -8px 24px var(--ui-shadow)!important;
+}
+html[data-theme] .bottom-nav button,
+html[data-theme] .bottom-nav button:before{color:var(--ui-muted)!important}
+html[data-theme] .bottom-nav button.active,
+html[data-theme] .bottom-nav button.active:before{color:var(--ui-gold)!important}
+html[data-theme] .screen{background:transparent!important;color:var(--ui-ink)!important}
+html[data-theme] .screen.active{animation:none!important}
+html[data-theme] h1,
+html[data-theme] h2,
+html[data-theme] h3,
+html[data-theme] strong{color:var(--ui-heading)}
+html[data-theme] .eyebrow,
+html[data-theme] .approved-kicker,
+html[data-theme] .approved-card-kicker{color:var(--ui-gold)!important}
+html[data-theme] .quiet-note,
+html[data-theme] .review-intro,
+html[data-theme] .journal-context,
+html[data-theme] .path-summary-copy{color:var(--ui-muted)!important}
+
+/* ---------- ONE CARD / FIELD LANGUAGE ---------- */
+html[data-theme] .rhythm-card,
+html[data-theme] .marker-card,
+html[data-theme] .branch-card,
+html[data-theme] .approved-prompt-card,
+html[data-theme] .approved-recent-card,
+html[data-theme] .approved-journey-card,
+html[data-theme] .access-panel,
+html[data-theme] .library-group{
+  color:var(--ui-ink)!important;
+  background:var(--ui-surface)!important;
+  border:1px solid var(--ui-line)!important;
+  box-shadow:0 8px 24px var(--ui-shadow)!important;
+}
+html[data-theme] .rhythm-card p,
+html[data-theme] .rhythm-card span,
+html[data-theme] .marker-card p,
+html[data-theme] .approved-recent-card p,
+html[data-theme] .approved-journey-card span{color:var(--ui-muted)!important}
+html[data-theme] input,
+html[data-theme] textarea,
+html[data-theme] select,
+html[data-theme] #auth-form input,
+html[data-theme] .journal-form textarea,
+html[data-theme] .marker-card textarea,
+html[data-theme] .library-search{
+  color:var(--ui-ink)!important;
+  background:var(--ui-field)!important;
+  border:1px solid var(--ui-line)!important;
+  box-shadow:none!important;
+}
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder{color:var(--ui-muted)!important;opacity:.75!important}
+html[data-theme] .journal-form label,
+html[data-theme] .auth-field>span{color:var(--ui-gold)!important}
+html[data-theme] .secondary{
+  color:var(--ui-gold)!important;
+  background:var(--ui-surface)!important;
+  border:1px solid var(--ui-line)!important;
+  box-shadow:none!important;
+}
+html[data-theme] .text-button,
+html[data-theme] .password-toggle{color:var(--ui-teal)!important}
+html[data-theme] .primary{box-shadow:none!important}
+
+/* ---------- DAY: NO DARK PANELS INSIDE LIGHT SHELL ---------- */
+html[data-theme="day"] #me .rhythm-card,
+html[data-theme="day"] #journal .rhythm-card,
+html[data-theme="day"] #journal .journal-form,
+html[data-theme="day"] #path .rhythm-card,
+html[data-theme="day"] #library .library-group{
+  background:var(--ui-surface)!important;
+  color:var(--ui-ink)!important;
+}
+html[data-theme="day"] #journal .journal-form{
+  margin-top:18px!important;
+  padding:18px!important;
+  border:1px solid var(--ui-line)!important;
+  border-radius:20px!important;
+  box-shadow:0 8px 24px var(--ui-shadow)!important;
+}
+html[data-theme="day"] #journal .journal-form textarea{
+  background:#fffaf2!important;
+  color:#312d27!important;
+}
+html[data-theme="day"] #appearance-card .theme-choice{
+  background:#fffaf2!important;
+  color:#312d27!important;
+  border:1px solid var(--ui-line)!important;
+}
+html[data-theme="day"] #appearance-card .theme-choice strong{color:#4c3820!important}
+html[data-theme="day"] #appearance-card .theme-choice small{color:#81786c!important}
+html[data-theme="day"] #appearance-card .theme-choice.active{
+  border-color:var(--ui-teal)!important;
+  box-shadow:0 0 0 1px var(--ui-teal) inset!important;
+}
+html[data-theme="day"] #appearance-card .theme-check{background:transparent!important}
+html[data-theme="day"] #appearance-card .theme-choice.active .theme-check{
+  background:var(--ui-teal)!important;
+  border-color:var(--ui-teal)!important;
+  box-shadow:inset 0 0 0 5px #fffaf2!important;
+}
+
+/* ---------- DECORATIVE SCREEN HEADS FOLLOW THE SELECTED THEME ---------- */
+html[data-theme="day"] #path>.approved-hero,
+html[data-theme="day"] #journal>.approved-hero,
+html[data-theme="day"] #library>.approved-hero,
+html[data-theme="day"] #me>.approved-hero{
+  min-height:0!important;
+  margin:0 0 16px!important;
+  padding:22px 4px 12px!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:var(--ui-ink)!important;
+  text-align:left!important;
+  align-items:flex-start!important;
+}
+html[data-theme="day"] #path>.approved-hero:after,
+html[data-theme="day"] #journal>.approved-hero:after,
+html[data-theme="day"] #library>.approved-hero:after,
+html[data-theme="day"] #me>.approved-hero:after{display:none!important}
+html[data-theme="day"] #path>.approved-hero img,
+html[data-theme="day"] #journal>.approved-hero img,
+html[data-theme="day"] #library>.approved-hero img,
+html[data-theme="day"] #me>.approved-hero img{display:none!important}
+html[data-theme="day"] #path>.approved-hero h1,
+html[data-theme="day"] #journal>.approved-hero h1,
+html[data-theme="day"] #library>.approved-hero h1,
+html[data-theme="day"] #me>.approved-hero h1{
+  color:var(--ui-heading)!important;
+  font-size:34px!important;
+  text-align:left!important;
+}
+html[data-theme="day"] #path>.approved-hero p,
+html[data-theme="day"] #journal>.approved-hero p,
+html[data-theme="day"] #library>.approved-hero p,
+html[data-theme="day"] #me>.approved-hero p{color:var(--ui-muted)!important;text-align:left!important}
+
+html[data-theme="twilight"] .approved-hero,
+html[data-theme="night"] .approved-hero{
+  color:var(--ui-ink)!important;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ui-bg-soft) 78%,transparent),var(--ui-bg))!important;
+  border-bottom:1px solid var(--ui-line)!important;
+  box-shadow:none!important;
+}
+html[data-theme="twilight"] .approved-hero h1,
+html[data-theme="night"] .approved-hero h1{color:var(--ui-heading)!important}
+html[data-theme="twilight"] .approved-hero p,
+html[data-theme="night"] .approved-hero p{color:var(--ui-muted)!important}
+
+/* ---------- PATH ---------- */
+html[data-theme] #path-list li{
+  color:var(--ui-ink)!important;
+  background:var(--ui-surface)!important;
+  border:1px solid var(--ui-line)!important;
+  box-shadow:0 7px 20px var(--ui-shadow)!important;
+}
+html[data-theme] #path-list li strong{color:var(--ui-heading)!important}
+html[data-theme] #path-list li small{color:var(--ui-muted)!important}
+html[data-theme] #path-list li>span{
+  background:var(--ui-surface-2)!important;
+  border-color:var(--ui-line)!important;
+}
+html[data-theme] #path-list li.current{
+  border-color:var(--ui-gold)!important;
+  box-shadow:0 8px 24px var(--ui-shadow),inset 0 0 0 1px color-mix(in srgb,var(--ui-gold) 24%,transparent)!important;
+  opacity:1!important;
+}
+html[data-theme] #path-list li.done>span,
+html[data-theme] #path-list li.current>span{border-color:var(--ui-gold)!important}
+html[data-theme] .pathway-section-header{color:var(--ui-heading)!important;border-color:var(--ui-line)!important}
+html[data-theme] .pathway-section-header span{color:var(--ui-muted)!important}
+
+/* ---------- LIBRARY ---------- */
+html[data-theme] #approved-library-feature{
+  border:1px solid var(--ui-line)!important;
+  box-shadow:0 10px 26px var(--ui-shadow)!important;
+}
+/* image cards stay image cards; their text must remain legible in every theme */
+html[data-theme] #approved-library-feature h2,
+html[data-theme] #approved-library-feature p,
+html[data-theme] #library .content-card strong,
+html[data-theme] #library .content-card span,
+html[data-theme] #library .content-card small{color:#fffaf1!important;text-shadow:0 1px 2px rgba(0,0,0,.35)!important}
+html[data-theme] #approved-library-now{
+  background:var(--ui-surface)!important;
+  color:var(--ui-ink)!important;
+  border:1px solid var(--ui-line)!important;
+}
+html[data-theme] #approved-library-now strong{color:var(--ui-heading)!important}
+html[data-theme] #approved-library-now small{color:var(--ui-muted)!important}
+html[data-theme] .library-filter{
+  color:var(--ui-muted)!important;
+  background:var(--ui-surface)!important;
+  border:1px solid var(--ui-line)!important;
+}
+html[data-theme] .library-filter.active{color:var(--ui-gold)!important;border-color:var(--ui-gold)!important}
+html[data-theme] .library-count{color:var(--ui-muted)!important}
+
+/* ---------- JOURNAL ---------- */
+html[data-theme] #journal .approved-mini-progress{background:color-mix(in srgb,var(--ui-muted) 18%,transparent)!important}
+html[data-theme] #journal .approved-mini-progress i{background:linear-gradient(90deg,var(--ui-gold),var(--ui-teal))!important}
+html[data-theme] #journal .approved-write-now{color:var(--ui-teal)!important}
+
+/* ---------- ME / ACCOUNT / MIRROR ---------- */
+html[data-theme] #me .mirror-content,
+html[data-theme] #me .mirror-boundary{color:var(--ui-muted)!important}
+html[data-theme] #me .mirror-stat strong{color:var(--ui-gold)!important}
+html[data-theme] #me .mirror-thread blockquote{color:var(--ui-ink)!important;border-left-color:var(--ui-teal)!important}
+html[data-theme] #account-email{color:var(--ui-ink)!important}
+html[data-theme] .access-state span{color:var(--ui-muted)!important}
+html[data-theme] .access-state strong{color:var(--ui-gold)!important}
+html[data-theme] .account-delete-link{color:#b86464!important}
+html[data-theme] .theme-choice{
+  color:var(--ui-ink)!important;
+  background:var(--ui-surface-2)!important;
+  border:1px solid var(--ui-line)!important;
+}
+html[data-theme] .theme-choice strong{color:var(--ui-heading)!important}
+html[data-theme] .theme-choice small{color:var(--ui-muted)!important}
+html[data-theme] .theme-choice .theme-icon{color:var(--ui-gold)!important;border-color:var(--ui-line)!important}
+html[data-theme] .theme-choice .theme-check{border-color:var(--ui-line)!important}
+html[data-theme] .theme-choice.active{border-color:var(--ui-teal)!important}
+html[data-theme] .theme-choice.active .theme-check{background:var(--ui-teal)!important;border-color:var(--ui-teal)!important;box-shadow:inset 0 0 0 5px var(--ui-surface-2)!important}
+
+/* ---------- OVERLAYS USE THE SAME SELECTED THEME ---------- */
+html[data-theme] .library-overlay,
+html[data-theme] .practice-overlay,
+html[data-theme] .about-overlay,
+html[data-theme] .menu-overlay{
+  background:var(--ui-bg)!important;
+  color:var(--ui-ink)!important;
+}
+html[data-theme] .library-body{color:var(--ui-ink)!important}
+html[data-theme] .library-body .source-note{color:var(--ui-muted)!important;border-color:var(--ui-line)!important}
+html[data-theme] .overlay-close{color:var(--ui-gold)!important}
+html[data-theme] .timer{
+  color:var(--ui-gold)!important;
+  border-color:var(--ui-gold)!important;
+  background:radial-gradient(circle,color-mix(in srgb,var(--ui-teal) 10%,transparent),transparent 66%)!important;
+}
+
+/* No component is allowed to change palette just because another screen became active. */
+html[data-theme] body:has(#today.active),
+html[data-theme] body:has(#path.active),
+html[data-theme] body:has(#journal.active),
+html[data-theme] body:has(#library.active),
+html[data-theme] body:has(#me.active){background:var(--ui-bg)!important;color:var(--ui-ink)!important}
