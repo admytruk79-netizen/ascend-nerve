@@ -38,9 +38,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--muted);font:11px Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em}.auth-divider:before,.auth-divider:after{content:'';height:1px;flex:1;background:var(--line)}#auth-form{display:grid;gap:12px}.password-field{position:relative}.password-field input{padding-right:64px}.password-toggle{position:absolute;right:7px;bottom:6px;width:auto;min-height:36px;padding:0 10px;border:0;background:transparent;color:var(--teal);font:12px Arial,sans-serif}.text-button{min-height:40px;border:0;background:transparent;color:var(--teal);font:13px Arial,sans-serif}
 .account-delete-link{display:block;margin-top:18px;color:#e78f8f;font:12px Arial,sans-serif;text-align:center;text-decoration:underline;text-underline-offset:3px}
 .paywall-plans{display:grid;gap:10px;margin-bottom:14px}
-.paywall-buy{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;text-align:left}
+.paywall-buy{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:10px;padding:14px 16px;text-align:left}
 .paywall-buy strong{font:15px Georgia,serif;font-weight:400}
-.paywall-buy span{color:var(--teal);font:13px Arial,sans-serif}
-.paywall-buy small{display:block;margin-top:2px;color:var(--muted);font:10px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.paywall-buy span{grid-column:2;grid-row:1;color:var(--teal);font:13px Arial,sans-serif}
+.paywall-buy small{grid-column:1;grid-row:2;display:block;margin-top:2px;color:var(--muted);font:10px Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
 .paywall-buy[data-tier="annual"]{border-color:var(--teal)}
 #paywall-restore{display:block;margin:0 auto 6px}

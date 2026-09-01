@@ -21,7 +21,7 @@
     {month:19,title:'Part III · Seven Chakra'},
     {month:20,title:'Elements'},
     {month:21,title:'Inner Octaves'},
-    {month:22,title:'Three Centres'},
+    {month:22,title:'Outer Octaves · Three Centres'},
     {month:23,title:'Ancestors & Higher Self'},
     {month:24,title:'Final Integration',gate:'PATH REVIEW'}
   ];

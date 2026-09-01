@@ -190,7 +190,7 @@ test('Library cards are keyboard operable and month-locked recommendations are r
 test('Library mobile controls stay in document flow above the content cards',()=>{
   const html=read('index.html');
   const css=read('ux-fixes.css');
-  assert.match(html,/ux-fixes\.css\?v=20260827-library-groups-1/);
+  assert.match(html,/ux-fixes\.css\?v=20260831-paywall-align-1/);
   assert.match(css,/\.library-tools\{position:relative;top:auto/);
   assert.match(css,/\.library-filters\{[^}]*overflow-x:auto/);
   assert.match(css,/\.library-filter\{flex:0 0 auto/);

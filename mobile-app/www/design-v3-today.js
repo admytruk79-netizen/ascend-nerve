@@ -2,6 +2,8 @@
   let approvedHeroObjectUrl='';
   function navTo(screen){document.querySelector(`.bottom-nav button[data-screen="${screen}"]`)?.click()}
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
+  function greetingIcon(){const h=new Date().getHours();return h<12?'☼':h<18?'◇':'☾'}
+  function dayCaption(){const h=new Date().getHours();return h<12?'Morning Serenity | Find Inner Peace':h<18?'Afternoon Focus | Steady the Mind':'Evening Calm | Settle Into Stillness'}
   function formattedDate(){return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date())}
   function cleanPracticeTitle(raw=''){
     const text=String(raw||'').trim();
@@ -84,11 +86,11 @@
     const shell=document.createElement('div');shell.id='today-v3';shell.className='today-v3';
     shell.innerHTML=`
       <header class="today-v3-intro">
-        <div class="today-v3-greeting"><span aria-hidden="true">☼</span><div><strong>${greeting()}</strong><small>${formattedDate()}</small></div></div>
+        <div class="today-v3-greeting"><span aria-hidden="true">${greetingIcon()}</span><div><strong>${greeting()}</strong><small>${formattedDate()}</small></div></div>
         <h1 id="today-v3-practice">Self-Contemplation</h1>
       </header>
       <section class="today-v3-hero" aria-label="Today's Self-Contemplation practice"></section>
-      <p class="today-v3-caption">Morning Serenity <span aria-hidden="true">|</span> Find Inner Peace</p>
+      <p class="today-v3-caption">${dayCaption().split(' | ').join(' <span aria-hidden="true">|</span> ')}</p>
       <div class="today-v3-chips" aria-label="Practice options">
         <button type="button" class="today-v3-chip" data-chip="breathing"><span class="chip-mark" aria-hidden="true">◌</span><span><strong>Breathing</strong><small>10 Min · Guided</small></span></button>
         <button type="button" class="today-v3-chip" data-chip="focus"><span class="chip-mark" aria-hidden="true">◇</span><span><strong>Focus</strong><small>15 Min · Stillness</small></span></button>
