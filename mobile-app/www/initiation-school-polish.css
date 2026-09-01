@@ -2,27 +2,36 @@
    Removes the last mixed-shell and generic-settings cues without touching application logic. */
 
 /* The global shell must obey the selected appearance on every screen, including Path. */
-html[data-theme="day"] body.initiation-school .topbar{
+html[data-theme="day"] body.initiation-school .topbar,
+html[data-theme="day"] body.initiation-school:has(#path.active) .topbar{
   background:rgba(244,239,227,.97)!important;
   border-bottom:1px solid rgba(151,113,52,.13)!important;
   color:#312d27!important;
 }
-html[data-theme="day"] body.initiation-school .topbar .brand{color:#8a6225!important}
+html[data-theme="day"] body.initiation-school .topbar .brand,
+html[data-theme="day"] body.initiation-school:has(#path.active) .topbar .brand{color:#8a6225!important}
 html[data-theme="day"] body.initiation-school .topbar .icon-button,
-html[data-theme="day"] body.initiation-school .topbar .mode-pill{
+html[data-theme="day"] body.initiation-school .topbar .mode-pill,
+html[data-theme="day"] body.initiation-school:has(#path.active) .topbar .icon-button,
+html[data-theme="day"] body.initiation-school:has(#path.active) .topbar .mode-pill{
   background:rgba(250,247,239,.86)!important;
   border-color:rgba(151,113,52,.24)!important;
   color:#956b2c!important;
 }
-html[data-theme="day"] body.initiation-school .bottom-nav{
+html[data-theme="day"] body.initiation-school .bottom-nav,
+html[data-theme="day"] body.initiation-school:has(#path.active) .bottom-nav{
   background:rgba(249,246,237,.985)!important;
   border-top:1px solid rgba(151,113,52,.13)!important;
   box-shadow:none!important;
 }
 html[data-theme="day"] body.initiation-school .bottom-nav button,
-html[data-theme="day"] body.initiation-school .bottom-nav button:before{color:#887f72!important}
+html[data-theme="day"] body.initiation-school .bottom-nav button:before,
+html[data-theme="day"] body.initiation-school:has(#path.active) .bottom-nav button,
+html[data-theme="day"] body.initiation-school:has(#path.active) .bottom-nav button:before{color:#887f72!important}
 html[data-theme="day"] body.initiation-school .bottom-nav button.active,
-html[data-theme="day"] body.initiation-school .bottom-nav button.active:before{color:#a87326!important}
+html[data-theme="day"] body.initiation-school .bottom-nav button.active:before,
+html[data-theme="day"] body.initiation-school:has(#path.active) .bottom-nav button.active,
+html[data-theme="day"] body.initiation-school:has(#path.active) .bottom-nav button.active:before{color:#a87326!important}
 
 html[data-theme="twilight"] body.initiation-school .topbar{
   background:rgba(8,31,43,.96)!important;
