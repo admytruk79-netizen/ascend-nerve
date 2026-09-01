@@ -15,7 +15,7 @@
 .path-intro:not(.is-cinematic) .intro-guide{opacity:1;visibility:visible}
 .intro-guide:before{content:"";position:absolute;inset:0;background:rgba(2,9,16,.79);pointer-events:none}
 .intro-step,.intro-progress,.intro-actions{position:relative;z-index:2}
-.intro-step{display:none;flex:1;min-height:0;padding-top:8vh;text-align:center}
+.intro-step{display:none;flex:1;min-height:0;padding-top:8vh;text-align:center;overflow-y:auto}
 .intro-step.active{display:block;animation:introStepIn .26s ease-out both}
 .intro-step-mark{width:34px;height:34px;margin:0 auto 28px;border:1px solid rgba(214,179,106,.4);border-radius:50%;display:grid;place-items:center;color:#d6b36a;font:10px Georgia,serif}
 .intro-step .eyebrow{margin-bottom:14px;color:#55c8bd;font-size:9px}
@@ -39,13 +39,14 @@
 .intro-consent.needs-consent{border-color:#c4685a;animation:introConsentNudge .32s ease}
 @keyframes introConsentNudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .intro-final-emblem{width:100px;height:100px;margin:0 auto 24px}
-.intro-progress{display:flex;justify-content:center;gap:8px;margin:12px 0 18px}
-.intro-progress button{width:21px;height:3px;padding:0;border:0;border-radius:2px;background:rgba(214,179,106,.25)}
-.intro-progress button.active{background:#55c8bd;box-shadow:0 0 8px rgba(85,200,189,.55)}
-.intro-actions{display:grid;grid-template-columns:92px 1fr;gap:10px}
-.intro-actions .intro-back{border:1px solid rgba(214,179,106,.3);border-radius:24px;background:rgba(3,12,19,.5);color:#d6b36a;font:11px Arial,sans-serif;letter-spacing:.08em}
-.intro-actions .intro-back:disabled{opacity:0}
-.intro-actions .intro-next{min-height:50px}
+.intro-dots{display:flex;justify-content:center;gap:8px;margin:12px 0 18px}
+.intro-dots button{width:21px;height:3px;padding:0;border:0;border-radius:2px;background:rgba(214,179,106,.25)}
+.intro-dots button.active{background:#55c8bd;box-shadow:0 0 8px rgba(85,200,189,.55)}
+.intro-controls{position:relative;z-index:2;flex:0 0 auto;display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center}
+.intro-controls #intro-back{border:1px solid rgba(214,179,106,.3);border-radius:24px;background:rgba(3,12,19,.5);color:#d6b36a;font:11px Arial,sans-serif;letter-spacing:.08em}
+.intro-controls #intro-back:disabled{opacity:0}
+.intro-controls #intro-next{min-height:50px}
+.intro-controls .intro-dots{grid-column:1/-1;order:-1}
 .practice-briefing{z-index:90;padding:calc(env(safe-area-inset-top) + 52px) 24px calc(env(safe-area-inset-bottom) + 28px);background-color:#05121b;background-image:url('assets/ascend-path-intro-instrument.jpg');background-size:cover;background-position:center;overflow:auto}
 .practice-briefing:before{content:"";position:fixed;inset:0;background:rgba(2,9,16,.79);pointer-events:none}
 .briefing-inner{position:relative;z-index:2;max-width:430px;margin:0 auto}
