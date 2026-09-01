@@ -14,6 +14,13 @@
       link.dataset.initiationSchoolRefinements='true';
       document.head.appendChild(link);
     }
+    if(!document.querySelector('link[data-initiation-school-polish]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href='initiation-school-polish.css?v=20260901-school-3';
+      link.dataset.initiationSchoolPolish='true';
+      document.head.appendChild(link);
+    }
     document.body?.classList.add('initiation-school');
   }
 
