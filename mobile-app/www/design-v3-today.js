@@ -1,5 +1,17 @@
 (()=>{
   let approvedHeroObjectUrl='';
+  function primeSchoolLayer(){
+    let link=document.querySelector('link[data-initiation-school]');
+    if(!link){
+      link=document.createElement('link');
+      link.rel='stylesheet';
+      link.dataset.initiationSchool='true';
+      link.href='initiation-school.css?v=20260901-dark-cinematic-1';
+      document.head.appendChild(link);
+    }
+    document.body?.classList.add('initiation-school');
+  }
+  primeSchoolLayer();
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<18?'Good afternoon':'Good evening'}
   function formattedDate(){return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(new Date())}
   function cleanPracticeTitle(raw=''){
