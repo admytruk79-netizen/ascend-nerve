@@ -34,3 +34,11 @@
 @media(max-width:380px){
   #today.today-ritual-screen{padding-left:0!important;padding-right:0!important}
 }
+
+/* theme.js hides <html> via visibility while theme-authority.css loads (up to 1200ms);
+   CSS animations keep ticking on hidden elements, so the splash's one-shot entrance
+   animations (lift/text) would already be mid-cycle or finished by the time the page
+   is revealed. Hold them at frame zero until reveal so they always play from the start. */
+html:not(.theme-authority-ready) .splash-logo-wrap,
+html:not(.theme-authority-ready) .splash-title,
+html:not(.theme-authority-ready) .splash-subtitle{animation-play-state:paused!important}
