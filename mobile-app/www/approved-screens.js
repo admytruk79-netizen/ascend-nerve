@@ -7,6 +7,13 @@
       link.dataset.initiationSchool='true';
       document.head.appendChild(link);
     }
+    if(!document.querySelector('link[data-initiation-school-refinements]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href='initiation-school-refinements.css?v=20260901-school-2';
+      link.dataset.initiationSchoolRefinements='true';
+      document.head.appendChild(link);
+    }
     document.body?.classList.add('initiation-school');
   }
 
@@ -125,9 +132,15 @@
 
   function decorateMe(){
     prependHero('me','Mirror · Resonance','A reflective chamber for patterns in your own record.','THE MIRROR');
+    const me=document.getElementById('me');
     const mirror=document.getElementById('mirror-content')?.closest('.rhythm-card');
     mirror?.classList.add('mirror-chamber');
     const heading=mirror?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';
+    const position=[...me?.querySelectorAll(':scope > .rhythm-card')||[]].find(card=>card!==mirror&&!card.classList.contains('auth-card')&&card.id!=='appearance-card');
+    position?.classList.add('current-position-card');
+    const positionHeading=position?.querySelector('h2');if(positionHeading)positionHeading.textContent='Current Position';
+    const nav=document.querySelector('.bottom-nav button[data-screen="me"]');if(nav)nav.textContent='Mirror';
+    const menu=document.querySelector('.menu-link[data-menu-screen="me"]');if(menu)menu.textContent='Mirror';
   }
 
   function mount(){
