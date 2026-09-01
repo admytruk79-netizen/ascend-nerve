@@ -1,14 +1,32 @@
 (()=>{
   const KEY='ascendPathTheme';
   const mq=window.matchMedia('(prefers-color-scheme: dark)');
+  let revealTimer=0;
+
+  function revealApp(){
+    clearTimeout(revealTimer);
+    document.documentElement.style.removeProperty('visibility');
+    document.documentElement.classList.add('theme-authority-ready');
+  }
 
   function ensureThemeAuthority(){
-    if(document.querySelector('link[data-theme-authority]'))return;
-    const link=document.createElement('link');
+    document.documentElement.style.visibility='hidden';
+    let link=document.querySelector('link[data-theme-authority]');
+    if(link){
+      if(link.sheet){revealApp();return}
+      link.addEventListener('load',revealApp,{once:true});
+      link.addEventListener('error',revealApp,{once:true});
+      revealTimer=setTimeout(revealApp,1200);
+      return;
+    }
+    link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='theme-authority.css?v=20260901-core-1';
+    link.href='theme-authority.css?v=20260901-core-2';
     link.dataset.themeAuthority='true';
+    link.addEventListener('load',revealApp,{once:true});
+    link.addEventListener('error',revealApp,{once:true});
     document.head.appendChild(link);
+    revealTimer=setTimeout(revealApp,1200);
   }
 
   function retireConflictingRenderStyles(){
@@ -54,7 +72,7 @@
       <button type="button" class="theme-choice" data-theme-choice="day"><span class="theme-icon">☼</span><span><strong>Day</strong><small>Warm ivory interface</small></span><span class="theme-check"></span></button>
       <button type="button" class="theme-choice" data-theme-choice="twilight"><span class="theme-icon">◐</span><span><strong>Twilight</strong><small>Cinematic dusk interface</small></span><span class="theme-check"></span></button>
       <button type="button" class="theme-choice" data-theme-choice="night"><span class="theme-icon">☾</span><span><strong>Night</strong><small>Deep charcoal interface</small></span><span class="theme-check"></span></button>
-    </div><p class="appearance-note">The selected appearance now stays consistent across Today, Path, Journal, Library and Me.</p>`;
+    </div><p class="appearance-note">The selected appearance stays consistent across Today, Path, Journal, Library and Me.</p>`;
     me.insertBefore(card,account||null);
     card.querySelectorAll('.theme-choice').forEach(button=>button.addEventListener('click',()=>set(button.dataset.themeChoice)));
 
