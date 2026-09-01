@@ -16,11 +16,20 @@
   if(splash){
     splash.classList.remove('is-hidden');
     splash.setAttribute('aria-hidden','false');
-    const started=performance.now();
-    const finish=()=>{
-      const wait=Math.max(0,1500-(performance.now()-started));
-      setTimeout(()=>{splash.classList.add('is-hidden');splash.setAttribute('aria-hidden','true')},wait);
+    // Mirrors experience.js's reveal-anchored minimum: the entrance animation only
+    // starts once theme.js reveals the page, so dismissal must wait on that too.
+    let revealed=document.documentElement.classList.contains('theme-authority-ready');
+    let wantsFinish=false;
+    let splashDone=false;
+    const hide=()=>{
+      if(splashDone||!revealed||!wantsFinish)return;
+      splashDone=true;
+      setTimeout(()=>{splash.classList.add('is-hidden');splash.setAttribute('aria-hidden','true')},2600);
     };
+    const onRevealed=()=>{revealed=true;hide()};
+    if(!revealed)document.addEventListener('ascend:theme-ready',onRevealed,{once:true});
+    setTimeout(()=>{if(!revealed)onRevealed()},5000);
+    const finish=()=>{wantsFinish=true;hide()};
     if(document.readyState==='complete')finish();else window.addEventListener('load',finish,{once:true});
     setTimeout(finish,3200);
   }
