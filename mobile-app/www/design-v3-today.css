@@ -162,6 +162,13 @@ body:has(#path.active) .bottom-nav{background:rgba(3,14,22,.98)!important;border
 .gateway-moment small{color:#d5a24a;font:600 9px/1 Arial,sans-serif;letter-spacing:.18em}
 .gateway-moment h2{margin:8px 0 6px;color:#f4eee2;font:400 26px/1.1 Georgia,serif}
 .gateway-moment p{margin:0;max-width:340px;color:#c8cbc9;font:12px/1.5 Arial,sans-serif}
+.stage-vow{margin:0 0 18px;padding:22px 20px;border:1px solid rgba(85,200,189,.32);border-radius:16px;background:rgba(5,21,30,.72)}
+.stage-vow.hidden{display:none}
+.stage-vow small{color:#55c8bd;font:600 9px/1 Arial,sans-serif;letter-spacing:.2em}
+.stage-vow .vow-text{margin:12px 0 16px;color:#e9e4d8;font:italic 400 16px/1.55 Georgia,serif}
+.stage-vow .vow-accept{display:flex;align-items:flex-start;gap:11px;text-align:left}
+.stage-vow .vow-accept input{flex:0 0 auto;width:18px;height:18px;margin-top:1px;accent-color:#55c8bd}
+.stage-vow .vow-accept span{color:#c4beb4;font:12px/1.5 Arial,sans-serif}
 .pathway-section-header{border-top:1px solid rgba(213,162,74,.12)!important}
 
 /* LIBRARY OVERVIEW — unified with the Today/Path/Journal/Me night identity. */

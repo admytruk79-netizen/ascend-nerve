@@ -5,8 +5,10 @@
  function gateButton(e){
   const button=document.getElementById('submit-stage-review');if(!button)return;
   const ready=!!e?.evidence_ready;
-  button.disabled=!ready;
-  if(ready)button.textContent='Request Progression Review';
+  const vow=window.ASCENDVowState;const vowOk=!vow?.needed||vow.accepted;
+  button.disabled=!ready||!vowOk;
+  if(ready&&!vowOk)button.textContent='Accept the Vow to Continue';
+  else if(ready)button.textContent='Request Progression Review';
   else if(Number(e?.practice_days||0)<Number(e?.required_practice_days||0))button.textContent=`${Math.max(0,Number(e.required_practice_days||0)-Number(e.practice_days||0))} Practice Days Remaining`;
   else if(Number(e?.elapsed_days||0)<Number(e?.minimum_days||0))button.textContent=`${Math.max(0,Number(e.minimum_days||0)-Number(e.elapsed_days||0))} Minimum Days Remaining`;
   else button.textContent='Continue Gathering Readiness Evidence';
