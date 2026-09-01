@@ -93,8 +93,8 @@ body.initiation-school .today-v3-support p{margin:4px 0 0;color:var(--ui-muted)!
 
 /* PATH — cinematic threshold + ordered formation, no game dashboard */
 body.initiation-school #path>.approved-hero{min-height:220px!important;margin-left:-18px!important;margin-right:-18px!important;padding:95px 22px 24px!important;border-bottom:1px solid rgba(213,162,77,.18)!important;background:
-  linear-gradient(180deg,rgba(3,12,20,.12) 0%,rgba(3,12,20,.30) 44%,rgba(3,12,20,.94) 100%),
-  url('assets/ascend-twilight-ritual-bg.jpg') center 48%/cover no-repeat!important}
+  linear-gradient(180deg,rgba(3,12,20,.10) 0%,rgba(3,12,20,.32) 44%,rgba(3,12,20,.95) 100%),
+  url('assets/seasonal-art/discipline-or-freedom.png') center 48%/cover no-repeat!important}
 body.initiation-school #path>.approved-hero .school-mark,
 body.initiation-school #path>.approved-hero h1,
 body.initiation-school #path>.approved-hero p{position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.55)}
@@ -130,13 +130,17 @@ body.initiation-school .approved-journal-stack{display:grid!important;gap:10px!i
 body.initiation-school .approved-prompt-card,
 body.initiation-school .approved-recent-card,
 body.initiation-school .approved-journey-card{border-radius:14px!important;padding:16px!important}
-body.initiation-school .approved-prompt-row h2{font:400 18px/1.3 Georgia,serif!important}
+body.initiation-school .approved-prompt-row h2{font:400 18px/1.3 Georgia,serif!important;text-transform:none!important;letter-spacing:0!important}
 body.initiation-school .approved-quote{border:0!important;background:transparent!important;color:var(--ui-gold)!important}
 body.initiation-school #journal .approved-mini-progress{display:none!important}
 body.initiation-school .approved-write-now{margin-top:10px!important;color:var(--ui-gold)!important;background:transparent!important;border:0!important;font:600 8px/1 Arial,sans-serif!important;letter-spacing:.13em!important;text-transform:uppercase!important}
 body.initiation-school #journal .journal-form{padding:16px!important;border:1px solid var(--school-rule-soft)!important;border-radius:16px!important;background:rgba(9,27,39,.72)!important;box-shadow:none!important}
 body.initiation-school #journal .journal-form label{font:600 7px/1 Arial,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important}
 body.initiation-school #journal .journal-form textarea{min-height:108px!important;border-radius:10px!important;padding:13px!important;line-height:1.55!important}
+body.initiation-school #approved-journey-stage,
+body.initiation-school #approved-journey-days{display:block!important}
+body.initiation-school #approved-journey-stage{margin-top:7px!important}
+body.initiation-school #approved-journey-days{margin-top:6px!important;line-height:1.45!important}
 
 /* LIBRARY — dark editorial study room */
 body.initiation-school .library-tools{margin-bottom:15px!important}
@@ -145,10 +149,18 @@ body.initiation-school .library-filter{border-radius:999px!important;text-transf
 body.initiation-school .approved-library-feature{position:relative;min-height:205px!important;margin:4px 0 15px!important;padding:23px!important;border-radius:18px!important;overflow:hidden!important;background-position:center!important}
 body.initiation-school .approved-library-feature h2{font:400 24px/1.08 Georgia,serif!important}
 body.initiation-school .approved-library-feature p{font-size:9px!important;max-width:235px!important}
-body.initiation-school .approved-library-now{border-radius:13px!important;box-shadow:none!important}
+body.initiation-school #approved-library-now{display:grid!important;grid-template-columns:32px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;padding:12px 14px!important;border-radius:13px!important;box-shadow:none!important}
+body.initiation-school #approved-library-now>span:nth-child(2){display:block!important;min-width:0!important}
+body.initiation-school #approved-library-now strong,
+body.initiation-school #approved-library-now small{display:block!important;white-space:normal!important}
+body.initiation-school #approved-library-now strong{font:400 13px/1.25 Georgia,serif!important}
+body.initiation-school #approved-library-now small{margin-top:3px!important;font-size:8px!important}
 body.initiation-school .library-group{border-radius:14px!important;box-shadow:none!important;background:rgba(9,27,39,.70)!important}
 body.initiation-school .library-group summary{font:400 14px Georgia,serif!important}
 body.initiation-school .content-card{border-radius:13px!important;box-shadow:none!important;overflow:hidden!important}
+body.initiation-school #library .empty-state{margin:18px 0!important;padding:22px 18px!important;border:1px solid var(--school-rule-soft)!important;border-radius:14px!important;background:rgba(9,27,39,.78)!important;color:var(--ui-muted)!important;box-shadow:none!important;text-align:center!important}
+body.initiation-school #library .empty-state h2{margin:0 0 7px!important;color:var(--ui-gold)!important;font:600 8px/1.2 Arial,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important}
+body.initiation-school #library .empty-state p{margin:0!important;color:var(--ui-muted)!important;font:10px/1.55 Arial,sans-serif!important}
 
 /* MIRROR — distinct but not another visual system */
 body.initiation-school #me .rhythm-card{border-radius:15px!important}
@@ -160,6 +172,18 @@ body.initiation-school #me .mirror-chamber h2{font:400 22px/1.1 Georgia,serif!im
 body.initiation-school #me .current-position-card{padding:15px!important;border-radius:14px!important}
 body.initiation-school #appearance-card{display:none!important}
 body.initiation-school #me .auth-card{margin-top:16px!important}
+
+/* one screen identity: remove legacy duplicate title blocks */
+body.initiation-school #path>.eyebrow,
+body.initiation-school #path>h1,
+body.initiation-school #path>.path-summary-copy,
+body.initiation-school #journal>.eyebrow,
+body.initiation-school #journal>h1,
+body.initiation-school #journal>.journal-context,
+body.initiation-school #library>.eyebrow,
+body.initiation-school #library>h1,
+body.initiation-school #me>.eyebrow,
+body.initiation-school #me>h1{display:none!important}
 
 /* reader */
 body.initiation-school #library-overlay{padding:72px 23px 36px!important}
