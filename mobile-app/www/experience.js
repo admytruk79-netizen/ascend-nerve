@@ -1,7 +1,7 @@
 (()=>{
   const splash=document.getElementById('splash');
   const MIN_VISIBLE_AFTER_REVEAL=2600;
-  let revealed=document.documentElement.classList.contains('theme-authority-ready');
+  let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?performance.now():null;
   let wantsDismiss=false;
   let splashDismissed=false;
 
@@ -9,17 +9,20 @@
   // reveals the page (see design-v3-today.css), so the minimum-visible window
   // has to be measured from that reveal, not from this script's own start time —
   // otherwise dismissal can fire while the title/subtitle are still animating in.
+  // Conversely, if reveal already happened a while ago, don't wait a fresh
+  // MIN_VISIBLE_AFTER_REVEAL on top of time the splash has already been visible.
   const scheduleDismiss=()=>{
-    if(splashDismissed||!revealed||!wantsDismiss)return;
+    if(splashDismissed||revealedAt===null||!wantsDismiss)return;
     splashDismissed=true;
+    const remaining=Math.max(0,MIN_VISIBLE_AFTER_REVEAL-(performance.now()-revealedAt));
     setTimeout(()=>{
       splash?.classList.add('is-hidden');
       splash?.setAttribute('aria-hidden','true');
-    },MIN_VISIBLE_AFTER_REVEAL);
+    },remaining);
   };
-  const onRevealed=()=>{revealed=true;scheduleDismiss()};
-  if(!revealed)document.addEventListener('ascend:theme-ready',onRevealed,{once:true});
-  setTimeout(()=>{if(!revealed)onRevealed()},5000);
+  const onRevealed=()=>{if(revealedAt===null)revealedAt=performance.now();scheduleDismiss()};
+  if(revealedAt===null)document.addEventListener('ascend:theme-ready',onRevealed,{once:true});
+  setTimeout(onRevealed,5000);
 
   const dismissSplash=()=>{wantsDismiss=true;scheduleDismiss()};
 
