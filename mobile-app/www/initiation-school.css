@@ -93,8 +93,8 @@ body.initiation-school .today-v3-support p{margin:4px 0 0;color:var(--ui-muted)!
 
 /* PATH — cinematic threshold + ordered formation, no game dashboard */
 body.initiation-school #path>.approved-hero{min-height:220px!important;margin-left:-18px!important;margin-right:-18px!important;padding:95px 22px 24px!important;border-bottom:1px solid rgba(213,162,77,.18)!important;background:
-  linear-gradient(180deg,rgba(3,12,20,.10) 0%,rgba(3,12,20,.32) 44%,rgba(3,12,20,.95) 100%),
-  url('assets/seasonal-art/discipline-or-freedom.png') center 48%/cover no-repeat!important}
+  linear-gradient(180deg,rgba(3,12,20,.34) 0%,rgba(3,12,20,.50) 44%,rgba(3,12,20,.96) 100%),
+  url('assets/ascend-today-morning-serenity.svg') center 48%/cover no-repeat!important}
 body.initiation-school #path>.approved-hero .school-mark,
 body.initiation-school #path>.approved-hero h1,
 body.initiation-school #path>.approved-hero p{position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.55)}
