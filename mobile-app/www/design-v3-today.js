@@ -47,14 +47,40 @@
       console.warn('ASCEND approved Today hero fallback in use',error);
     }
   }
+  function tuneHero(hero,{title,subtitle,kicker,className}){
+    if(!hero)return;
+    if(className)hero.classList.add(className);
+    const h=hero.querySelector('h1'),p=hero.querySelector('p'),k=hero.querySelector('.school-mark,.approved-kicker');
+    if(h)h.textContent=title;
+    if(p)p.textContent=subtitle;
+    if(k){k.className='school-mark';k.textContent=kicker}
+  }
   function tuneApprovedScreens(){
-    const pathHero=document.querySelector('#path>.approved-hero');
-    if(pathHero){pathHero.classList.add('approved-journey-head');const h=pathHero.querySelector('h1'),p=pathHero.querySelector('p'),k=pathHero.querySelector('.approved-kicker');if(h)h.textContent='MY JOURNEY';if(p)p.textContent='Tracking Your Personal Growth';if(k)k.textContent='THE PRACTICE PATH'}
-    const libraryHero=document.querySelector('#library>.approved-hero');
-    if(libraryHero){libraryHero.classList.add('approved-library-head');const h=libraryHero.querySelector('h1'),p=libraryHero.querySelector('p'),k=libraryHero.querySelector('.approved-kicker');if(h)h.textContent='LIBRARY OVERVIEW';if(p)p.textContent='Texts, teachings and practices for the stage you are living.';if(k)k.textContent='ASCEND PATH'}
-    const meHero=document.querySelector('#me>.approved-hero');
-    if(meHero){meHero.classList.add('approved-me-head')}
+    tuneHero(document.querySelector('#path>.approved-hero'),{
+      title:'The Practice Path',
+      subtitle:'Formation unfolds through practice, observation, reflection, and gateways.',
+      kicker:'SCHOOL OF PRACTICE',
+      className:'approved-journey-head'
+    });
+    tuneHero(document.querySelector('#library>.approved-hero'),{
+      title:'Library',
+      subtitle:'Texts, practices, and source material for the stage you are living.',
+      kicker:'THE STUDY',
+      className:'approved-library-head'
+    });
+    tuneHero(document.querySelector('#journal>.approved-hero'),{
+      title:'Journal',
+      subtitle:'A private record of observation before interpretation.',
+      kicker:'THE INNER RECORD'
+    });
+    tuneHero(document.querySelector('#me>.approved-hero'),{
+      title:'Mirror · Resonance',
+      subtitle:'A reflective chamber for patterns in your own record.',
+      kicker:'THE MIRROR',
+      className:'approved-me-head'
+    });
     const mirrorCard=document.querySelector('#me .rhythm-card:has(#mirror-content)');
+    mirrorCard?.classList.add('mirror-chamber');
     const mirrorHeading=mirrorCard?.querySelector('h2');if(mirrorHeading)mirrorHeading.textContent='Mirror · Resonance';
   }
   function installLayoutGuard(){
@@ -116,5 +142,5 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   document.addEventListener('ascend:curriculum',()=>{sync();setTimeout(tuneApprovedScreens,0)});
   setTimeout(tuneApprovedScreens,700);
-  if(!document.querySelector('script[data-approved-screens]')){const script=document.createElement('script');script.src='approved-screens.js?v=20260831-supplied-2';script.dataset.approvedScreens='true';script.onload=()=>setTimeout(tuneApprovedScreens,0);document.body.appendChild(script)}
+  if(!document.querySelector('script[data-approved-screens]')){const script=document.createElement('script');script.src='approved-screens.js?v=20260901-school-1';script.dataset.approvedScreens='true';script.onload=()=>setTimeout(tuneApprovedScreens,0);document.body.appendChild(script)}
 })();
