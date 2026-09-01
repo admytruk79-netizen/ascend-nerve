@@ -1,7 +1,7 @@
 (()=>{
   const splash=document.getElementById('splash');
   const MIN_VISIBLE_AFTER_REVEAL=2600;
-  let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?performance.now():null;
+  let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?(window.ASCEND_THEME_REVEALED_AT??performance.now()):null;
   let wantsDismiss=false;
   let splashDismissed=false;
 

@@ -19,7 +19,7 @@
     // Mirrors experience.js's reveal-anchored minimum: the entrance animation only
     // starts once theme.js reveals the page, so dismissal must wait on that too —
     // but if reveal already happened a while ago, don't add a fresh wait on top.
-    let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?performance.now():null;
+    let revealedAt=document.documentElement.classList.contains('theme-authority-ready')?(window.ASCEND_THEME_REVEALED_AT??performance.now()):null;
     let wantsFinish=false;
     let splashDone=false;
     const hide=()=>{
