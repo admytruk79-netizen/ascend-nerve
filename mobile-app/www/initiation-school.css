@@ -121,7 +121,7 @@ body.initiation-school .today-v3-meta{
 }
 body.initiation-school .today-v3-meta span+span:before{content:'•';margin-right:9px;color:var(--school-gold)!important}
 body.initiation-school .today-v3-hero{
-  position:relative!important;min-height:285px!important;max-height:340px!important;aspect-ratio:4/3!important;
+  position:relative!important;min-height:205px!important;max-height:230px!important;aspect-ratio:4/3!important;
   border:1px solid rgba(214,160,67,.48)!important;border-radius:24px!important;overflow:hidden!important;
   box-shadow:0 20px 48px rgba(0,0,0,.30)!important;background-position:center!important;background-size:cover!important;
 }
