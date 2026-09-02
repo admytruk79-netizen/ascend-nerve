@@ -9,6 +9,14 @@
       document.head.appendChild(link);
     }
     link.href='initiation-school.css?v=20260901-dark-cinematic-1';
+    let focus=document.querySelector('link[data-initiation-school-focus]');
+    if(!focus){
+      focus=document.createElement('link');
+      focus.rel='stylesheet';
+      focus.dataset.initiationSchoolFocus='true';
+      link.insertAdjacentElement('afterend',focus);
+    }
+    focus.href='initiation-school-focus.css?v=20260902-focus-1';
     document.body?.classList.add('initiation-school');
   }
 
