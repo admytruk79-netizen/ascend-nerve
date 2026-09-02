@@ -19,6 +19,11 @@
     }
   }
 
+  function timerRemaining(){
+    if(window.ASCENDPracticeTimer?.remainingSeconds)return window.ASCENDPracticeTimer.remainingSeconds();
+    return typeof remaining==='number'?remaining:1;
+  }
+
   finish.addEventListener('click',async e=>{
     // Capture the click before the legacy completion handler so only this
     // integrity-safe path is allowed to mutate progression UI state.
@@ -26,9 +31,10 @@
     e.stopImmediatePropagation();
 
     if(submitting)return;
-    stop();
+    window.ASCENDPracticeTimer?.pause?.();
+    if(!window.ASCENDPracticeTimer)stop();
 
-    if(remaining>0){
+    if(timerRemaining()>0||!finish.classList.contains('ready')){
       timerHint.textContent='Complete the full practice timer before recording this session.';
       finish.classList.remove('ready');
       return;
@@ -68,13 +74,15 @@
       if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){
         await loadRemote();
       }else{
-        renderPath();
+        requestPathPaint();
         renderStageReview();
         setSync('SYNCED',true);
       }
 
-      resetTimerUI();
+      window.ASCENDPracticeTimer?.reset?.();
+      if(!window.ASCENDPracticeTimer)resetTimerUI();
       overlay.classList.add('hidden');
+      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
     }catch(err){
       console.error(err);
       // Crucially, do NOT increment local or visible practice-day progress.
