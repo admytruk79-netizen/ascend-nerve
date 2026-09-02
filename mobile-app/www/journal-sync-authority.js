@@ -30,6 +30,10 @@
     return entry;
   }
 
+  function returnToToday(){
+    requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
+  }
+
   form.addEventListener('submit',async event=>{
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -56,6 +60,7 @@
         form.reset();
         window.ASCENDMirror?.load?.('stage');
         document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId:stage.id}}));
+        returnToToday();
         return;
       }catch(error){
         console.error('ASCEND remote Journal save failed',error);
