@@ -1,5 +1,7 @@
 import {test,expect} from '@playwright/test';
 
+const expandedPracticeBody='Settle into a stable posture and allow the body to become quiet without forcing stillness. Notice the difference between an external impression, an inner reaction, and the awareness that can observe both. Let attention rest on what is actually present. When thoughts, images, memories, expectations, or emotional reactions arise, acknowledge them without following or suppressing them. Return to direct observation. Ask quietly what is being experienced now, what is being added by interpretation, and what remains when neither is forced. Continue patiently for the full period. Toward the end, review the practice without judging success or failure. Record concrete observations afterward: changes in attention, recurring distractions, bodily sensations, emotional movements, moments of clarity, and places where interpretation replaced observation. The purpose is not to manufacture a special state but to establish a repeatable discipline of presence, self-observation, and careful distinction between experience and assumption.';
+
 const fixtures={
   ascend_entitlements:[{access_level:'premium',source:'integrity-test',starts_at:'2026-08-26T00:00:00Z',expires_at:'2099-12-31T23:59:59Z',is_active:true}],
   path_phases:[{id:'phase-1',title:'Core Formation',sort_order:1}],
@@ -7,11 +9,13 @@ const fixtures={
     {id:'stage-1',phase_id:'phase-1',slug:'entry-seven-days',title:'Self-Contemplation at the Beginning of the Path',subtitle:'Beginning',sort_order:1,required_practice_days:7,progression_mode:'readiness',objective:'Observe without forcing interpretation.',is_published:true},
     {id:'stage-2',phase_id:'phase-1',slug:'clarity',title:'Clarity of Thought',subtitle:'Clarity',sort_order:2,required_practice_days:14,progression_mode:'readiness',objective:'Develop clarity.',is_published:true}
   ],
-  path_practices:[{id:'practice-1',slug:'self-contemplation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',is_published:true}],
+  path_practices:[{id:'practice-1',slug:'entry-self-contemplation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',metadata:{},is_published:true}],
   path_stage_practices:[{stage_id:'stage-1',practice_id:'practice-1',role:'primary'}],
-  path_profiles:[{user_id:'00000000-0000-0000-0000-000000000001',display_name:'Integrity',current_stage_id:'stage-1',onboarding_completed_at:'2026-08-27T00:00:00Z'}],
+  path_profiles:[{user_id:'00000000-0000-0000-0000-000000000001',display_name:'Integrity',current_stage_id:'stage-1',path_started_at:'2026-08-27T00:00:00Z',onboarding_completed_at:'2026-08-27T00:00:00Z'}],
+  path_student_progress:[{id:'progress-1',user_id:'00000000-0000-0000-0000-000000000001',stage_id:'stage-1',status:'active',practice_days:0,started_at:'2026-08-27T00:00:00Z'}],
   path_attainment_markers:[],
   path_content_items:[
+    {id:'content-practice',slug:'pre-module-discipline-of-meditation',title:'The Discipline of Meditation',summary:'Full authored practice',content_type:'practice',body:expandedPracticeBody,metadata:{month:1},is_published:true},
     {id:'content-1',slug:'available-teaching',title:'Available Teaching',summary:'Available now',content_type:'teaching',body:'Current-stage material.',metadata:{month:1},is_published:true},
     {id:'content-2',slug:'future-teaching',title:'Future Teaching',summary:'Future material',content_type:'teaching',body:'Future-stage material.',metadata:{month:2},is_published:true}
   ],
@@ -43,6 +47,7 @@ async function boot(page){
   await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('body')).not.toHaveClass(/access-required/);
   await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+  await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
   await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
 }
 
@@ -64,6 +69,15 @@ test('empty Journal never persists and meaningful Journal persists remotely when
   await expect(page.locator('#journal-status')).toContainText('saved privately to your ASCEND Path journal');
   const localEntries=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries);
   expect(localEntries).toHaveLength(0);
+});
+
+test('formal practice briefing uses the expanded authored material',async({page})=>{
+  await boot(page);
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#briefing-intention')).toContainText('repeatable discipline of presence');
+  const bodyLength=await page.locator('#briefing-intention').evaluate(node=>node.textContent.trim().length);
+  expect(bodyLength).toBeGreaterThan(700);
 });
 
 test('Library recommendations never surface locked future material and cards work from keyboard',async({page})=>{
