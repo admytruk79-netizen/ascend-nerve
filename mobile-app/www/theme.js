@@ -15,7 +15,7 @@
     document.documentElement.style.visibility='hidden';
     let link=document.querySelector('link[data-theme-authority]');
     if(link){
-      link.href='theme-authority.css?v=20260901-dark-cinematic-1';
+      link.href='theme-authority.css?v=20260902-fix-1';
       if(link.sheet){revealApp();return}
       link.addEventListener('load',revealApp,{once:true});
       link.addEventListener('error',revealApp,{once:true});
@@ -24,7 +24,7 @@
     }
     link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='theme-authority.css?v=20260901-dark-cinematic-1';
+    link.href='theme-authority.css?v=20260902-fix-1';
     link.dataset.themeAuthority='true';
     link.addEventListener('load',revealApp,{once:true});
     link.addEventListener('error',revealApp,{once:true});
