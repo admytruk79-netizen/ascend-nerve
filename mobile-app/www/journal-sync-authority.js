@@ -30,6 +30,12 @@
     return entry;
   }
 
+  function loadedUserId(){
+    const stageId=window.currentStage?.id;
+    const rows=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
+    return rows.find(row=>row.stage_id===stageId)?.user_id||rows[0]?.user_id||null;
+  }
+
   function returnToToday(){
     requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
   }
@@ -51,10 +57,14 @@
     if(signedIn){
       try{
         setSync('SYNCING…');
-        const currentUser=await window.PathBackend.me();
         const stage=window.currentStage;
-        if(!currentUser||!stage?.id)throw new Error('ASCEND is still loading your current stage.');
-        await window.PathBackend.saveJournal(currentUser.id,stage.id,entry);
+        let userId=loadedUserId();
+        if(!userId){
+          const currentUser=await window.PathBackend.me();
+          userId=currentUser?.id||null;
+        }
+        if(!userId||!stage?.id)throw new Error('ASCEND is still loading your current stage.');
+        await window.PathBackend.saveJournal(userId,stage.id,entry);
         if(status)status.textContent='Reflection saved privately to your ASCEND Path journal.';
         setSync('SYNCED',true);
         form.reset();
