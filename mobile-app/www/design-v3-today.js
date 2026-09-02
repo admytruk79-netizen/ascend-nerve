@@ -2,8 +2,8 @@
   /*
    * Reconstruction bridge only.
    * Today is owned by static index.html markup and the shared stylesheet system.
-   * This bridge only supplies the Library reader header and the Journal save
-   * authority that are not yet direct index scripts.
+   * This bridge supplies only small compatibility authorities that are not yet
+   * direct index scripts; it does not rebuild or move the Today screen.
    */
 
   function ensureLibraryReaderHead(){
@@ -18,13 +18,21 @@
     body.before(head);
   }
 
-  function loadJournalAuthority(){
-    if(document.querySelector('script[data-journal-sync-authority]'))return;
+  function loadScriptOnce(src,attribute){
+    if(document.querySelector(`script[${attribute}]`))return;
     const script=document.createElement('script');
-    script.src='journal-sync-authority.js?v=20260902-reconstruction-2';
-    script.setAttribute('data-journal-sync-authority','true');
+    script.src=src;
+    script.setAttribute(attribute,'true');
     script.defer=true;
     document.body.appendChild(script);
+  }
+
+  function loadJournalAuthority(){
+    loadScriptOnce('journal-sync-authority.js?v=20260902-reconstruction-2','data-journal-sync-authority');
+  }
+
+  function loadPracticeTimerAuthority(){
+    loadScriptOnce('practice-timer-authority.js?v=20260902-reconstruction-1','data-practice-timer-authority');
   }
 
   async function refreshMirrorWhenReady(){
@@ -37,6 +45,7 @@
   function mount(){
     ensureLibraryReaderHead();
     loadJournalAuthority();
+    loadPracticeTimerAuthority();
     document.querySelector('.bottom-nav button[data-screen="me"]')?.addEventListener('click',()=>{
       requestAnimationFrame(refreshMirrorWhenReady);
     });
