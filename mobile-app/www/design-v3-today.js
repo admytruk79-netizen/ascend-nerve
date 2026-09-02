@@ -1,9 +1,9 @@
 (()=>{
   /*
    * Reconstruction bridge only.
-   * Today is now owned by the static markup in index.html and the shared
-   * stylesheet system. This file no longer creates a second Today screen,
-   * moves the ritual portal, injects layout CSS, or rewrites other screens.
+   * Today is owned by static index.html markup and the shared stylesheet system.
+   * This bridge only supplies the Library reader header and the Journal save
+   * authority that are not yet direct index scripts.
    */
 
   function ensureLibraryReaderHead(){
@@ -18,22 +18,27 @@
     body.before(head);
   }
 
-  function loadOnce(src,attribute){
-    if(document.querySelector(`script[${attribute}]`))return;
+  function loadJournalAuthority(){
+    if(document.querySelector('script[data-journal-sync-authority]'))return;
     const script=document.createElement('script');
-    script.src=src;
-    script.setAttribute(attribute,'true');
+    script.src='journal-sync-authority.js?v=20260902-reconstruction-2';
+    script.setAttribute('data-journal-sync-authority','true');
     script.defer=true;
     document.body.appendChild(script);
   }
 
+  async function refreshMirrorWhenReady(){
+    try{
+      const me=await window.PathBackend?.me?.();
+      if(me)window.ASCENDMirror?.load?.('stage');
+    }catch{}
+  }
+
   function mount(){
     ensureLibraryReaderHead();
-    loadOnce('mirror-engine.js?v=20260902-reconstruction-1','data-resonance-engine');
-    loadOnce('journal-sync-authority.js?v=20260902-reconstruction-1','data-journal-sync-authority');
-
+    loadJournalAuthority();
     document.querySelector('.bottom-nav button[data-screen="me"]')?.addEventListener('click',()=>{
-      requestAnimationFrame(()=>window.ASCENDMirror?.load?.('stage'));
+      requestAnimationFrame(refreshMirrorWhenReady);
     });
   }
 
