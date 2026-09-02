@@ -1,12 +1,12 @@
-@import url("theme-authority.css?v=20260902-reconstruction-1");
+@import url("theme-authority.css?v=20260902-reconstruction-2");
+@import url("mirror-component.css?v=20260902-reconstruction-1");
 
 /*
  * ASCEND theme entry point.
  *
  * All app-wide palette, surface, typography and atmosphere rules live in
- * theme-authority.css. This file remains the stable link referenced by
- * index.html so the visual authority is loaded during normal CSS parsing,
- * never injected after first paint.
+ * theme-authority.css. Component presentation is imported statically here so
+ * the browser resolves it during normal CSS parsing, never after first paint.
  */
 
 .appearance-options{display:grid;gap:10px;margin-top:14px}
