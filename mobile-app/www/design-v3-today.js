@@ -23,7 +23,6 @@
     const script=document.createElement('script');
     script.src=src;
     script.setAttribute(attribute,'true');
-    script.defer=true;
     document.body.appendChild(script);
   }
 
@@ -44,12 +43,16 @@
 
   function mount(){
     ensureLibraryReaderHead();
-    loadJournalAuthority();
-    loadPracticeTimerAuthority();
     document.querySelector('.bottom-nav button[data-screen="me"]')?.addEventListener('click',()=>{
       requestAnimationFrame(refreshMirrorWhenReady);
     });
   }
+
+  // The Journal save authority must be attached as early as possible. Waiting
+  // for DOMContentLoaded created a real race where a fast Journal submission
+  // could reach the legacy listener before the remote-first authority existed.
+  loadJournalAuthority();
+  loadPracticeTimerAuthority();
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
   else mount();
