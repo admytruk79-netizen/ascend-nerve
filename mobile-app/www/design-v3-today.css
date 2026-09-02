@@ -1,5 +1,5 @@
-/* ASCEND Today — structure only.
-   Color and visual identity live in theme-authority.css + initiation-school.css. */
+/* ASCEND Today — stable static layout.
+   Structure lives in index.html. No script-created Today containers are required. */
 
 .screen.active,.screen.motion-enter{animation:none!important}
 
@@ -9,36 +9,45 @@
 .splash-title span{font-size:12px!important;margin-top:7px!important;letter-spacing:.36em!important}
 .splash-subtitle{max-width:300px!important;font-size:9px!important;line-height:1.55!important;letter-spacing:.27em!important}
 
-#today.today-ritual-screen{max-width:520px!important;margin:0 auto!important;padding:10px 0 92px!important}
-#today>.ritual-context,
-#today>.ritual-scene,
-#today>#ritual-feedback,
-#today>.ritual-begin,
-#today>.journey-rail,
-#today>.journal-handoff,
-#today>.rhythm-card,
-#today>.quiet-note{display:none!important}
+#today.today-ritual-screen{
+  width:min(100%,520px)!important;
+  margin:0 auto!important;
+  padding:28px 20px 112px!important;
+  box-sizing:border-box!important;
+}
+#today>.ritual-context{display:block!important;text-align:center!important;margin:14px auto 22px!important}
+#today>.ritual-context h1{margin:8px 0 9px!important;font-size:clamp(31px,9vw,46px)!important;line-height:1.04!important;letter-spacing:-.025em!important}
+#today>.ritual-context .ritual-meta{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;color:var(--ui-muted)!important;font-size:12px!important;letter-spacing:.06em!important}
 
-.today-v3{display:flex!important;flex-direction:column!important;width:100%!important;min-height:0!important}
-.today-v3-intro{display:flex!important;flex-direction:column!important}
-.today-v3-greeting{display:flex!important;align-items:center!important;gap:9px!important}
-.today-v3-greeting strong,.today-v3-greeting small{display:block!important}
-.today-v3-hero{position:relative!important;width:100%!important;margin:0!important;padding:0!important;background-repeat:no-repeat!important}
-.today-v3-action{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;background:transparent!important;border:0!important}
-.today-v3-medallion-slot,.today-v3-medallion{position:relative!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;border-radius:50%!important;outline:none!important}
-.today-v3-medallion{display:flex!important;align-items:center!important;justify-content:center!important;touch-action:none!important;cursor:pointer!important;overflow:hidden!important}
-.today-v3-medallion .ritual-progress{inset:5px!important}
-.today-v3-medallion .ritual-copy{position:relative!important;z-index:2!important;display:block!important;text-align:center!important;text-shadow:none!important}
-.today-v3-logo,.today-v3-card,.today-v3-copy,.today-v3-eyebrow,.today-v3-primary,.today-v3-path,.today-v3-journal,.today-v3-seasonal{display:none!important}
+#today>.ritual-scene{display:flex!important;align-items:center!important;justify-content:center!important;min-height:290px!important;margin:4px auto 4px!important}
+#today .ritual-portal{position:relative!important;margin:0 auto!important;flex:none!important}
+#today>#ritual-feedback{display:block!important;min-height:20px!important;margin:2px 0 10px!important;text-align:center!important}
+#today>.ritual-begin{display:block!important;width:100%!important;max-width:360px!important;margin:8px auto 24px!important}
+
+#today>.journey-rail{display:block!important;margin:0 auto 14px!important;padding:16px!important;border:1px solid var(--ui-line-soft)!important;border-radius:18px!important;background:rgba(10,28,39,.58)!important}
+#today .journey-progress{display:flex!important;align-items:center!important;gap:12px!important}
+#today .journey-progress>strong{flex:0 0 auto!important;font-size:12px!important;font-weight:600!important;color:var(--ui-gold-soft)!important}
+#today .journey-track{display:block!important;flex:1!important;height:3px!important;border-radius:99px!important;background:rgba(255,255,255,.07)!important;overflow:hidden!important}
+#today .journey-track i{display:block!important;height:100%!important;min-width:4.2%!important;border-radius:inherit!important;background:linear-gradient(90deg,var(--ui-gold),var(--ui-teal))!important;transition:width .25s ease!important}
+#today .journey-waypoints{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;margin-top:14px!important}
+#today .journey-waypoint{text-align:center!important;color:var(--ui-muted)!important}
+#today .journey-waypoint strong,#today .journey-waypoint small{display:block!important}
+#today .journey-waypoint strong{font-size:11px!important;color:var(--ui-heading)!important}
+#today .journey-waypoint small{margin-top:3px!important;font-size:10px!important}
+
+#today>.journal-handoff{display:flex!important;width:100%!important;align-items:center!important;gap:12px!important;margin:0 auto!important;padding:14px 15px!important;border:1px solid var(--ui-line-soft)!important;border-radius:16px!important;background:rgba(10,28,39,.54)!important;color:var(--ui-ink)!important;text-align:left!important}
+#today>.journal-handoff>span:nth-child(2){display:flex!important;flex:1!important;flex-direction:column!important;gap:2px!important}
+#today>.journal-handoff strong{font-size:12px!important}
+#today>.journal-handoff small{font-size:10px!important;color:var(--ui-muted)!important}
+#today .journal-mark,#today .reflect-arrow{color:var(--ui-gold)!important}
+
+#today>.rhythm-card,#today>.quiet-note{display:none!important}
 
 @media(max-width:380px){
-  #today.today-ritual-screen{padding-left:0!important;padding-right:0!important}
+  #today.today-ritual-screen{padding-left:15px!important;padding-right:15px!important}
+  #today>.ritual-scene{min-height:260px!important}
 }
 
-/* theme.js hides <html> via visibility while theme-authority.css loads (up to 1200ms);
-   CSS animations keep ticking on hidden elements, so the splash's one-shot entrance
-   animations (lift/text) would already be mid-cycle or finished by the time the page
-   is revealed. Hold them at frame zero until reveal so they always play from the start. */
-html:not(.theme-authority-ready) .splash-logo-wrap,
-html:not(.theme-authority-ready) .splash-title,
-html:not(.theme-authority-ready) .splash-subtitle{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){
+  #today .journey-track i{transition:none!important}
+}
