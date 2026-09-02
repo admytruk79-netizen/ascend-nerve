@@ -182,7 +182,10 @@ html[data-theme] #approved-library-feature p,
 html[data-theme] #approved-library-feature small,
 html[data-theme] #library .content-card strong,
 html[data-theme] #library .content-card span,
-html[data-theme] #library .content-card small{color:#fff8ed!important;text-shadow:0 1px 3px rgba(0,0,0,.55)!important}
+html[data-theme] #library .content-card small,
+html[data-theme] #branch-overlay .content-card strong,
+html[data-theme] #branch-overlay .content-card span,
+html[data-theme] #branch-overlay .content-card small{color:#fff8ed!important;text-shadow:0 1px 3px rgba(0,0,0,.55)!important}
 html[data-theme] .library-filter{
   color:#8f999d!important;
   background:rgba(8,26,37,.72)!important;
