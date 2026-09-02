@@ -129,10 +129,15 @@
     const day=document.getElementById('today-v3-day');if(day)day.textContent=(document.getElementById('stage-day')?.textContent||'Day 1').trim();
     const duration=document.getElementById('today-v3-duration');if(duration)duration.textContent=(document.getElementById('practice-name')?.textContent||'10 min').trim();
   }
+  function loadSupportScript(src,flag){
+    if(document.querySelector(`script[${flag}]`))return;
+    const script=document.createElement('script');script.src=src;script.setAttribute(flag,'true');document.body.appendChild(script);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
   document.addEventListener('ascend:curriculum',()=>{sync();setTimeout(tuneApprovedScreens,0)});
   setTimeout(tuneApprovedScreens,700);
+  loadSupportScript('journal-sync-authority.js?v=20260902-remote-1','data-journal-sync-authority');
   if(!document.querySelector('script[data-approved-screens]')){
-    const script=document.createElement('script');script.src='approved-screens.js?v=20260901-dark-cinematic-1';script.dataset.approvedScreens='true';script.onload=()=>setTimeout(tuneApprovedScreens,0);document.body.appendChild(script)
+    const script=document.createElement('script');script.src='approved-screens.js?v=20260902-focus-2';script.dataset.approvedScreens='true';script.onload=()=>setTimeout(tuneApprovedScreens,0);document.body.appendChild(script)
   }
 })();
