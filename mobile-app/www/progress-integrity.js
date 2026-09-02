@@ -24,6 +24,15 @@
     return typeof remaining==='number'?remaining:1;
   }
 
+  function handoffToJournal(){
+    requestAnimationFrame(()=>{
+      window.ASCENDUX?.activateScreen?.('journal');
+      const status=document.getElementById('journal-status');
+      if(status)status.textContent='Practice complete. Record what you actually observed.';
+      document.querySelector('#journal-form textarea[name="observation"]')?.focus();
+    });
+  }
+
   finish.addEventListener('click',async e=>{
     // Capture the click before the legacy completion handler so only this
     // integrity-safe path is allowed to mutate progression UI state.
@@ -83,6 +92,7 @@
       if(!window.ASCENDPracticeTimer)resetTimerUI();
       overlay.classList.add('hidden');
       document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
+      handoffToJournal();
     }catch(err){
       console.error(err);
       // Crucially, do NOT increment local or visible practice-day progress.
