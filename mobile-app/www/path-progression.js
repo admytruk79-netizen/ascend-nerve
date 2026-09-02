@@ -1,35 +1,35 @@
 (()=>{
+  /* Canonical Phase I display map from ASCEND School of Initiation Master Curriculum v3.0.
+     Month labels are nominal containers; backend readiness remains authoritative. */
   const MONTHS=[
-    {month:1,title:'Observation Foundation',gate:'ENTRY'},
-    {month:2,title:'Embodied Observation'},
-    {month:3,title:'Breath & Rhythm'},
-    {month:4,title:'Directed Attention'},
-    {month:5,title:'Practice Rhythm & Spiral'},
-    {month:6,title:'Physical / Etheric Foundation'},
-    {month:7,title:'Astral / Emotional Observation',gate:'FOUNDATION REVIEW'},
-    {month:8,title:'Mental Organization & Discernment'},
-    {month:9,title:'Akharata — Locating Axis'},
-    {month:10,title:'Akharata — Vertical Development',gate:'PART I GATE'},
-    {month:11,title:'Energy as Directed Quality'},
-    {month:12,title:'Ascending / Descending Balance'},
-    {month:13,title:'Harmony & Proportion'},
-    {month:14,title:'Lower-Center Preparation'},
-    {month:15,title:'Lower Centers'},
-    {month:16,title:'Middle Centers'},
-    {month:17,title:'Upper-Center Preparation'},
-    {month:18,title:'Upper Centers',gate:'PART II GATE'},
-    {month:19,title:'Whole-System Center Integration'},
-    {month:20,title:'Energy Literacy & Integration'},
-    {month:21,title:'Integrated Discipline'},
-    {month:22,title:'Discernment & Source Awareness'},
-    {month:23,title:'Independent Practice Architecture'},
-    {month:24,title:'Open Gate / Continuation',gate:'PATH REVIEW'}
+    {month:1,title:'Orientation to the Path',focus:'Observation Foundation'},
+    {month:2,title:'Embodied Attention',focus:'Embodied Observation'},
+    {month:3,title:'Breath and Rhythm',focus:'Breath & Rhythm'},
+    {month:4,title:'Directed Attention',focus:'Directed Attention',gate:'GATE 1'},
+    {month:5,title:'Deliberate Action',focus:'Practice Rhythm & Spiral'},
+    {month:6,title:'Equanimity',focus:'Physical / Etheric Foundation'},
+    {month:7,title:'Constructive Perception',focus:'Astral / Emotional Observation'},
+    {month:8,title:'Openness and Discernment',focus:'Mental Organization & Discernment',gate:'GATE 2'},
+    {month:9,title:'Inner Quiet',focus:'Akharata — Locating the Axis'},
+    {month:10,title:'The Inner Witness',focus:'Akharata — Vertical Development'},
+    {month:11,title:'Sense Refinement',focus:'Energy as Directed Quality'},
+    {month:12,title:'Imaginative Attention',focus:'Ascending / Descending Balance',gate:'GATE 3'},
+    {month:13,title:'Patterns and Repetition',focus:'Harmony & Proportion'},
+    {month:14,title:'Resistance and Friction',focus:'Lower-Center Preparation'},
+    {month:15,title:'Biography and Meaning',focus:'Lower Centers'},
+    {month:16,title:'Values Into Action',focus:'Middle Centers',gate:'GATE 4'},
+    {month:17,title:'Relational Presence',focus:'Upper-Center Preparation'},
+    {month:18,title:'Resonance and Differentiation',focus:'Upper Centers'},
+    {month:19,title:'Compassion and Service',focus:'Whole-System Center Integration'},
+    {month:20,title:'Energetic Literacy',focus:'Energy Literacy & Integration',gate:'GATE 5'},
+    {month:21,title:'Integration of Disciplines',focus:'Integrated Discipline'},
+    {month:22,title:'Discernment and Responsibility',focus:'Discernment & Source Awareness'},
+    {month:23,title:'Independent Practice Design',focus:'Independent Practice Architecture'},
+    {month:24,title:'The Open Gate',focus:'Open Gate / Continuation',gate:'GATE 6'}
   ];
 
-  // Stages remain readiness milestones inside the existing ASCEND hierarchy.
-  // They do not replace the 24 monthly units and Practice Branches never advance
-  // Core Formation. Gate completion opens the next existing Core range; elapsed
-  // time alone never skips monthly work after a gate.
+  // Existing backend stages remain readiness milestones. They do not replace
+  // the 24 monthly units, and elapsed time can never bypass server readiness.
   const rangeForStage=sortOrder=>{
     const s=Math.max(1,Number(sortOrder)||1);
     if(s<=7)return{start:s,end:s};
