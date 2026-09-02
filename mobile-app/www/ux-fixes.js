@@ -30,10 +30,8 @@
   async function syncAuthGate(){
     let confirmedUser=null;
     try{confirmedUser=await PathBackend.me()}catch{}
-    if(!confirmedUser){
-      document.body.classList.add('auth-required');
-      activateScreen('me',{record:false});
-    }
+    document.body.classList.toggle('auth-required',!confirmedUser);
+    if(!confirmedUser)activateScreen('me',{record:false});
     return confirmedUser;
   }
   syncAuthGate();
@@ -46,7 +44,7 @@
   if(practiceTitle&&!practiceTitle.textContent.trim())practiceTitle.textContent='Self-Contemplation';
   if(practiceInstructions&&!practiceInstructions.textContent.trim())practiceInstructions.textContent='Sit quietly and observe the movement of thought without suppressing, following, or judging it. Return to simple observation whenever attention wanders.';
 
-  const overlays=[...document.querySelectorAll('.practice-overlay,.library-overlay,.path-intro')];
+  const overlays=[...document.querySelectorAll('.practice-overlay,.library-overlay,.path-intro,#practice-briefing,#branch-overlay,#menu-overlay,#about-overlay')];
   const app=document.getElementById('app');
   const bottom=document.querySelector('.bottom-nav');
   let lastFocused=null;
@@ -79,24 +77,23 @@
     try{navigator.vibrate?.(8)}catch{}
   }
 
+  function closeOverlay(open){
+    if(!open)return false;
+    if(open.id==='path-intro')window.ASCENDIntro?.close?.();
+    else open.classList.add('hidden');
+    syncOverlay();
+    return true;
+  }
+
   function handleBack(){
     const open=activeOverlay();
-    if(open){
-      if(open.id==='path-intro')window.ASCENDIntro?.close?.();
-      else open.classList.add('hidden');
-      backPulse();
-      return true;
-    }
+    if(open){closeOverlay(open);backPulse();return true}
 
     const current=currentScreen();
     let target=screenTrail.pop();
     if(document.body.classList.contains('auth-required')||document.body.classList.contains('access-required'))target='me';
     else if(!target&&current!=='today')target='today';
-    if(target&&target!==current){
-      activateScreen(target,{record:false});
-      backPulse();
-      return true;
-    }
+    if(target&&target!==current){activateScreen(target,{record:false});backPulse();return true}
     backPulse();
     return true;
   }
@@ -116,7 +113,7 @@
     if(!open)return;
     if(event.key==='Escape'){
       event.preventDefault();
-      open.classList.add('hidden');
+      closeOverlay(open);
       return;
     }
     if(event.key!=='Tab')return;
@@ -178,12 +175,9 @@
     },250);
   });
 
-  const journalForm=document.getElementById('journal-form');
-  journalForm?.addEventListener('submit',()=>{
-    setTimeout(()=>{
-      const text=document.getElementById('journal-status')?.textContent||'';
-      if(/Reflection saved privately/i.test(text))activateScreen('today');
-    },700);
+  document.addEventListener('ascend:journal-saved',event=>{
+    if(event.detail?.saved===false)return;
+    activateScreen('today');
   });
 
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
