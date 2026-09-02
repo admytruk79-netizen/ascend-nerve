@@ -37,11 +37,21 @@
     document.dispatchEvent(new CustomEvent('ascend:month',{detail:{...context,month:currentMonth}}));
   }
   const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function openMonth(monthNum,currentMonth,group){
-    if(currentMonth&&monthNum===currentMonth&&window.ASCENDTrainingLayers?.openTraining){window.ASCENDTrainingLayers.openTraining();return}
+  async function openMonth(monthNum,currentMonth,group){
+    if(currentMonth&&monthNum===currentMonth&&window.ASCENDTrainingLayers?.openTraining){
+      // month-path.js can paint before training-layers.js finishes its own delayed load, in
+      // which case ASCENDTrainingLayers is still holding its module-local Month 1 / empty
+      // defaults. Make sure it has actually resolved this month before opening it.
+      if(window.ASCENDTrainingLayers.currentMonth?.()!==monthNum)await window.ASCENDTrainingLayers.load?.();
+      window.ASCENDTrainingLayers.openTraining();return;
+    }
     const overlay=document.getElementById('branch-overlay'),body=document.getElementById('branch-body');if(!overlay||!body)return;
     const item=ASCENDProgression.MONTHS[monthNum-1]||{title:''};
-    const status=monthNum<currentMonth?'Completed':monthNum===currentMonth?'Current month · in progress':`Locked · opens once you reach Month ${monthNum-1}${item.gate?` and clear ${esc(item.gate)}`:''}.`;
+    // A month's `gate` marks the review completed AT THE END of that month, which is what
+    // unlocks the NEXT month (see path-progression.js) — so a locked month's prerequisite
+    // gate comes from the preceding month's entry, not its own.
+    const prevGate=ASCENDProgression.MONTHS[monthNum-2]?.gate;
+    const status=monthNum<currentMonth?'Completed':monthNum===currentMonth?'Current month · in progress':`Locked · opens once you reach Month ${monthNum-1}${prevGate?` and clear ${esc(prevGate)}`:''}.`;
     body.innerHTML=`<div class="eyebrow">${esc(group?.title||'THE PRACTICE PATH')} · MONTH ${monthNum} OF 24</div><h1>${esc(item.title)}</h1><p>${esc(status)}</p>${group?.description?`<article class="rhythm-card"><h2>${esc(group.title)}</h2><p>${esc(group.description)}</p></article>`:''}<button class="secondary branch-close" type="button">Close</button>`;
     overlay.classList.remove('hidden');
   }

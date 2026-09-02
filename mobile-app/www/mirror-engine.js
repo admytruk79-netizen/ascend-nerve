@@ -6,7 +6,7 @@
  const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const session=()=>{try{return JSON.parse(localStorage.getItem(SESSION)||'null')}catch{return null}};
  async function resolveStage(){try{const me=await PathBackend.me();if(!me)return null;const progress=await PathBackend.getProgress(me.id);const active=progress.find(p=>p.status==='active'||p.status==='review')||progress[progress.length-1];return active?.stage_id||null}catch{return null}}
- async function invoke(nextScope=scope){const s=session();if(!s?.access_token)throw new Error('Sign in to use Mirror.');stageId=stageId||await resolveStage();const r=await fetch(`${BASE}/functions/v1/ascend-resonance`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${s.access_token}`,'Content-Type':'application/json'},body:JSON.stringify({stage_id:stageId,scope:nextScope})});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data?.message||data?.error||`Resonance request failed (${r.status})`);return data}
+ async function invoke(nextScope=scope){const s=session();if(!s?.access_token){const err=new Error('Sign in to use Mirror.');err.status=401;throw err}stageId=stageId||await resolveStage();const r=await fetch(`${BASE}/functions/v1/ascend-resonance`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${s.access_token}`,'Content-Type':'application/json'},body:JSON.stringify({stage_id:stageId,scope:nextScope})});let data={};try{data=await r.json()}catch{}if(!r.ok){const err=new Error(data?.message||data?.error||`Resonance request failed (${r.status})`);err.status=r.status;throw err}return data}
  function themeList(xs=[]){if(!xs.length)return '<p class="mirror-muted">No stable recurring resonance yet.</p>';return `<div class="mirror-themes">${xs.slice(0,4).map(x=>`<span>${esc(x.label||x)}${x.trend?` · ${esc(x.trend)}`:''}</span>`).join('')}</div>`}
  function render(data){const box=document.getElementById('mirror-content');if(!box)return;const m=data.metrics||{},change=data.change_over_time||{},bal=data.observation_balance||{};box.innerHTML=`
  <div class="mirror-shell">
@@ -22,16 +22,21 @@
   <p class="mirror-boundary">${esc(data.boundary||'Resonance reflects recurring patterns in your record. It does not determine attainment, diagnose you, or establish spiritual claims as fact.')}</p>
  </div>`;box.querySelectorAll('[data-mirror-scope]').forEach(b=>b.onclick=()=>load(b.dataset.mirrorScope));}
  function loading(){const box=document.getElementById('mirror-content');if(box)box.innerHTML='<div class="mirror-loading"><i></i><p>Reading resonance across your record…</p></div>'}
- async function load(nextScope=scope){scope=nextScope;loading();try{render(await invoke(scope))}catch(e){const box=document.getElementById('mirror-content');if(box)box.innerHTML=`<p>${esc(e.message)}</p><p class="mirror-boundary">Your journal remains intact.</p>`}}
+ async function attemptLoad(nextScope){scope=nextScope;loading();try{render(await invoke(scope));return null}catch(e){const box=document.getElementById('mirror-content');if(box)box.innerHTML=`<p>${esc(e.message)}</p><p class="mirror-boundary">Your journal remains intact.</p>`;return e}}
+ async function load(nextScope=scope){await attemptLoad(nextScope)}
  function wire(){const card=document.querySelector('#me .rhythm-card:has(#mirror-content)');const heading=card?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';const old=document.getElementById('refresh-mirror');if(!old||old.dataset.resonance==='1')return;const btn=old.cloneNode(true);btn.dataset.resonance='1';btn.textContent='Read Resonance';old.replaceWith(btn);btn.onclick=()=>load(scope);
   // Auth session restore (or an OAuth redirect completing) can take longer than a single
   // fixed delay, especially on a cold load. Retry with backoff instead of checking once and
-  // permanently showing "Sign in to use Mirror" for a user who is actually signed in.
+  // permanently showing "Sign in to use Mirror" for a user who is actually signed in. A token
+  // can also be present but expired (isSignedIn only checks presence) — PathBackend.me() runs
+  // concurrently elsewhere and may refresh it, so on an auth-shaped failure (401/403) keep
+  // retrying the same bounded window instead of stopping after the first attempt.
   let attempts=0;
-  const tryAutoLoad=()=>{
+  const tryAutoLoad=async()=>{
     attempts++;
-    if(PathBackend?.isSignedIn?.()){load('stage');return}
-    if(attempts<6)setTimeout(tryAutoLoad,700*attempts);
+    if(!PathBackend?.isSignedIn?.()){if(attempts<6)setTimeout(tryAutoLoad,700*attempts);return}
+    const err=await attemptLoad('stage');
+    if(err&&(err.status===401||err.status===403)&&attempts<6){try{await PathBackend.refresh?.()}catch{}setTimeout(tryAutoLoad,700*attempts)}
   };
   setTimeout(tryAutoLoad,900);
  }
