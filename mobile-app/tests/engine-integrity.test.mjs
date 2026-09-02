@@ -96,7 +96,7 @@ test('Library recommendations and visible cards respect Core month progression',
   assert.match(contextual,/metadata\?\.min_month/);
   assert.match(contextual,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
   assert.match(contextual,/Opens in Month \$\{needed\}/);
-  assert.match(contextual,/content-card\.month-locked/);
+  assert.match(contextual,/classList\.toggle\('month-locked',locked\)/);
   assert.match(contextual,/ASCENDProgression\?\.current/);
 });
 
