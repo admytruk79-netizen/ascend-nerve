@@ -1,35 +1,35 @@
 (()=>{
   const MONTHS=[
-    {month:1,title:'Foundation · Self-Contemplation',gate:'ENTRY'},
-    {month:2,title:'Clarity · Thought'},
-    {month:3,title:'Constancy · Will'},
-    {month:4,title:'Equanimity'},
-    {month:5,title:'Positive Perception'},
-    {month:6,title:'Openness'},
-    {month:7,title:'Impartial Retrospect',gate:'FOUNDATION REVIEW'},
-    {month:8,title:'Consolidation · Continuing Practice'},
-    {month:9,title:'Consolidation · Observation & Integration'},
-    {month:10,title:'Preparation · Review & Readiness',gate:'PART I GATE'},
-    {month:11,title:'Part II · Energy Gain'},
-    {month:12,title:'Star Energy'},
-    {month:13,title:'Emptiness'},
-    {month:14,title:'New Tools'},
-    {month:15,title:'Green Sphere'},
-    {month:16,title:'Helping the World'},
-    {month:17,title:'Integration'},
-    {month:18,title:'Consolidation',gate:'PART II GATE'},
-    {month:19,title:'Part III · Seven Chakra'},
-    {month:20,title:'Elements'},
-    {month:21,title:'Inner Octaves'},
-    {month:22,title:'Three Centres'},
-    {month:23,title:'Ancestors & Higher Self'},
-    {month:24,title:'Final Integration',gate:'PATH REVIEW'}
+    {month:1,title:'Observation Foundation',gate:'ENTRY'},
+    {month:2,title:'Embodied Observation'},
+    {month:3,title:'Breath & Rhythm'},
+    {month:4,title:'Directed Attention'},
+    {month:5,title:'Practice Rhythm & Spiral'},
+    {month:6,title:'Physical / Etheric Foundation'},
+    {month:7,title:'Astral / Emotional Observation',gate:'FOUNDATION REVIEW'},
+    {month:8,title:'Mental Organization & Discernment'},
+    {month:9,title:'Akharata — Locating Axis'},
+    {month:10,title:'Akharata — Vertical Development',gate:'PART I GATE'},
+    {month:11,title:'Energy as Directed Quality'},
+    {month:12,title:'Ascending / Descending Balance'},
+    {month:13,title:'Harmony & Proportion'},
+    {month:14,title:'Lower-Center Preparation'},
+    {month:15,title:'Lower Centers'},
+    {month:16,title:'Middle Centers'},
+    {month:17,title:'Upper-Center Preparation'},
+    {month:18,title:'Upper Centers',gate:'PART II GATE'},
+    {month:19,title:'Whole-System Center Integration'},
+    {month:20,title:'Energy Literacy & Integration'},
+    {month:21,title:'Integrated Discipline'},
+    {month:22,title:'Discernment & Source Awareness'},
+    {month:23,title:'Independent Practice Architecture'},
+    {month:24,title:'Open Gate / Continuation',gate:'PATH REVIEW'}
   ];
 
-  // Stages are readiness milestones, not substitutes for the 24 monthly units.
-  // Stages 1-7 map directly to Foundation months 1-7. Passing Foundation Review
-  // opens month 8; passing Part II opens month 19. Time spent before a gate can
-  // never be used to skip the monthly work after that gate.
+  // Stages remain readiness milestones inside the existing ASCEND hierarchy.
+  // They do not replace the 24 monthly units and Practice Branches never advance
+  // Core Formation. Gate completion opens the next existing Core range; elapsed
+  // time alone never skips monthly work after a gate.
   const rangeForStage=sortOrder=>{
     const s=Math.max(1,Number(sortOrder)||1);
     if(s<=7)return{start:s,end:s};
