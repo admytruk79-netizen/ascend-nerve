@@ -1,0 +1,200 @@
+/* ASCEND Path — focus pass.
+   Keeps every feature and control while reducing dashboard-like containment.
+   Loaded after initiation-school.css. */
+
+/* PATH — formation should read as a journey, not a stack of widgets. */
+body.initiation-school #path .core-now{
+  margin:0 0 22px!important;
+  padding:18px 0 18px 18px!important;
+  border:0!important;
+  border-left:1px solid rgba(214,160,67,.58)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.initiation-school #path .core-now-meta{padding-right:3px!important}
+body.initiation-school #path .formation-map{gap:0!important;margin-top:4px!important}
+body.initiation-school #path .formation-group,
+body.initiation-school #path .formation-group[open]{
+  border:0!important;
+  border-top:1px solid rgba(151,173,181,.14)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.initiation-school #path .formation-group:last-child{border-bottom:1px solid rgba(151,173,181,.14)!important}
+body.initiation-school #path .formation-group summary{padding:17px 2px!important;min-height:72px!important}
+body.initiation-school #path .formation-group-index{
+  border-color:rgba(214,160,67,.28)!important;
+  background:transparent!important;
+}
+body.initiation-school #path .formation-months{padding:0 0 15px 46px!important}
+body.initiation-school #path .month-card{padding:11px 2px!important;border-top:1px solid rgba(151,173,181,.085)!important}
+body.initiation-school #path .month-card.current{
+  margin:3px 0!important;
+  padding:12px 10px!important;
+  border:0!important;
+  border-left:2px solid var(--school-gold)!important;
+  border-radius:0!important;
+  background:linear-gradient(90deg,rgba(214,160,67,.10),transparent 76%)!important;
+}
+body.initiation-school #path #stage-review-card{
+  border-left:1px solid rgba(214,160,67,.45)!important;
+  border-right:0!important;border-top:0!important;border-bottom:0!important;
+  border-radius:0!important;background:transparent!important;
+  padding-left:18px!important;padding-right:2px!important;
+}
+body.initiation-school #path .pathway-section-header{margin-top:34px!important}
+
+/* JOURNAL — one focal prompt; the rest reads like a private record. */
+body.initiation-school #journal .approved-journal-stack{gap:0!important;margin-bottom:22px!important}
+body.initiation-school #journal .approved-prompt-card{
+  margin-bottom:6px!important;
+  border-color:rgba(214,160,67,.35)!important;
+  background:radial-gradient(circle at 88% 0,rgba(74,184,173,.07),transparent 35%),linear-gradient(180deg,rgba(13,35,48,.90),rgba(7,24,35,.95))!important;
+}
+body.initiation-school #journal .approved-recent-card,
+body.initiation-school #journal .approved-journey-card{
+  padding:18px 2px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(151,173,181,.13)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.initiation-school #journal .journal-form{
+  padding:22px 0 4px!important;
+  border:0!important;
+  border-top:1px solid rgba(214,160,67,.24)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+body.initiation-school #journal .journal-form textarea{
+  min-height:112px!important;
+  border:1px solid rgba(151,173,181,.14)!important;
+  border-radius:10px!important;
+  background:rgba(5,20,30,.52)!important;
+  box-shadow:none!important;
+}
+body.initiation-school #journal .journal-form textarea:focus{
+  border-color:rgba(214,160,67,.52)!important;
+  box-shadow:0 0 0 2px rgba(214,160,67,.06)!important;
+}
+body.initiation-school #journal .journal-share-teacher{
+  padding:14px 0!important;border-top:1px solid rgba(151,173,181,.10)!important;
+}
+
+/* LIBRARY — editorial study room rather than a card catalogue. */
+body.initiation-school #library .library-tools{
+  padding-bottom:18px!important;
+  border-bottom:1px solid rgba(151,173,181,.13)!important;
+}
+body.initiation-school #library .library-filters{gap:5px!important}
+body.initiation-school #library #library-list{display:grid!important;gap:0!important}
+body.initiation-school #library .library-group{
+  border:0!important;
+  border-top:1px solid rgba(151,173,181,.14)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.initiation-school #library .library-group:last-child{border-bottom:1px solid rgba(151,173,181,.14)!important}
+body.initiation-school #library .library-group summary{
+  min-height:64px!important;
+  padding:14px 2px!important;
+}
+body.initiation-school #library .library-group-items{padding:0 0 13px!important}
+body.initiation-school #library .library-group-items .content-card{
+  margin:0!important;
+  padding:15px 2px!important;
+  border:0!important;
+  border-top:1px solid rgba(151,173,181,.08)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+body.initiation-school #library .library-group-items .content-card strong{font-size:17px!important}
+body.initiation-school #library .library-group-items .content-card:hover,
+body.initiation-school #library .library-group-items .content-card:focus-visible{
+  background:linear-gradient(90deg,rgba(214,160,67,.06),transparent)!important;
+}
+body.initiation-school #library .empty-state{
+  padding:22px 2px!important;
+  border:0!important;
+  border-top:1px solid rgba(151,173,181,.14)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+body.initiation-school #approved-library-now{
+  border-left:1px solid rgba(214,160,67,.46)!important;
+  border-right:0!important;border-top:0!important;border-bottom:0!important;
+  border-radius:0!important;background:transparent!important;
+  padding-left:18px!important;
+}
+
+/* ME — Mirror is the chamber; account and current position are supporting material. */
+body.initiation-school #me .current-position-card{
+  padding:16px 0 18px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(151,173,181,.13)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+body.initiation-school #me .mirror-chamber{
+  margin-top:20px!important;
+  padding:28px 22px!important;
+  min-height:220px!important;
+  border-color:rgba(214,160,67,.52)!important;
+  box-shadow:0 20px 48px rgba(0,0,0,.18)!important;
+}
+body.initiation-school #me .mirror-chamber h2{font-size:27px!important}
+body.initiation-school #me .auth-card{
+  padding:20px 0!important;
+  border:0!important;
+  border-top:1px solid rgba(151,173,181,.14)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.initiation-school #me .auth-card .access-panel{
+  border-color:rgba(151,173,181,.13)!important;
+  background:rgba(5,20,30,.44)!important;
+}
+
+/* FULL-LENGTH PRACTICE MATERIAL — readable, scrollable, never clipped. */
+body.initiation-school #practice-briefing .briefing-inner{
+  width:min(100%,420px)!important;
+  max-height:calc(100dvh - 54px)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  padding:44px 22px 30px!important;
+  scrollbar-width:thin;
+}
+body.initiation-school #practice-briefing .briefing-inner:before{margin-bottom:22px!important}
+body.initiation-school #briefing-intention{
+  width:100%!important;
+  max-height:42dvh!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  margin:14px 0!important;
+  padding:16px 0!important;
+  border-top:1px solid rgba(151,173,181,.12)!important;
+  border-bottom:1px solid rgba(151,173,181,.12)!important;
+  color:var(--ui-ink)!important;
+  font:15px/1.72 Georgia,serif!important;
+  text-align:left!important;
+  white-space:pre-line!important;
+}
+body.initiation-school #briefing-duration{font-size:9px!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:var(--school-gold)!important}
+body.initiation-school #overlay-practice-instructions{
+  max-height:34dvh!important;
+  overflow-y:auto!important;
+  padding:10px 0 16px!important;
+  color:var(--ui-ink)!important;
+  font:14px/1.68 Georgia,serif!important;
+  white-space:pre-line!important;
+}
+
+@media(max-width:390px){
+  body.initiation-school #path .formation-months{padding-left:38px!important}
+  body.initiation-school #practice-briefing .briefing-inner{padding-left:18px!important;padding-right:18px!important}
+}
