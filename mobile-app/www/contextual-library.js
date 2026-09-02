@@ -36,7 +36,7 @@
     const overlay=document.getElementById('library-overlay');
     if(!overlay)return;
     window.LibraryEngine?.recordLibraryView(item);
-    const type=document.getElementById('library-overlay-type');
+    const type=document.getElementById('library-reader-type');
     if(type)type.textContent=(item.content_type||'TEACHING').toUpperCase();
     const title=document.getElementById('library-title');
     if(title)title.textContent=item.title||'';
@@ -91,20 +91,14 @@
     if(instructions)instructions.after(makeButton(item,'practice'));
   }
 
-  function render(){
-    renderRelatedTeaching();
-    gateLibraryCards();
-  }
+  function render(){renderRelatedTeaching();gateLibraryCards()}
 
   async function syncMonth(){
     try{currentMonth=Math.max(1,Math.min(24,Number((await window.ASCENDProgression?.current?.())?.month)||1))}
     catch{currentMonth=1}
   }
 
-  async function syncAndRender(){
-    await syncMonth();
-    render();
-  }
+  async function syncAndRender(){await syncMonth();render()}
 
   document.addEventListener('ascend:month',event=>{
     currentMonth=Math.max(1,Math.min(24,Number(event.detail?.month)||currentMonth));
