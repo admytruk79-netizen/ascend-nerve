@@ -5,40 +5,91 @@
  let scope='stage',stageId=null;
  const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const session=()=>{try{return JSON.parse(localStorage.getItem(SESSION)||'null')}catch{return null}};
- async function resolveStage(){try{const me=await PathBackend.me();if(!me)return null;const progress=await PathBackend.getProgress(me.id);const active=progress.find(p=>p.status==='active'||p.status==='review')||progress[progress.length-1];return active?.stage_id||null}catch{return null}}
- async function invoke(nextScope=scope){const s=session();if(!s?.access_token){const err=new Error('Sign in to use Mirror.');err.status=401;throw err}stageId=stageId||await resolveStage();const r=await fetch(`${BASE}/functions/v1/ascend-resonance`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${s.access_token}`,'Content-Type':'application/json'},body:JSON.stringify({stage_id:stageId,scope:nextScope})});let data={};try{data=await r.json()}catch{}if(!r.ok){const err=new Error(data?.message||data?.error||`Resonance request failed (${r.status})`);err.status=r.status;throw err}return data}
- function themeList(xs=[]){if(!xs.length)return '<p class="mirror-muted">No stable recurring resonance yet.</p>';return `<div class="mirror-themes">${xs.slice(0,4).map(x=>`<span>${esc(x.label||x)}${x.trend?` · ${esc(x.trend)}`:''}</span>`).join('')}</div>`}
- function render(data){const box=document.getElementById('mirror-content');if(!box)return;const m=data.metrics||{},change=data.change_over_time||{},bal=data.observation_balance||{};box.innerHTML=`
- <div class="mirror-shell">
-  <div class="mirror-tabs"><button type="button" data-mirror-scope="stage" class="${scope==='stage'?'active':''}">THIS STAGE</button><button type="button" data-mirror-scope="all" class="${scope==='all'?'active':''}">ALL TIME</button></div>
-  <div class="mirror-status"><span>RESONANCE ENGINE</span><small>${esc((data.confidence||'insufficient').toUpperCase())} SIGNAL · ${m.journal_entries||0} ENTRIES</small></div>
-  <section class="mirror-block mirror-summary"><div class="eyebrow">PATTERN SNAPSHOT</div><p>${esc(data.summary||'Resonance begins with your own record.')}</p>${themeList(data.themes)}</section>
-  ${(change.earlier||change.recent)?`<section class="mirror-block"><div class="eyebrow">CHANGE OVER TIME</div>${change.earlier?`<div class="mirror-compare"><small>EARLIER</small><p>${esc(change.earlier)}</p></div>`:''}${change.recent?`<div class="mirror-compare recent"><small>RECENT</small><p>${esc(change.recent)}</p></div>`:''}${change.observation?`<p class="mirror-observation">${esc(change.observation)}</p>`:''}</section>`:''}
-  ${(data.phrases?.length||data.cooccurrences?.length)?`<section class="mirror-block"><div class="eyebrow">RESONANCE LINKS</div>${data.phrases?.length?`<p class="mirror-subhead">Repeated phrases</p><div class="mirror-themes">${data.phrases.slice(0,4).map(x=>`<span>${esc(x.label)}</span>`).join('')}</div>`:''}${data.cooccurrences?.length?`<p class="mirror-subhead">Terms appearing together</p><div class="mirror-themes">${data.cooccurrences.slice(0,4).map(x=>`<span>${esc(x.pair)}</span>`).join('')}</div>`:''}</section>`:''}
-  <section class="mirror-block mirror-question"><div class="eyebrow">MIRROR QUESTION</div><p>${esc(data.question||'What did you actually observe before interpretation?')}</p></section>
-  ${data.related_practice?`<section class="mirror-related"><span>RELATED PRACTICE</span><strong>${esc(data.related_practice)}</strong></section>`:''}
-  <div class="mirror-metrics"><span><strong>${m.life_application||0}</strong> applied-life notes</span><span><strong>${m.unresolved||0}</strong> unresolved</span><span><strong>${m.training_logs||0}</strong> training logs</span></div>
-  ${bal.ratio!==null&&bal.ratio!==undefined?`<div class="mirror-balance"><span>OBSERVATION / INTERPRETATION BALANCE</span><strong>${Math.round(Number(bal.ratio)*100)}%</strong></div>`:''}
-  <p class="mirror-boundary">${esc(data.boundary||'Resonance reflects recurring patterns in your record. It does not determine attainment, diagnose you, or establish spiritual claims as fact.')}</p>
- </div>`;box.querySelectorAll('[data-mirror-scope]').forEach(b=>b.onclick=()=>load(b.dataset.mirrorScope));}
- function loading(){const box=document.getElementById('mirror-content');if(box)box.innerHTML='<div class="mirror-loading"><i></i><p>Reading resonance across your record…</p></div>'}
- async function attemptLoad(nextScope){scope=nextScope;loading();try{render(await invoke(scope));return null}catch(e){const box=document.getElementById('mirror-content');if(box)box.innerHTML=`<p>${esc(e.message)}</p><p class="mirror-boundary">Your journal remains intact.</p>`;return e}}
+
+ async function resolveStage(){
+  try{
+   const me=await PathBackend.me();
+   if(!me)return null;
+   const progress=await PathBackend.getProgress(me.id);
+   const active=progress.find(p=>p.status==='active'||p.status==='review')||progress[progress.length-1];
+   return active?.stage_id||null;
+  }catch{return null}
+ }
+
+ async function invoke(nextScope=scope){
+  const s=session();
+  if(!s?.access_token){const err=new Error('Sign in to use Mirror.');err.status=401;throw err}
+  stageId=stageId||await resolveStage();
+  const r=await fetch(`${BASE}/functions/v1/ascend-resonance`,{
+   method:'POST',
+   headers:{apikey:KEY,Authorization:`Bearer ${s.access_token}`,'Content-Type':'application/json'},
+   body:JSON.stringify({stage_id:stageId,scope:nextScope})
+  });
+  let data={};try{data=await r.json()}catch{}
+  if(!r.ok){const err=new Error(data?.message||data?.error||`Resonance request failed (${r.status})`);err.status=r.status;throw err}
+  return data;
+ }
+
+ function themeList(xs=[]){
+  if(!xs.length)return '<p class="mirror-muted">No stable recurring resonance yet.</p>';
+  return `<div class="mirror-themes">${xs.slice(0,4).map(x=>`<span>${esc(x.label||x)}${x.trend?` · ${esc(x.trend)}`:''}</span>`).join('')}</div>`;
+ }
+
+ function render(data){
+  const box=document.getElementById('mirror-content');if(!box)return;
+  const m=data.metrics||{},change=data.change_over_time||{},bal=data.observation_balance||{};
+  box.innerHTML=`<div class="mirror-shell"><div class="mirror-tabs"><button type="button" data-mirror-scope="stage" class="${scope==='stage'?'active':''}">THIS STAGE</button><button type="button" data-mirror-scope="all" class="${scope==='all'?'active':''}">ALL TIME</button></div><div class="mirror-status"><span>RESONANCE ENGINE</span><small>${esc((data.confidence||'insufficient').toUpperCase())} SIGNAL · ${m.journal_entries||0} ENTRIES</small></div><section class="mirror-block mirror-summary"><div class="eyebrow">PATTERN SNAPSHOT</div><p>${esc(data.summary||'Resonance begins with your own record.')}</p>${themeList(data.themes)}</section>${(change.earlier||change.recent)?`<section class="mirror-block"><div class="eyebrow">CHANGE OVER TIME</div>${change.earlier?`<div class="mirror-compare"><small>EARLIER</small><p>${esc(change.earlier)}</p></div>`:''}${change.recent?`<div class="mirror-compare recent"><small>RECENT</small><p>${esc(change.recent)}</p></div>`:''}${change.observation?`<p class="mirror-observation">${esc(change.observation)}</p>`:''}</section>`:''}${(data.phrases?.length||data.cooccurrences?.length)?`<section class="mirror-block"><div class="eyebrow">RESONANCE LINKS</div>${data.phrases?.length?`<p class="mirror-subhead">Repeated phrases</p><div class="mirror-themes">${data.phrases.slice(0,4).map(x=>`<span>${esc(x.label)}</span>`).join('')}</div>`:''}${data.cooccurrences?.length?`<p class="mirror-subhead">Terms appearing together</p><div class="mirror-themes">${data.cooccurrences.slice(0,4).map(x=>`<span>${esc(x.pair)}</span>`).join('')}</div>`:''}</section>`:''}<section class="mirror-block mirror-question"><div class="eyebrow">MIRROR QUESTION</div><p>${esc(data.question||'What did you actually observe before interpretation?')}</p></section>${data.related_practice?`<section class="mirror-related"><span>RELATED PRACTICE</span><strong>${esc(data.related_practice)}</strong></section>`:''}<div class="mirror-metrics"><span><strong>${m.life_application||0}</strong> applied-life notes</span><span><strong>${m.unresolved||0}</strong> unresolved</span><span><strong>${m.training_logs||0}</strong> training logs</span></div>${bal.ratio!==null&&bal.ratio!==undefined?`<div class="mirror-balance"><span>OBSERVATION / INTERPRETATION BALANCE</span><strong>${Math.round(Number(bal.ratio)*100)}%</strong></div>`:''}<p class="mirror-boundary">${esc(data.boundary||'Resonance reflects recurring patterns in your record. It does not determine attainment, diagnose you, or establish spiritual claims as fact.')}</p></div>`;
+  box.querySelectorAll('[data-mirror-scope]').forEach(button=>button.onclick=()=>load(button.dataset.mirrorScope));
+ }
+
+ function loading(){
+  const box=document.getElementById('mirror-content');
+  if(box)box.innerHTML='<div class="mirror-loading"><i></i><p>Reading resonance across your record…</p></div>';
+ }
+
+ async function attemptLoad(nextScope){
+  scope=nextScope;
+  loading();
+  try{render(await invoke(scope));return null}
+  catch(error){
+   const box=document.getElementById('mirror-content');
+   if(box)box.innerHTML=`<p>${esc(error.message)}</p><p class="mirror-boundary">Your journal remains intact.</p>`;
+   return error;
+  }
+ }
+
  async function load(nextScope=scope){await attemptLoad(nextScope)}
- function wire(){const card=document.querySelector('#me .rhythm-card:has(#mirror-content)');const heading=card?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';const old=document.getElementById('refresh-mirror');if(!old||old.dataset.resonance==='1')return;const btn=old.cloneNode(true);btn.dataset.resonance='1';btn.textContent='Read Resonance';old.replaceWith(btn);btn.onclick=()=>load(scope);
-  // Auth session restore (or an OAuth redirect completing) can take longer than a single
-  // fixed delay, especially on a cold load. Retry with backoff instead of checking once and
-  // permanently showing "Sign in to use Mirror" for a user who is actually signed in. A token
-  // can also be present but expired (isSignedIn only checks presence) — PathBackend.me() runs
-  // concurrently elsewhere and may refresh it, so on an auth-shaped failure (401/403) keep
-  // retrying the same bounded window instead of stopping after the first attempt.
+
+ function wire(){
+  const card=document.querySelector('#me .rhythm-card:has(#mirror-content)');
+  const heading=card?.querySelector('h2');
+  if(heading)heading.textContent='Mirror · Resonance';
+  const old=document.getElementById('refresh-mirror');
+  if(!old||old.dataset.resonance==='1')return;
+
+  const btn=old.cloneNode(true);
+  btn.dataset.resonance='1';
+  btn.textContent='Read Resonance';
+  old.replaceWith(btn);
+  btn.onclick=()=>load(scope);
+
   let attempts=0;
   const tryAutoLoad=async()=>{
-    attempts++;
-    if(!PathBackend?.isSignedIn?.()){if(attempts<6)setTimeout(tryAutoLoad,700*attempts);return}
-    const err=await attemptLoad('stage');
-    if(err&&(err.status===401||err.status===403)&&attempts<6){try{await PathBackend.refresh?.()}catch{}setTimeout(tryAutoLoad,700*attempts)}
+   attempts++;
+   if(!PathBackend?.isSignedIn?.()){
+    if(attempts<6)setTimeout(tryAutoLoad,700*attempts);
+    return;
+   }
+   const err=await attemptLoad('stage');
+   if(err&&(err.status===401||err.status===403)&&attempts<6){
+    try{await PathBackend.refresh?.()}catch{}
+    setTimeout(tryAutoLoad,700*attempts);
+   }
   };
-  setTimeout(tryAutoLoad,900);
+  tryAutoLoad();
  }
- const style=document.createElement('style');style.textContent=`#me .rhythm-card:has(#mirror-content){position:relative;overflow:hidden;border-color:rgba(85,200,189,.18);background:radial-gradient(circle at 100% 0,rgba(85,200,189,.045),transparent 42%),var(--panel)}.mirror-shell{display:grid;gap:12px}.mirror-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.05)}.mirror-tabs button{border:0;border-radius:9px;padding:8px;background:transparent;color:var(--muted);font:8px Arial,sans-serif;letter-spacing:.14em}.mirror-tabs button.active{background:rgba(85,200,189,.10);color:var(--teal)}.mirror-status{display:flex;justify-content:space-between;gap:10px;align-items:center}.mirror-status span{color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.15em}.mirror-status small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.1em}.mirror-block{padding:13px 0;border-top:1px solid rgba(214,179,106,.10)}.mirror-block .eyebrow{text-align:left;margin:0 0 7px;font-size:7px}.mirror-block p{margin:0;font-size:13px;line-height:1.55}.mirror-themes{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}.mirror-themes span{padding:5px 8px;border:1px solid rgba(85,200,189,.22);border-radius:99px;color:var(--teal);font:8px Arial,sans-serif;letter-spacing:.06em}.mirror-compare{padding:9px 10px;margin-top:7px;border-left:1px solid var(--line);background:rgba(255,255,255,.018)}.mirror-compare.recent{border-left-color:var(--teal)}.mirror-compare small{color:var(--muted);font:7px Arial,sans-serif;letter-spacing:.14em}.mirror-compare p{margin-top:4px;font-size:11px}.mirror-question{padding:14px;border:1px solid rgba(214,179,106,.16);border-radius:13px;background:rgba(214,179,106,.025)}.mirror-question p{font-family:Georgia,serif;font-size:15px}.mirror-related{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}.mirror-related span{font:7px Arial,sans-serif;letter-spacing:.13em;color:var(--muted)}.mirror-related strong{font:11px Georgia,serif;font-weight:400;color:var(--gold2)}.mirror-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.mirror-metrics span{padding:8px 5px;text-align:center;border:1px solid rgba(255,255,255,.06);border-radius:9px;color:var(--muted);font:7px Arial,sans-serif}.mirror-metrics strong{display:block;color:var(--gold2);font:14px Georgia,serif}.mirror-balance{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}.mirror-balance span{font:7px Arial,sans-serif;letter-spacing:.12em;color:var(--muted)}.mirror-balance strong{font:15px Georgia,serif;color:var(--teal)}.mirror-subhead{margin-top:10px!important;color:var(--muted);font:8px Arial,sans-serif!important;letter-spacing:.1em}.mirror-boundary{margin:5px 0 0!important;color:var(--muted)!important;font:9px/1.5 Arial,sans-serif!important}.mirror-loading{display:grid;place-items:center;padding:28px 0;color:var(--muted)}.mirror-loading i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(214,179,106,.15);border-top-color:var(--teal);animation:mirrorSpin 1s linear infinite}.mirror-loading p{font:9px Arial,sans-serif;letter-spacing:.1em}@keyframes mirrorSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.mirror-loading i{animation:none}}`;document.head.appendChild(style);document.addEventListener('DOMContentLoaded',wire);setTimeout(wire,1500);window.ASCENDMirror={load};
+
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire,{once:true});
+ else wire();
+ window.ASCENDMirror={load};
 })();
