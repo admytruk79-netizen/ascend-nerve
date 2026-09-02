@@ -68,7 +68,91 @@
   async function redeemLifetimeKey(rawKey){const normalized=String(rawKey||'').trim().toUpperCase();if(!/^ASCEND(?:-[A-F0-9]{4}){4}$/.test(normalized))return{status:'invalid'};const rows=await rpc('redeem_ascend_lifetime_key',{p_hash:await sha256(normalized)});return rows?.[0]||{status:'invalid'}}
   async function getMyEntitlement(userId){const rows=await rest('ascend_entitlements',{query:`user_id=eq.${userId}&is_active=eq.true&select=access_level,source,starts_at,expires_at&limit=1`});return rows[0]||null}
   function entitlementIsActive(entitlement){if(!entitlement?.is_active&&entitlement?.is_active!==undefined)return false;if(entitlement?.access_level==='lifetime')return true;if(entitlement?.access_level!=='premium'||!entitlement.expires_at)return false;return new Date(entitlement.expires_at).getTime()>Date.now()}
-  async function loadCurriculum(){const [phases,stages,practices,links,markers,content,contentRules]=await Promise.all([rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),rest('path_stages',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),rest('path_practices',{query:'select=*&is_published=eq.true'}),rest('path_stage_practices',{query:'select=*'}),rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),rest('path_content_unlock_rules',{query:'select=*'})]);return{phases,stages,practices,links,markers,content,contentRules}}
+
+  const PRACTICE_CONTENT={
+    'entry-self-contemplation':'pre-module-discipline-of-meditation',
+    'directed-thought':'month-01-clarity-of-thought',
+    'chosen-action':'month-02-will-constancy',
+    'equanimity-practice':'month-03-equanimity',
+    'positive-perception-practice':'month-04-positive-perception',
+    'openness-practice':'month-05-openness',
+    'reverse-review-practice':'month-06-impartial-retrospect',
+    'energy-gain':'month-11-energy-gain',
+    'star-energy':'month-12-star-energy',
+    'dynamic-balancing':'month-13-dynamic-balancing',
+    'emptiness-meditation':'month-14-emptiness',
+    'acceptance-practice':'month-15-acceptance',
+    'wire-training':'month-16-wire-training',
+    'aura-defence':'month-17-green-sphere',
+    'helping-the-world':'month-18-helping-the-world',
+    'seven-chakra-foundation':'month-19-seven-chakra-foundation',
+    'element-practice':'month-20-elements',
+    'element-psychological-types':'month-20-elements',
+    'inner-octaves':'month-21-inner-octaves',
+    'outer-octaves':'month-22-outer-octaves-centres',
+    'three-centres':'part-iii-three-centres',
+    'candle-attention':'month-23-candle-ancestors',
+    'ancestors-practice':'month-23-candle-ancestors',
+    'higher-self':'month-24-higher-self-integration',
+    'ending-snake-tail':'month-24-higher-self-integration'
+  };
+  const MONTH_PRACTICE={
+    1:'entry-self-contemplation',2:'directed-thought',3:'chosen-action',4:'equanimity-practice',5:'positive-perception-practice',6:'openness-practice',7:'reverse-review-practice',
+    8:'directed-thought',9:'reverse-review-practice',10:'reverse-review-practice',11:'energy-gain',12:'star-energy',13:'emptiness-meditation',14:'wire-training',15:'aura-defence',16:'helping-the-world',17:'acceptance-practice',18:'reverse-review-practice',
+    19:'seven-chakra-foundation',20:'element-practice',21:'inner-octaves',22:'three-centres',23:'ancestors-practice',24:'ending-snake-tail'
+  };
+  const stageRange=sortOrder=>{const n=Math.max(1,Number(sortOrder)||1);return n<=7?{start:n,end:n}:n===8?{start:8,end:18}:{start:19,end:24}};
+  const elapsedMonth=(startedAt)=>{const now=new Date(),started=new Date(startedAt||now);if(Number.isNaN(started.getTime()))return 1;return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1)};
+  async function resolveCurriculumMonth(stages){
+    try{
+      const currentUser=await me();if(!currentUser)return 1;
+      const [profiles,progress]=await Promise.all([
+        rest('path_profiles',{query:`user_id=eq.${currentUser.id}&select=path_started_at,current_stage_id&limit=1`}),
+        rest('path_student_progress',{query:`user_id=eq.${currentUser.id}&select=stage_id,status,started_at&order=started_at.asc`})
+      ]);
+      const profile=profiles[0]||{};
+      const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
+      const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0];
+      const range=stageRange(stage?.sort_order||1);
+      if(range.start===range.end)return range.start;
+      return Math.min(range.end,range.start+elapsedMonth(active?.started_at||profile.path_started_at)-1);
+    }catch(error){console.warn('ASCEND month resolution fell back to Month 1',error);return 1}
+  }
+  function expandPractices(practices,content){
+    const bySlug=new Map(content.map(item=>[item.slug,item]));
+    return practices.map(practice=>{
+      const source=bySlug.get(PRACTICE_CONTENT[practice.slug]);
+      if(!source?.body||source.body.length<=String(practice.instructions||'').length)return practice;
+      return {...practice,instructions:source.body,metadata:{...(practice.metadata||{}),authored_instructions:practice.instructions||'',expanded_from:source.slug,expanded_title:source.title}};
+    });
+  }
+  function bindMonthlyPrimary(stages,practices,links,currentMonth){
+    const stageSort=currentMonth<=7?currentMonth:currentMonth<=18?8:9;
+    const stage=stages.find(item=>Number(item.sort_order)===stageSort);
+    const preferred=practices.find(item=>item.slug===MONTH_PRACTICE[currentMonth]);
+    if(!stage||!preferred||!links.some(link=>link.stage_id===stage.id&&link.practice_id===preferred.id))return links;
+    return links.map(link=>{
+      if(link.stage_id!==stage.id)return link;
+      if(link.practice_id===preferred.id)return {...link,role:'primary'};
+      if(link.role==='primary')return {...link,role:'supporting'};
+      return link;
+    });
+  }
+  async function loadCurriculum(){
+    const [phases,stages,rawPractices,rawLinks,markers,content,contentRules]=await Promise.all([
+      rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
+      rest('path_stages',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
+      rest('path_practices',{query:'select=*&is_published=eq.true'}),
+      rest('path_stage_practices',{query:'select=*'}),
+      rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),
+      rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),
+      rest('path_content_unlock_rules',{query:'select=*'})
+    ]);
+    const currentMonth=await resolveCurriculumMonth(stages);
+    const practices=expandPractices(rawPractices,content);
+    const links=bindMonthlyPrimary(stages,practices,rawLinks,currentMonth);
+    return{phases,stages,practices,links,markers,content,contentRules,currentMonth};
+  }
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}
   async function completePractice({stageId,practiceId,durationSeconds}){return rpc('path_record_practice_completion',{p_stage_id:stageId,p_practice_id:practiceId,p_duration_seconds:durationSeconds})}
