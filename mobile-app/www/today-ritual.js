@@ -4,7 +4,7 @@
   const begin=document.querySelector('#today [data-action="practice"]');
   if(!portal||!begin)return;
 
-  const HOLD_MS=1500;
+  const HOLD_MS=2000;
   const PULSES=[0,.34,.67,.92];
   let frame=0,holdTimer=0,startAt=0,pulseIndex=0,holding=false,completed=false,pointerId=null;
 
@@ -27,7 +27,7 @@
   const reset=({message='Press and hold to begin.'}={})=>{
     clearTimers();holding=false;completed=false;pointerId=null;pulseIndex=0;
     portal.classList.remove('is-holding','is-opening');
-    portal.setAttribute('aria-label','Press and hold to begin Self-Contemplation');
+    portal.setAttribute('aria-label','Press and hold for two seconds to begin practice');
     portal.removeAttribute('aria-valuenow');
     setProgress(0);
     if(feedback)feedback.textContent=message;
@@ -41,7 +41,7 @@
     if(completed||!holding)return;
     clearTimers();
     completed=true;holding=false;setProgress(1);portal.classList.remove('is-holding');portal.classList.add('is-opening');
-    portal.setAttribute('aria-label','Opening practice');
+    portal.setAttribute('aria-label','Opening practice briefing');
     if(feedback)feedback.textContent='The path is open.';
     vibrate([35,35,55],'MEDIUM');
     setTimeout(openPractice,120);
@@ -61,7 +61,7 @@
     if(event.button!==undefined&&event.button!==0)return;
     if(holding)return;
     event.preventDefault();
-    reset({message:'Keep holding…'});
+    reset({message:'Keep holding for two seconds…'});
     holding=true;pointerId=event.pointerId??null;startAt=performance.now();
     portal.classList.add('is-holding');
     holdTimer=setTimeout(finishHold,HOLD_MS);
@@ -82,10 +82,10 @@
   portal.addEventListener('click',event=>{
     if(event.detail!==0){
       event.preventDefault();
-      if(!holding&&!completed&&feedback)feedback.textContent='Press and hold to begin.';
+      if(!holding&&!completed&&feedback)feedback.textContent='Press and hold for two seconds to begin.';
       return;
     }
-    if(feedback)feedback.textContent='Opening practice.';
+    if(feedback)feedback.textContent='Opening practice briefing.';
     vibrate(18,'MEDIUM');openPractice();
   });
 
