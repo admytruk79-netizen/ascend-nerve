@@ -1,34 +1,22 @@
 (()=>{
-  const STAGE_MAP={
-    'Self-Contemplation at the Beginning of the Path':['orientation-path','observation-before-interpretation','akharata-taking-inventory','akharata-chapter-01'],
-    'Clarity of Thought':['akharata-observation-three-requirements','akharata-chapter-03','observation-before-interpretation'],
-    'Will & Constancy':['akharata-chapter-05','akharata-chapter-03'],
-    'Equanimity':['akharata-chapter-04','akharata-experience-without-name','observation-before-interpretation'],
-    'Positive Perception':['akharata-experience-without-name','akharata-chapter-04'],
-    'Openness to the New':['akharata-borrowed-concept','akharata-chapter-02','akharata-experience-without-name'],
-    'Impartial Retrospect':['observation-before-interpretation','akharata-observation-three-requirements','akharata-chapter-03'],
-    'Tools & Integration':['akharata-chapter-05','akharata-chapter-11','akharata-chapter-12'],
-    'Expanded Practice & Integration':['akharata-chapter-11','akharata-chapter-12','akharata-volume-1']
-  };
-
   let currentMonth=1;
-  const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const paragraphs=(text='')=>String(text).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('');
 
-  function currentStageTitle(){return document.getElementById('profile-stage')?.textContent?.trim()||document.getElementById('stage-title')?.textContent?.trim()||''}
   function minMonth(item){const exact=Number(item?.metadata?.month)||0;const minimum=Number(item?.metadata?.min_month)||0;return exact||minimum||1}
   function eligible(item){return minMonth(item)<=currentMonth}
 
   function relatedItems(){
     const c=window.curriculum;
     if(!c?.content?.length)return[];
+
     const exact=c.content.filter(item=>Number(item?.metadata?.month)===currentMonth&&eligible(item));
     if(exact.length)return exact.slice(0,3);
-    const wanted=STAGE_MAP[currentStageTitle()]||[];
-    const picked=wanted.map(slug=>c.content.find(x=>x.slug===slug)).filter(item=>item&&eligible(item));
-    if(picked.length)return picked;
-    const words=(currentStageTitle()+' '+(document.getElementById('practice-name')?.textContent||'')).toLowerCase().split(/\W+/).filter(x=>x.length>4);
-    return c.content.filter(eligible).map(item=>({item,score:words.reduce((n,w)=>n+(((item.title||'')+' '+(item.summary||'')).toLowerCase().includes(w)?1:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.item);
+
+    return c.content
+      .filter(eligible)
+      .sort((a,b)=>minMonth(b)-minMonth(a))
+      .slice(0,3);
   }
 
   function openItem(item){
@@ -40,7 +28,7 @@
     if(type)type.textContent=(item.content_type||'TEACHING').toUpperCase();
     const title=document.getElementById('library-title');
     if(title)title.textContent=item.title||'';
-    const body=item.body||item.summary||'This item is available as part of your current Path stage.';
+    const body=item.body||item.summary||'This item is available as part of your current Path month.';
     const bodyEl=document.getElementById('library-body');
     if(bodyEl)bodyEl.innerHTML=paragraphs(body)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
     overlay.classList.remove('hidden');
