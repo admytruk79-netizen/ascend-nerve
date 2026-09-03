@@ -19,8 +19,8 @@
 #today>.ritual-context h1{margin:8px 0 9px!important;font-size:clamp(31px,9vw,46px)!important;line-height:1.04!important;letter-spacing:-.025em!important}
 #today>.ritual-context .ritual-meta{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;color:var(--ui-muted)!important;font-size:12px!important;letter-spacing:.06em!important}
 
-#today>.ritual-scene{display:flex!important;align-items:center!important;justify-content:center!important;min-height:290px!important;margin:4px auto 4px!important}
-#today .ritual-portal{position:relative!important;margin:0 auto!important;flex:none!important}
+#today>.ritual-scene{display:block!important;position:relative!important;min-height:290px!important;margin:4px auto 4px!important}
+#today .ritual-portal{position:absolute!important;left:50%!important;top:52%!important;transform:translate(-50%,-50%)!important;margin:0!important;flex:none!important}
 #today>#ritual-feedback{display:block!important;min-height:20px!important;margin:2px 0 10px!important;text-align:center!important}
 #today>.ritual-begin{display:block!important;width:100%!important;max-width:360px!important;margin:8px auto 24px!important}
 
