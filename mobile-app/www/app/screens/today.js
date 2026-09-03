@@ -1,4 +1,4 @@
-import {setMonth} from '../state.js';
+import {state,setMonth} from '../state.js';
 
 function monthItem(month){
   return window.ASCENDProgression?.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
@@ -22,13 +22,16 @@ export function renderToday(detail={}){
 
 export function initToday(){
   renderToday();
-  // ascend:month (dispatched by month-path.js off the same ascend:curriculum
+  // ascend:month (dispatched by month-path.js off this same ascend:curriculum
   // reload, once it has actually resolved the student's real progression) is
-  // the only authoritative source for the current month. Also rendering on
-  // ascend:curriculum directly raced that resolution with no month in the
-  // event detail, so every curriculum reload (sign-in, practice completion,
-  // journal save, stage change) briefly - or on a slow/failed lookup,
-  // durably - reset this screen to the Month 1 placeholder regardless of the
-  // student's actual reading/practice.
+  // the authoritative source for the current month - re-render with its
+  // detail whenever it arrives. ascend:curriculum itself carries no month,
+  // so re-rendering directly off it must reuse the last confirmed month
+  // (state.month) rather than defaulting to 1: defaulting meant every
+  // curriculum reload (sign-in, practice completion, journal save, stage
+  // change) reset this screen to the Month 1 placeholder regardless of the
+  // student's actual reading/practice, until - or unless - ascend:month
+  // caught up.
+  document.addEventListener('ascend:curriculum',()=>renderToday({month:state.month}));
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
 }
