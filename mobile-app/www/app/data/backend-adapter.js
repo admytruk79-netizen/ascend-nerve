@@ -4,5 +4,10 @@ export const Backend={
   curriculum(){return window.PathBackend?.curriculum?.()},
   completePractice(...args){return window.PathBackend?.completePractice?.(...args)},
   saveJournal(...args){return window.PathBackend?.saveJournal?.(...args)},
+  journalEntries(userId,limit=20){
+    return window.PathBackend?.rest?.('path_journal_entries',{
+      query:`user_id=eq.${userId}&select=*&order=entry_date.desc&limit=${Math.max(1,Math.min(100,Number(limit)||20))}`
+    })||Promise.resolve([]);
+  },
   isSignedIn(){return Boolean(window.PathBackend?.isSignedIn?.())}
 };
