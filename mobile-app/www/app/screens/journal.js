@@ -248,14 +248,6 @@ function bindPersistence(screen){
     });
   }
 
-  screen.addEventListener('click',event=>{
-    const button=event.target.closest('[data-master-journal-save],#journal-form button.primary');
-    if(!button||!screen.contains(button))return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    saveFromMaster(form,status);
-  },true);
-
   form.addEventListener('submit',event=>{
     event.preventDefault();
     event.stopImmediatePropagation();
