@@ -238,8 +238,14 @@ function bindPersistence(screen){
   const status=document.getElementById('journal-status');
   const save=form.querySelector('button.primary,button[type="submit"]');
   if(save){
+    save.id='journal-save';
     save.type='button';
     save.dataset.masterJournalSave='true';
+    save.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      saveFromMaster(form,status);
+    });
   }
 
   screen.addEventListener('click',event=>{
