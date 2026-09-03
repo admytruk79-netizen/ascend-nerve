@@ -45,6 +45,13 @@ async function boot(page,fixtures=baseFixtures,opts){
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
 }
 
+async function waitForJourneyReady(page){
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
+  await expect(page.locator('body')).not.toHaveClass(/access-required/);
+  await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+}
+
 test.describe('comprehensive user journey', ()=>{
 
   test('onboarding cannot be completed without checking the informed-consent box, and checking it lands on Today', async({page})=>{
@@ -69,6 +76,7 @@ test.describe('comprehensive user journey', ()=>{
       path_student_progress:[{user_id:testUser.id,stage_id:'stage-1',status:'review',practice_days:7,started_at:'2026-08-20T00:00:00Z',review_requested_at:'2026-08-30T00:00:00Z'}]
     };
     await boot(page,fixtures);
+    await waitForJourneyReady(page);
     await page.getByRole('button',{name:'Path',exact:true}).click();
     await expect(page.locator('#gateway-moment')).toBeVisible();
     await expect(page.locator('#gateway-moment')).toContainText('THRESHOLD OF CLARITY');
@@ -76,6 +84,7 @@ test.describe('comprehensive user journey', ()=>{
 
   test('Library search and content-type filters narrow results independently and compose together', async({page})=>{
     await boot(page);
+    await waitForJourneyReady(page);
     await page.getByRole('button',{name:'Library'}).click();
     await expect(page.locator('#library-list [data-slug]')).toHaveCount(3);
     await page.locator('[data-library-type="practice"]').click();
@@ -91,6 +100,7 @@ test.describe('comprehensive user journey', ()=>{
 
   test('Day, Twilight and Night render one consistent palette across Today, Path, Library and Me', async({page})=>{
     await boot(page);
+    await waitForJourneyReady(page);
     async function bodyLuminance(){
       return page.evaluate(()=>{
         const cs=getComputedStyle(document.body);
@@ -129,6 +139,7 @@ test.describe('comprehensive user journey', ()=>{
 
   test('Android Back closes the Library reader before leaving the Library screen', async({page})=>{
     await boot(page);
+    await waitForJourneyReady(page);
     await page.getByRole('button',{name:'Library'}).click();
     const group=page.locator('details.library-group:has([data-slug="available-teaching"])');
     await group.locator('summary').click();
