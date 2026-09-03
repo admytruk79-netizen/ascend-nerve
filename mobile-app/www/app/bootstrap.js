@@ -61,15 +61,18 @@ async function boot(){
   await waitForLegacyData();
   document.body.classList.add('ascend-master-ui');
 
-  /* Timer remains a shared practice authority. Journal persistence belongs to the Journal screen owner. */
-  await loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority');
-
   initRouter();
   initToday();
   initPath();
   initJournal();
   initLibrary();
   initMe();
+
+  /* Timer is a self-contained DOM authority with no screen-init dependency in either
+     direction, so it loads after the screens take ownership of their controls instead of
+     blocking that handoff — a delay here previously left Save Reflection (and other
+     screen actions) unbound while this unrelated script was still downloading. */
+  await loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority');
 
   document.documentElement.dataset.ascendMasterReady='1';
   document.body.classList.remove('ascend-master-loading');
