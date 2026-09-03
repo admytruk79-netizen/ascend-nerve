@@ -1,3 +1,5 @@
+import {Backend} from '../data/backend-adapter.js';
+
 const REFLECTION_ART=[
   {src:'assets/seasonal-art/march-what-am-i-noticing.png',label:'What am I noticing?'},
   {src:'assets/seasonal-art/where-does-will-begin.png',label:'Where does will begin?'},
@@ -5,6 +7,8 @@ const REFLECTION_ART=[
   {src:'assets/seasonal-art/what-am-i-refusing.png',label:'What am I refusing?'},
   {src:'assets/seasonal-art/discipline-or-freedom.png',label:'Discipline or freedom?'}
 ];
+
+const JOURNAL_FIELDS=['observation','inner_state','life_application','interpretation','unresolved'];
 
 function ensureReflectionHost(screen,title){
   if(document.getElementById('reflection-art'))return;
@@ -36,7 +40,10 @@ function organizeForm(){
 }
 
 function bindReflectionArt(){
-  document.getElementById('journal')?.addEventListener('click',event=>{
+  const screen=document.getElementById('journal');
+  if(!screen||screen.dataset.reflectionBound==='1')return;
+  screen.dataset.reflectionBound='1';
+  screen.addEventListener('click',event=>{
     const choice=event.target.closest('[data-reflection-index]');
     if(!choice)return;
     const item=REFLECTION_ART[Number(choice.dataset.reflectionIndex)];
@@ -49,6 +56,92 @@ function bindReflectionArt(){
   });
 }
 
+function setSync(text,online=false){
+  const node=document.getElementById('sync-state');
+  if(!node)return;
+  node.textContent=text;
+  node.classList.toggle('online',online);
+}
+
+function entryFromForm(form){
+  const values=new FormData(form);
+  const entry={created_at:new Date().toISOString()};
+  for(const[k,v]of values.entries())entry[k]=String(v).trim();
+  return entry;
+}
+
+function hasMeaningfulContent(form){
+  return JOURNAL_FIELDS.some(name=>String(form.elements?.namedItem(name)?.value||'').trim().length>0);
+}
+
+function currentProgress(){
+  const rows=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
+  return rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1]||null;
+}
+
+function saveLocal(entry){
+  try{
+    const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
+    state.entries=Array.isArray(state.entries)?state.entries:[];
+    state.entries.push(entry);
+    localStorage.setItem('ascendPathState',JSON.stringify(state));
+    return true;
+  }catch(error){
+    console.warn('ASCEND local Journal fallback failed',error);
+    return false;
+  }
+}
+
+async function persistJournal(form,status){
+  const entry=entryFromForm(form);
+  if(Backend.isSignedIn()){
+    try{
+      setSync('SYNCING…');
+      const progress=currentProgress();
+      const user=await Backend.me();
+      const userId=progress?.user_id||user?.id||null;
+      const stageId=progress?.stage_id||window.currentStage?.id||null;
+      if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
+      await Backend.saveJournal(userId,stageId,entry);
+      status.textContent='Reflection saved privately to your ASCEND Path journal.';
+      setSync('SYNCED',true);
+      form.reset();
+      window.ASCENDMirror?.load?.('stage');
+      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId}}));
+      requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
+      return;
+    }catch(error){
+      console.error('ASCEND remote Journal save failed',error);
+    }
+  }
+
+  const saved=saveLocal(entry);
+  status.textContent=Backend.isSignedIn()
+    ?(saved?'Connection unavailable. Reflection saved on this device and can be synchronized later.':'Reflection could not be saved. Please keep this page open and try again.')
+    :(saved?'Reflection saved privately on this device. Sign in to synchronize it.':'Reflection could not be saved on this device.');
+  setSync(saved?'LOCAL':'UNSAVED');
+  if(saved)form.reset();
+  document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
+}
+
+function bindPersistence(){
+  const form=document.getElementById('journal-form');
+  if(!form||form.dataset.masterPersistence==='1')return;
+  form.dataset.masterPersistence='1';
+  form.dataset.remoteAuthority='true';
+  const status=document.getElementById('journal-status');
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(!hasMeaningfulContent(form)){
+      status.textContent='Write at least one observation before saving this reflection.';
+      form.elements?.namedItem('observation')?.focus?.();
+      return;
+    }
+    await persistJournal(form,status);
+  },true);
+}
+
 export function initJournal(){
   const screen=document.getElementById('journal');if(!screen)return;
   const eyebrow=screen.querySelector(':scope>.eyebrow');
@@ -56,5 +149,7 @@ export function initJournal(){
   if(eyebrow)eyebrow.textContent='OBSERVE · REFLECT · INTEGRATE';
   if(title)title.textContent='Journal';
   ensureReflectionHost(screen,title);
-  organizeForm();bindReflectionArt();
+  organizeForm();
+  bindReflectionArt();
+  bindPersistence();
 }
