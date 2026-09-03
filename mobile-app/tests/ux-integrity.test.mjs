@@ -72,13 +72,14 @@ test('Core and specialist Practice Branches remain independent',()=>{
 });
 
 test('Journal has one save authority with remote-first and local fallback behavior',()=>{
-  const authority=read('journal-sync-authority.js');
+  const journal=read('app/screens/journal.js');
   const app=read('app.js');
-  assert.match(authority,/dataset\.remoteAuthority='true'/);
-  assert.match(authority,/stopImmediatePropagation/);
-  assert.match(authority,/PathBackend\.saveJournal/);
-  assert.match(authority,/saveLocal\(entry\)/);
-  assert.match(authority,/ascend:journal-saved/);
+  assert.match(journal,/dataset\.masterPersistence='1'/);
+  assert.match(journal,/dataset\.remoteAuthority='true'/);
+  assert.match(journal,/stopImmediatePropagation/);
+  assert.match(journal,/Backend\.saveJournal/);
+  assert.match(journal,/saveLocal\(entry\)/);
+  assert.match(journal,/ascend:journal-saved/);
   assert.match(app,/dataset\.remoteAuthority==='true'/);
 });
 
