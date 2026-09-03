@@ -55,6 +55,8 @@ function waitForLegacyData(){
 async function boot(){
   if(document.documentElement.dataset.ascendMasterBoot==='1')return;
   document.documentElement.dataset.ascendMasterBoot='1';
+  document.documentElement.dataset.ascendMasterReady='0';
+  document.body.classList.add('ascend-master-loading');
 
   /*
    * Transitional ownership rule: app.js still owns authenticated data loading.
@@ -66,9 +68,10 @@ async function boot(){
 
   document.body.classList.add('ascend-master-ui');
 
+  /* Persistence and timer authorities must exist before navigation is exposed. */
   await Promise.all([
-    loadAuthority('journal-sync-authority.js?v=20260902-master-2','data-journal-sync-authority'),
-    loadAuthority('practice-timer-authority.js?v=20260902-master-2','data-practice-timer-authority')
+    loadAuthority('journal-sync-authority.js?v=20260903-master-ready-1','data-journal-sync-authority'),
+    loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority')
   ]);
 
   initRouter();
@@ -78,12 +81,16 @@ async function boot(){
   initLibrary();
   initMe();
 
+  document.documentElement.dataset.ascendMasterReady='1';
+  document.body.classList.remove('ascend-master-loading');
   document.dispatchEvent(new CustomEvent('ascend:master-ready'));
 }
 
 const start=()=>boot().catch(error=>{
   console.error('ASCEND master bootstrap failed',error);
   document.documentElement.dataset.ascendMasterBoot='error';
+  document.documentElement.dataset.ascendMasterReady='error';
+  document.body.classList.remove('ascend-master-loading');
 });
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
