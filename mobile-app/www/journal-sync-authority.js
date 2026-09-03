@@ -1,7 +1,18 @@
 (()=>{
-  const form=document.getElementById('journal-form');
-  if(!form||form.dataset.remoteAuthority==='true')return;
+  const original=document.getElementById('journal-form');
+  if(!original)return;
+  if(original.dataset.remoteAuthority==='true'&&original.dataset.authorityBound==='true')return;
+
+  /*
+   * app.js still attaches a legacy Journal submit listener before the master
+   * reconstruction boots. Replace the untouched form once so that listener is
+   * physically retired from the live DOM. The cloned form preserves markup,
+   * values, names and accessibility while giving Journal one submit owner.
+   */
+  const form=original.cloneNode(true);
   form.dataset.remoteAuthority='true';
+  form.dataset.authorityBound='true';
+  original.replaceWith(form);
 
   function setSync(text,online=false){
     const node=document.getElementById('sync-state');
@@ -35,21 +46,25 @@
     return rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1]||null;
   }
 
-  function persistenceContext(){
+  async function persistenceContext(){
     const row=authoritativeProgressRow();
-    return{
-      userId:row?.user_id||null,
-      stageId:row?.stage_id||window.currentStage?.id||null
-    };
+    let userId=row?.user_id||null;
+    let stageId=row?.stage_id||window.currentStage?.id||null;
+    if(!userId){
+      const currentUser=await window.PathBackend?.me?.();
+      userId=currentUser?.id||null;
+    }
+    return{userId,stageId};
   }
 
   function returnToToday(){
     requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
   }
 
+  let saving=false;
   form.addEventListener('submit',async event=>{
     event.preventDefault();
-    event.stopImmediatePropagation();
+    if(saving)return;
 
     const status=document.getElementById('journal-status');
     if(!window.ASCENDJournalValidation?.hasMeaningfulContent(form)){
@@ -60,15 +75,13 @@
 
     const entry=entryFromForm();
     const signedIn=!!window.PathBackend?.isSignedIn?.();
+    saving=true;
+    form.setAttribute('aria-busy','true');
 
-    if(signedIn){
-      try{
+    try{
+      if(signedIn){
         setSync('SYNCING…');
-        let{userId,stageId}=persistenceContext();
-        if(!userId){
-          const currentUser=await window.PathBackend.me();
-          userId=currentUser?.id||null;
-        }
+        const{userId,stageId}=await persistenceContext();
         if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
         await window.PathBackend.saveJournal(userId,stageId,entry);
         if(status)status.textContent='Reflection saved privately to your ASCEND Path journal.';
@@ -78,17 +91,23 @@
         document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId}}));
         returnToToday();
         return;
-      }catch(error){
-        console.error('ASCEND remote Journal save failed',error);
       }
-    }
 
-    const saved=saveLocal(entry);
-    if(status)status.textContent=signedIn
-      ?(saved?'Connection unavailable. Reflection saved on this device and can be synchronized later.':'Reflection could not be saved. Please keep this page open and try again.')
-      :(saved?'Reflection saved privately on this device. Sign in to synchronize it.':'Reflection could not be saved on this device.');
-    setSync(saved?'LOCAL':'UNSAVED');
-    if(saved)form.reset();
-    document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
-  },{capture:true});
+      const saved=saveLocal(entry);
+      if(status)status.textContent=saved?'Reflection saved privately on this device. Sign in to synchronize it.':'Reflection could not be saved on this device.';
+      setSync(saved?'LOCAL':'UNSAVED');
+      if(saved)form.reset();
+      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
+    }catch(error){
+      console.error('ASCEND remote Journal save failed',error);
+      const saved=saveLocal(entry);
+      if(status)status.textContent=saved?'Connection unavailable. Reflection saved on this device and can be synchronized later.':'Reflection could not be saved. Please keep this page open and try again.';
+      setSync(saved?'LOCAL':'UNSAVED');
+      if(saved)form.reset();
+      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
+    }finally{
+      saving=false;
+      form.removeAttribute('aria-busy');
+    }
+  });
 })();
