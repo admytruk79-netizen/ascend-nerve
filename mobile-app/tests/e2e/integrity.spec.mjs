@@ -46,8 +46,9 @@ async function boot(page){
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
   await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('body')).not.toHaveClass(/access-required/);
-  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+  await page.waitForFunction(()=>document.documentElement.dataset.ascendMasterReady==='1');
   await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
   await expect(page.locator('#stage-title')).toContainText('Orientation to the Path');
 }
 
