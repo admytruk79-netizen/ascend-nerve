@@ -10,7 +10,13 @@
   loadScriptOnce('journal-sync-authority.js?v=20260902-reconstruction-2','data-journal-sync-authority');
   loadScriptOnce('practice-timer-authority.js?v=20260902-reconstruction-1','data-practice-timer-authority');
 
-  const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const REFLECTION_ART=[
+    {src:'assets/seasonal-art/march-what-am-i-noticing.png',label:'What am I noticing?'},
+    {src:'assets/seasonal-art/where-does-will-begin.png',label:'Where does will begin?'},
+    {src:'assets/seasonal-art/truth-vs-imagination.png',label:'Truth vs imagination'},
+    {src:'assets/seasonal-art/what-am-i-refusing.png',label:'What am I refusing?'},
+    {src:'assets/seasonal-art/discipline-or-freedom.png',label:'Discipline or freedom?'}
+  ];
 
   function canonicalMonth(month=1){
     const list=window.ASCENDProgression?.MONTHS||[];
@@ -69,6 +75,44 @@
     }
   }
 
+  function buildReflectionGallery(journal,title){
+    if(document.getElementById('reflection-art'))return;
+    const gallery=document.createElement('section');
+    gallery.id='reflection-art';
+    gallery.className='recon-reflection-art';
+    gallery.setAttribute('aria-label','Reflection artwork');
+    gallery.innerHTML=`
+      <div class="recon-reflection-hero">
+        <img id="reflection-art-image" src="${REFLECTION_ART[0].src}" alt=""/>
+        <div class="recon-reflection-caption"><small>REFLECTION IMAGE</small><strong id="reflection-art-label">${REFLECTION_ART[0].label}</strong></div>
+      </div>
+      <div class="recon-reflection-choices" role="list" aria-label="Choose a reflection image">
+        ${REFLECTION_ART.map((item,index)=>`<button type="button" class="recon-reflection-choice${index===0?' active':''}" data-reflection-index="${index}" aria-label="${item.label}"><img src="${item.src}" alt=""/></button>`).join('')}
+      </div>`;
+    title?.nextElementSibling?.after(gallery);
+  }
+
+  function simplifyJournalForm(){
+    const form=document.getElementById('journal-form');
+    if(!form||form.dataset.reconstructed==='1')return;
+    form.dataset.reconstructed='1';
+    form.classList.add('recon-journal-form');
+
+    const interpretation=form.querySelector('textarea[name="interpretation"]')?.closest('label');
+    const unresolved=form.querySelector('textarea[name="unresolved"]')?.closest('label');
+    const share=form.querySelector('.journal-share-teacher');
+    const save=form.querySelector('button.primary,button[type="submit"]');
+    if((interpretation||unresolved||share)&&save){
+      const details=document.createElement('details');
+      details.className='recon-deeper-reflection';
+      details.innerHTML='<summary>Deeper reflection <span>Interpretation, unresolved material, teacher sharing</span></summary>';
+      if(interpretation)details.appendChild(interpretation);
+      if(unresolved)details.appendChild(unresolved);
+      if(share)details.appendChild(share);
+      form.insertBefore(details,save);
+    }
+  }
+
   function buildJournalFrame(){
     const journal=document.getElementById('journal');
     if(!journal||journal.dataset.reconstructed==='1')return;
@@ -76,14 +120,14 @@
     journal.classList.add('reconstructed-screen','reconstructed-journal');
     const eyebrow=journal.querySelector(':scope>.eyebrow');
     const title=journal.querySelector(':scope>h1');
-    if(eyebrow)eyebrow.textContent='OBSERVATION SECOND';
+    if(eyebrow)eyebrow.textContent='OBSERVE · REFLECT · INTEGRATE';
     if(title)title.textContent='Journal';
     const intro=document.createElement('p');
     intro.className='recon-screen-copy';
     intro.textContent='Record what you actually observed. Interpretation can wait.';
     title?.after(intro);
-    const form=document.getElementById('journal-form');
-    form?.classList.add('recon-journal-form');
+    buildReflectionGallery(journal,title);
+    simplifyJournalForm();
   }
 
   function buildLibraryFrame(){
@@ -152,6 +196,20 @@
     }catch{}
   }
 
+  function bindReflectionArt(){
+    document.addEventListener('click',event=>{
+      const choice=event.target.closest?.('[data-reflection-index]');
+      if(!choice)return;
+      const item=REFLECTION_ART[Number(choice.dataset.reflectionIndex)];
+      if(!item)return;
+      const image=document.getElementById('reflection-art-image');
+      const label=document.getElementById('reflection-art-label');
+      if(image)image.src=item.src;
+      if(label)label.textContent=item.label;
+      document.querySelectorAll('[data-reflection-index]').forEach(button=>button.classList.toggle('active',button===choice));
+    });
+  }
+
   function mount(){
     buildTodayFrame();
     buildPathFrame();
@@ -160,6 +218,7 @@
     buildMeFrame();
     ensureLibraryReaderHead();
     canonicalizeToday();
+    bindReflectionArt();
     document.querySelector('.bottom-nav button[data-screen="me"]')?.addEventListener('click',()=>requestAnimationFrame(refreshMirrorWhenReady));
   }
 
