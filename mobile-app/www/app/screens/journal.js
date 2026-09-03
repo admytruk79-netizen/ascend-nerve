@@ -9,6 +9,7 @@ const REFLECTION_ART=[
 ];
 
 const JOURNAL_FIELDS=['observation','inner_state','life_application','interpretation','unresolved'];
+let persistenceContext={userId:null,stageId:null};
 
 function ensureReflectionHost(screen,title){
   if(document.getElementById('reflection-art'))return;
@@ -97,6 +98,20 @@ function currentProgress(){
   return rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1]||null;
 }
 
+function refreshPersistenceContext(){
+  const progress=currentProgress();
+  persistenceContext={
+    userId:progress?.user_id||persistenceContext.userId||null,
+    stageId:progress?.stage_id||window.currentStage?.id||persistenceContext.stageId||null
+  };
+  const form=document.getElementById('journal-form');
+  if(form){
+    form.dataset.masterUserId=persistenceContext.userId||'';
+    form.dataset.masterStageId=persistenceContext.stageId||'';
+  }
+  return persistenceContext;
+}
+
 function localEntries(){
   try{
     const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
@@ -165,13 +180,17 @@ async function loadHistory(){
   const list=document.getElementById('journal-history-list');
   if(!list)return;
   list.replaceChildren();
-  const progress=currentProgress();
+  const context=refreshPersistenceContext();
   const locals=localEntries().slice().reverse();
   let remote=[];
   if(Backend.isSignedIn()){
     try{
-      const userId=progress?.user_id||(await Backend.me())?.id||null;
-      if(userId)remote=await Backend.journalEntries(userId,20);
+      let userId=context.userId;
+      if(!userId)userId=(await Backend.me())?.id||null;
+      if(userId){
+        persistenceContext.userId=userId;
+        remote=await Backend.journalEntries(userId,20);
+      }
     }catch(error){console.warn('ASCEND Journal history unavailable',error)}
   }
   if(!remote.length&&!locals.length){
@@ -190,9 +209,11 @@ async function persistJournal(form,status){
   if(Backend.isSignedIn()){
     try{
       setSync('SYNCING…');
-      const progress=currentProgress();
-      const userId=progress?.user_id||(await Backend.me())?.id||null;
-      const stageId=progress?.stage_id||window.currentStage?.id||null;
+      const context=refreshPersistenceContext();
+      let userId=context.userId;
+      const stageId=context.stageId;
+      if(!userId)userId=(await Backend.me())?.id||null;
+      if(userId)persistenceContext.userId=userId;
       if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
       if(typeof Backend.raw?.saveJournal!=='function')throw new Error('Journal persistence is unavailable.');
       await Backend.saveJournal(userId,stageId,entry);
@@ -235,6 +256,7 @@ function bindPersistence(screen){
   if(!form||screen.dataset.masterPersistence==='1')return;
   screen.dataset.masterPersistence='1';
   form.dataset.remoteAuthority='true';
+  refreshPersistenceContext();
   const status=document.getElementById('journal-status');
   const save=form.querySelector('button.primary,button[type="submit"]');
   if(save){
@@ -266,5 +288,9 @@ export function initJournal(){
   ensureHistoryHost(screen);
   bindReflectionArt();
   bindPersistence(screen);
-  document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='journal')loadHistory()});
+  document.addEventListener('ascend:screen',event=>{
+    if(event.detail?.screen!=='journal')return;
+    refreshPersistenceContext();
+    loadHistory();
+  });
 }
