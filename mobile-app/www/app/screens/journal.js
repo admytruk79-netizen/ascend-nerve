@@ -98,8 +98,7 @@ async function persistJournal(form,status){
     try{
       setSync('SYNCING…');
       const progress=currentProgress();
-      const user=await Backend.me();
-      const userId=progress?.user_id||user?.id||null;
+      const userId=progress?.user_id||(await Backend.me())?.id||null;
       const stageId=progress?.stage_id||window.currentStage?.id||null;
       if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
       await Backend.saveJournal(userId,stageId,entry);
@@ -124,21 +123,35 @@ async function persistJournal(form,status){
   document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
 }
 
+async function saveFromMaster(form,status){
+  if(form.dataset.masterSaving==='1')return;
+  if(!hasMeaningfulContent(form)){
+    status.textContent='Write at least one observation before saving this reflection.';
+    form.elements?.namedItem('observation')?.focus?.();
+    return;
+  }
+  form.dataset.masterSaving='1';
+  try{await persistJournal(form,status)}finally{delete form.dataset.masterSaving}
+}
+
 function bindPersistence(){
   const form=document.getElementById('journal-form');
   if(!form||form.dataset.masterPersistence==='1')return;
   form.dataset.masterPersistence='1';
   form.dataset.remoteAuthority='true';
   const status=document.getElementById('journal-status');
-  form.addEventListener('submit',async event=>{
+  const save=form.querySelector('button.primary,button[type="submit"]');
+
+  if(save){
+    save.type='button';
+    save.dataset.masterJournalSave='true';
+    save.addEventListener('click',()=>saveFromMaster(form,status));
+  }
+
+  form.addEventListener('submit',event=>{
     event.preventDefault();
     event.stopImmediatePropagation();
-    if(!hasMeaningfulContent(form)){
-      status.textContent='Write at least one observation before saving this reflection.';
-      form.elements?.namedItem('observation')?.focus?.();
-      return;
-    }
-    await persistJournal(form,status);
+    saveFromMaster(form,status);
   },true);
 }
 
