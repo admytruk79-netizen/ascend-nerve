@@ -1,0 +1,23 @@
+:root{
+  --asc-bg:#061018;
+  --asc-surface:rgba(11,28,39,.78);
+  --asc-surface-strong:#0d202c;
+  --asc-line:rgba(218,196,145,.16);
+  --asc-line-strong:rgba(218,196,145,.30);
+  --asc-text:#f3f0e7;
+  --asc-muted:#9caaa9;
+  --asc-gold:#d3b978;
+  --asc-gold-soft:#e2cf9e;
+  --asc-teal:#6faea8;
+  --asc-radius-sm:12px;
+  --asc-radius-md:18px;
+  --asc-radius-lg:28px;
+  --asc-space-1:6px;
+  --asc-space-2:10px;
+  --asc-space-3:16px;
+  --asc-space-4:24px;
+  --asc-space-5:32px;
+  --asc-space-6:48px;
+  --asc-content:720px;
+  --asc-phone:540px;
+}
