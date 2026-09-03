@@ -30,10 +30,17 @@
     return entry;
   }
 
-  function loadedUserId(){
-    const stageId=window.currentStage?.id;
+  function authoritativeProgressRow(){
     const rows=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
-    return rows.find(row=>row.stage_id===stageId)?.user_id||rows[0]?.user_id||null;
+    return rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1]||null;
+  }
+
+  function persistenceContext(){
+    const row=authoritativeProgressRow();
+    return{
+      userId:row?.user_id||null,
+      stageId:row?.stage_id||window.currentStage?.id||null
+    };
   }
 
   function returnToToday(){
@@ -57,19 +64,18 @@
     if(signedIn){
       try{
         setSync('SYNCING…');
-        const stage=window.currentStage;
-        let userId=loadedUserId();
+        let{userId,stageId}=persistenceContext();
         if(!userId){
           const currentUser=await window.PathBackend.me();
           userId=currentUser?.id||null;
         }
-        if(!userId||!stage?.id)throw new Error('ASCEND is still loading your current stage.');
-        await window.PathBackend.saveJournal(userId,stage.id,entry);
+        if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
+        await window.PathBackend.saveJournal(userId,stageId,entry);
         if(status)status.textContent='Reflection saved privately to your ASCEND Path journal.';
         setSync('SYNCED',true);
         form.reset();
         window.ASCENDMirror?.load?.('stage');
-        document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId:stage.id}}));
+        document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId}}));
         returnToToday();
         return;
       }catch(error){
