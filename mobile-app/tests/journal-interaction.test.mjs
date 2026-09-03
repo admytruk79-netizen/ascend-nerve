@@ -49,11 +49,11 @@ test('meaningful Journal submission reaches the persistence listener',()=>{
 
 test('confirmed practice hands off to Journal and confirmed Journal save returns to Today',()=>{
   const progress=read('progress-integrity.js');
-  const journal=read('journal-sync-authority.js');
+  const journal=read('app/screens/journal.js');
   assert.match(progress,/function handoffToJournal\(\)/);
   assert.match(progress,/activateScreen\?\.\('journal'\)/);
   assert.match(progress,/Record what you actually observed/);
-  assert.match(journal,/function returnToToday\(\)/);
+  assert.match(journal,/Backend\.saveJournal/);
   assert.match(journal,/activateScreen\?\.\('today'\)/);
   assert.match(journal,/ascend:journal-saved/);
 });
