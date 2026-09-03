@@ -46,9 +46,6 @@ jobs:
 
   deploy:
     needs: test
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}preview/
     runs-on: ubuntu-latest
     steps:
       - name: Checkout reconstruction
