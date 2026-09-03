@@ -84,13 +84,13 @@ test('Journal has one save authority with remote-first and local fallback behavi
 
 test('Journal remains a primary navigation destination and observation is first',()=>{
   const html=read('index.html');
-  const ux=read('ux-fixes.js');
+  const router=read('app/router.js');
   assert.match(html,/data-screen="journal">Journal/);
   assert.match(html,/name="observation"/);
   assert.match(html,/name="interpretation"/);
   assert.ok(html.indexOf('name="observation"')<html.indexOf('name="interpretation"'));
-  assert.match(ux,/data-go-journal/);
-  assert.match(ux,/Practice complete\. Note anything you want to remember\./);
+  assert.match(router,/data-go-journal/);
+  assert.match(router,/Practice complete\. Note anything you want to remember\./);
 });
 
 test('active entitlement hides purchase and lifetime-key surfaces',()=>{
@@ -101,9 +101,9 @@ test('active entitlement hides purchase and lifetime-key surfaces',()=>{
 });
 
 test('valid authenticated session clears the auth gate',()=>{
-  const ux=read('ux-fixes.js');
-  assert.match(ux,/classList\.toggle\('auth-required',!confirmedUser\)/);
-  assert.match(ux,/if\(!confirmedUser\)activateScreen\('me'/);
+  const router=read('app/router.js');
+  assert.match(router,/classList\.toggle\('auth-required',!confirmedUser\)/);
+  assert.match(router,/if\(!confirmedUser\)showScreen\('me'/);
 });
 
 test('Resonance refresh belongs to the Me owner and requires confirmed authenticated identity',()=>{
@@ -138,15 +138,15 @@ test('practice completion cannot advance before timer readiness or fake progress
 });
 
 test('Android Back unwinds all major overlays before screen navigation',()=>{
-  const ux=read('ux-fixes.js');
-  assert.match(ux,/#practice-briefing/);
-  assert.match(ux,/#branch-overlay/);
-  assert.match(ux,/#menu-overlay/);
-  assert.match(ux,/#about-overlay/);
-  assert.match(ux,/Plugins\?\.App\?\.addListener\?\.\('backButton'/);
-  assert.match(ux,/const open=activeOverlay\(\)/);
-  assert.match(ux,/screenTrail\.pop\(\)/);
-  assert.match(ux,/window\.addEventListener\('popstate'/);
+  const router=read('app/router.js');
+  assert.match(router,/#practice-briefing/);
+  assert.match(router,/#branch-overlay/);
+  assert.match(router,/#menu-overlay/);
+  assert.match(router,/#about-overlay/);
+  assert.match(router,/Plugins\?\.App\?\.addListener\?\.\('backButton'/);
+  assert.match(router,/openOverlays\(\)\.at\(-1\)/);
+  assert.match(router,/screenName\(\)!=='today'/);
+  assert.match(router,/window\.addEventListener\('popstate'/);
 });
 
 test('Library remains contextual, keyboard operable and does not mutate canonical curriculum',()=>{
