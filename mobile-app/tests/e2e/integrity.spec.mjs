@@ -48,7 +48,7 @@ async function boot(page){
   await expect(page.locator('body')).not.toHaveClass(/access-required/);
   await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
   await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
-  await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
+  await expect(page.locator('#stage-title')).toContainText('Orientation to the Path');
 }
 
 test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
