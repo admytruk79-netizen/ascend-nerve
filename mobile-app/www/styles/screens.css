@@ -45,4 +45,4 @@ body.ascend-master-ui #me [data-role="account"]{order:4}
 body.ascend-master-ui #me{display:none}
 body.ascend-master-ui #me.active{display:flex;flex-direction:column;gap:14px}
 body.ascend-master-ui #me.active>.eyebrow,body.ascend-master-ui #me.active>h1{align-self:stretch}
-body.ascend-master-ui #me .auth-card #account-signed-in:not(.hidden) #paywall-purchase{display:none}
+body.ascend-master-ui:not(.access-required) #me .auth-card #account-signed-in:not(.hidden) #paywall-purchase{display:none}
