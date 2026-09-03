@@ -1,0 +1,18 @@
+@media (min-width:760px){
+  body.ascend-master-ui .screen{padding-left:32px;padding-right:32px}
+  body.ascend-master-ui #path{width:min(100%,880px)}
+  body.ascend-master-ui #path .formation-months{grid-template-columns:1fr 1fr}
+  body.ascend-master-ui #journal{width:min(100%,760px)}
+  body.ascend-master-ui #library{width:min(100%,880px)}
+  body.ascend-master-ui #me{width:min(100%,760px)}
+}
+@media (min-width:1100px){
+  body.ascend-master-ui #path .formation-months{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:380px){
+  body.ascend-master-ui .screen{padding-left:15px;padding-right:15px}
+  body.ascend-master-ui #today .ritual-scene{min-height:270px}
+}
+@media (prefers-reduced-motion:reduce){
+  body.ascend-master-ui *,body.ascend-master-ui *::before,body.ascend-master-ui *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
