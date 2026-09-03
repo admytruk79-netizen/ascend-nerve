@@ -22,6 +22,13 @@ export function renderToday(detail={}){
 
 export function initToday(){
   renderToday();
+  // ascend:month (dispatched by month-path.js off the same ascend:curriculum
+  // reload, once it has actually resolved the student's real progression) is
+  // the only authoritative source for the current month. Also rendering on
+  // ascend:curriculum directly raced that resolution with no month in the
+  // event detail, so every curriculum reload (sign-in, practice completion,
+  // journal save, stage change) briefly - or on a slow/failed lookup,
+  // durably - reset this screen to the Month 1 placeholder regardless of the
+  // student's actual reading/practice.
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
-  document.addEventListener('ascend:curriculum',()=>renderToday());
 }

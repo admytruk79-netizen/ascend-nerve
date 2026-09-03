@@ -11,13 +11,25 @@
   const activeGroup=month=>GROUPS.find(group=>month>=group.start&&month<=group.end)||GROUPS[0];
   const esc=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+  let lastGoodContext=null;
+
   async function paint({fresh=false}={}){
     const host=document.getElementById('path-list');
     if(!host||!window.ASCENDProgression)return;
 
-    let context={month:1};
-    try{context=await ASCENDProgression.current({fresh})}
-    catch(error){console.error('Progression context failed',error)}
+    let context=lastGoodContext||{month:1};
+    try{
+      context=await ASCENDProgression.current({fresh});
+      lastGoodContext=context;
+    }catch(error){
+      // A failed lookup (network hiccup, expiring session) must not broadcast
+      // a fabricated "you're on Month 1" signal over the student's real,
+      // previously-confirmed position - every ascend:month listener (Today's
+      // headline, Library month-gating, training layers) would regress to
+      // the placeholder until the next successful reload. Keep showing the
+      // last confirmed month instead.
+      console.error('Progression context failed',error);
+    }
 
     const currentMonth=Math.max(1,Math.min(24,Number(context.month)||1));
     const current=ASCENDProgression.MONTHS[currentMonth-1];
