@@ -1,0 +1,48 @@
+body.ascend-master-ui #today{width:min(100%,var(--asc-phone));text-align:center}
+body.ascend-master-ui #today .ritual-context{margin:10px auto 18px}
+body.ascend-master-ui #today #stage-title{font-size:clamp(30px,8vw,42px);margin:8px 0 10px}
+body.ascend-master-ui #today .ritual-scene{position:relative;min-height:300px;margin:0 auto}
+body.ascend-master-ui #today .ritual-portal{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;touch-action:none}
+body.ascend-master-ui #today .ritual-begin{display:none!important}
+body.ascend-master-ui #today .journey-rail{margin-top:18px;text-align:left}
+body.ascend-master-ui #today .journal-handoff{margin-top:12px}
+
+body.ascend-master-ui #path .formation-map{display:grid;gap:14px;margin-top:18px}
+body.ascend-master-ui #path .formation-group{overflow:hidden}
+body.ascend-master-ui #path .formation-group>summary{padding:16px;cursor:pointer}
+body.ascend-master-ui #path .formation-months{padding:0 12px 12px;display:grid;gap:8px}
+body.ascend-master-ui #path .month-card{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:13px;border-radius:14px;border:1px solid transparent}
+body.ascend-master-ui #path .month-card.current{border-color:var(--asc-line-strong);background:rgba(211,185,120,.07)}
+body.ascend-master-ui #path .month-card:not(.current):not(.done){opacity:.62}
+
+body.ascend-master-ui #journal{width:min(100%,620px)}
+body.ascend-master-ui .ascend-reflection-art{margin:18px 0 22px}
+body.ascend-master-ui .ascend-reflection-hero{position:relative;overflow:hidden;border-radius:var(--asc-radius-lg);border:1px solid var(--asc-line);background:var(--asc-surface-strong);aspect-ratio:4/3}
+body.ascend-master-ui .ascend-reflection-hero>img{width:100%;height:100%;object-fit:cover;display:block}
+body.ascend-master-ui .ascend-reflection-hero>div{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 16px;background:linear-gradient(transparent,rgba(2,10,15,.9));text-align:left}
+body.ascend-master-ui .ascend-reflection-hero small,body.ascend-master-ui .ascend-reflection-hero strong{display:block}
+body.ascend-master-ui .ascend-reflection-hero small{font-size:10px;letter-spacing:.18em;color:var(--asc-gold-soft)}
+body.ascend-master-ui .ascend-reflection-hero strong{margin-top:4px;font-size:18px}
+body.ascend-master-ui .ascend-reflection-choices{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 2px}
+body.ascend-master-ui .ascend-reflection-choices button{flex:0 0 62px;height:48px;padding:0;border:1px solid transparent;border-radius:10px;overflow:hidden;background:none}
+body.ascend-master-ui .ascend-reflection-choices button.active{border-color:var(--asc-gold)}
+body.ascend-master-ui .ascend-reflection-choices img{width:100%;height:100%;object-fit:cover}
+body.ascend-master-ui #journal-form{display:grid;gap:14px}
+body.ascend-master-ui #journal-form label{display:grid;gap:7px;color:var(--asc-muted);font-size:12px}
+body.ascend-master-ui #journal-form textarea{min-height:110px;padding:13px;resize:vertical}
+body.ascend-master-ui .ascend-deeper-reflection{border-top:1px solid var(--asc-line);padding-top:12px}
+body.ascend-master-ui .ascend-deeper-reflection summary{cursor:pointer;color:var(--asc-gold-soft);padding:8px 0}
+body.ascend-master-ui .ascend-deeper-reflection summary span{display:block;margin-top:3px;color:var(--asc-muted);font-size:10px}
+body.ascend-master-ui .ascend-deeper-reflection[open]{display:grid;gap:14px}
+
+body.ascend-master-ui #library .library-tools{margin:18px 0}
+body.ascend-master-ui #library-recommended{margin-bottom:22px}
+
+body.ascend-master-ui #me [data-role="formation"]{order:1}
+body.ascend-master-ui #me [data-role="resonance"]{order:2}
+body.ascend-master-ui #me #teacher-section{order:3}
+body.ascend-master-ui #me [data-role="account"]{order:4}
+body.ascend-master-ui #me{display:none}
+body.ascend-master-ui #me.active{display:flex;flex-direction:column;gap:14px}
+body.ascend-master-ui #me.active>.eyebrow,body.ascend-master-ui #me.active>h1{align-self:stretch}
+body.ascend-master-ui #me .auth-card #account-signed-in:not(.hidden) #paywall-purchase{display:none}
