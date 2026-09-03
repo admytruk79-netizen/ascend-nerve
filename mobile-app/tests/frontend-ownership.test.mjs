@@ -32,17 +32,19 @@ test('retired Today and approved-screen helpers do not rebuild primary screens',
   const today=read('design-v3-today.js');
   assert.doesNotMatch(approved,/approved-hero|initiation-school\.css|insertAdjacentElement\(['"]afterend['"]|screen\.prepend/);
   assert.doesNotMatch(today,/today-v3|approved-hero|initiation-school\.css|approved-screens\.js/);
+  assert.match(today,/app\/bootstrap\.js/);
 });
 
-test('practice timer is elapsed-time authoritative and cannot complete from interval count alone',()=>{
+test('practice timer is elapsed-time authoritative and loaded by the master bootstrap',()=>{
   const timer=read('practice-timer-authority.js');
-  const bridge=read('design-v3-today.js');
+  const bootstrap=read('app/bootstrap.js');
   assert.match(timer,/deadline=Date\.now\(\)\+remainingMs/);
   assert.match(timer,/remainingMs=Math\.max\(0,deadline-Date\.now\(\)\)/);
   assert.match(timer,/if\(remainingMs<=0\)complete\(\)/);
   assert.match(timer,/current\.cloneNode\(true\)/);
   assert.match(timer,/data\.timerAuthority|dataset\.timerAuthority/);
-  assert.match(bridge,/practice-timer-authority\.js/);
+  assert.match(bootstrap,/practice-timer-authority\.js/);
+  assert.match(bootstrap,/data-practice-timer-authority/);
 });
 
 test('theme and component CSS are statically composed',()=>{
