@@ -1,5 +1,7 @@
+import {Auth} from '../data/auth.js';
+
 async function refreshResonance(){
-  try{const me=await window.PathBackend?.me?.();if(me)window.ASCENDMirror?.load?.('stage')}catch{}
+  try{const me=await Auth.me();if(me)window.ASCENDMirror?.load?.('stage')}catch{}
 }
 
 export function initMe(){
