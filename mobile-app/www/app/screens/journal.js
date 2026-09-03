@@ -101,6 +101,7 @@ async function persistJournal(form,status){
       const userId=progress?.user_id||(await Backend.me())?.id||null;
       const stageId=progress?.stage_id||window.currentStage?.id||null;
       if(!userId||!stageId)throw new Error('ASCEND is still loading your current stage.');
+      if(typeof Backend.raw?.saveJournal!=='function')throw new Error('Journal persistence is unavailable.');
       await Backend.saveJournal(userId,stageId,entry);
       status.textContent='Reflection saved privately to your ASCEND Path journal.';
       setSync('SYNCED',true);
@@ -134,19 +135,25 @@ async function saveFromMaster(form,status){
   try{await persistJournal(form,status)}finally{delete form.dataset.masterSaving}
 }
 
-function bindPersistence(){
+function bindPersistence(screen){
   const form=document.getElementById('journal-form');
-  if(!form||form.dataset.masterPersistence==='1')return;
-  form.dataset.masterPersistence='1';
+  if(!form||screen.dataset.masterPersistence==='1')return;
+  screen.dataset.masterPersistence='1';
   form.dataset.remoteAuthority='true';
   const status=document.getElementById('journal-status');
   const save=form.querySelector('button.primary,button[type="submit"]');
-
   if(save){
     save.type='button';
     save.dataset.masterJournalSave='true';
-    save.addEventListener('click',()=>saveFromMaster(form,status));
   }
+
+  screen.addEventListener('click',event=>{
+    const button=event.target.closest('[data-master-journal-save],#journal-form button.primary');
+    if(!button||!screen.contains(button))return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    saveFromMaster(form,status);
+  },true);
 
   form.addEventListener('submit',event=>{
     event.preventDefault();
@@ -164,5 +171,5 @@ export function initJournal(){
   ensureReflectionHost(screen,title);
   organizeForm();
   bindReflectionArt();
-  bindPersistence();
+  bindPersistence(screen);
 }
