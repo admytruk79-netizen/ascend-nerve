@@ -11,53 +11,6 @@ const REFLECTION_ART=[
 const JOURNAL_FIELDS=['observation','inner_state','life_application','interpretation','unresolved'];
 let persistenceContext={userId:null,stageId:null};
 
-function ensureReflectionHost(screen,title){
-  if(document.getElementById('reflection-art'))return;
-  const gallery=document.createElement('section');
-  gallery.id='reflection-art';
-  gallery.className='ascend-reflection-art';
-  gallery.setAttribute('aria-label','Reflection artwork');
-  gallery.innerHTML=`<div class="ascend-reflection-hero"><img id="reflection-art-image" src="${REFLECTION_ART[0].src}" alt=""/><div><small>REFLECTION</small><strong id="reflection-art-label">${REFLECTION_ART[0].label}</strong></div></div><div class="ascend-reflection-choices" role="list" aria-label="Choose reflection artwork">${REFLECTION_ART.map((item,index)=>`<button type="button" data-reflection-index="${index}" class="${index===0?'active':''}" aria-label="${item.label}"><img src="${item.src}" alt=""/></button>`).join('')}</div>`;
-  title?.after(gallery);
-}
-
-function ensureHistoryHost(screen){
-  let host=document.getElementById('journal-history');
-  if(host)return host;
-  host=document.createElement('section');
-  host.id='journal-history';
-  host.className='journal-history';
-  host.setAttribute('aria-labelledby','journal-history-title');
-  const heading=document.createElement('div');
-  heading.className='pathway-section-header';
-  heading.innerHTML='<div><strong id="journal-history-title">Journal History</strong><span>Review saved observations and reflections</span></div>';
-  const list=document.createElement('div');
-  list.id='journal-history-list';
-  list.setAttribute('aria-live','polite');
-  host.append(heading,list);
-  screen.append(host);
-  return host;
-}
-
-function organizeForm(){
-  const form=document.getElementById('journal-form');
-  if(!form||form.dataset.masterOrganized==='1')return;
-  form.dataset.masterOrganized='1';
-  const interpretation=form.querySelector('textarea[name="interpretation"]')?.closest('label');
-  const unresolved=form.querySelector('textarea[name="unresolved"]')?.closest('label');
-  const share=form.querySelector('.journal-share-teacher');
-  const save=form.querySelector('button.primary,button[type="submit"]');
-  if(save&&(interpretation||unresolved||share)){
-    const details=document.createElement('details');
-    details.className='ascend-deeper-reflection';
-    details.innerHTML='<summary>Deeper reflection <span>Interpretation · unresolved · teacher sharing</span></summary>';
-    if(interpretation)details.append(interpretation);
-    if(unresolved)details.append(unresolved);
-    if(share)details.append(share);
-    form.insertBefore(details,save);
-  }
-}
-
 function bindReflectionArt(){
   const screen=document.getElementById('journal');
   if(!screen||screen.dataset.reflectionBound==='1')return;
@@ -258,10 +211,8 @@ function bindPersistence(screen){
   form.dataset.remoteAuthority='true';
   refreshPersistenceContext();
   const status=document.getElementById('journal-status');
-  const save=form.querySelector('button.primary,button[type="submit"]');
+  const save=document.getElementById('journal-save');
   if(save){
-    save.id='journal-save';
-    save.type='button';
     save.dataset.masterJournalSave='true';
     save.addEventListener('click',event=>{
       event.preventDefault();
@@ -279,13 +230,6 @@ function bindPersistence(screen){
 
 export function initJournal(){
   const screen=document.getElementById('journal');if(!screen)return;
-  const eyebrow=screen.querySelector(':scope>.eyebrow');
-  const title=screen.querySelector(':scope>h1');
-  if(eyebrow)eyebrow.textContent='OBSERVE · REFLECT · INTEGRATE';
-  if(title)title.textContent='Journal';
-  ensureReflectionHost(screen,title);
-  organizeForm();
-  ensureHistoryHost(screen);
   bindReflectionArt();
   bindPersistence(screen);
   document.addEventListener('ascend:screen',event=>{
