@@ -109,10 +109,14 @@ test('valid authenticated session clears the auth gate',()=>{
 
 test('Resonance refresh belongs to the Me owner and requires confirmed authenticated identity',()=>{
   const meOwner=read('app/screens/me.js');
+  const auth=read('app/data/auth.js');
   const bridge=read('design-v3-today.js');
   const mirror=read('mirror-engine.js');
-  assert.match(meOwner,/PathBackend\?\.me\?\.\(\)/);
+  assert.match(meOwner,/import \{Auth\} from '\.\.\/data\/auth\.js'/);
+  assert.match(meOwner,/Auth\.me\(\)/);
   assert.match(meOwner,/if\(me\)window\.ASCENDMirror\?\.load\?\.\('stage'\)/);
+  assert.match(auth,/PathBackend\?\.me\?\.\(\)/);
+  assert.doesNotMatch(meOwner,/PathBackend\?\.me/);
   assert.doesNotMatch(bridge,/PathBackend\?\.me/);
   assert.doesNotMatch(bridge,/mirror-engine\.js/);
   assert.match(mirror,/does not determine attainment/);
