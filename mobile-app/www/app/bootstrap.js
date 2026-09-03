@@ -58,21 +58,11 @@ async function boot(){
   document.documentElement.dataset.ascendMasterReady='0';
   document.body.classList.add('ascend-master-loading');
 
-  /*
-   * Transitional ownership rule: app.js still owns authenticated data loading.
-   * Do not let the reconstructed router/screens compete with that bootstrap.
-   * Once curriculum/currentStage exist (or an auth/access gate is definitive),
-   * the master shell can take visible ownership safely.
-   */
   await waitForLegacyData();
-
   document.body.classList.add('ascend-master-ui');
 
-  /* Persistence and timer authorities must exist before navigation is exposed. */
-  await Promise.all([
-    loadAuthority('journal-sync-authority.js?v=20260903-master-ready-1','data-journal-sync-authority'),
-    loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority')
-  ]);
+  /* Timer remains a shared practice authority. Journal persistence belongs to the Journal screen owner. */
+  await loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority');
 
   initRouter();
   initToday();
