@@ -6,17 +6,33 @@ import {initLibrary} from './screens/library.js';
 import {initMe} from './screens/me.js';
 
 function loadAuthority(src,attribute){
-  if(document.querySelector(`script[${attribute}]`))return;
-  const script=document.createElement('script');script.src=src;script.setAttribute(attribute,'true');document.body.appendChild(script);
+  const existing=document.querySelector(`script[${attribute}]`);
+  if(existing){
+    if(existing.dataset.loaded==='true')return Promise.resolve();
+    return new Promise((resolve,reject)=>{
+      existing.addEventListener('load',resolve,{once:true});
+      existing.addEventListener('error',reject,{once:true});
+    });
+  }
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=src;
+    script.setAttribute(attribute,'true');
+    script.addEventListener('load',()=>{script.dataset.loaded='true';resolve()},{once:true});
+    script.addEventListener('error',reject,{once:true});
+    document.body.appendChild(script);
+  });
 }
 
-function boot(){
+async function boot(){
   if(document.documentElement.dataset.ascendMasterBoot==='1')return;
   document.documentElement.dataset.ascendMasterBoot='1';
   document.body.classList.add('ascend-master-ui');
 
-  loadAuthority('journal-sync-authority.js?v=20260902-master-1','data-journal-sync-authority');
-  loadAuthority('practice-timer-authority.js?v=20260902-master-1','data-practice-timer-authority');
+  await Promise.all([
+    loadAuthority('journal-sync-authority.js?v=20260902-master-2','data-journal-sync-authority'),
+    loadAuthority('practice-timer-authority.js?v=20260902-master-2','data-practice-timer-authority')
+  ]);
 
   initRouter();
   initToday();
@@ -28,4 +44,9 @@ function boot(){
   document.dispatchEvent(new CustomEvent('ascend:master-ready'));
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+const start=()=>boot().catch(error=>{
+  console.error('ASCEND master bootstrap failed',error);
+  document.documentElement.dataset.ascendMasterBoot='error';
+});
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
