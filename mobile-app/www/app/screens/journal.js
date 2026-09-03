@@ -20,6 +20,24 @@ function ensureReflectionHost(screen,title){
   title?.after(gallery);
 }
 
+function ensureHistoryHost(screen){
+  let host=document.getElementById('journal-history');
+  if(host)return host;
+  host=document.createElement('section');
+  host.id='journal-history';
+  host.className='journal-history';
+  host.setAttribute('aria-labelledby','journal-history-title');
+  const heading=document.createElement('div');
+  heading.className='pathway-section-header';
+  heading.innerHTML='<div><strong id="journal-history-title">Journal History</strong><span>Review saved observations and reflections</span></div>';
+  const list=document.createElement('div');
+  list.id='journal-history-list';
+  list.setAttribute('aria-live','polite');
+  host.append(heading,list);
+  screen.append(host);
+  return host;
+}
+
 function organizeForm(){
   const form=document.getElementById('journal-form');
   if(!form||form.dataset.masterOrganized==='1')return;
@@ -79,6 +97,13 @@ function currentProgress(){
   return rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1]||null;
 }
 
+function localEntries(){
+  try{
+    const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
+    return Array.isArray(state.entries)?state.entries:[];
+  }catch{return[]}
+}
+
 function saveLocal(entry){
   try{
     const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
@@ -90,6 +115,74 @@ function saveLocal(entry){
     console.warn('ASCEND local Journal fallback failed',error);
     return false;
   }
+}
+
+function journalDate(entry){
+  const raw=entry.entry_date||entry.created_at;
+  if(!raw)return 'Saved reflection';
+  const date=new Date(raw.length===10?`${raw}T12:00:00`:raw);
+  if(Number.isNaN(date.getTime()))return String(raw);
+  return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'}).format(date);
+}
+
+function firstMeaningful(entry){
+  return JOURNAL_FIELDS.map(name=>String(entry?.[name]||'').trim()).find(Boolean)||'Saved reflection';
+}
+
+function appendReflection(list,entry,{local=false}={}){
+  const details=document.createElement('details');
+  details.className='rhythm-card journal-history-entry';
+  const summary=document.createElement('summary');
+  const title=document.createElement('strong');
+  title.textContent=journalDate(entry);
+  const preview=document.createElement('span');
+  preview.textContent=firstMeaningful(entry).slice(0,120);
+  summary.append(title,preview);
+  details.append(summary);
+  const body=document.createElement('div');
+  body.className='journal-history-body';
+  for(const[name,label]of [['observation','Observation'],['inner_state','Inner State'],['life_application','Life Application'],['interpretation','Interpretation'],['unresolved','Unresolved']]){
+    const value=String(entry?.[name]||'').trim();
+    if(!value)continue;
+    const section=document.createElement('section');
+    const heading=document.createElement('strong');
+    heading.textContent=label;
+    const paragraph=document.createElement('p');
+    paragraph.textContent=value;
+    section.append(heading,paragraph);
+    body.append(section);
+  }
+  if(local){
+    const note=document.createElement('small');
+    note.textContent='Saved on this device · awaiting synchronization';
+    body.append(note);
+  }
+  details.append(body);
+  list.append(details);
+}
+
+async function loadHistory(){
+  const list=document.getElementById('journal-history-list');
+  if(!list)return;
+  list.replaceChildren();
+  const progress=currentProgress();
+  const locals=localEntries().slice().reverse();
+  let remote=[];
+  if(Backend.isSignedIn()){
+    try{
+      const userId=progress?.user_id||(await Backend.me())?.id||null;
+      if(userId)remote=await Backend.journalEntries(userId,20);
+    }catch(error){console.warn('ASCEND Journal history unavailable',error)}
+  }
+  if(!remote.length&&!locals.length){
+    const empty=document.createElement('p');
+    empty.className='quiet-note';
+    empty.textContent='Your saved reflections will appear here.';
+    list.append(empty);
+    return;
+  }
+  remote.forEach(entry=>appendReflection(list,entry));
+  locals.forEach(entry=>appendReflection(list,entry,{local:true}));
 }
 
 async function persistJournal(form,status){
@@ -107,6 +200,7 @@ async function persistJournal(form,status){
       setSync('SYNCED',true);
       form.reset();
       window.ASCENDMirror?.load?.('stage');
+      await loadHistory();
       document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId}}));
       requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
       return;
@@ -121,6 +215,7 @@ async function persistJournal(form,status){
     :(saved?'Reflection saved privately on this device. Sign in to synchronize it.':'Reflection could not be saved on this device.');
   setSync(saved?'LOCAL':'UNSAVED');
   if(saved)form.reset();
+  if(saved)await loadHistory();
   document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
 }
 
@@ -170,6 +265,8 @@ export function initJournal(){
   if(title)title.textContent='Journal';
   ensureReflectionHost(screen,title);
   organizeForm();
+  ensureHistoryHost(screen);
   bindReflectionArt();
   bindPersistence(screen);
+  document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='journal')loadHistory()});
 }
