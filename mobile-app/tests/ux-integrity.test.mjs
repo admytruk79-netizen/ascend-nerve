@@ -106,11 +106,13 @@ test('valid authenticated session clears the auth gate',()=>{
   assert.match(ux,/if\(!confirmedUser\)activateScreen\('me'/);
 });
 
-test('Mirror Resonance is refreshed only after confirmed authenticated identity',()=>{
+test('Resonance refresh belongs to the Me owner and requires confirmed authenticated identity',()=>{
+  const meOwner=read('app/screens/me.js');
   const bridge=read('design-v3-today.js');
   const mirror=read('mirror-engine.js');
-  assert.match(bridge,/PathBackend\?\.me/);
-  assert.match(bridge,/if\(me\)window\.ASCENDMirror\?\.load/);
+  assert.match(meOwner,/PathBackend\?\.me\?\.\(\)/);
+  assert.match(meOwner,/if\(me\)window\.ASCENDMirror\?\.load\?\.\('stage'\)/);
+  assert.doesNotMatch(bridge,/PathBackend\?\.me/);
   assert.doesNotMatch(bridge,/mirror-engine\.js/);
   assert.match(mirror,/does not determine attainment/);
 });
