@@ -1,6 +1,5 @@
 (()=>{
   const portal=document.getElementById('ritual-portal');
-  const scene=portal?.closest('.ritual-scene');
   const feedback=document.getElementById('ritual-feedback');
   const begin=document.querySelector('#today [data-action="practice"]');
   if(!portal||!begin)return;
@@ -25,10 +24,9 @@
     cancelAnimationFrame(frame);frame=0;
     clearTimeout(holdTimer);holdTimer=0;
   };
-  const reset=({message='Press and hold to begin.'}={})=>{
+  const reset=({message='Press and hold for two seconds to begin.'}={})=>{
     clearTimers();holding=false;completed=false;pointerId=null;pulseIndex=0;
     portal.classList.remove('is-holding','is-opening');
-    scene?.classList.remove('is-holding');
     portal.setAttribute('aria-label','Press and hold for two seconds to begin practice');
     portal.removeAttribute('aria-valuenow');
     setProgress(0);
@@ -37,12 +35,13 @@
   const openPractice=()=>{
     if(typeof window.ASCENDOpenPractice==='function')window.ASCENDOpenPractice();
     else begin.click();
-    setTimeout(()=>reset({message:'Press and hold to begin.'}),420);
+    setTimeout(()=>reset(),420);
   };
   const finishHold=()=>{
     if(completed||!holding)return;
     clearTimers();
-    completed=true;holding=false;setProgress(1);portal.classList.remove('is-holding');scene?.classList.remove('is-holding');portal.classList.add('is-opening');
+    completed=true;holding=false;setProgress(1);
+    portal.classList.remove('is-holding');portal.classList.add('is-opening');
     portal.setAttribute('aria-label','Opening practice briefing');
     if(feedback)feedback.textContent='The path is open.';
     vibrate([35,35,55],'MEDIUM');
@@ -65,8 +64,8 @@
     event.preventDefault();
     reset({message:'Keep holding for two seconds…'});
     holding=true;pointerId=event.pointerId??null;startAt=performance.now();
-    portal.classList.add('is-holding');scene?.classList.add('is-holding');
-    try{scene?.setPointerCapture?.(event.pointerId)}catch{}
+    portal.classList.add('is-holding');
+    try{portal.setPointerCapture?.(event.pointerId)}catch{}
     holdTimer=setTimeout(finishHold,HOLD_MS);
     frame=requestAnimationFrame(tick);
   };
@@ -76,25 +75,12 @@
     reset();
   };
 
-  // The full artwork is the interaction surface. On mobile the visual scene is
-  // much larger than the circular portal, so binding only the inner button made
-  // most visible taps/holds appear dead.
-  const holdSurface=scene||portal;
-  holdSurface.addEventListener('pointerdown',start);
+  portal.addEventListener('pointerdown',start);
   document.addEventListener('pointerup',stopEarly);
   document.addEventListener('pointercancel',stopEarly);
-  holdSurface.addEventListener('mousedown',start);
-  document.addEventListener('mouseup',stopEarly);
-  holdSurface.addEventListener('contextmenu',event=>event.preventDefault());
-
-  // Keyboard activation remains on the semantic button. Pointer-generated
-  // clicks are ignored because the press-and-hold gesture owns touch/mouse.
+  portal.addEventListener('contextmenu',event=>event.preventDefault());
   portal.addEventListener('click',event=>{
-    if(event.detail!==0){
-      event.preventDefault();
-      if(!holding&&!completed&&feedback)feedback.textContent='Press and hold for two seconds to begin.';
-      return;
-    }
+    if(event.detail!==0){event.preventDefault();return}
     if(feedback)feedback.textContent='Opening practice briefing.';
     vibrate(18,'MEDIUM');openPractice();
   });
