@@ -38,7 +38,7 @@ test('retired approved-screen layers are absent and Today bridge only boots the 
 test('Library presentation is owned by the master screen module',()=>{
   const library=read('app/screens/library.js');
   const compatibility=read('contextual-library.js');
-  assert.match(library,/window\.ASCENDLibrary=\{render,openItem\}/);
+  assert.match(library,/window\.ASCENDLibrary=\{render,openItem(?:,context:\(\)=>curriculumContext)?\}/);
   assert.match(library,/FOR YOUR CURRENT MONTH/);
   assert.match(library,/PathEngine\.current/);
   assert.match(library,/LibraryEngine\?\.recommend/);
