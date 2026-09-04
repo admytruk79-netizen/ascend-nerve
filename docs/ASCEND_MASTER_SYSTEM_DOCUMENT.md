@@ -30,9 +30,11 @@ No visual reconstruction task may change those invariants without a separate exp
 
 ## 3. School hierarchy
 
+ASCEND maintains **one canonical curriculum**. Software release labels such as 1.x or 2.0 describe implementation generations; they do not create separate curriculum versions or authorize canonical material to be removed or deferred.
+
 ### Phase I — Core Formation
 
-Six phases, 24 months, six gates.
+Six phases, **24 canonical monthly modules**, six gates.
 
 #### I · Foundation — Attention & Embodiment
 1. Orientation to the Path
@@ -76,17 +78,28 @@ Gate 5
 24. The Open Gate
 Gate 6
 
+Phase I may also contain supporting, continuing and additional practices around the 24-module spine. These do **not** create extra Core months and are not optional Practice Branches. The current `development-program` / Akharata practice set belongs in this Phase I supporting/additional layer.
+
 ### Practice Branches
 
-Practice Branches hold independent progression records and never advance Core Formation.
+Practice Branches hold independent progression records and never advance Phase I or Phase II.
 
-Canonical branch currently included:
+Canonical Practice Branches currently published:
 
-- Ancestral Roots — 15-workshop independent branch
+- **Ancestral Roots** — 15-workshop independent branch
+- **Energy & Bodywork** — 11-module independent practitioner-training branch
+
+A Practice Branch may have its own repetition, readiness and safety requirements. Completing a branch cannot unlock or advance Core Formation or Phase II.
 
 ### Phase II — Advanced Formation
 
-Phase II is separate from Phase I and opens by readiness. It is cumulative, long-form advanced formation. Missing numeral labels in the source sequence are not to be invented or filled by the UI.
+Phase II is **not** another 24-month block and is **not** an optional Practice Branch. It is the separate advanced formation sequence opened only through the Phase I Open Gate.
+
+The canonical source sequence preserves I–XXVI plus its applied/parallel practices and XXVII as a later capstone. The current database implementation contains 35 published training records because applied practices such as IVa, XIa, XIIIa, XVa, XVIIa, XIXa, XXIa and XXIIa are represented as their own records. That implementation count must never be mistaken for 35 canonical numbered practices.
+
+Phase II keeps its own prerequisites, minimum repetitions, source-defined spacing, maintenance frequencies, readiness states and overload rules. Missing numeral labels in the source sequence are not to be invented or filled by the UI.
+
+**Open Gate rule:** Phase II may begin only when the authoritative final Phase I stage is `established`. Elapsed calendar time, a client-side month value, a visible button, or completion of a Practice Branch cannot satisfy this gate. The backend must reject Phase II progress writes before the Open Gate.
 
 ## 4. Placement and experience layers
 
@@ -130,7 +143,10 @@ ASCEND Path
 │   └── reflection/journal handoff
 ├── Path
 │   ├── Phase I / six phases / 24 months / six gates
+│   ├── Phase I additional & continuing practices
 │   ├── Practice Branches
+│   │   ├── Ancestral Roots
+│   │   └── Energy & Bodywork
 │   └── Phase II advanced formation
 ├── Journal
 │   ├── current reflection
@@ -198,14 +214,16 @@ Path is the School map, not a flat card list.
 
 It must show:
 
-- current Core Formation position
-- six visually distinct phases
-- four months per phase
-- Gate after each phase
+- current Phase I Core Formation position
+- six visually distinct Phase I groups
+- four canonical months per group
+- Gate after each group
 - completed/current/locked state
 - future months visible for orientation but not arbitrarily activatable
-- Practice Branches visually separate
-- Phase II visually separate
+- Phase I additional/continuing practices clearly labeled as supporting work, not extra months
+- Practice Branches visually separate and limited to Ancestral Roots and Energy & Bodywork unless another branch is explicitly approved into the canonical curriculum
+- Phase II visually separate from Practice Branches
+- Phase II locked until the backend confirms the Phase I Open Gate
 
 The frontend renders Path Engine/backend state; it does not calculate readiness truth independently.
 
@@ -229,19 +247,22 @@ Reflection artwork is selected semantically and supports the reflection. It does
 
 Journal must provide history/review so the practitioner can revisit previous entries and observe change over time.
 
+Journal entries initiated from Phase I additional practices, Practice Branches or Phase II should preserve structured source context (curriculum layer, branch/path id, module id and module title) without creating a second Journal persistence authority.
+
 ## 11. Library
 
 Library is contextual support.
 
 Priority order:
 
-1. For the current month
+1. For the current Phase I month or current Phase II practice
 2. Current practice teaching/reference
-3. Broader Library exploration
+3. Current Practice Branch context when a branch session is active
+4. Broader Library exploration
 
-Library recommendations are selected using canonical month metadata. Obsolete stage-title maps are prohibited.
+Library recommendations are selected using canonical curriculum metadata. Obsolete stage-title maps are prohibited.
 
-Reading Library material never advances Core Formation.
+Reading Library material never advances Phase I, Phase II or a Practice Branch.
 
 ## 12. Resonance
 
@@ -320,7 +341,8 @@ Every concern has one owner:
 - static markup/components → structure
 - design tokens/base/components/screens/responsive → visual system
 - screen modules → screen rendering/state presentation
-- Path Engine/backend → progression/readiness truth
+- Path Engine/backend → Phase I and Phase II progression/readiness truth
+- branch progression RPCs → independent Practice Branch progression truth
 - data adapters → persistence/auth/entitlements
 - practice renderers → timer/breath/sphere/guided/haptics
 - Capacitor → native bridge only
@@ -396,14 +418,17 @@ Before release integration:
 2. browser/Playwright integrity green
 3. navigation/Android Back tested
 4. hold/timer/reflection/journal flow tested
-5. canonical 24-month hierarchy tested
-6. branches confirmed independent
-7. Library month gating tested
-8. entitled account state tested
-9. tablet/mobile viewport tested
-10. Capacitor sync
-11. Android debug build
-12. signed AAB only after explicit release integration
+5. canonical Phase I 24-month hierarchy tested
+6. Phase I additional practices confirmed not to create extra months or independent Core advancement
+7. Ancestral Roots and Energy & Bodywork confirmed independent from Phase I and Phase II
+8. Phase II Open Gate enforced both in UI state and server-side progress writes
+9. duplicate/replayed branch and Phase II repetition submissions cannot double-count
+10. Library context and gating tested for Phase I, active branch context and Phase II
+11. entitled account state tested
+12. tablet/mobile viewport tested
+13. Capacitor sync
+14. Android debug build
+15. signed AAB only after explicit release integration
 
 A technical gate passing is necessary but not sufficient — see 19.2.
 
@@ -413,6 +438,7 @@ Technical gates confirm the application runs correctly; they do not by themselve
 
 - a first-time student can say what to do today within 10–15 seconds of opening the app, without instruction
 - a student can complete Today → Practice Briefing → Practice → Finish → Journal without hesitation or getting stuck
+- a student can tell, at a glance, which items are Phase I Core, Phase I additional work, optional Practice Branches, or Phase II
 - a student can tell, at a glance, which Library or Path items are available now versus locked
 - a student encountering Resonance understands, without being told separately, that it reflects rather than decides
 - reduced-motion and keyboard-only use do not degrade any of the above
@@ -424,19 +450,28 @@ Technical gates confirm the application runs correctly; they do not by themselve
 3. Establish canonical style system
 4. Establish shell/router/state
 5. Reconstruct Today
-6. Reconstruct Path
-7. Reconstruct Journal/Reflection
-8. Reconstruct Library
-9. Reconstruct My ASCEND/Resonance
-10. Normalize practice renderers including breathing/sphere/haptics
-11. Retire obsolete runtime repair scripts and CSS owners
-12. Full regression/device validation
-13. Integrate intentionally into release branch
-14. Build signed AAB
+6. Reconstruct Path around Phase I / Phase I additional work / Practice Branches / Phase II
+7. Enforce Phase I Open Gate before any Phase II progress write
+8. Reconstruct Journal/Reflection with structured curriculum context
+9. Reconstruct Library with Phase I / branch / Phase II context
+10. Reconstruct My ASCEND/Resonance
+11. Normalize practice renderers including breathing/sphere/haptics
+12. Retire obsolete runtime repair scripts and CSS owners
+13. Full curriculum regression and device validation
+14. Integrate intentionally into release branch
+15. Build signed AAB
 
 ## 21. Current implementation rule
 
 The reconstruction branch is a preview/development branch. It must not change Play signing, package identity, backend credentials or billing identity. Production release follows only after the reconstructed frontend has passed the validation gates above.
+
+Current database curriculum inventory at this reconstruction checkpoint:
+
+- Phase I Core Formation: 24 canonical monthly modules represented through the existing Core progression architecture
+- Phase I additional/supporting Akharata / Development Program: 13 published training records
+- Ancestral Roots: 15 published branch modules
+- Energy & Bodywork: 11 published branch modules
+- Phase II advanced formation (`sphere-of-attention` storage slug): 35 published implementation records representing the canonical advanced sequence plus applied/parallel practices
 
 ## 22. Decision Register
 
@@ -444,8 +479,9 @@ Open items surfaced during reconstruction, tracked here instead of left in chat 
 
 | ID | Decision | Recommended default | Owner / status |
 |---|---|---|---|
-| D-01 | `app/practices/{breath,sphere,guided,reflection,observation,contract}.js` existed per the section 14 target structure but were unwired stubs — the legacy `app.js` timer/practice logic and `practice-timer-authority.js` remained the real, running owners. `app/curriculum/{path-engine,readiness}.js` were the same shape: adapter modules added by their own `reconstruct:` commits with no follow-up wiring commit. | Resolved: `app/practices/runtime.js` now imports all five renderers and `bootstrap.js` calls `initPracticeRuntime()` during boot. `app/curriculum/path-engine.js` is now imported by `app/screens/{today,path,library}.js`, replacing their direct `window.ASCENDProgression`/`window.ASCENDMonthPath` reads with `PathEngine.current()`/`PathEngine.paint()` (same underlying calls, so behavior is unchanged; verified via 47/47 unit tests, updated assertions in three test files, and 3 clean Playwright e2e runs, 12/12 each). `app/curriculum/readiness.js` remains unwired — no ES-module screen currently owns readiness UI (`ASCENDReadinessEvidence` is only read from the legacy `app.js`/`training-layers.js` scripts), so there is no call site to wire it into yet. Re-open if a readiness screen is added under `app/screens/` without adopting this adapter. | Resolved (practices, path-engine) / open (readiness — no consumer yet) |
-| D-02 | PR #7 targets base branch `ascend-path-foundation`, not `main`. The `Build ASCEND Path Android Debug` workflow only triggers on PRs into `main`, so gate 19.1 item 11 (Android debug build) had never run for this PR. | Manually dispatched `build-android-debug.yml` against the PR head (`fae82ec`) via `workflow_dispatch`. Run 33839919060 completed successfully, including `gradlew assembleDebug` and APK artifact upload. The underlying trigger gap (workflow still only fires automatically on PRs into `main`) remains and should be revisited when the merge path is decided. | Resolved — verified manually; automatic trigger gap noted |
-| D-03 | `path_stages.metadata.seasonal_images` in Supabase is no longer read by any code path after the season-based artwork refactor (`SEASONAL_ART` in `app.js` is now the source of truth). | Leave the column as historical data; do not reintroduce a second source of truth for seasonal art. | Resolved — left in place, unread |
-| D-04 | Whether the Resonance UI actually surfaces the "reflects, does not decide" boundary language required by section 12, or only holds it as an internal principle. | Audited: `mirror-engine.js` already renders a user-facing boundary paragraph every time Resonance loads. It named attainment/diagnosis/spiritual-claims but not teacher review; added that clause. | Resolved |
-| D-05 | Section 17's neuroinclusive checklist (captions/transcripts for meditation audio, zoom tolerance, "what this contains" orientation) is new; current compliance across the app is unverified. | Audited: reduced-motion handled in 8 CSS files, all `<img>` tags carry correct `alt` (empty for decorative, real text for meaningful), focus-visible styles present in 5 files, Journal already uses progressive disclosure for its deeper-reflection fields. No audio/video content exists yet, so captions/transcripts are not yet applicable. No gaps found against the current app surface. | Resolved — re-audit when audio/video content is added |
+| D-01 | `app/practices/{breath,sphere,guided,reflection,observation,contract}.js` existed per the section 14 target structure but were unwired stubs — the legacy `app.js` timer/practice logic and `practice-timer-authority.js` remained the real, running owners. `app/curriculum/{path-engine,readiness}.js` were the same shape: adapter modules added by their own `reconstruct:` commits with no follow-up wiring commit. | Resolved: `app/practices/runtime.js` now imports all five renderers and `bootstrap.js` calls `initPracticeRuntime()` during boot. `app/curriculum/path-engine.js` is now imported by `app/screens/{today,path,library}.js`, replacing their direct `window.ASCENDProgression`/`window.ASCENDMonthPath` reads with `PathEngine.current()`/`PathEngine.paint()` (same underlying calls, so behavior is unchanged; verified via unit and Playwright coverage). `app/curriculum/readiness.js` remains unwired — no ES-module screen currently owns readiness UI, so there is no call site to wire it into yet. Re-open if a readiness screen is added without adopting this adapter. | Resolved (practices, path-engine) / open (readiness — no consumer yet) |
+| D-02 | PR #7 targets base branch `ascend-path-foundation`, not `main`. The `Build ASCEND Path Android Debug` workflow only triggers on PRs into `main`, so the Android debug gate does not automatically run for this PR. | Continue manual dispatch for reconstruction checkpoints until the merge path/workflow trigger is intentionally changed. | Resolved operationally / automatic trigger gap remains |
+| D-03 | `path_stages.metadata.seasonal_images` in Supabase is no longer read by any code path after the season-based artwork refactor. | Leave the column as historical data; do not reintroduce a second source of truth for seasonal art. | Resolved — left in place, unread |
+| D-04 | Whether the Resonance UI actually surfaces the "reflects, does not decide" boundary language required by section 12, or only holds it as an internal principle. | Audited: `mirror-engine.js` renders a user-facing boundary paragraph and includes teacher-review limits. | Resolved |
+| D-05 | Section 17's neuroinclusive checklist (captions/transcripts for meditation audio, zoom tolerance, "what this contains" orientation) is new; current compliance across the app is unverified. | Audited current surfaces: reduced-motion, alt text, focus-visible styles and progressive Journal disclosure are present. No audio/video content exists yet, so captions/transcripts are not yet applicable. | Resolved for current surface — re-audit when audio/video is added |
+| D-06 | Generic `training_branches` storage caused Phase I additional work, optional Practice Branches and Phase II to render in one UI bucket, and Phase II could be reached without an explicit server Open Gate check. | Resolved structurally: `development-program` renders as Phase I additional work; only `ancestral-roots` and `energy-bodywork` render as Practice Branches; `sphere-of-attention` renders as Phase II. `path_phase_ii_access()` reports the authoritative gate state, and a database trigger rejects Phase II repetition-log writes unless the final Phase I stage is `established`. | Resolved in reconstruction / regression coverage required before release |
