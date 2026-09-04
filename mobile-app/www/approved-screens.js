@@ -1,146 +1,15 @@
 (()=>{
-  function ensureSchoolLayer(){
-    document.querySelectorAll('link[data-initiation-school-refinements],link[data-initiation-school-polish]').forEach(link=>link.remove());
-    let link=document.querySelector('link[data-initiation-school]');
-    if(!link){
-      link=document.createElement('link');
-      link.rel='stylesheet';
-      link.dataset.initiationSchool='true';
-      document.head.appendChild(link);
-    }
-    link.href='initiation-school.css?v=20260901-dark-cinematic-1';
-    let focus=document.querySelector('link[data-initiation-school-focus]');
-    if(!focus){
-      focus=document.createElement('link');
-      focus.rel='stylesheet';
-      focus.dataset.initiationSchoolFocus='true';
-      link.insertAdjacentElement('afterend',focus);
-    }
-    focus.href='initiation-school-focus.css?v=20260902-focus-1';
-    document.body?.classList.add('initiation-school');
-  }
-
-  const hero=(title,subtitle,kicker='ASCEND PATH')=>{
-    const el=document.createElement('section');
-    el.className='approved-hero';
-    el.innerHTML=`<img src="assets/ascend-logo.png" alt=""><div class="school-mark">${kicker}</div><h1>${title}</h1><p>${subtitle}</p>`;
-    return el;
-  };
-
-  function prependHero(screenId,title,subtitle,kicker){
-    const screen=document.getElementById(screenId);if(!screen)return;
-    let existing=screen.querySelector(':scope > .approved-hero');
-    if(!existing){existing=hero(title,subtitle,kicker);screen.prepend(existing);return}
-    const mark=existing.querySelector('.school-mark,.approved-kicker');
-    if(mark){mark.className='school-mark';mark.textContent=kicker||'ASCEND PATH'}
-    const heading=existing.querySelector('h1');if(heading)heading.textContent=title;
-    const copy=existing.querySelector('p');if(copy)copy.textContent=subtitle;
-  }
-
-  function decoratePath(){
-    prependHero('path','The Practice Path','A 24-month formation that unfolds through sustained practice, reflection, and gateways.','CORE FORMATION');
-  }
-
+  const hero=(title,subtitle,kicker='ASCEND PATH')=>{const el=document.createElement('section');el.className='approved-hero';el.innerHTML=`<img src="assets/ascend-logo.png" alt=""><div class="school-mark">${kicker}</div><h1>${title}</h1><p>${subtitle}</p>`;return el};
+  function prependHero(screenId,title,subtitle,kicker){const screen=document.getElementById(screenId);if(!screen)return;let existing=screen.querySelector(':scope > .approved-hero');if(!existing){existing=hero(title,subtitle,kicker);screen.prepend(existing);return}const mark=existing.querySelector('.school-mark,.approved-kicker');if(mark){mark.className='school-mark';mark.textContent=kicker||'ASCEND PATH'}const heading=existing.querySelector('h1');if(heading)heading.textContent=title;const copy=existing.querySelector('p');if(copy)copy.textContent=subtitle}
+  function decoratePath(){prependHero('path','The Practice Path','A 24-month formation that unfolds through sustained practice, reflection, and gateways.','CORE FORMATION')}
   function dayIndex(){return Math.floor((Date.now()-Date.UTC(new Date().getUTCFullYear(),0,0))/864e5)}
-
-  async function tuneLibraryFeature(){
-    const feature=document.getElementById('approved-library-feature');if(!feature)return;
-    try{
-      const{stageTitle,stageMetadata}=await window.ASCENDProgression?.current?.()||{};
-      const images=Array.isArray(stageMetadata?.seasonal_images)?stageMetadata.seasonal_images:[];
-      const preferred=['august-presence-devotion.png','winter-january-grounding-silence.png','spring-march-awakening-perception.png','march-what-am-i-noticing.png'];
-      const candidates=preferred.filter(name=>images.includes(name));
-      const pick=candidates.length?candidates[dayIndex()%candidates.length]:'august-presence-devotion.png';
-      feature.style.setProperty('background-image',`linear-gradient(90deg,rgba(3,14,22,.96),rgba(3,14,22,.72) 50%,rgba(3,14,22,.18)),url("assets/seasonal-art/${pick}")`,'important');
-      const heading=feature.querySelector('h2');if(heading&&stageTitle)heading.textContent=stageTitle;
-    }catch(error){console.warn('ASCEND seasonal library image unavailable',error)}
-  }
-
-  function decorateLibrary(){
-    const screen=document.getElementById('library');if(!screen)return;
-    prependHero('library','Library','Teachings and practices that support the stage you are living now.','STUDY');
-    if(!document.getElementById('approved-library-feature')){
-      const feature=document.createElement('article');
-      feature.id='approved-library-feature';feature.className='approved-library-feature';
-      feature.innerHTML='<small>CURRENT STAGE</small><h2>Beginning</h2><p>Read slowly. Study should deepen the work already being practiced.</p>';
-      screen.querySelector('.library-tools')?.insertAdjacentElement('afterend',feature);
-    }
-    if(!document.getElementById('approved-library-now')){
-      const now=document.createElement('article');
-      now.id='approved-library-now';now.className='approved-library-now';
-      now.innerHTML='<span class="approved-icon">✦</span><span><strong>Observation Before Interpretation</strong><small>Current-stage teaching</small></span><b>›</b>';
-      document.getElementById('approved-library-feature')?.insertAdjacentElement('afterend',now);
-    }
-    tuneLibraryFeature();
-  }
-
-  function latestLocalEntry(){
-    try{
-      const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
-      return Array.isArray(state.entries)&&state.entries.length?state.entries[state.entries.length-1]:null;
-    }catch{return null}
-  }
-  function excerpt(entry){
-    if(!entry)return 'Your next saved observation will appear here.';
-    const value=entry.observation||entry.life_application||entry.inner_state||entry.interpretation||entry.unresolved||'';
-    const clean=String(value).trim();
-    return clean.length>132?clean.slice(0,129)+'…':clean||'Observation saved.';
-  }
-
-  function decorateJournal(){
-    const screen=document.getElementById('journal');if(!screen)return;
-    prependHero('journal','Journal','A private record of observation before interpretation.','INNER RECORD');
-    let stack=document.getElementById('approved-journal-stack');
-    if(!stack){
-      stack=document.createElement('section');stack.id='approved-journal-stack';stack.className='approved-journal-stack';
-      stack.innerHTML=`
-        <article class="approved-prompt-card">
-          <div class="approved-card-kicker">TODAY'S QUESTION</div>
-          <div class="approved-prompt-row"><span class="approved-quote">“</span><h2>What did I actually observe before I interpreted it?</h2></div>
-          <button type="button" class="approved-write-now">Enter the record</button>
-        </article>
-        <article class="approved-recent-card"><div class="approved-card-kicker">LAST OBSERVATION</div><h3 id="approved-recent-title">No recent observation yet</h3><p id="approved-recent-copy"></p></article>
-        <article class="approved-journey-card"><div class="approved-card-kicker">PRACTICE CONTEXT</div><strong id="approved-journey-stage">Current stage</strong><span id="approved-journey-days">Return to the current practice and record what changes.</span></article>`;
-      const form=screen.querySelector('#journal-form');form?.before(stack);
-      stack.querySelector('.approved-write-now')?.addEventListener('click',()=>{
-        const field=screen.querySelector('textarea[name="observation"]');
-        field?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
-        setTimeout(()=>field?.focus(),180);
-      });
-    }
-    syncJournal();
-  }
-
-  function syncJournal(){
-    const entry=latestLocalEntry();
-    const copy=document.getElementById('approved-recent-copy');if(copy)copy.textContent=excerpt(entry);
-    const title=document.getElementById('approved-recent-title');if(title)title.textContent=entry?'Latest observation':'No recent observation yet';
-    const stage=document.getElementById('profile-stage')?.textContent?.trim()||'Current stage';
-    const stageEl=document.getElementById('approved-journey-stage');if(stageEl)stageEl.textContent=stage;
-    const days=parseInt(document.getElementById('practice-days')?.textContent||'0',10)||0;
-    const daysEl=document.getElementById('approved-journey-days');if(daysEl)daysEl.textContent=days?`${days} practice days recorded in this stage.`:'Begin the current practice, then record what you actually observed.';
-  }
-
-  function decorateMe(){
-    prependHero('me','Mirror · Resonance','Patterns from your own record, reflected without declaring what they mean.','MIRROR');
-    const me=document.getElementById('me');
-    const mirror=document.getElementById('mirror-content')?.closest('.rhythm-card');
-    mirror?.classList.add('mirror-chamber');
-    const heading=mirror?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';
-    const position=[...me?.querySelectorAll(':scope > .rhythm-card')||[]].find(card=>card!==mirror&&!card.classList.contains('auth-card')&&card.id!=='appearance-card');
-    position?.classList.add('current-position-card');
-    const positionHeading=position?.querySelector('h2');if(positionHeading)positionHeading.textContent='Current Position';
-    const nav=document.querySelector('.bottom-nav button[data-screen="me"]');if(nav)nav.textContent='Me';
-    const menu=document.querySelector('.menu-link[data-menu-screen="me"]');if(menu)menu.textContent='Me';
-  }
-
-  function mount(){
-    ensureSchoolLayer();
-    decoratePath();decorateLibrary();decorateJournal();decorateMe();
-    document.addEventListener('ascend:curriculum',()=>{decoratePath();decorateLibrary();syncJournal();decorateMe()});
-    document.getElementById('journal-form')?.addEventListener('submit',()=>setTimeout(syncJournal,900));
-  }
-
-  ensureSchoolLayer();
+  async function tuneLibraryFeature(){const feature=document.getElementById('approved-library-feature');if(!feature)return;try{const{stageTitle,stageMetadata}=await window.ASCENDProgression?.current?.()||{};const images=Array.isArray(stageMetadata?.seasonal_images)?stageMetadata.seasonal_images:[];const preferred=['august-presence-devotion.png','winter-january-grounding-silence.png','spring-march-awakening-perception.png','march-what-am-i-noticing.png'];const candidates=preferred.filter(name=>images.includes(name));const pick=candidates.length?candidates[dayIndex()%candidates.length]:'august-presence-devotion.png';feature.style.setProperty('background-image',`linear-gradient(90deg,rgba(3,14,22,.96),rgba(3,14,22,.72) 50%,rgba(3,14,22,.18)),url("assets/seasonal-art/${pick}")`,'important');const heading=feature.querySelector('h2');if(heading&&stageTitle)heading.textContent=stageTitle}catch(error){console.warn('ASCEND seasonal library image unavailable',error)}}
+  function decorateLibrary(){const screen=document.getElementById('library');if(!screen)return;prependHero('library','Library','Teachings and practices that support the stage you are living now.','STUDY');if(!document.getElementById('approved-library-feature')){const feature=document.createElement('article');feature.id='approved-library-feature';feature.className='approved-library-feature';feature.innerHTML='<small>CURRENT STAGE</small><h2>Beginning</h2><p>Read slowly. Study should deepen the work already being practiced.</p>';screen.querySelector('.library-tools')?.insertAdjacentElement('afterend',feature)}if(!document.getElementById('approved-library-now')){const now=document.createElement('article');now.id='approved-library-now';now.className='approved-library-now';now.innerHTML='<span class="approved-icon">✦</span><span><strong>Observation Before Interpretation</strong><small>Current-stage teaching</small></span><b>›</b>';document.getElementById('approved-library-feature')?.insertAdjacentElement('afterend',now)}tuneLibraryFeature()}
+  function latestLocalEntry(){try{const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');return Array.isArray(state.entries)&&state.entries.length?state.entries[state.entries.length-1]:null}catch{return null}}
+  function excerpt(entry){if(!entry)return'Your next saved observation will appear here.';const value=entry.observation||entry.life_application||entry.inner_state||entry.interpretation||entry.unresolved||'';const clean=String(value).trim();return clean.length>132?clean.slice(0,129)+'…':clean||'Observation saved.'}
+  function decorateJournal(){const screen=document.getElementById('journal');if(!screen)return;prependHero('journal','Journal','A private record of observation before interpretation.','INNER RECORD');let stack=document.getElementById('approved-journal-stack');if(!stack){stack=document.createElement('section');stack.id='approved-journal-stack';stack.className='approved-journal-stack';stack.innerHTML=`<article class="approved-prompt-card"><div class="approved-card-kicker">TODAY'S QUESTION</div><div class="approved-prompt-row"><span class="approved-quote">“</span><h2>What did I actually observe before I interpreted it?</h2></div><button type="button" class="approved-write-now">Enter the record</button></article><article class="approved-recent-card"><div class="approved-card-kicker">LAST OBSERVATION</div><h3 id="approved-recent-title">No recent observation yet</h3><p id="approved-recent-copy"></p></article><article class="approved-journey-card"><div class="approved-card-kicker">PRACTICE CONTEXT</div><strong id="approved-journey-stage">Current stage</strong><span id="approved-journey-days">Return to the current practice and record what changes.</span></article>`;const form=screen.querySelector('#journal-form');form?.before(stack);stack.querySelector('.approved-write-now')?.addEventListener('click',()=>{const field=screen.querySelector('textarea[name="observation"]');field?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});setTimeout(()=>field?.focus(),180)})}syncJournal()}
+  function syncJournal(){const entry=latestLocalEntry();const copy=document.getElementById('approved-recent-copy');if(copy)copy.textContent=excerpt(entry);const title=document.getElementById('approved-recent-title');if(title)title.textContent=entry?'Latest observation':'No recent observation yet';const stage=document.getElementById('profile-stage')?.textContent?.trim()||'Current stage';const stageEl=document.getElementById('approved-journey-stage');if(stageEl)stageEl.textContent=stage;const days=parseInt(document.getElementById('practice-days')?.textContent||'0',10)||0;const daysEl=document.getElementById('approved-journey-days');if(daysEl)daysEl.textContent=days?`${days} practice days recorded in this stage.`:'Begin the current practice, then record what you actually observed.'}
+  function decorateMe(){prependHero('me','Mirror · Resonance','Patterns from your own record, reflected without declaring what they mean.','MIRROR');const me=document.getElementById('me');const mirror=document.getElementById('mirror-content')?.closest('.rhythm-card');mirror?.classList.add('mirror-chamber');const heading=mirror?.querySelector('h2');if(heading)heading.textContent='Mirror · Resonance';const position=[...me?.querySelectorAll(':scope > .rhythm-card')||[]].find(card=>card!==mirror&&!card.classList.contains('auth-card')&&card.id!=='appearance-card');position?.classList.add('current-position-card');const positionHeading=position?.querySelector('h2');if(positionHeading)positionHeading.textContent='Current Position'}
+  function mount(){document.body?.classList.add('initiation-school');decoratePath();decorateLibrary();decorateJournal();decorateMe();document.addEventListener('ascend:curriculum',()=>{decoratePath();decorateLibrary();syncJournal();decorateMe()});document.addEventListener('ascend:journal-saved',()=>setTimeout(syncJournal,0))}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
