@@ -7,7 +7,7 @@
   const hint=document.getElementById('timer-hint');
   if(!overlay||!briefingBegin||!originalToggle||!timer||!finish||!hint)return;
 
-  const DEFAULT_HINT='Sit with this until the timer ends, then tap Finish Practice to record today.';
+  const DEFAULT_HINT='Sit with this until the timer ends. Finish Practice becomes available when the timer completes.';
   let toggle=originalToggle;
   let interval=null;
   let running=false;
@@ -27,6 +27,14 @@
     timer.textContent=`${String(minutes).padStart(2,'0')}:${String(rest).padStart(2,'0')}`;
   }
 
+  function setFinishReady(ready){
+    finish.classList.toggle('ready',ready);
+    finish.disabled=!ready;
+    finish.setAttribute('aria-disabled',String(!ready));
+    finish.setAttribute('aria-describedby','timer-hint');
+    finish.textContent=ready?'Finish Practice':'Finish Practice · waiting for timer';
+  }
+
   function clearTick(){
     if(interval!==null)window.clearInterval(interval);
     interval=null;
@@ -38,9 +46,9 @@
     running=false;
     render();
     toggle.disabled=true;
-    toggle.textContent='Complete';
-    finish.classList.add('ready');
-    hint.textContent='Timer complete — tap Finish Practice below.';
+    toggle.textContent='Timer Complete';
+    setFinishReady(true);
+    hint.textContent='Timer complete. Finish Practice to record this practice, then continue to your Journal.';
     document.dispatchEvent(new CustomEvent('ascend:practice-timer-complete'));
   }
 
@@ -57,7 +65,8 @@
     running=false;
     clearTick();
     render();
-    toggle.textContent='Begin';
+    toggle.textContent='Resume';
+    hint.textContent='Paused. Resume when you are ready; your remaining time is preserved.';
   }
 
   function start(){
@@ -65,6 +74,7 @@
     running=true;
     deadline=Date.now()+remainingMs;
     toggle.textContent='Pause';
+    hint.textContent='Practice in progress. You can pause without losing your remaining time.';
     tick();
     interval=window.setInterval(tick,250);
   }
@@ -76,7 +86,7 @@
     deadline=0;
     toggle.disabled=false;
     toggle.textContent='Begin';
-    finish.classList.remove('ready');
+    setFinishReady(false);
     hint.textContent=DEFAULT_HINT;
     render();
   }
@@ -94,6 +104,7 @@
     toggle.addEventListener('click',()=>running?pause():start());
   }
 
+  briefingBegin.setAttribute('aria-describedby','briefing-intention briefing-duration');
   installToggle();
   reset();
 
@@ -103,7 +114,12 @@
     reset();
   });
   finish.addEventListener('click',()=>{
-    if(finish.classList.contains('ready'))requestAnimationFrame(reset);
+    if(!finish.classList.contains('ready'))return;
+    finish.disabled=true;
+    finish.setAttribute('aria-disabled','true');
+    finish.textContent='Recording Practice…';
+    hint.textContent='Recording your practice. Your Journal reflection is next.';
+    requestAnimationFrame(reset);
   });
 
   window.ASCENDPracticeTimer={reset,start,pause,tick,isRunning:()=>running,remainingSeconds:()=>Math.ceil(remainingMs/1000)};
