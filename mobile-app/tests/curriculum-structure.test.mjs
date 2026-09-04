@@ -8,6 +8,7 @@ const journal=fs.readFileSync(new URL('../www/app/screens/journal.js',import.met
 const backendAdapter=fs.readFileSync(new URL('../www/app/data/backend-adapter.js',import.meta.url),'utf8');
 const library=fs.readFileSync(new URL('../www/app/screens/library.js',import.meta.url),'utf8');
 const master=fs.readFileSync(new URL('../../docs/ASCEND_MASTER_SYSTEM_DOCUMENT.md',import.meta.url),'utf8');
+const phaseIIGate=fs.readFileSync(new URL('../../supabase/pending_migrations/enforce_phase_ii_open_gate.sql',import.meta.url),'utf8');
 
 test('Phase I remains a 24-module canonical spine',()=>{
   const monthRows=[...progression.matchAll(/\{month:(\d+),title:/g)].map(match=>Number(match[1]));
@@ -28,6 +29,27 @@ test('Phase II requires the Open Gate and is not presented as a generic branch',
   assert.match(branches,/Phase II · Advanced Formation/);
   assert.match(branches,/Phase II opens only after the Phase I Open Gate is established/);
   assert.match(branches,/branch\.slug===PHASE_II_SLUG&&!phaseIIAccess\.allowed/);
+});
+
+test('Phase II Open Gate is enforced server-side on direct repetition-log inserts',()=>{
+  assert.match(phaseIIGate,/order by sort_order desc\s+limit 1/i);
+  assert.match(phaseIIGate,/coalesce\(v_status = 'established', false\)/i);
+  assert.match(phaseIIGate,/if v_slug <> 'sphere-of-attention' then\s+return new;/i);
+  assert.match(phaseIIGate,/if v_status is distinct from 'established' then\s+raise exception 'Phase II opens only after the Phase I Open Gate is established'/i);
+  assert.match(phaseIIGate,/before insert on public\.training_branch_repetition_log/i);
+});
+
+test('Phase II access RPC is authenticated-only and does not grant anonymous execution',()=>{
+  assert.match(phaseIIGate,/revoke all on function public\.path_phase_ii_access\(\) from public;/i);
+  assert.match(phaseIIGate,/revoke all on function public\.path_phase_ii_access\(\) from anon;/i);
+  assert.match(phaseIIGate,/grant execute on function public\.path_phase_ii_access\(\) to authenticated;/i);
+});
+
+test('Phase II gate reads Core readiness but never mutates Core progression',()=>{
+  assert.match(phaseIIGate,/from public\.path_student_progress/i);
+  assert.doesNotMatch(phaseIIGate,/update\s+public\.path_student_progress/i);
+  assert.doesNotMatch(phaseIIGate,/insert\s+into\s+public\.path_student_progress/i);
+  assert.doesNotMatch(phaseIIGate,/delete\s+from\s+public\.path_student_progress/i);
 });
 
 test('repetition submissions carry an idempotency request id',()=>{
