@@ -47,6 +47,21 @@ test('Library presentation is owned by the master screen module',()=>{
   assert.doesNotMatch(compatibility,/gateLibraryCards|renderRelatedTeaching|querySelectorAll\('#library-list/);
 });
 
+test('My ASCEND owns hierarchy and Resonance controls while engine remains behavior-only',()=>{
+  const me=read('app/screens/me.js');
+  const resonance=read('mirror-engine.js');
+  assert.match(me,/dataset\.meOwner='master'/);
+  assert.match(me,/Current Formation/);
+  assert.match(me,/dataset\.role='rhythm'/);
+  assert.match(me,/dataset\.role='resonance'/);
+  assert.match(me,/dataset\.role='teacher-review'/);
+  assert.match(me,/dataset\.role='account'/);
+  assert.match(me,/dataset\.resonanceOwner='me'/);
+  assert.match(me,/ASCENDMirror\?\.load\?\.\('stage'\)/);
+  assert.doesNotMatch(resonance,/querySelector\('#me|refresh-mirror|cloneNode\(true\)|function wire\(/);
+  assert.match(resonance,/window\.ASCENDMirror=\{load,resetStage\}/);
+});
+
 test('practice timer is elapsed-time authoritative and loaded by the master bootstrap',()=>{
   const timer=read('practice-timer-authority.js');
   const bootstrap=read('app/bootstrap.js');
