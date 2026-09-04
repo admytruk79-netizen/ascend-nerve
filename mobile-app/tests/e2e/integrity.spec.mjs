@@ -144,12 +144,13 @@ test('refresh never exposes the Path before entitlement is verified',async({page
     if(table==='ascend_entitlements')await new Promise(resolve=>setTimeout(resolve,500));
     await route.fulfill({status:200,contentType:'application/json',body:'[]'});
   });
+  const primaryNav=page.getByRole('navigation',{name:'Primary navigation'});
   await page.goto('/');
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
-  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(primaryNav).toBeHidden();
   await expect(page.locator('body')).toHaveClass(/access-required/);
-  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
   await page.reload();
-  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(primaryNav).toBeHidden();
   await expect(page.locator('body')).toHaveClass(/access-required/);
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
 });
