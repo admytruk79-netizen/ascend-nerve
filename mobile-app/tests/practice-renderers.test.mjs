@@ -26,3 +26,17 @@ test('practice renderers never own curriculum progression',()=>{
     assert.doesNotMatch(source,/path_student_progress/);
   }
 });
+
+test('practice runtime coordinates the existing renderer owners without owning progression',()=>{
+  const runtime=read('app/practices/runtime.js');
+  const bootstrap=read('app/bootstrap.js');
+  for(const name of renderers)assert.match(runtime,new RegExp(`\\./${name}\\.js`));
+  assert.match(runtime,/metadata\?\.renderer/);
+  assert.match(runtime,/metadata\?\.practice_renderer/);
+  assert.match(runtime,/observationRenderer/);
+  assert.match(runtime,/ASCENDPracticeRuntime/);
+  assert.match(runtime,/ascend:practice-timer-complete/);
+  assert.doesNotMatch(runtime,/completePractice|PathBackend|path_student_progress/);
+  assert.match(bootstrap,/initPracticeRuntime/);
+  assert.ok(bootstrap.indexOf('practice-timer-authority.js')<bootstrap.indexOf('initPracticeRuntime();'));
+});
