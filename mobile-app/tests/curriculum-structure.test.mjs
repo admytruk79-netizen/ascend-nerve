@@ -10,7 +10,7 @@ test('Phase I remains a 24-module canonical spine',()=>{
   const monthRows=[...progression.matchAll(/\{month:(\d+),title:/g)].map(match=>Number(match[1]));
   assert.deepEqual(monthRows,Array.from({length:24},(_,index)=>index+1));
   assert.match(master,/Phase I[^\n]*Core Formation/i);
-  assert.match(master,/24 months/i);
+  assert.match(master,/24(?:-month| months| canonical monthly modules)/i);
 });
 
 test('only Ancestral Roots and Energy & Bodywork render as Practice Branches',()=>{
