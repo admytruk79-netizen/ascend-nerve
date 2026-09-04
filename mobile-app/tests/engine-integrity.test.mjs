@@ -90,13 +90,16 @@ test('readiness evidence includes life application and maintenance without repla
   assert.match(readiness,/Ambiguous, not-yet, or no-clear-result observations are valid/);
 });
 
-test('Library recommendations and visible cards respect Core month progression',()=>{
+test('Library recommendations and visible cards respect Core month and stage progression',()=>{
   const library=read('app/screens/library.js');
   assert.match(library,/metadata\?\.month/);
   assert.match(library,/metadata\?\.min_month/);
   assert.match(library,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
-  assert.match(library,/const locked=!eligible\(item\)/);
-  assert.match(library,/Opens in Month \$\{minMonth\(item\)\}/);
+  assert.match(library,/contentRules/);
+  assert.match(library,/currentStage\?\.sort_order/);
+  assert.match(library,/const locked=!access\.unlocked/);
+  assert.match(library,/Opens in Month \$\{month\}/);
+  assert.match(library,/Opens at \$\{required\.title\}/);
   assert.match(library,/setAttribute\('aria-disabled','true'\)/);
   assert.match(library,/PathEngine\.current/);
 });
