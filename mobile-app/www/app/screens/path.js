@@ -1,3 +1,5 @@
+import {PathEngine} from '../curriculum/path-engine.js';
+
 export function initPath(){
   const screen=document.getElementById('path');
   if(!screen)return;
@@ -12,6 +14,6 @@ export function initPath(){
     branches.querySelector('strong')?.replaceChildren(document.createTextNode('Practice Branches'));
     branches.querySelector('span')?.replaceChildren(document.createTextNode('Independent progression · does not advance Core Formation'));
   }
-  window.ASCENDMonthPath?.paint?.({fresh:true});
-  document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='path')window.ASCENDMonthPath?.paint?.({fresh:true})});
+  PathEngine.paint();
+  document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='path')PathEngine.paint()});
 }

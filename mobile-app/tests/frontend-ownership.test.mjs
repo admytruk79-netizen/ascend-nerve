@@ -40,7 +40,7 @@ test('Library presentation is owned by the master screen module',()=>{
   const compatibility=read('contextual-library.js');
   assert.match(library,/window\.ASCENDLibrary=\{render,openItem\}/);
   assert.match(library,/FOR YOUR CURRENT MONTH/);
-  assert.match(library,/ASCENDProgression\?\.current/);
+  assert.match(library,/PathEngine\.current/);
   assert.match(library,/LibraryEngine\?\.recommend/);
   assert.match(library,/assets\/seasonal-art\//);
   assert.match(compatibility,/window\.ASCENDLibrary\?\.render/);

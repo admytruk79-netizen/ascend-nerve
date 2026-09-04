@@ -1,7 +1,8 @@
 import {state,setMonth} from '../state.js';
+import {PathEngine} from '../curriculum/path-engine.js';
 
 function monthItem(month){
-  return window.ASCENDProgression?.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
+  return PathEngine.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
 }
 
 export function renderToday(detail={}){
@@ -30,11 +31,11 @@ export function initToday(){
   // to that first dispatch by fetching the real progression and broadcasting
   // ascend:month, but that broadcast can land before or after this
   // registration depending on scheduling, so it cannot be the only source
-  // for the *initial* paint. Ask ASCENDProgression directly (it shares
+  // for the *initial* paint. Ask PathEngine directly (it shares
   // month-path.js's cache, so this is normally an instant cache hit rather
   // than a duplicate fetch) to make the first paint correct regardless of
   // that race.
-  window.ASCENDProgression?.current?.().then(context=>{
+  PathEngine.current().then(context=>{
     if(context&&Number.isFinite(Number(context.month)))renderToday({month:context.month});
   }).catch(()=>{});
   // ascend:month carries the authoritative month for every later reload;

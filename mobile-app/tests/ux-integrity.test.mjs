@@ -163,7 +163,7 @@ test('Library remains contextual, keyboard operable and does not mutate canonica
   assert.match(library,/setAttribute\('role','button'\)/);
   assert.match(library,/setAttribute\('tabindex','0'\)/);
   assert.match(library,/ascend:month/);
-  assert.match(library,/ASCENDProgression\?\.current/);
+  assert.match(library,/PathEngine\.current/);
   assert.doesNotMatch(gate,/curriculum\.content\s*=/);
 });
 

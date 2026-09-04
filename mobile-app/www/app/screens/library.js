@@ -1,3 +1,5 @@
+import {PathEngine} from '../curriculum/path-engine.js';
+
 const SEASONAL_ART={
   spring:['self-observation-humility.png','march-focused-thought.png','march-object-contemplation.png','march-reverence-patience.png','march-what-am-i-noticing.png','spring-march-awakening-perception.png','spring-april-clarifying-the-will.png','discipline-or-freedom.png'],
   summer:['heart-opening.png','july-discipline-fire.png','may-openness-readiness.png','openness-readiness.png','self-control-gentleness.png','where-does-will-begin.png','april-where-does-will-begin.png','april-training-the-will.png'],
@@ -172,7 +174,7 @@ function renderBrowse(content){
 
 async function syncMonth(){
   try{
-    currentMonth=Math.max(1,Math.min(24,Number((await window.ASCENDProgression?.current?.())?.month)||1));
+    currentMonth=Math.max(1,Math.min(24,Number((await PathEngine.current())?.month)||1));
   }catch{currentMonth=1}
 }
 

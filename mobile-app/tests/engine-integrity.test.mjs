@@ -98,7 +98,7 @@ test('Library recommendations and visible cards respect Core month progression',
   assert.match(library,/const locked=!eligible\(item\)/);
   assert.match(library,/Opens in Month \$\{minMonth\(item\)\}/);
   assert.match(library,/setAttribute\('aria-disabled','true'\)/);
-  assert.match(library,/ASCENDProgression\?\.current/);
+  assert.match(library,/PathEngine\.current/);
 });
 
 test('teacher review UI uses the live stage-gate schema',()=>{
