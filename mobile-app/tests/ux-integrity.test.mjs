@@ -155,13 +155,12 @@ test('Android Back unwinds all major overlays before screen navigation',()=>{
 });
 
 test('Library remains contextual, keyboard operable and does not mutate canonical curriculum',()=>{
-  const app=read('app.js');
-  const contextual=read('contextual-library.js');
+  const library=read('app/screens/library.js');
   const gate=read('library-month-gate.js');
-  assert.match(app,/path_content_unlock_rules|contentAccess/);
-  assert.match(app,/setAttribute\('role','button'\)/);
-  assert.match(app,/setAttribute\('tabindex','0'\)/);
-  assert.match(contextual,/ascend:month/);
+  assert.match(library,/setAttribute\('role','button'\)/);
+  assert.match(library,/setAttribute\('tabindex','0'\)/);
+  assert.match(library,/ascend:month/);
+  assert.match(library,/ASCENDProgression\?\.current/);
   assert.doesNotMatch(gate,/curriculum\.content\s*=/);
 });
 
