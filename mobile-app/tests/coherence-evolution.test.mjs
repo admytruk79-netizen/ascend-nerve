@@ -37,6 +37,32 @@ test('ASCENDUX is the navigation authority and normalizes practice journal flow'
   assert.doesNotMatch(ux,/createElement\(['"]style['"]\)/);
 });
 
+test('navigation honors history suppression for redirects, Back, and event-driven transitions',()=>{
+  const ux=read('ux-fixes.js');
+  assert.match(ux,/history:pushHistory=true/);
+  assert.match(ux,/historyReady&&pushHistory&&previous!==id/);
+  assert.match(ux,/activateScreen\('me',\{record:false,history:false\}\)/);
+  assert.match(ux,/activateScreen\(target,\{record:false,history:false\}\)/);
+});
+
+test('About overlay has pointer-close ownership in ASCENDUX',()=>{
+  const ux=read('ux-fixes.js');
+  assert.match(ux,/querySelector\('\.about-close'\)\?\.addEventListener\('click'/);
+  assert.match(ux,/if\(event\.target===about\)closeOverlay\(about\)/);
+  assert.match(ux,/function closeOverlay\(open\)/);
+});
+
+test('Journal authority emits completion after signed-out local persistence but not before validation',()=>{
+  const journal=read('journal-sync-authority.js');
+  const validationIndex=journal.indexOf('hasMeaningfulContent(form)');
+  const localIndex=journal.indexOf('if(!signedIn)');
+  const emitIndex=journal.indexOf('emitSaved({remote:false,signedIn:false})');
+  assert.ok(validationIndex>=0&&localIndex>validationIndex&&emitIndex>localIndex);
+  assert.match(journal,/if\(saveLocal\(entry\)\)/);
+  assert.match(journal,/ascend:journal-saved/);
+  assert.match(journal,/Reflection saved privately on this device/);
+});
+
 test('official practice completion never increments local progress on sync failure',()=>{
   const integrity=read('progress-integrity.js');
   assert.match(integrity,/window\.ASCENDPracticeCompletion/);
