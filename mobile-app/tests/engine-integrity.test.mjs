@@ -49,7 +49,7 @@ test('Mirror remains subordinate to progression and exposes stage/all-time scope
   assert.match(mirror,/ascend-resonance/);
   assert.match(mirror,/data-mirror-scope="stage"/);
   assert.match(mirror,/data-mirror-scope="all"/);
-  assert.match(mirror,/does not determine attainment, diagnose you, or establish spiritual claims as fact/);
+  assert.match(mirror,/does not determine attainment, diagnose you, establish spiritual claims as fact, or replace teacher review/);
   assert.doesNotMatch(mirror,/submit_branch_readiness|path_submit_readiness_review|record_branch_repetition/);
 });
 
