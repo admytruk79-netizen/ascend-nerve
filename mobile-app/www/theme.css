@@ -19,3 +19,53 @@
 .theme-choice.active{border-color:rgba(74,179,168,.55);box-shadow:0 0 0 1px rgba(74,179,168,.08) inset}
 .theme-choice.active .theme-check{background:var(--ui-teal);border-color:var(--ui-teal);box-shadow:inset 0 0 0 5px var(--ui-surface)}
 .appearance-note{margin-top:12px;color:var(--ui-muted);font:11px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+
+/* True Day atmosphere. The component system remains shared, but Day must be
+   genuinely light rather than a dark surface with a warmer glow. */
+html[data-theme="day"]{
+  color-scheme:light;
+  --ui-bg:#f4efe4;
+  --ui-bg-deep:#e9e0d1;
+  --ui-bg-soft:#faf6ee;
+  --ui-surface:#fffaf1;
+  --ui-surface-2:#f2e8d8;
+  --ui-surface-3:#e8dcc9;
+  --ui-field:#fffdf8;
+  --ui-ink:#18242b;
+  --ui-heading:#102027;
+  --ui-muted:#667178;
+  --ui-gold:#9b6a24;
+  --ui-gold-soft:#815616;
+  --ui-teal:#247a74;
+  --ui-line:rgba(126,88,31,.24);
+  --ui-line-soft:rgba(40,54,62,.12);
+  --ui-shadow:rgba(64,47,29,.12);
+  --ui-nav:rgba(250,246,238,.96);
+  --scene-glow:rgba(225,165,81,.19);
+  --scene-haze:rgba(74,145,139,.08);
+  --asc-bg:#f4efe4;
+  --asc-surface:rgba(255,250,241,.90);
+  --asc-surface-strong:#fffaf1;
+  --asc-line:rgba(126,88,31,.18);
+  --asc-line-strong:rgba(126,88,31,.30);
+  --asc-text:#18242b;
+  --asc-muted:#667178;
+  --asc-gold:#9b6a24;
+  --asc-gold-soft:#815616;
+  --asc-teal:#247a74;
+}
+html[data-theme="day"] body{background:radial-gradient(circle at 50% -12%,var(--scene-glow),transparent 34%),radial-gradient(circle at 92% 18%,var(--scene-haze),transparent 34%),linear-gradient(180deg,#fffaf1 0%,var(--ui-bg) 52%,var(--ui-bg-deep) 100%)!important}
+html[data-theme="day"] .topbar{background:rgba(255,250,241,.88)!important}
+html[data-theme="day"] .bottom-nav{background:var(--ui-nav)!important;box-shadow:0 -8px 24px rgba(78,57,35,.08)!important}
+html[data-theme="day"] .icon-button,html[data-theme="day"] .mode-pill{background:rgba(255,250,241,.88)!important}
+html[data-theme="day"] .rhythm-card,html[data-theme="day"] .marker-card,html[data-theme="day"] .branch-card,html[data-theme="day"] .access-panel,html[data-theme="day"] .library-group,html[data-theme="day"] .approved-prompt-card,html[data-theme="day"] .approved-recent-card,html[data-theme="day"] .approved-journey-card,html[data-theme="day"] #approved-library-now{background:linear-gradient(180deg,rgba(255,253,248,.97),rgba(246,239,228,.98))!important;box-shadow:0 12px 28px rgba(78,57,35,.08)!important}
+html[data-theme="day"] input,html[data-theme="day"] textarea,html[data-theme="day"] select,html[data-theme="day"] #auth-form input,html[data-theme="day"] .journal-form textarea,html[data-theme="day"] .marker-card textarea,html[data-theme="day"] .library-search{color:var(--ui-ink)!important;background:var(--ui-field)!important;border-color:var(--ui-line-soft)!important}
+html[data-theme="day"] input::placeholder,html[data-theme="day"] textarea::placeholder{color:#7a8589!important}
+html[data-theme="day"] .library-filter{color:#667178!important;background:rgba(255,250,241,.84)!important}
+html[data-theme="day"] .library-overlay,html[data-theme="day"] .practice-overlay,html[data-theme="day"] .about-overlay,html[data-theme="day"] .menu-overlay,html[data-theme="day"] #practice-briefing{background:radial-gradient(circle at 50% -10%,var(--scene-glow),transparent 34%),linear-gradient(180deg,#fffaf1,var(--ui-bg-deep))!important;color:var(--ui-ink)!important}
+html[data-theme="day"] .overlay-close{background:rgba(255,250,241,.9)!important}
+html[data-theme="day"] body.auth-required #me .auth-card,html[data-theme="day"] body.access-required #me .auth-card{background:linear-gradient(180deg,#fffaf1,#efe4d4)!important;color:var(--ui-ink)!important;box-shadow:0 24px 50px rgba(78,57,35,.12)!important}
+html[data-theme="day"] #approved-library-feature h2,html[data-theme="day"] #approved-library-feature p,html[data-theme="day"] #approved-library-feature small,html[data-theme="day"] #library .content-card:not(.has-art) strong,html[data-theme="day"] #library .content-card:not(.has-art) span,html[data-theme="day"] #library .content-card:not(.has-art) small{color:var(--ui-ink)!important;text-shadow:none!important}
+
+/* Keyboard focus must remain visible in every atmosphere. */
+html[data-theme] input:focus-visible,html[data-theme] textarea:focus-visible,html[data-theme] select:focus-visible,html[data-theme] button:focus-visible,html[data-theme] a:focus-visible,html[data-theme] [role="button"]:focus-visible{outline:2px solid var(--ui-teal)!important;outline-offset:3px!important;box-shadow:none!important}
