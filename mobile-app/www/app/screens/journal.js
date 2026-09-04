@@ -9,7 +9,31 @@ const REFLECTION_ART=[
 ];
 
 const JOURNAL_FIELDS=['observation','inner_state','life_application','interpretation','unresolved'];
+const CONTEXT_KEYS=['kind','branchId','branchSlug','branchTitle','moduleId','moduleNumber','moduleTitle'];
 let persistenceContext={userId:null,stageId:null};
+let journalContext=null;
+
+function cleanJournalContext(value){
+  if(!value||typeof value!=='object')return null;
+  const clean={};
+  for(const key of CONTEXT_KEYS){
+    const item=value[key];
+    if(item===undefined||item===null||item==='')continue;
+    clean[key]=typeof item==='number'?item:String(item).slice(0,240);
+  }
+  return Object.keys(clean).length?clean:null;
+}
+
+function setJournalContext(value){
+  journalContext=cleanJournalContext(value);
+  window.ASCENDJournalContext=journalContext;
+  const form=document.getElementById('journal-form');
+  if(form)form.dataset.curriculumContext=journalContext?.kind||'';
+  const screen=document.getElementById('journal');
+  if(screen)screen.dataset.curriculumContext=journalContext?.kind||'';
+}
+
+function clearJournalContext(){setJournalContext(null)}
 
 function bindReflectionArt(){
   const screen=document.getElementById('journal');
@@ -39,6 +63,8 @@ function entryFromForm(form){
   const values=new FormData(form);
   const entry={created_at:new Date().toISOString()};
   for(const[k,v]of values.entries())entry[k]=String(v).trim();
+  const context=cleanJournalContext(journalContext||window.ASCENDJournalContext);
+  if(context)entry.context=context;
   return entry;
 }
 
@@ -66,19 +92,10 @@ function refreshPersistenceContext(){
 }
 
 function localEntries(){
-  try{
-    return Array.isArray(window.localState?.entries)?window.localState.entries:[];
-  }catch{return[]}
+  try{return Array.isArray(window.localState?.entries)?window.localState.entries:[]}
+  catch{return[]}
 }
 
-/*
- * Journal entries must land in the same in-memory localState object that
- * app.js and progress-integrity.js hold and later re-serialize whole to
- * localStorage (e.g. persistPendingAttempt on a failed practice completion).
- * Writing to localStorage independently here left that entry only in
- * storage, not in localState.entries - the next unrelated writer would then
- * overwrite storage with the stale in-memory state and silently erase it.
- */
 function saveLocal(entry){
   try{
     if(!window.localState)return false;
@@ -100,8 +117,15 @@ function journalDate(entry){
   return new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'}).format(date);
 }
 
-function firstMeaningful(entry){
-  return JOURNAL_FIELDS.map(name=>String(entry?.[name]||'').trim()).find(Boolean)||'Saved reflection';
+function firstMeaningful(entry){return JOURNAL_FIELDS.map(name=>String(entry?.[name]||'').trim()).find(Boolean)||'Saved reflection'}
+
+function contextLabel(entry){
+  const context=entry?.context;
+  if(!context||typeof context!=='object')return'';
+  if(context.kind==='phase_ii')return`Phase II · ${context.moduleTitle||'Advanced Formation'}`;
+  if(context.kind==='phase_i_additional')return`Phase I · ${context.moduleTitle||context.branchTitle||'Additional Practice'}`;
+  if(context.kind==='practice_branch')return`${context.branchTitle||'Practice Branch'} · ${context.moduleTitle||'Session'}`;
+  return context.moduleTitle||context.branchTitle||'';
 }
 
 function appendReflection(list,entry,{local=false}={}){
@@ -111,27 +135,25 @@ function appendReflection(list,entry,{local=false}={}){
   const title=document.createElement('strong');
   title.textContent=journalDate(entry);
   const preview=document.createElement('span');
-  preview.textContent=firstMeaningful(entry).slice(0,120);
+  const label=contextLabel(entry);
+  preview.textContent=(label?`${label} · `:'')+firstMeaningful(entry).slice(0,120);
   summary.append(title,preview);
   details.append(summary);
   const body=document.createElement('div');
   body.className='journal-history-body';
-  for(const[name,label]of [['observation','Observation'],['inner_state','Inner State'],['life_application','Life Application'],['interpretation','Interpretation'],['unresolved','Unresolved']]){
+  if(label){const source=document.createElement('small');source.className='journal-context-label';source.textContent=label;body.append(source)}
+  for(const[name,fieldLabel]of [['observation','Observation'],['inner_state','Inner State'],['life_application','Life Application'],['interpretation','Interpretation'],['unresolved','Unresolved']]){
     const value=String(entry?.[name]||'').trim();
     if(!value)continue;
     const section=document.createElement('section');
     const heading=document.createElement('strong');
-    heading.textContent=label;
+    heading.textContent=fieldLabel;
     const paragraph=document.createElement('p');
     paragraph.textContent=value;
     section.append(heading,paragraph);
     body.append(section);
   }
-  if(local){
-    const note=document.createElement('small');
-    note.textContent='Saved on this device · awaiting synchronization';
-    body.append(note);
-  }
+  if(local){const note=document.createElement('small');note.textContent='Saved on this device · awaiting synchronization';body.append(note)}
   details.append(body);
   list.append(details);
 }
@@ -147,18 +169,11 @@ async function loadHistory(){
     try{
       let userId=context.userId;
       if(!userId)userId=(await Backend.me())?.id||null;
-      if(userId){
-        persistenceContext.userId=userId;
-        remote=await Backend.journalEntries(userId,20);
-      }
+      if(userId){persistenceContext.userId=userId;remote=await Backend.journalEntries(userId,20)}
     }catch(error){console.warn('ASCEND Journal history unavailable',error)}
   }
   if(!remote.length&&!locals.length){
-    const empty=document.createElement('p');
-    empty.className='quiet-note';
-    empty.textContent='Your saved reflections will appear here.';
-    list.append(empty);
-    return;
+    const empty=document.createElement('p');empty.className='quiet-note';empty.textContent='Your saved reflections will appear here.';list.append(empty);return;
   }
   remote.forEach(entry=>appendReflection(list,entry));
   locals.forEach(entry=>appendReflection(list,entry,{local:true}));
@@ -180,14 +195,14 @@ async function persistJournal(form,status){
       status.textContent='Reflection saved privately to your ASCEND Path journal.';
       setSync('SYNCED',true);
       form.reset();
+      const savedContext=entry.context||null;
+      clearJournalContext();
       window.ASCENDMirror?.load?.('stage');
       await loadHistory();
-      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId}}));
+      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId,context:savedContext}}));
       requestAnimationFrame(()=>window.ASCENDUX?.activateScreen?.('today'));
       return;
-    }catch(error){
-      console.error('ASCEND remote Journal save failed',error);
-    }
+    }catch(error){console.error('ASCEND remote Journal save failed',error)}
   }
 
   const saved=saveLocal(entry);
@@ -195,9 +210,8 @@ async function persistJournal(form,status){
     ?(saved?'Connection unavailable. Reflection saved on this device and can be synchronized later.':'Reflection could not be saved. Please keep this page open and try again.')
     :(saved?'Reflection saved privately on this device. Sign in to synchronize it.':'Reflection could not be saved on this device.');
   setSync(saved?'LOCAL':'UNSAVED');
-  if(saved)form.reset();
-  if(saved)await loadHistory();
-  document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved}}));
+  if(saved){form.reset();clearJournalContext();await loadHistory()}
+  document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false,saved,context:saved?entry.context||null:null}}));
 }
 
 async function saveFromMaster(form,status){
@@ -221,24 +235,17 @@ function bindPersistence(screen){
   const save=document.getElementById('journal-save');
   if(save){
     save.dataset.masterJournalSave='true';
-    save.addEventListener('click',event=>{
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      saveFromMaster(form,status);
-    });
+    save.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();saveFromMaster(form,status)});
   }
-
-  form.addEventListener('submit',event=>{
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    saveFromMaster(form,status);
-  },true);
+  form.addEventListener('submit',event=>{event.preventDefault();event.stopImmediatePropagation();saveFromMaster(form,status)},true);
 }
 
 export function initJournal(){
   const screen=document.getElementById('journal');if(!screen)return;
+  setJournalContext(window.ASCENDJournalContext);
   bindReflectionArt();
   bindPersistence(screen);
+  document.addEventListener('ascend:journal-context',event=>setJournalContext(event.detail));
   document.addEventListener('ascend:screen',event=>{
     if(event.detail?.screen!=='journal')return;
     refreshPersistenceContext();
