@@ -1,8 +1,7 @@
 (()=>{
   const finish=document.getElementById('finish-practice');
   const timerHint=document.getElementById('timer-hint');
-  const overlay=document.getElementById('practice-overlay');
-  if(!finish||!timerHint||!overlay)return;
+  if(!finish||!timerHint)return;
 
   let submitting=false;
 
@@ -89,8 +88,8 @@
         setSync('SYNCED',true);
       }
 
-      window.ASCENDPracticeTimer?.reset?.();
-      overlay.classList.add('hidden');
+      window.ASCENDPracticeRuntime?.complete?.();
+      window.ASCENDPracticeRuntime?.closeOverlay?.({resetTimer:true});
       document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
       handoffToJournal();
     }catch(err){
