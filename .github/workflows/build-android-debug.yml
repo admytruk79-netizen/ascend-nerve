@@ -3,7 +3,7 @@ name: Build ASCEND Path Android Debug
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ main ]
+    branches: [ main, ascend-path-foundation ]
     paths:
       - 'mobile-app/**'
       - '.github/workflows/build-android-debug.yml'

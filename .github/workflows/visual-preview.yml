@@ -8,6 +8,7 @@ on:
       - 'mobile-app/tests/visual-capture.mjs'
       - '.github/workflows/visual-preview.yml'
   pull_request:
+    branches: [ main, ascend-path-foundation ]
     paths:
       - 'mobile-app/www/**'
       - 'mobile-app/tests/visual-capture.mjs'
@@ -32,12 +33,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Start local app
         run: python3 -m http.server 4173 --directory www >/tmp/ascend-visual-http.log 2>&1 &
-      - name: Capture responsive themes and primary screens
+      - name: Capture Day Twilight Night
         run: node tests/visual-capture.mjs
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: ascend-coherence-visual-preview
+          name: ascend-today-visual-preview
           path: mobile-app/visual-preview/*.png
           if-no-files-found: error
           retention-days: 7

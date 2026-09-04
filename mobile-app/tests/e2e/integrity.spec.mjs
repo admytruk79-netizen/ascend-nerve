@@ -46,9 +46,10 @@ async function boot(page){
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
   await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('body')).not.toHaveClass(/access-required/);
-  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+  await page.waitForFunction(()=>document.documentElement.dataset.ascendMasterReady==='1');
   await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
-  await expect(page.locator('#stage-title')).toContainText('Self-Contemplation');
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+  await expect(page.locator('#stage-title')).toContainText('Orientation to the Path');
 }
 
 test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
@@ -71,13 +72,13 @@ test('empty Journal never persists and meaningful Journal persists remotely when
   expect(localEntries).toHaveLength(0);
 });
 
-test('formal practice briefing uses the expanded authored material',async({page})=>{
+test('formal practice briefing uses the server-linked primary practice',async({page})=>{
   await boot(page);
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
-  await expect(page.locator('#briefing-intention')).toContainText('repeatable discipline of presence');
-  const bodyLength=await page.locator('#briefing-intention').evaluate(node=>node.textContent.trim().length);
-  expect(bodyLength).toBeGreaterThan(700);
+  await expect(page.locator('#briefing-title')).toHaveText('Self-Contemplation');
+  await expect(page.locator('#briefing-intention')).toHaveText('Observe thought without following it.');
+  await expect(page.locator('#briefing-duration')).toHaveText('10 minutes');
 });
 
 test('Library recommendations never surface locked future material and cards work from keyboard',async({page})=>{
@@ -98,6 +99,39 @@ test('Library recommendations never surface locked future material and cards wor
   await expect(page.locator('#library-title')).toHaveText('Available Teaching');
 });
 
+test('a local Journal fallback save survives a later failed practice completion',async({page})=>{
+  await boot(page);
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/path_journal_entries',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.locator('textarea[name="life_application"]').fill('Saved while the connection was down.');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('saved on this device');
+  const afterJournal=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterJournal).toBe(1);
+
+  // A second, unrelated writer (a failed practice completion) re-serializes
+  // the whole ascendPathState object. It must not clobber the entry the
+  // Journal fallback just wrote.
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_record_practice_completion',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+  // Drive the overlay/timer state directly instead of clicking "Begin
+  // 10-Minute Practice" - that click also fires practice-timer-authority.js's
+  // own rAF-deferred reset() on the same briefing-begin button, which can
+  // land after this setup and strip the 'ready' class it depends on.
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await page.evaluate(()=>{
+    document.getElementById('practice-briefing').classList.add('hidden');
+    document.getElementById('practice-overlay').classList.remove('hidden');
+    window.ASCENDPracticeTimer.remainingSeconds=()=>0;
+    document.getElementById('finish-practice').classList.add('ready');
+  });
+  await page.getByRole('button',{name:'Finish Practice'}).click();
+  await expect(page.locator('#timer-hint')).toContainText('does not count toward progression yet');
+
+  const afterFailedPractice=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterFailedPractice).toBe(1);
+});
+
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
@@ -110,7 +144,7 @@ test('Finish Practice cannot advance before the timer completes',async({page})=>
   await expect(page.locator('#primary-check')).not.toBeChecked();
 });
 
-test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
+test('the Twilight portal is a two-second press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
   await boot(page);
   const circle=page.locator('#ritual-portal');
   const box=await circle.boundingBox();
@@ -119,7 +153,7 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.mouse.up();
-  await expect(page.locator('#ritual-feedback')).toContainText('Press and hold to begin');
+  await expect(page.locator('#ritual-feedback')).toContainText('Press and hold for two seconds to begin');
   await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
 
   await page.mouse.move(center.x,center.y);
@@ -130,7 +164,7 @@ test('the Twilight portal is a press-and-hold ritual, distinct from a quick tap 
 
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
-  await page.waitForTimeout(1750);
+  await page.waitForTimeout(2150);
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await page.mouse.up();
   await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
@@ -146,10 +180,11 @@ test('refresh never exposes the Path before entitlement is verified',async({page
   });
   await page.goto('/');
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
-  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('body')).toHaveClass(/access-required/);
   await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
   await page.reload();
-  await expect(page.locator('body')).toHaveClass(/auth-required/);
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
   await expect(page.locator('body')).toHaveClass(/access-required/);
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
 });

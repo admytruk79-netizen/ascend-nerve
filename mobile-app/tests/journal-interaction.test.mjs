@@ -6,11 +6,12 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..','www');
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 
 function loadGuard(form,status){
   const window={};
   const document={getElementById:id=>id==='journal-form'?form:id==='journal-status'?status:null};
-  vm.runInNewContext(fs.readFileSync(path.join(root,'journal-validation.js'),'utf8'),{window,document,String});
+  vm.runInNewContext(read('journal-validation.js'),{window,document,String});
   return window.ASCENDJournalValidation;
 }
 
@@ -44,4 +45,23 @@ test('meaningful Journal submission reaches the persistence listener',()=>{
   form.addEventListener('submit',event=>{event.preventDefault();persisted++});
   form.dispatchEvent(new Event('submit',{cancelable:true}));
   assert.equal(persisted,1);
+});
+
+test('confirmed practice hands off to Journal and confirmed Journal save returns to Today',()=>{
+  const progress=read('progress-integrity.js');
+  const journal=read('app/screens/journal.js');
+  const today=read('app/screens/today.js');
+  assert.match(progress,/function handoffToJournal\(\)/);
+  assert.match(progress,/activateScreen\?\.\('journal'\)/);
+  assert.match(progress,/Record what you actually observed/);
+  assert.match(journal,/Backend\.saveJournal/);
+  assert.match(journal,/Reflection saved privately to your ASCEND Path journal/);
+  assert.match(journal,/activateScreen\?\.\('today'\)/);
+  assert.match(journal,/ascend:journal-saved/);
+  assert.match(today,/ascend:practice-timer-complete/);
+  assert.match(today,/Timer complete/);
+  assert.match(today,/ascend:practice-completed/);
+  assert.match(today,/Practice completed and recorded/);
+  assert.match(today,/ascend:journal-saved/);
+  assert.match(today,/Reflection saved to your Journal/);
 });

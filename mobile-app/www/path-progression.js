@@ -1,35 +1,35 @@
 (()=>{
+  /* Canonical Phase I display map from ASCEND School of Initiation Master Curriculum v3.0.
+     Month labels are nominal containers; backend readiness remains authoritative. */
   const MONTHS=[
-    {month:1,title:'Foundation · Self-Contemplation',gate:'ENTRY'},
-    {month:2,title:'Clarity · Thought'},
-    {month:3,title:'Constancy · Will'},
-    {month:4,title:'Equanimity'},
-    {month:5,title:'Positive Perception'},
-    {month:6,title:'Openness'},
-    {month:7,title:'Impartial Retrospect',gate:'FOUNDATION REVIEW'},
-    {month:8,title:'Consolidation · Continuing Practice'},
-    {month:9,title:'Consolidation · Observation & Integration'},
-    {month:10,title:'Preparation · Review & Readiness',gate:'PART I GATE'},
-    {month:11,title:'Part II · Energy Gain'},
-    {month:12,title:'Star Energy'},
-    {month:13,title:'Emptiness'},
-    {month:14,title:'New Tools'},
-    {month:15,title:'Green Sphere'},
-    {month:16,title:'Helping the World'},
-    {month:17,title:'Integration'},
-    {month:18,title:'Consolidation',gate:'PART II GATE'},
-    {month:19,title:'Part III · Seven Chakra'},
-    {month:20,title:'Elements'},
-    {month:21,title:'Inner Octaves'},
-    {month:22,title:'Three Centres'},
-    {month:23,title:'Ancestors & Higher Self'},
-    {month:24,title:'Final Integration',gate:'PATH REVIEW'}
+    {month:1,title:'Orientation to the Path',focus:'Observation Foundation'},
+    {month:2,title:'Embodied Attention',focus:'Embodied Observation'},
+    {month:3,title:'Breath and Rhythm',focus:'Breath & Rhythm'},
+    {month:4,title:'Directed Attention',focus:'Directed Attention',gate:'GATE 1'},
+    {month:5,title:'Deliberate Action',focus:'Practice Rhythm & Spiral'},
+    {month:6,title:'Equanimity',focus:'Physical / Etheric Foundation'},
+    {month:7,title:'Constructive Perception',focus:'Astral / Emotional Observation'},
+    {month:8,title:'Openness and Discernment',focus:'Mental Organization & Discernment',gate:'GATE 2'},
+    {month:9,title:'Inner Quiet',focus:'Akharata — Locating the Axis'},
+    {month:10,title:'The Inner Witness',focus:'Akharata — Vertical Development'},
+    {month:11,title:'Sense Refinement',focus:'Energy as Directed Quality'},
+    {month:12,title:'Imaginative Attention',focus:'Ascending / Descending Balance',gate:'GATE 3'},
+    {month:13,title:'Patterns and Repetition',focus:'Harmony & Proportion'},
+    {month:14,title:'Resistance and Friction',focus:'Lower-Center Preparation'},
+    {month:15,title:'Biography and Meaning',focus:'Lower Centers'},
+    {month:16,title:'Values Into Action',focus:'Middle Centers',gate:'GATE 4'},
+    {month:17,title:'Relational Presence',focus:'Upper-Center Preparation'},
+    {month:18,title:'Resonance and Differentiation',focus:'Upper Centers'},
+    {month:19,title:'Compassion and Service',focus:'Whole-System Center Integration'},
+    {month:20,title:'Energetic Literacy',focus:'Energy Literacy & Integration',gate:'GATE 5'},
+    {month:21,title:'Integration of Disciplines',focus:'Integrated Discipline'},
+    {month:22,title:'Discernment and Responsibility',focus:'Discernment & Source Awareness'},
+    {month:23,title:'Independent Practice Design',focus:'Independent Practice Architecture'},
+    {month:24,title:'The Open Gate',focus:'Open Gate / Continuation',gate:'GATE 6'}
   ];
 
-  // Stages are readiness milestones, not substitutes for the 24 monthly units.
-  // Stages 1-7 map directly to Foundation months 1-7. Passing Foundation Review
-  // opens month 8; passing Part II opens month 19. Time spent before a gate can
-  // never be used to skip the monthly work after that gate.
+  // Existing backend stages remain readiness milestones. They do not replace
+  // the 24 monthly units, and elapsed time can never bypass server readiness.
   const rangeForStage=sortOrder=>{
     const s=Math.max(1,Number(sortOrder)||1);
     if(s<=7)return{start:s,end:s};

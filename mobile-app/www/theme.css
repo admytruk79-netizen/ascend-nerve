@@ -1,22 +1,71 @@
-:root{color-scheme:dark;--bg0:#030a10;--bg1:#071721;--bg2:#10303a;--text:#f4efe4;--muted-ui:#b9b09f;--panel:rgba(255,255,255,.03);--panel2:rgba(255,255,255,.015);--nav:rgba(3,10,16,.94);--field:#0b1d27;--shadow:rgba(0,0,0,.28)}
+@import url("theme-authority.css?v=20260902-reconstruction-2");
+@import url("mirror-component.css?v=20260902-reconstruction-1");
+@import url("training-components.css?v=20260902-reconstruction-1");
 
-/* Theme variants only change tokens/atmosphere. No component stylesheet imports. */
-html[data-theme="day"]{color-scheme:light;--ink:#2a2b2d;--ink2:#f0ebe1;--gold:#a67d3b;--gold2:#8d6a32;--ivory:#242526;--muted:#716b63;--teal:#167f79;--line:rgba(166,125,59,.3);--bg0:#f4efe6;--bg1:#eee7db;--bg2:#faf7f1;--text:#242526;--muted-ui:#716b63;--panel:rgba(255,255,255,.54);--panel2:rgba(255,255,255,.28);--nav:rgba(246,241,232,.96);--field:#f5efe5;--shadow:rgba(93,76,46,.13)}
-html[data-theme="twilight"]{color-scheme:dark;--bg0:#090c16;--bg1:#151528;--bg2:#24213a;--text:#f2ebdf;--muted-ui:#afa6a6;--panel:rgba(255,255,255,.035);--nav:rgba(8,9,18,.95);--field:#171729}
-html[data-theme="night"]{color-scheme:dark}
+/*
+ * ASCEND theme entry point.
+ *
+ * All app-wide palette, surface, typography and atmosphere rules live in
+ * theme-authority.css. Component presentation is imported statically here so
+ * the browser resolves it during normal CSS parsing, never after first paint.
+ */
 
-/* Higher specificity than the final generic authority preserves a genuinely
-   readable Day atmosphere while keeping the same component system. */
-html[data-theme="day"][data-theme-preference="day"]{--ui-bg:#f3ede3;--ui-bg-deep:#e5dac9;--ui-bg-soft:#faf7f1;--ui-surface:#fffaf2;--ui-surface-2:#f8f1e6;--ui-surface-3:#eee3d2;--ui-field:#fffaf2;--ui-ink:#282827;--ui-heading:#242321;--ui-muted:#716b63;--ui-gold:#9b7338;--ui-gold-soft:#79592d;--ui-teal:#167f79;--ui-line:rgba(155,115,56,.27);--ui-line-soft:rgba(68,54,35,.13);--ui-shadow:rgba(93,76,46,.12);--ui-nav:rgba(248,243,234,.965);--scene-glow:rgba(226,169,85,.18);--scene-haze:rgba(69,143,136,.09)}
-html[data-theme="day"][data-theme-preference="day"] body{background:radial-gradient(circle at 50% -12%,rgba(255,255,255,.94),transparent 36%),radial-gradient(circle at 92% 18%,rgba(69,143,136,.08),transparent 34%),linear-gradient(180deg,#fbf7ef 0%,#f3ede3 48%,#e7ddce 100%)!important;color:var(--ui-ink)!important}
-html[data-theme="day"][data-theme-preference="day"] .topbar{background:rgba(250,246,238,.88)!important;border-bottom-color:rgba(91,69,35,.14)!important}
-html[data-theme="day"][data-theme-preference="day"] .bottom-nav{background:var(--ui-nav)!important;border-top-color:rgba(91,69,35,.15)!important;box-shadow:0 -12px 30px rgba(93,76,46,.08)!important}
-html[data-theme="day"][data-theme-preference="day"] .bottom-nav button,html[data-theme="day"][data-theme-preference="day"] .bottom-nav button:before{color:#6f6b64!important}
-html[data-theme="day"][data-theme-preference="day"] .rhythm-card,html[data-theme="day"][data-theme-preference="day"] .marker-card,html[data-theme="day"][data-theme-preference="day"] .branch-card,html[data-theme="day"][data-theme-preference="day"] .access-panel,html[data-theme="day"][data-theme-preference="day"] .library-group,html[data-theme="day"][data-theme-preference="day"] .approved-prompt-card,html[data-theme="day"][data-theme-preference="day"] .approved-recent-card,html[data-theme="day"][data-theme-preference="day"] .approved-journey-card,html[data-theme="day"][data-theme-preference="day"] #approved-library-now{background:linear-gradient(180deg,rgba(255,255,255,.76),rgba(250,244,234,.60))!important;border-color:rgba(91,69,35,.14)!important;box-shadow:0 12px 30px rgba(93,76,46,.07)!important}
-html[data-theme="day"][data-theme-preference="day"] input,html[data-theme="day"][data-theme-preference="day"] textarea,html[data-theme="day"][data-theme-preference="day"] select,html[data-theme="day"][data-theme-preference="day"] .library-search{background:rgba(255,252,246,.82)!important;color:#242321!important;border-color:rgba(91,69,35,.18)!important}
-html[data-theme="day"][data-theme-preference="day"] .library-overlay,html[data-theme="day"][data-theme-preference="day"] .practice-overlay,html[data-theme="day"][data-theme-preference="day"] .about-overlay,html[data-theme="day"][data-theme-preference="day"] .menu-overlay,html[data-theme="day"][data-theme-preference="day"] #practice-briefing{background:radial-gradient(circle at 50% -10%,rgba(255,255,255,.82),transparent 34%),linear-gradient(180deg,#fbf7ef,#e7ddce)!important;color:var(--ui-ink)!important}
-html[data-theme="day"][data-theme-preference="day"] #today #ritual-portal{background:radial-gradient(circle at 38% 28%,rgba(255,255,255,.92),rgba(232,218,191,.88) 50%,rgba(205,188,157,.82) 76%)!important;box-shadow:0 0 0 12px rgba(155,115,56,.035),0 0 60px rgba(22,127,121,.10)!important}
-html[data-theme="day"][data-theme-preference="day"] #me .rhythm-card:has(#mirror-content){background:radial-gradient(circle at 100% 0,rgba(22,127,121,.06),transparent 42%),rgba(255,250,242,.72)!important}
+.appearance-options{display:grid;gap:10px;margin-top:14px}
+.theme-choice{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:15px;border:1px solid var(--ui-line);background:var(--ui-surface);color:var(--ui-ink);text-align:left}
+.theme-choice strong{display:block;font:500 15px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.theme-choice small{display:block;margin-top:3px;color:var(--ui-muted);font:11px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.theme-choice .theme-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--ui-line);color:var(--ui-gold)}
+.theme-choice .theme-check{width:20px;height:20px;border-radius:50%;border:1px solid var(--ui-line)}
+.theme-choice.active{border-color:rgba(74,179,168,.55);box-shadow:0 0 0 1px rgba(74,179,168,.08) inset}
+.theme-choice.active .theme-check{background:var(--ui-teal);border-color:var(--ui-teal);box-shadow:inset 0 0 0 5px var(--ui-surface)}
+.appearance-note{margin-top:12px;color:var(--ui-muted);font:11px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 
-.appearance-options{display:grid;gap:10px;margin-top:14px}.theme-choice{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:15px;border:1px solid var(--line);background:var(--panel);color:var(--ivory);text-align:left}.theme-choice strong{display:block;font:15px Georgia,serif;font-weight:400}.theme-choice small{display:block;margin-top:3px;color:var(--muted);font:11px Arial,sans-serif}.theme-choice .theme-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--gold)}.theme-choice .theme-check{width:20px;height:20px;border-radius:50%;border:1px solid var(--line)}.theme-choice.active{border-color:rgba(85,200,189,.55);box-shadow:0 0 0 1px rgba(85,200,189,.08) inset}.theme-choice.active .theme-check{background:var(--teal);border-color:var(--teal);box-shadow:inset 0 0 0 5px var(--bg1)}.appearance-note{margin-top:12px;color:var(--muted);font:11px Arial,sans-serif;line-height:1.5}
-html[data-theme="day"] .living-core{filter:saturate(.72) brightness(1.08)}html[data-theme="day"] .living-halo{opacity:.42}html[data-theme="day"] .living-ring{opacity:.4}html[data-theme="day"] .living-point{opacity:.65}
+/* True Day atmosphere. The component system remains shared, but Day must be
+   genuinely light rather than a dark surface with a warmer glow. */
+html[data-theme="day"]{
+  color-scheme:light;
+  --ui-bg:#f4efe4;
+  --ui-bg-deep:#e9e0d1;
+  --ui-bg-soft:#faf6ee;
+  --ui-surface:#fffaf1;
+  --ui-surface-2:#f2e8d8;
+  --ui-surface-3:#e8dcc9;
+  --ui-field:#fffdf8;
+  --ui-ink:#18242b;
+  --ui-heading:#102027;
+  --ui-muted:#667178;
+  --ui-gold:#9b6a24;
+  --ui-gold-soft:#815616;
+  --ui-teal:#247a74;
+  --ui-line:rgba(126,88,31,.24);
+  --ui-line-soft:rgba(40,54,62,.12);
+  --ui-shadow:rgba(64,47,29,.12);
+  --ui-nav:rgba(250,246,238,.96);
+  --scene-glow:rgba(225,165,81,.19);
+  --scene-haze:rgba(74,145,139,.08);
+  --asc-bg:#f4efe4;
+  --asc-surface:rgba(255,250,241,.90);
+  --asc-surface-strong:#fffaf1;
+  --asc-line:rgba(126,88,31,.18);
+  --asc-line-strong:rgba(126,88,31,.30);
+  --asc-text:#18242b;
+  --asc-muted:#667178;
+  --asc-gold:#9b6a24;
+  --asc-gold-soft:#815616;
+  --asc-teal:#247a74;
+}
+html[data-theme="day"] body{background:radial-gradient(circle at 50% -12%,var(--scene-glow),transparent 34%),radial-gradient(circle at 92% 18%,var(--scene-haze),transparent 34%),linear-gradient(180deg,#fffaf1 0%,var(--ui-bg) 52%,var(--ui-bg-deep) 100%)!important}
+html[data-theme="day"] .topbar{background:rgba(255,250,241,.88)!important}
+html[data-theme="day"] .bottom-nav{background:var(--ui-nav)!important;box-shadow:0 -8px 24px rgba(78,57,35,.08)!important}
+html[data-theme="day"] .icon-button,html[data-theme="day"] .mode-pill{background:rgba(255,250,241,.88)!important}
+html[data-theme="day"] .rhythm-card,html[data-theme="day"] .marker-card,html[data-theme="day"] .branch-card,html[data-theme="day"] .access-panel,html[data-theme="day"] .library-group,html[data-theme="day"] .approved-prompt-card,html[data-theme="day"] .approved-recent-card,html[data-theme="day"] .approved-journey-card,html[data-theme="day"] #approved-library-now{background:linear-gradient(180deg,rgba(255,253,248,.97),rgba(246,239,228,.98))!important;box-shadow:0 12px 28px rgba(78,57,35,.08)!important}
+html[data-theme="day"] input,html[data-theme="day"] textarea,html[data-theme="day"] select,html[data-theme="day"] #auth-form input,html[data-theme="day"] .journal-form textarea,html[data-theme="day"] .marker-card textarea,html[data-theme="day"] .library-search{color:var(--ui-ink)!important;background:var(--ui-field)!important;border-color:var(--ui-line-soft)!important}
+html[data-theme="day"] input::placeholder,html[data-theme="day"] textarea::placeholder{color:#7a8589!important}
+html[data-theme="day"] .library-filter{color:#667178!important;background:rgba(255,250,241,.84)!important}
+html[data-theme="day"] .library-overlay,html[data-theme="day"] .practice-overlay,html[data-theme="day"] .about-overlay,html[data-theme="day"] .menu-overlay,html[data-theme="day"] #practice-briefing{background:radial-gradient(circle at 50% -10%,var(--scene-glow),transparent 34%),linear-gradient(180deg,#fffaf1,var(--ui-bg-deep))!important;color:var(--ui-ink)!important}
+html[data-theme="day"] .overlay-close{background:rgba(255,250,241,.9)!important}
+html[data-theme="day"] body.auth-required #me .auth-card,html[data-theme="day"] body.access-required #me .auth-card{background:linear-gradient(180deg,#fffaf1,#efe4d4)!important;color:var(--ui-ink)!important;box-shadow:0 24px 50px rgba(78,57,35,.12)!important}
+html[data-theme="day"] #approved-library-feature h2,html[data-theme="day"] #approved-library-feature p,html[data-theme="day"] #approved-library-feature small,html[data-theme="day"] #library .content-card:not(.has-art) strong,html[data-theme="day"] #library .content-card:not(.has-art) span,html[data-theme="day"] #library .content-card:not(.has-art) small{color:var(--ui-ink)!important;text-shadow:none!important}
+
+/* Keyboard focus must remain visible in every atmosphere. */
+html[data-theme] input:focus-visible,html[data-theme] textarea:focus-visible,html[data-theme] select:focus-visible,html[data-theme] button:focus-visible,html[data-theme] a:focus-visible,html[data-theme] [role="button"]:focus-visible{outline:2px solid var(--ui-teal)!important;outline-offset:3px!important;box-shadow:none!important}

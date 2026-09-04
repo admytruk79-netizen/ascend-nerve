@@ -1,17 +1,49 @@
 (()=>{
- const style=document.createElement('style');style.textContent=`
- #today{padding-top:14px}.ascend-dashboard-head{margin:2px 0 12px;text-align:center;animation:ascendHeadIn .55s ease both}.ascend-dashboard-head .kicker{font:8px Arial,sans-serif;letter-spacing:.2em;color:var(--teal)}.ascend-dashboard-head .monthline{display:none}
- .ascend-focus{position:relative;margin:10px 0 10px;padding:17px;border:1px solid rgba(214,179,106,.22);border-radius:22px;background:radial-gradient(circle at 50% 0,rgba(85,200,189,.07),transparent 48%),rgba(255,255,255,.018);overflow:hidden;animation:ascendFocusIn .7s .04s cubic-bezier(.2,.8,.2,1) both}.ascend-focus:before{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 38px rgba(85,200,189,.03);pointer-events:none;animation:ascendField 7s ease-in-out infinite}.ascend-focus .stage-presence{transform:scale(.72);margin-top:-25px;margin-bottom:-23px;animation:ascendPresenceIn .9s .12s cubic-bezier(.2,.8,.2,1) both}.ascend-focus #stage-title{font-size:34px;line-height:1.04;margin:12px 0 4px}.ascend-focus .practice-label{font:8px Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-top:7px}.ascend-focus .practice-name{font-size:14px;margin-bottom:12px}.ascend-focus .primary{position:relative;z-index:1}
- .today-path-card{margin:0 0 10px;padding:11px 13px;border:1px solid rgba(214,179,106,.16);border-radius:14px;background:rgba(255,255,255,.015);animation:pathCardIn .45s .14s both;cursor:pointer}.today-path-line{display:flex;align-items:center;gap:8px}.today-path-line strong{font:8px Arial,sans-serif;letter-spacing:.15em;color:var(--gold);font-weight:400}.today-path-line span{font:10px Arial,sans-serif;color:var(--muted)}.today-path-line em{margin-left:auto;font:8px Arial,sans-serif;color:var(--teal);font-style:normal;letter-spacing:.08em}.today-path-track{height:2px;margin-top:8px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden}.today-path-track i{display:block;height:100%;width:4.2%;background:linear-gradient(90deg,var(--gold),var(--teal));transform-origin:left;animation:pathGrow 1s .25s cubic-bezier(.2,.8,.2,1) both}
- #today>.quiet-note{display:none!important}.training-layers{margin:0!important}
- #path>.eyebrow:first-child{color:var(--teal)}#path>h1{margin-bottom:7px}.path-architecture{margin:0 0 25px;text-align:center;color:var(--muted);font:12px/1.5 Arial,sans-serif}.path-zone{margin:20px 0 9px;padding:13px 14px;border:1px solid rgba(214,179,106,.13);border-radius:16px;background:rgba(255,255,255,.018)}.path-zone strong{display:block;color:var(--gold2);font-size:15px;font-weight:400}.path-zone span{display:block;margin-top:4px;color:var(--muted);font:10px Arial,sans-serif;letter-spacing:.04em}.path-zone.branch-zone{border-color:rgba(85,200,189,.18)}
- .screen.active.motion-enter{display:block;animation:ascendScreenIn .28s cubic-bezier(.2,.8,.2,1) both}.bottom-nav button{position:relative}.bottom-nav button:after{content:'';position:absolute;left:34%;right:34%;bottom:7px;height:1px;background:var(--gold2);transform:scaleX(0);opacity:0;transition:.25s}.bottom-nav button.active:after{transform:scaleX(1);opacity:.75}
- @keyframes ascendHeadIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}@keyframes ascendFocusIn{from{opacity:0;transform:translateY(8px) scale(.992)}to{opacity:1;transform:none}}@keyframes ascendPresenceIn{from{opacity:0;transform:scale(.64)}to{opacity:1;transform:scale(.72)}}@keyframes ascendField{0%,100%{opacity:.5;transform:scale(.99)}50%{opacity:1;transform:scale(1.018)}}@keyframes pathCardIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes pathGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}@keyframes ascendScreenIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
- @media(max-width:390px){.ascend-focus{padding:15px}.ascend-focus #stage-title{font-size:31px}.ascend-focus .stage-presence{transform:scale(.68);margin-top:-30px;margin-bottom:-28px}@keyframes ascendPresenceIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(.68)}}}
- @media(prefers-reduced-motion:reduce){.ascend-dashboard-head,.ascend-focus,.ascend-focus:before,.ascend-focus .stage-presence,.today-path-card,.today-path-track i,.screen.motion-enter{animation:none!important}}
- `;document.head.appendChild(style);
- function moveToday(){const today=document.getElementById('today');if(!today||today.dataset.dashboard==='minimal')return;today.dataset.dashboard='minimal';today.querySelectorAll('.ascend-dashboard-head,.today-path-card,.daily-stack').forEach(x=>x.remove());const eyebrow=document.getElementById('stage-eyebrow'),day=document.getElementById('stage-day'),title=document.getElementById('stage-title'),living=document.getElementById('living-object'),label=today.querySelector('.practice-label'),name=document.getElementById('practice-name'),begin=today.querySelector('[data-action="practice"]'),rhythm=today.querySelector('.rhythm-card');if(rhythm)rhythm.style.display='none';const head=document.createElement('div');head.className='ascend-dashboard-head';head.innerHTML='<div class="kicker">TODAY · CORE FORMATION</div>';today.insertBefore(head,today.firstChild);const focus=document.createElement('section');focus.className='ascend-focus';[eyebrow,day,title,living,label,name,begin].forEach(x=>x&&focus.appendChild(x));head.after(focus);const path=document.createElement('section');path.className='today-path-card';path.innerHTML='<div class="today-path-line"><strong>YOUR PATH</strong><span id="today-path-summary">Month 1 / 24 · Foundation</span><em>VIEW →</em></div><div class="today-path-track"><i></i></div>';focus.after(path);path.onclick=()=>document.querySelector('.bottom-nav button[data-screen="path"]')?.click();syncPath()}
- async function syncPath(){setTimeout(async()=>{const stage=document.getElementById('stage-title')?.textContent?.trim()||'Beginning';const days=document.getElementById('practice-days')?.textContent?.trim()||'0';let month=1;try{month=(await window.ASCENDProgression?.current?.())?.month||1}catch(e){console.error(e)}const el=document.getElementById('today-path-summary');if(el)el.textContent=`Month ${month} / 24 · ${stage} · Day ${Number(days)+1}`;const bar=document.querySelector('.today-path-track i');if(bar)bar.style.width=`${Math.max(4.2,month/24*100)}%`},450)}
- function pathUX(){const path=document.getElementById('path');if(!path||path.dataset.arch==='1')return;path.dataset.arch='1';if(!path.querySelector('.path-summary-copy')){const h1=path.querySelector('h1');if(h1){const p=document.createElement('p');p.className='path-architecture';p.textContent='Core Formation and the specialized pathways keep separate progression records.';h1.after(p)}}}
- function navTransitions(){document.querySelectorAll('.bottom-nav button').forEach(btn=>btn.addEventListener('click',()=>requestAnimationFrame(()=>{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('motion-enter'));const s=document.getElementById(btn.dataset.screen);if(!s)return;void s.offsetWidth;s.classList.add('motion-enter');setTimeout(()=>s.classList.remove('motion-enter'),320)})))}function init(){moveToday();pathUX();navTransitions();document.addEventListener('ascend:month',syncPath)}document.addEventListener('DOMContentLoaded',init);setTimeout(init,350);window.ASCENDDashboardUX={init,syncPath};
+  /*
+   * Today/Path synchronization only.
+   *
+   * The previous dashboard script injected a large style block and physically
+   * moved existing Today elements into newly-created containers. That made
+   * rendering order-dependent and conflicted with index.html, app.js and the
+   * design stylesheets. The document now owns structure; this module only
+   * synchronizes progression text and progress width.
+   */
+
+  async function syncPath(){
+    const stage=document.getElementById('stage-title')?.textContent?.trim()||'Beginning';
+    const days=Number(document.getElementById('practice-days')?.textContent?.trim()||'0');
+    let month=1;
+
+    try{
+      month=(await window.ASCENDProgression?.current?.())?.month||1;
+    }catch(error){
+      console.warn('ASCEND progression summary unavailable',error);
+    }
+
+    const monthLabel=document.getElementById('today-month-label');
+    if(monthLabel)monthLabel.textContent=`Month ${month} of 24`;
+
+    const dayLabel=document.getElementById('journey-now-day');
+    if(dayLabel)dayLabel.textContent=`Day ${Math.max(1,days+1)}`;
+
+    const progress=document.getElementById('today-month-progress');
+    if(progress)progress.style.width=`${Math.max(4.2,Math.min(100,month/24*100))}%`;
+
+    const legacySummary=document.getElementById('today-path-summary');
+    if(legacySummary)legacySummary.textContent=`Month ${month} / 24 · ${stage} · Day ${Math.max(1,days+1)}`;
+  }
+
+  function init(){
+    syncPath();
+    document.addEventListener('ascend:month',syncPath);
+    document.addEventListener('ascend:curriculum',syncPath);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init,{once:true});
+  }else{
+    init();
+  }
+
+  window.ASCENDDashboardUX={init,syncPath};
 })();
