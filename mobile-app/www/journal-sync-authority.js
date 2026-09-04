@@ -13,16 +13,22 @@
       state.entries=Array.isArray(state.entries)?state.entries:[];
       state.entries.push(entry);
       localStorage.setItem('ascendPathState',JSON.stringify(state));
-    }catch(error){console.warn('ASCEND local Journal fallback failed',error)}
+      return true;
+    }catch(error){
+      console.warn('ASCEND local Journal fallback failed',error);
+      return false;
+    }
+  }
+  function emitSaved(detail){
+    document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail}));
   }
 
   form.addEventListener('submit',async event=>{
-    if(!window.PathBackend?.isSignedIn?.())return;
     if(!window.ASCENDJournalValidation?.hasMeaningfulContent(form))return;
 
-    /* Authenticated Journal saves are handled here before the older fallback
-       listener so a UI/bootstrap race can never silently turn a signed-in
-       reflection into a local-only entry. */
+    /* Journal persistence has one authority for both remote and local saves.
+       This prevents duplicate persistence and guarantees the same post-save
+       navigation event regardless of authentication state. */
     event.preventDefault();
     event.stopImmediatePropagation();
 
@@ -30,6 +36,19 @@
     const values=new FormData(form);
     const entry={created_at:new Date().toISOString()};
     for(const[k,v]of values.entries())entry[k]=String(v).trim();
+
+    if(!window.PathBackend?.isSignedIn?.()){
+      if(!saveLocal(entry)){
+        if(status)status.textContent='Could not save this reflection on this device.';
+        setSync('LOCAL ERROR');
+        return;
+      }
+      if(status)status.textContent='Reflection saved privately on this device. Sign in to synchronize it.';
+      setSync('LOCAL');
+      form.reset();
+      emitSaved({remote:false,signedIn:false});
+      return;
+    }
 
     try{
       setSync('SYNCING…');
@@ -41,14 +60,18 @@
       setSync('SYNCED');
       form.reset();
       window.ASCENDMirror?.load?.('stage');
-      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:true,stageId:stage.id}}));
+      emitSaved({remote:true,stageId:stage.id});
     }catch(error){
       console.error('ASCEND remote Journal save failed',error);
-      saveLocal(entry);
+      if(!saveLocal(entry)){
+        if(status)status.textContent='Connection unavailable and this reflection could not be saved locally.';
+        setSync('LOCAL ERROR');
+        return;
+      }
       if(status)status.textContent='Connection unavailable. Reflection saved on this device and can be synchronized later.';
       setSync('LOCAL');
       form.reset();
-      document.dispatchEvent(new CustomEvent('ascend:journal-saved',{detail:{remote:false}}));
+      emitSaved({remote:false,signedIn:true});
     }
   },{capture:true});
 })();

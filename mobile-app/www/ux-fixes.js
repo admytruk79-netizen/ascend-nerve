@@ -120,10 +120,12 @@
   const menu=document.getElementById('menu-overlay');
   const about=document.getElementById('about-overlay');
   document.getElementById('menu-button')?.addEventListener('click',event=>{event.preventDefault();menu?.classList.remove('hidden')},true);
-  document.querySelector('.menu-close')?.addEventListener('click',()=>menu?.classList.add('hidden'));
-  menu?.addEventListener('click',event=>{if(event.target===menu)menu.classList.add('hidden')});
-  menu?.querySelectorAll('[data-menu-screen]').forEach(button=>button.addEventListener('click',()=>{menu.classList.add('hidden');activateScreen(button.dataset.menuScreen)}));
-  document.getElementById('menu-about')?.addEventListener('click',()=>{menu?.classList.add('hidden');about?.classList.remove('hidden')});
+  document.querySelector('.menu-close')?.addEventListener('click',()=>closeOverlay(menu));
+  menu?.addEventListener('click',event=>{if(event.target===menu)closeOverlay(menu)});
+  menu?.querySelectorAll('[data-menu-screen]').forEach(button=>button.addEventListener('click',()=>{closeOverlay(menu);activateScreen(button.dataset.menuScreen)}));
+  document.getElementById('menu-about')?.addEventListener('click',()=>{closeOverlay(menu);about?.classList.remove('hidden');syncOverlay()});
+  document.querySelector('.about-close')?.addEventListener('click',()=>closeOverlay(about));
+  about?.addEventListener('click',event=>{if(event.target===about)closeOverlay(about)});
 
   document.addEventListener('click',event=>{
     if(event.target.closest('[data-go-signin]')){activateScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),180);return}
@@ -142,12 +144,12 @@
 
   // Practice completion service emits this only after the backend confirms a session.
   document.addEventListener('ascend:practice-confirmed',()=>{
-    activateScreen('journal');
+    activateScreen('journal',{record:false,history:false});
     const status=document.getElementById('journal-status');
     if(status)status.textContent='Practice complete. Record what you actually observed.';
     setTimeout(()=>document.querySelector('#journal-form textarea[name="observation"]')?.focus(),80);
   });
-  document.addEventListener('ascend:journal-saved',()=>activateScreen('today'));
+  document.addEventListener('ascend:journal-saved',()=>activateScreen('today',{record:false,history:false}));
 
   document.getElementById('google-sign-in')?.addEventListener('click',()=>setTimeout(syncAuthGate,400));
   document.getElementById('sign-out')?.addEventListener('click',()=>setTimeout(syncAuthGate,100));
