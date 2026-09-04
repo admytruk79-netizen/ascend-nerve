@@ -1,0 +1,35 @@
+#me .rhythm-card:has(#mirror-content){position:relative;overflow:hidden;border-color:rgba(74,179,168,.18);background:radial-gradient(circle at 100% 0,rgba(74,179,168,.045),transparent 42%),var(--ui-surface)}
+.mirror-shell{display:grid;gap:12px}
+.mirror-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border:1px solid var(--ui-line);border-radius:12px;background:rgba(0,0,0,.05)}
+.mirror-tabs button{border:0;border-radius:9px;padding:8px;background:transparent;color:var(--ui-muted);font:10px Arial,sans-serif;letter-spacing:.14em}
+.mirror-tabs button.active{background:rgba(74,179,168,.10);color:var(--ui-teal)}
+.mirror-status{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.mirror-status span{color:var(--ui-teal);font:10px Arial,sans-serif;letter-spacing:.15em}
+.mirror-status small{color:var(--ui-muted);font:9px Arial,sans-serif;letter-spacing:.1em}
+.mirror-block{padding:13px 0;border-top:1px solid rgba(213,162,77,.10)}
+.mirror-block .eyebrow{text-align:left;margin:0 0 7px;font-size:9px}
+.mirror-block p{margin:0;font-size:13px;line-height:1.55}
+.mirror-themes{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.mirror-themes span{padding:5px 8px;border:1px solid rgba(74,179,168,.22);border-radius:99px;color:var(--ui-teal);font:10px Arial,sans-serif;letter-spacing:.06em}
+.mirror-compare{padding:9px 10px;margin-top:7px;border-left:1px solid var(--ui-line);background:rgba(255,255,255,.018)}
+.mirror-compare.recent{border-left-color:var(--ui-teal)}
+.mirror-compare small{color:var(--ui-muted);font:9px Arial,sans-serif;letter-spacing:.14em}
+.mirror-compare p{margin-top:4px;font-size:11px}
+.mirror-question{padding:14px;border:1px solid rgba(213,162,77,.16);border-radius:13px;background:rgba(213,162,77,.025)}
+.mirror-question p{font-family:Georgia,serif;font-size:15px}
+.mirror-related{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+.mirror-related span{font:9px Arial,sans-serif;letter-spacing:.13em;color:var(--ui-muted)}
+.mirror-related strong{font:11px Georgia,serif;font-weight:400;color:var(--ui-gold-soft)}
+.mirror-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.mirror-metrics span{padding:8px 5px;text-align:center;border:1px solid rgba(255,255,255,.06);border-radius:9px;color:var(--ui-muted);font:9px Arial,sans-serif}
+.mirror-metrics strong{display:block;color:var(--ui-gold-soft);font:14px Georgia,serif}
+.mirror-balance{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}
+.mirror-balance span{font:9px Arial,sans-serif;letter-spacing:.12em;color:var(--ui-muted)}
+.mirror-balance strong{font:15px Georgia,serif;color:var(--ui-teal)}
+.mirror-subhead{margin-top:10px!important;color:var(--ui-muted);font:10px Arial,sans-serif!important;letter-spacing:.1em}
+.mirror-boundary{margin:5px 0 0!important;color:var(--ui-muted)!important;font:10px/1.5 Arial,sans-serif!important}
+.mirror-loading{display:grid;place-items:center;padding:28px 0;color:var(--ui-muted)}
+.mirror-loading i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(213,162,77,.15);border-top-color:var(--ui-teal);animation:mirrorSpin 1s linear infinite}
+.mirror-loading p{font:10px Arial,sans-serif;letter-spacing:.1em}
+@keyframes mirrorSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.mirror-loading i{animation:none}}

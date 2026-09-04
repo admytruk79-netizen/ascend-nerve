@@ -1,0 +1,81 @@
+name: Deploy ASCEND Path Web Preview
+
+# Non-destructive preview deployment:
+# - existing ascend-path-foundation remains at the Pages root
+# - ascend-school-reconstruction is published under /preview/
+
+on:
+  push:
+    branches: [ ascend-school-reconstruction ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/deploy-web-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reconstruction
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+      - name: Install Chromium
+        working-directory: mobile-app
+        run: npx playwright install --with-deps chromium
+      - name: Run ASCEND browser tests
+        working-directory: mobile-app
+        run: npm run test:e2e
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reconstruction
+        uses: actions/checkout@v4
+
+      - name: Checkout existing foundation
+        uses: actions/checkout@v4
+        with:
+          ref: ascend-path-foundation
+          path: foundation
+
+      - name: Assemble Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/preview
+          cp -a foundation/mobile-app/www/. _site/
+          cp -a mobile-app/www/. _site/preview/
+          touch _site/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload combined web app
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

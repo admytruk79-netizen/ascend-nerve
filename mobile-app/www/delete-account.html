@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#081521"/>
+  <meta name="description" content="Request permanent deletion of an ASCEND Path account and its associated personal data."/>
+  <title>Delete ASCEND Path Account</title>
+  <link rel="stylesheet" href="delete-account.css?v=20260826-1"/>
+</head>
+<body>
+  <main class="deletion-shell">
+    <img src="assets/ascend-logo.png" alt="ASCEND Path" class="deletion-logo"/>
+    <p class="eyebrow">ASCEND PATH</p>
+    <h1>Delete your account</h1>
+    <p class="lead">Sign in to permanently delete your ASCEND Path account and associated personal data.</p>
+
+    <section class="deletion-card" id="signin-card">
+      <h2>Verify your account</h2>
+      <form id="deletion-signin-form">
+        <label>Email<input name="email" type="email" autocomplete="email" required/></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required minlength="6"/></label>
+        <button type="submit" class="primary">Sign in</button>
+      </form>
+      <button type="button" class="secondary" id="deletion-google">Continue with Google</button>
+      <p id="signin-status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="deletion-card hidden" id="delete-card">
+      <h2>Permanent deletion</h2>
+      <p id="verified-account"></p>
+      <p>This removes your profile, journal, practice history, progression, Mirror reflections, teacher connections and access entitlement. This cannot be undone.</p>
+      <button type="button" class="danger" id="delete-account-confirm">Delete my account</button>
+      <p id="delete-status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="deletion-card data-note">
+      <h2>What is retained</h2>
+      <p>A used tester-key timestamp and non-reversible code hash may be retained to prevent the same key being reused. The account identifier and device association are removed.</p>
+    </section>
+  </main>
+  <script src="backend.js?v=20260826-deletion-1"></script>
+  <script src="delete-account.js?v=20260826-1"></script>
+</body>
+</html>

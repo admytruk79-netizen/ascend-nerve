@@ -1,0 +1,81 @@
+/* ASCEND Path — second-pass initiation-school refinements.
+   These rules remove the remaining course/dashboard/fantasy-app cues without changing behavior. */
+
+/* PATH: formation architecture, not a completion dashboard. */
+body.initiation-school #path-list.month-path{gap:0!important}
+body.initiation-school .core-now{margin:0 0 12px!important;padding:15px 4px 16px 14px!important;border:0!important;border-left:2px solid var(--ui-gold)!important;border-bottom:1px solid color-mix(in srgb,var(--ui-gold) 22%,transparent)!important;border-radius:0!important;background:linear-gradient(90deg,color-mix(in srgb,var(--ui-gold) 7%,transparent),transparent 78%)!important;box-shadow:none!important}
+body.initiation-school .core-now small{font-size:7px!important;letter-spacing:.18em!important}
+body.initiation-school .core-now strong{margin-top:7px!important;font:400 19px/1.12 Georgia,serif!important;color:var(--ui-heading)!important}
+body.initiation-school .core-now em{font:600 7px/1 Arial,sans-serif!important;letter-spacing:.12em!important;color:var(--ui-teal)!important}
+body.initiation-school .core-now-track{display:none!important}
+body.initiation-school .core-now-meta{margin-top:10px!important;font-size:8px!important;letter-spacing:.04em!important;text-transform:uppercase!important}
+body.initiation-school .formation-map{gap:0!important;margin-top:0!important}
+body.initiation-school .formation-group{margin:0!important;border:0!important;border-bottom:1px solid color-mix(in srgb,var(--ui-gold) 16%,transparent)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+body.initiation-school .formation-group[open]{border-color:color-mix(in srgb,var(--ui-gold) 26%,transparent)!important;background:linear-gradient(90deg,color-mix(in srgb,var(--ui-gold) 3%,transparent),transparent)!important}
+body.initiation-school .formation-group summary{min-height:58px!important;padding:12px 4px!important}
+body.initiation-school .formation-group-index{width:29px!important;height:29px!important;border-color:color-mix(in srgb,var(--ui-gold) 34%,transparent)!important;background:transparent!important}
+body.initiation-school .formation-group-copy strong{font:400 15px/1.15 Georgia,serif!important;color:var(--ui-heading)!important}
+body.initiation-school .formation-group-copy small{font-size:8px!important;line-height:1.4!important}
+body.initiation-school .formation-group-range{font-size:7px!important;letter-spacing:.08em!important}
+body.initiation-school .formation-group summary:after{font-size:15px!important}
+body.initiation-school .formation-months{padding:0 4px 10px 35px!important}
+body.initiation-school .month-card{min-height:43px!important;grid-template-columns:30px minmax(0,1fr) auto!important;padding:7px 3px!important;border-top-color:color-mix(in srgb,var(--ui-gold) 10%,transparent)!important}
+body.initiation-school .month-card.current{margin:0!important;padding:8px 5px!important;border:0!important;border-left:1px solid var(--ui-gold)!important;border-radius:0!important;background:linear-gradient(90deg,color-mix(in srgb,var(--ui-gold) 8%,transparent),transparent 82%)!important}
+body.initiation-school .month-number{font-size:7px!important;letter-spacing:.12em!important}
+body.initiation-school .month-copy strong{font:400 12px/1.2 Georgia,serif!important;color:var(--ui-heading)!important}
+body.initiation-school .month-copy small{font-size:8px!important}
+body.initiation-school .month-state{font-size:7px!important;letter-spacing:.09em!important}
+
+/* MIRROR: current position is context, Resonance is the chamber. */
+body.initiation-school #me .current-position-card{padding:13px 4px 16px!important;border:0!important;border-top:1px solid var(--school-rule)!important;border-bottom:1px solid color-mix(in srgb,var(--ui-gold) 16%,transparent)!important;border-radius:0!important;background:transparent!important}
+body.initiation-school #me .current-position-card h2{margin:0 0 8px!important;color:var(--ui-gold)!important;font:600 7px/1 Arial,sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase!important}
+body.initiation-school #me .current-position-card p{margin:4px 0!important;font-size:11px!important;color:var(--ui-muted)!important}
+body.initiation-school #me .current-position-card #profile-stage{font:400 18px/1.2 Georgia,serif!important;color:var(--ui-heading)!important}
+
+/* READER: quiet study page in every selected theme. Fixes the pale Day title. */
+body.initiation-school #library-overlay{padding:72px 24px 36px!important;background:var(--ui-bg)!important;color:var(--ui-ink)!important}
+body.initiation-school #library-overlay .overlay-close{border-color:color-mix(in srgb,var(--ui-gold) 45%,transparent)!important;color:var(--ui-gold)!important;background:transparent!important;box-shadow:none!important}
+body.initiation-school .library-reader-head{margin-bottom:24px!important;padding-bottom:18px!important;border-bottom:1px solid color-mix(in srgb,var(--ui-gold) 24%,transparent)!important}
+body.initiation-school .library-reader-head .reader-meta{color:var(--ui-gold)!important;font-size:7px!important;letter-spacing:.2em!important}
+body.initiation-school .library-reader-head h1{max-width:610px!important;margin:10px 0 0!important;color:var(--ui-heading)!important;font:400 clamp(27px,7vw,38px)/1.08 Georgia,serif!important;letter-spacing:0!important}
+body.initiation-school .reader-rule{display:none!important}
+body.initiation-school #library-overlay .library-body,
+body.initiation-school #library-overlay .library-body p{max-width:66ch!important;color:var(--ui-ink)!important;font:16px/1.76 Georgia,serif!important}
+body.initiation-school #library-overlay .library-body p{margin:0 0 1.35em!important}
+body.initiation-school #library-overlay .source-note{margin-top:30px!important;padding-top:12px!important;border-top:1px solid color-mix(in srgb,var(--ui-gold) 18%,transparent)!important;color:var(--ui-muted)!important;font:7px/1.5 Arial,sans-serif!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+html[data-theme="twilight"] body.initiation-school #library-overlay .library-reader-head h1,
+html[data-theme="night"] body.initiation-school #library-overlay .library-reader-head h1{color:var(--ui-heading)!important}
+html[data-theme="twilight"] body.initiation-school #library-overlay .library-body,
+html[data-theme="twilight"] body.initiation-school #library-overlay .library-body p,
+html[data-theme="night"] body.initiation-school #library-overlay .library-body,
+html[data-theme="night"] body.initiation-school #library-overlay .library-body p{color:var(--ui-ink)!important}
+
+/* PRACTICE BRIEFING: threshold chamber, not a fantasy splash screen. */
+body.initiation-school #practice-briefing{background:var(--ui-bg)!important;color:var(--ui-ink)!important}
+body.initiation-school #practice-briefing:before{display:none!important}
+body.initiation-school #practice-briefing .briefing-inner{max-width:390px!important;align-items:flex-start!important;text-align:left!important;padding-top:52px!important}
+body.initiation-school #practice-briefing .briefing-inner:before{content:'✦'!important;width:64px!important;height:64px!important;margin:0 0 28px!important;display:grid!important;place-items:center!important;border:1px solid color-mix(in srgb,var(--ui-gold) 55%,transparent)!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;color:var(--ui-gold)!important;font:22px Georgia,serif!important}
+body.initiation-school #practice-briefing .eyebrow{margin:0 0 12px!important;color:var(--ui-gold)!important;font-size:7px!important;letter-spacing:.2em!important;text-align:left!important}
+body.initiation-school #practice-briefing h1{margin:0 0 12px!important;color:var(--ui-heading)!important;font:400 32px/1.08 Georgia,serif!important;text-align:left!important}
+body.initiation-school #practice-briefing p{max-width:355px!important;margin:4px 0!important;color:var(--ui-muted)!important;font:12px/1.62 Arial,sans-serif!important;text-align:left!important}
+body.initiation-school #briefing-begin{width:auto!important;min-width:190px!important;min-height:46px!important;margin:28px 0 0!important;padding:0 24px!important;border:1px solid color-mix(in srgb,var(--ui-gold) 58%,transparent)!important;border-radius:2px!important;background:transparent!important;color:var(--ui-gold)!important;box-shadow:none!important;font:600 8px/1 Arial,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important}
+body.initiation-school #practice-briefing .overlay-close{border-color:color-mix(in srgb,var(--ui-gold) 45%,transparent)!important;color:var(--ui-gold)!important;background:transparent!important;box-shadow:none!important}
+
+/* MENU: school directory, not rounded mobile settings cards. */
+body.initiation-school #menu-overlay{background:var(--ui-bg)!important;color:var(--ui-ink)!important}
+body.initiation-school #menu-overlay .overlay-close{border-color:color-mix(in srgb,var(--ui-gold) 45%,transparent)!important;color:var(--ui-gold)!important;background:transparent!important;box-shadow:none!important}
+body.initiation-school .menu-inner{padding-top:12px!important}
+body.initiation-school .menu-inner h1{margin:0 0 26px!important;color:var(--ui-heading)!important;font:400 30px/1.1 Georgia,serif!important}
+body.initiation-school .menu-links{gap:0!important;margin:0 0 26px!important;border-top:1px solid var(--school-rule)!important}
+body.initiation-school .menu-link{min-height:54px!important;padding:0 4px!important;border:0!important;border-bottom:1px solid color-mix(in srgb,var(--ui-gold) 17%,transparent)!important;border-radius:0!important;background:transparent!important;color:var(--ui-heading)!important;font:400 15px Georgia,serif!important;box-shadow:none!important}
+body.initiation-school .menu-link:after{content:'›';float:right;color:var(--ui-gold);font:18px/1 Georgia,serif}
+body.initiation-school .menu-inner>#menu-how,
+body.initiation-school .menu-inner>#menu-about{min-height:44px!important;margin-top:8px!important;border-radius:2px!important;background:transparent!important;border:1px solid color-mix(in srgb,var(--ui-gold) 30%,transparent)!important;color:var(--ui-gold)!important;box-shadow:none!important;font:600 8px/1 Arial,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important}
+
+/* Navigation names the reflective destination directly. */
+body.initiation-school .bottom-nav button[data-screen="me"]:before{content:'◇'!important}
+
+@media(max-width:380px){
+  body.initiation-school #practice-briefing .briefing-inner{padding-top:34px!important}
+  body.initiation-school .formation-months{padding-left:31px!important}
+}

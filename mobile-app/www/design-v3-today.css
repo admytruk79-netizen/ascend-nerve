@@ -1,0 +1,6 @@
+/* ASCEND master UI entrypoint. Legacy screen overrides have been retired from this file. */
+@import url('./styles/tokens.css?v=20260902-master-1');
+@import url('./styles/base.css?v=20260902-master-1');
+@import url('./styles/components.css?v=20260902-master-1');
+@import url('./styles/screens.css?v=20260902-master-1');
+@import url('./styles/responsive.css?v=20260902-master-1');
