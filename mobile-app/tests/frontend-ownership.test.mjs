@@ -47,6 +47,19 @@ test('Today keeps the hold portal primary while preserving an accessible non-hol
   assert.match(css,/journal-handoff\.is-ready/);
 });
 
+test('Path orients the student before exposing the wider school map',()=>{
+  const pathScreen=read('app/screens/path.js');
+  const css=read('styles/screens.css');
+  assert.match(pathScreen,/data-path-orientation/);
+  assert.match(pathScreen,/CURRENT FORMATION/);
+  assert.match(pathScreen,/Phase \$\{phase\} · Month \$\{month\} of 24/);
+  assert.match(pathScreen,/Continue · \$\{item\.title\}/);
+  assert.match(pathScreen,/Practice Branches/);
+  assert.match(pathScreen,/does not advance Core Formation/);
+  assert.match(css,/path-orientation/);
+  assert.match(css,/path-orientation-next/);
+});
+
 test('Library presentation is owned by the master screen module',()=>{
   const library=read('app/screens/library.js');
   const compatibility=read('contextual-library.js');
