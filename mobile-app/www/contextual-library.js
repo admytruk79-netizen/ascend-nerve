@@ -11,86 +11,40 @@
     'Expanded Practice & Integration':['akharata-chapter-11','akharata-chapter-12','akharata-volume-1']
   };
   let currentMonth=1;
-
-  const style=document.createElement('style');
-  style.textContent=`
-    .related-teaching{margin:16px 0 4px;width:100%;border:1px solid rgba(214,179,106,.24);background:linear-gradient(180deg,rgba(214,179,106,.07),rgba(85,200,189,.035));border-radius:16px;padding:13px 15px;color:var(--ivory);text-align:left;display:flex;align-items:center;gap:12px;font:inherit}
-    .related-teaching:active{transform:scale(.99)}
-    .related-teaching-mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(214,179,106,.38);color:var(--gold2);flex:0 0 auto}
-    .related-teaching-copy{min-width:0;display:block}.related-teaching-copy small{display:block;color:var(--gold);font:9px Arial,sans-serif;letter-spacing:.14em;margin-bottom:3px}.related-teaching-copy strong{display:block;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.related-teaching-arrow{margin-left:auto;color:var(--gold);font-size:22px}
-    .practice-overlay .related-teaching{max-width:360px;margin:8px 0 18px}
-    .content-card.month-locked{pointer-events:none;opacity:.42}
-  `;
-  document.head.appendChild(style);
-
   const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const paragraphs=(text='')=>String(text).split(/\n\s*\n|\n/).map(x=>x.trim()).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('');
+  const currentStageTitle=()=>document.getElementById('stage-title')?.textContent?.trim()||'';
+  const minMonth=item=>{const exact=Number(item?.metadata?.month)||0;const minimum=Number(item?.metadata?.min_month)||0;return exact||minimum||1};
 
-  function currentStageTitle(){return document.getElementById('stage-title')?.textContent?.trim()||''}
-  function minMonth(item){const exact=Number(item?.metadata?.month)||0;const minimum=Number(item?.metadata?.min_month)||0;return exact||minimum||1}
-  function eligible(item){return minMonth(item)<=currentMonth}
-  function relatedItems(){
+  function stageRule(item){
     const c=window.curriculum;
-    if(!c?.content?.length)return[];
-    const exact=c.content.filter(item=>Number(item?.metadata?.month)===currentMonth&&eligible(item));
-    if(exact.length)return exact.slice(0,3);
-    const wanted=STAGE_MAP[currentStageTitle()]||[];
-    const picked=wanted.map(slug=>c.content.find(x=>x.slug===slug)).filter(item=>item&&eligible(item));
-    if(picked.length)return picked;
-    const words=(currentStageTitle()+' '+(document.getElementById('practice-name')?.textContent||'')).toLowerCase().split(/\W+/).filter(x=>x.length>4);
-    return c.content.filter(eligible).map(item=>({item,score:words.reduce((n,w)=>n+(((item.title||'')+' '+(item.summary||'')).toLowerCase().includes(w)?1:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.item);
+    const rules=(c?.contentRules||[]).filter(rule=>rule.content_id===item?.id);
+    if(!rules.length)return{unlocked:true,label:'Available now'};
+    const current=c?.stages?.find(stage=>stage.id===window.currentStage?.id);
+    const required=rules.map(rule=>c.stages.find(stage=>stage.id===rule.stage_id)).filter(Boolean).sort((a,b)=>a.sort_order-b.sort_order)[0];
+    const unlocked=!required||Number(current?.sort_order||1)>=Number(required.sort_order||1);
+    return{unlocked,label:required?`Opens at ${required.title}`:'Opens later on the Path'};
   }
-
-  function openItem(item){
-    if(!item||!eligible(item))return;
-    const overlay=document.getElementById('library-overlay');
-    if(!overlay)return;
-    window.LibraryEngine?.recordLibraryView(item);
-    document.getElementById('library-type').textContent=(item.content_type||'TEACHING').toUpperCase();
-    document.getElementById('library-title').textContent=item.title||'';
-    const body=item.body||item.summary||'This item is available as part of your current Path stage.';
-    document.getElementById('library-body').innerHTML=paragraphs(body)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
-    overlay.classList.remove('hidden');
+  function access(item){
+    const stage=stageRule(item);
+    if(!stage.unlocked)return stage;
+    const needed=minMonth(item);
+    if(needed>currentMonth)return{unlocked:false,label:`Opens in Month ${needed}`};
+    return{unlocked:true,label:'Available now'};
   }
+  window.ASCENDLibraryAccess={canOpen:item=>access(item).unlocked,describe:access,currentMonth:()=>currentMonth};
 
-  function makeButton(item,context){
-    const b=document.createElement('button');b.type='button';b.className='related-teaching';b.dataset.context=context;
-    b.innerHTML=`<span class="related-teaching-mark">✦</span><span class="related-teaching-copy"><small>${context==='practice'?'RELATED TEACHING':'FOR THIS MONTH'}</small><strong>${esc(item.title)}</strong></span><span class="related-teaching-arrow">›</span>`;
-    b.addEventListener('click',()=>openItem(item));return b;
-  }
-
-  function gateLibraryCards(){
-    const c=window.curriculum;if(!c?.content?.length)return;
-    document.querySelectorAll('#library-list .content-card,#library-recommended .content-card').forEach(card=>{
-      const item=c.content.find(x=>x.slug===card.dataset.slug);if(!item)return;
-      const needed=minMonth(item),locked=needed>currentMonth;
-      if(locked&&card.closest('#library-recommended')){card.remove();return}
-      card.classList.toggle('month-locked',locked);
-      if(locked){card.classList.add('locked');card.setAttribute('aria-disabled','true');card.setAttribute('tabindex','-1');card.removeAttribute('role');card.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>Opens in Month ${needed}</span>`}
-      else{card.classList.remove('locked');card.removeAttribute('aria-disabled');card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`Open ${item.title}`)}
-    });
-    const rail=document.getElementById('library-recommended');
-    if(rail&&!rail.querySelector('.content-card'))rail.innerHTML='';
-  }
-
-  function render(){
-    const items=relatedItems();
-    document.querySelectorAll('.related-teaching').forEach(x=>x.remove());
-    if(items.length){
-      const instructions=document.getElementById('overlay-practice-instructions');
-      if(instructions) instructions.after(makeButton(items[0],'practice'));
-    }
-    gateLibraryCards();
-  }
-
+  function relatedItems(){const c=window.curriculum;if(!c?.content?.length)return[];const available=c.content.filter(item=>access(item).unlocked);const exact=available.filter(item=>Number(item?.metadata?.month)===currentMonth);if(exact.length)return exact.slice(0,3);const wanted=STAGE_MAP[currentStageTitle()]||[];const picked=wanted.map(slug=>available.find(x=>x.slug===slug)).filter(Boolean);if(picked.length)return picked;const words=(currentStageTitle()+' '+(document.getElementById('practice-name')?.textContent||'')).toLowerCase().split(/\W+/).filter(x=>x.length>4);return available.map(item=>({item,score:words.reduce((n,w)=>n+(((item.title||'')+' '+(item.summary||'')).toLowerCase().includes(w)?1:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.item)}
+  function openItem(item){if(!item||!access(item).unlocked)return;const overlay=document.getElementById('library-overlay');if(!overlay)return;window.LibraryEngine?.recordLibraryView(item);const type=document.getElementById('library-reader-type');if(type)type.textContent=(item.content_type||'TEACHING').toUpperCase();const title=document.getElementById('library-title');if(title)title.textContent=item.title||'';const body=item.body||item.summary||'This item is available as part of your current Path stage.';document.getElementById('library-body').innerHTML=paragraphs(body)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;overlay.classList.remove('hidden')}
+  function makeButton(item){const b=document.createElement('button');b.type='button';b.className='related-teaching';b.innerHTML=`<span class="related-teaching-mark">✦</span><span class="related-teaching-copy"><small>RELATED TEACHING</small><strong>${esc(item.title)}</strong></span><span class="related-teaching-arrow">›</span>`;b.addEventListener('click',()=>openItem(item));return b}
+  function applyAccess(){const c=window.curriculum;if(!c?.content?.length)return;document.querySelectorAll('#library-list .content-card,#library-recommended .content-card').forEach(card=>{const item=c.content.find(x=>x.slug===card.dataset.slug);if(!item)return;const state=access(item);card.classList.toggle('month-locked',!state.unlocked);card.classList.toggle('locked',!state.unlocked);if(!state.unlocked){if(card.closest('#library-recommended')){card.remove();return}card.setAttribute('aria-disabled','true');card.setAttribute('tabindex','-1');card.removeAttribute('role');card.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>${esc(state.label)}</span>`}else{card.removeAttribute('aria-disabled');card.setAttribute('role','button');card.setAttribute('tabindex','0');card.setAttribute('aria-label',`Open ${item.title}`)}});const rail=document.getElementById('library-recommended');if(rail&&!rail.querySelector('.content-card'))rail.innerHTML=''}
   async function syncMonth(){try{currentMonth=Math.max(1,Math.min(24,Number((await window.ASCENDProgression?.current?.())?.month)||1))}catch{currentMonth=1}}
-  let lastKey='';
-  async function tick(){
-    await syncMonth();
-    const key=currentStageTitle()+'|'+currentMonth+'|'+(window.curriculum?.content?.length||0);
-    if(key!==lastKey&&window.curriculum?.content?.length){lastKey=key;render()}else gateLibraryCards();
-    setTimeout(tick,700);
-  }
-  document.addEventListener('ascend:month',async event=>{currentMonth=Math.max(1,Math.min(24,Number(event.detail?.month)||currentMonth));lastKey='';render()});
-  document.addEventListener('DOMContentLoaded',tick);
+  async function refresh(){await syncMonth();document.querySelectorAll('.related-teaching').forEach(x=>x.remove());const item=relatedItems()[0],instructions=document.getElementById('overlay-practice-instructions');if(item&&instructions)instructions.after(makeButton(item));applyAccess();document.dispatchEvent(new CustomEvent('ascend:library-access',{detail:{month:currentMonth}}))}
+
+  document.addEventListener('ascend:curriculum',()=>queueMicrotask(refresh));
+  document.addEventListener('ascend:month',event=>{currentMonth=Math.max(1,Math.min(24,Number(event.detail?.month)||currentMonth));queueMicrotask(refresh)});
+  document.addEventListener('ascend:navigation',event=>{if(event.detail?.to==='library')queueMicrotask(refresh)});
+  document.getElementById('library-search')?.addEventListener('input',()=>setTimeout(applyAccess,0));
+  document.getElementById('library-type')?.addEventListener('click',()=>setTimeout(applyAccess,0));
+  if(document.readyState==='complete')refresh();else window.addEventListener('load',refresh,{once:true});
 })();
