@@ -3,18 +3,6 @@ import {test,expect} from '@playwright/test';
 const testUser={id:'00000000-0000-0000-0000-000000000001',email:'local-state@ascend.test',email_confirmed_at:'2026-09-04T00:00:00Z'};
 
 test('signed-out reflection survives same-page sign-in and a failed practice save',async({page})=>{
-  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/token**',route=>route.fulfill({
-    status:200,
-    contentType:'application/json',
-    body:JSON.stringify({access_token:'local-state-token',refresh_token:'local-state-refresh',expires_in:3600,token_type:'bearer',user:testUser})
-  }));
-  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',route=>route.fulfill({
-    status:200,contentType:'application/json',body:JSON.stringify(testUser)
-  }));
-  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',route=>route.fulfill({
-    status:200,contentType:'application/json',body:'[]'
-  }));
-
   await page.goto('/');
   await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
 
@@ -29,12 +17,10 @@ test('signed-out reflection survives same-page sign-in and a failed practice sav
     return state.entries?.map(entry=>entry.observation)||[];
   })).toContain('Keep this signed-out reflection.');
 
-  await page.locator('#account-email-input').fill(testUser.email).catch(async()=>{
-    const email=page.locator('#auth-form input[name="email"]');
-    await email.fill(testUser.email);
-  });
-  await page.locator('#account-password').fill('correct-horse-battery-staple');
-  await page.locator('#auth-form button[type="submit"]').click();
+  await page.evaluate(userRecord=>{
+    localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'local-state-token',refresh_token:'local-state-refresh',expires_in:3600,token_type:'bearer'}));
+    user=userRecord;
+  },testUser);
   await expect.poll(()=>page.evaluate(()=>window.PathBackend?.isSignedIn?.())).toBeTruthy();
 
   await page.evaluate(()=>{
