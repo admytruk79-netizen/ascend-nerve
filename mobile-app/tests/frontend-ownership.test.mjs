@@ -35,6 +35,18 @@ test('retired approved-screen layers are absent and Today bridge only boots the 
   assert.match(today,/app\/bootstrap\.js/);
 });
 
+test('Today keeps the hold portal primary while preserving an accessible non-hold fallback',()=>{
+  const today=read('app/screens/today.js');
+  const css=read('ritual-today.css');
+  assert.match(today,/Press and hold for two seconds to open the briefing/);
+  assert.match(today,/Can’t hold\? Open briefing/);
+  assert.match(today,/ascend-accessible-entry/);
+  assert.match(today,/setReflectionReady\(true\)/);
+  assert.match(today,/Available after you complete today’s practice/);
+  assert.match(css,/ritual-begin\.ascend-accessible-entry/);
+  assert.match(css,/journal-handoff\.is-ready/);
+});
+
 test('Library presentation is owned by the master screen module',()=>{
   const library=read('app/screens/library.js');
   const compatibility=read('contextual-library.js');
