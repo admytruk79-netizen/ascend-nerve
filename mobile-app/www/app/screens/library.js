@@ -1,7 +1,7 @@
 import {PathEngine} from '../curriculum/path-engine.js';
 
 const SEASONAL_ART={
-  spring:['self-observation-humility.png','march-focused-thought.png','march-object-contemplation.png','march-reverence-patience.png','march-what-am-i-noticing.png','spring-march-awakening-perception.png','spring-april-clarifying-the-will.png','discipline-or-freedom.png'],
+  spring:['self-observation-humility.png','march-focused-thought.png','march-object-contemplation.png','march-reverence-patience.png','march-what-am-i-noticing.png','spring-march-awakening-perception.png','discipline-or-freedom.png'],
   summer:['heart-opening.png','july-discipline-fire.png','may-openness-readiness.png','openness-readiness.png','self-control-gentleness.png','where-does-will-begin.png','april-where-does-will-begin.png','april-training-the-will.png'],
   autumn:['august-presence-devotion.png','june-gathering-energy.png','confidence-humanity.png','mastery-of-feeling.png','presence-devotion.png','what-am-i-refusing.png','morning-evening-energy.png','april-deliberate-action.png'],
   winter:['building-or-draining.png','emotional-composure.png','may-ready-to-release.png','ready-to-release.png','may-truth-vs-imagination.png','truth-vs-imagination.png','spring-may-crossing-the-threshold.png','star-energy-practice.png','two-currents-meeting.png','acceptance-practice.png']
@@ -12,9 +12,26 @@ let query='';
 let type='all';
 let curriculumContext=null;
 
-const esc=(value='')=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const esc=(value='')=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));
 const minMonth=item=>Math.max(1,Number(item?.metadata?.month)||Number(item?.metadata?.min_month)||1);
-const eligible=item=>minMonth(item)<=currentMonth;
+
+function contentAccess(item){
+  const month=minMonth(item);
+  const monthAllowed=month<=currentMonth;
+  const curriculum=window.curriculum;
+  const rules=Array.isArray(curriculum?.contentRules)?curriculum.contentRules.filter(rule=>rule.content_id===item?.id):[];
+  const currentOrder=Number(window.currentStage?.sort_order)||1;
+  const required=rules
+    .map(rule=>curriculum?.stages?.find(stage=>stage.id===rule.stage_id))
+    .filter(Boolean)
+    .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0))[0]||null;
+  const stageAllowed=!required||currentOrder>=Number(required.sort_order||1);
+  return{
+    unlocked:monthAllowed&&stageAllowed,
+    label:!monthAllowed?`Opens in Month ${month}`:(!stageAllowed&&required?`Opens at ${required.title}`:'Available now')
+  };
+}
+const eligible=item=>contentAccess(item).unlocked;
 
 function cleanContext(value){
   if(!value||typeof value!=='object')return null;
@@ -84,7 +101,7 @@ function ensureReaderStructure(){
 function paragraphs(text=''){return String(text).split(/\n\s*\n|\n/).map(value=>value.trim()).filter(Boolean).map(value=>`<p>${esc(value)}</p>`).join('')}
 
 function openItem(item){
-  if(!item||!eligible(item))return;
+  if(!item||!contentAccess(item).unlocked)return;
   const overlay=document.getElementById('library-overlay');
   if(!overlay)return;
   window.LibraryEngine?.recordLibraryView?.(item);
@@ -103,13 +120,14 @@ function openItem(item){
 
 function card(item,{recommended=false}={}){
   const node=document.createElement('article');
-  const locked=!eligible(item);
+  const access=contentAccess(item);
+  const locked=!access.unlocked;
   node.className='content-card'+(locked?' locked':'');
   if(item.slug)node.dataset.slug=item.slug;
   const image=artFor(item);
   if(locked){
     node.setAttribute('aria-disabled','true');node.setAttribute('tabindex','-1');
-    node.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>Opens in Month ${minMonth(item)}</span>`;
+    node.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>${esc(access.label)}</span>`;
     return node;
   }
   node.setAttribute('role','button');node.setAttribute('tabindex','0');node.setAttribute('aria-label',`Open ${item.title}`);
@@ -196,7 +214,7 @@ async function syncMonth(){
 
 async function render(){
   await syncMonth();
-  curriculumContext=cleanContext(window.ASCENDJournalContext)||curriculumContext;
+  curriculumContext=cleanContext(window.ASCENDJournalContext);
   const content=Array.isArray(window.curriculum?.content)?window.curriculum.content:[];
   renderRecommended(content);renderBrowse(content);renderRelatedTeaching(content);
   const screen=document.getElementById('library');
@@ -220,9 +238,9 @@ export function initLibrary(){
   const eyebrow=screen.querySelector(':scope>.eyebrow');const title=screen.querySelector(':scope>h1');
   if(eyebrow)eyebrow.textContent='FOR YOUR CURRENT MONTH';if(title)title.textContent='Library';
   screen.dataset.libraryOwner='master';ensureReaderStructure();bindControls(screen);
-  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext};
+  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext,contentAccess};
   document.addEventListener('ascend:journal-context',event=>{curriculumContext=cleanContext(event.detail);render()});
-  document.addEventListener('ascend:journal-saved',event=>{if(event.detail?.context)curriculumContext=cleanContext(event.detail.context)});
+  document.addEventListener('ascend:journal-saved',()=>{curriculumContext=null;render()});
   document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='library')render()});
   document.addEventListener('ascend:month',render);
   document.addEventListener('ascend:curriculum',render);
