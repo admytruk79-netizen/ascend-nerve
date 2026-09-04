@@ -18,7 +18,8 @@ test('signed-out reflection survives same-page sign-in and a failed practice sav
   })).toContain('Keep this signed-out reflection.');
 
   await page.evaluate(userRecord=>{
-    localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'local-state-token',refresh_token:'local-state-refresh',expires_in:3600,token_type:'bearer'}));
+    const callback=`${location.origin}${location.pathname}#access_token=local-state-token&refresh_token=local-state-refresh&expires_in=3600&token_type=bearer`;
+    window.PathBackend.completeOAuth(callback);
     user=userRecord;
   },testUser);
   await expect.poll(()=>page.evaluate(()=>window.PathBackend?.isSignedIn?.())).toBeTruthy();
