@@ -8,7 +8,8 @@ await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
 await page.waitForSelector('#today',{state:'attached'});
 await page.waitForFunction(()=>document.documentElement.dataset.ascendMasterReady==='1',null,{timeout:20000});
 await page.waitForFunction(()=>Boolean(window.ASCENDUX?.activateScreen&&window.PathTheme?.set),null,{timeout:10000});
-await page.waitForFunction(()=>document.documentElement.classList.contains('theme-authority-ready'),null,{timeout:5000});
+await page.waitForFunction(()=>['day','twilight','night'].includes(document.documentElement.dataset.theme),null,{timeout:5000});
+await page.evaluate(()=>document.fonts?.ready).catch(()=>{});
 
 await page.evaluate(()=>{
   document.body.classList.remove('auth-required','access-required');
@@ -27,6 +28,7 @@ for(const mode of ['day','twilight','night']){
     document.documentElement.dataset.theme=theme;
     window.scrollTo(0,0);
   },mode);
+  await page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,mode);
   await page.waitForTimeout(250);
   await page.screenshot({path:`visual-preview/today-${mode}.png`,fullPage:false});
 }
