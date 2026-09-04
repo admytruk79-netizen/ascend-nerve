@@ -62,13 +62,16 @@ test('app.js no longer competes with month-path for Path rendering',()=>{
   assert.match(app,/ascend:curriculum/);
 });
 
-test('Core and specialist Practice Branches remain independent',()=>{
+test('Phase I support, Practice Branches and Phase II remain structurally distinct',()=>{
   const html=read('index.html');
   const branches=read('branches.js');
   assert.match(html,/Core Formation/);
-  assert.match(html,/Independent Pathways/);
-  assert.match(html,/Separate from Core Formation/);
-  assert.match(branches,/INDEPENDENT PATHWAY/);
+  assert.match(branches,/PRACTICE_BRANCHES=new Set\(\['ancestral-roots','energy-bodywork'\]\)/);
+  assert.match(branches,/PHASE_I_ADDITIONAL=new Set\(\['development-program'\]\)/);
+  assert.match(branches,/PHASE_II_SLUG='sphere-of-attention'/);
+  assert.match(branches,/Phase II · Advanced Formation/);
+  assert.match(branches,/does not advance Phase I or Phase II/);
+  assert.match(branches,/path_phase_ii_access/);
 });
 
 test('Journal has one save authority with remote-first and local fallback behavior',()=>{
