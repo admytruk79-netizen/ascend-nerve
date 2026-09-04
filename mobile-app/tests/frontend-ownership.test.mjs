@@ -7,7 +7,6 @@ const root=path.resolve('www');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 
 const runtimeUiFiles=[
-  'approved-screens.js',
   'design-v3-today.js',
   'training-dashboard.js',
   'contextual-library.js',
@@ -27,10 +26,11 @@ test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
   }
 });
 
-test('retired Today and approved-screen helpers do not rebuild primary screens',()=>{
-  const approved=read('approved-screens.js');
+test('retired approved-screen layers are absent and Today bridge only boots the master frontend',()=>{
   const today=read('design-v3-today.js');
-  assert.doesNotMatch(approved,/approved-hero|initiation-school\.css|insertAdjacentElement\(['"]afterend['"]|screen\.prepend/);
+  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css']){
+    assert.equal(fs.existsSync(path.join(root,retired)),false,`${retired} must stay retired`);
+  }
   assert.doesNotMatch(today,/today-v3|approved-hero|initiation-school\.css|approved-screens\.js/);
   assert.match(today,/app\/bootstrap\.js/);
 });
