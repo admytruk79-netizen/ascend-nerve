@@ -5,12 +5,14 @@ await fs.mkdir('visual-preview',{recursive:true});
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:430,height:932},deviceScaleFactor:1});
 await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
-await page.waitForSelector('#today-v3',{state:'attached'});
-await page.waitForSelector('.today-v3-hero[data-approved-hero-loaded="true"]',{state:'attached',timeout:10000});
+await page.waitForSelector('#today',{state:'attached'});
+await page.waitForFunction(()=>document.documentElement.dataset.ascendMasterReady==='1',null,{timeout:20000});
+await page.waitForFunction(()=>Boolean(window.ASCENDUX?.activateScreen&&window.PathTheme?.set),null,{timeout:10000});
 await page.waitForFunction(()=>document.documentElement.classList.contains('theme-authority-ready'),null,{timeout:5000});
 
 await page.evaluate(()=>{
   document.body.classList.remove('auth-required','access-required');
+  window.ASCENDUX?.activateScreen?.('today',{replace:true,history:false});
   const splash=document.getElementById('splash');
   splash?.classList.add('is-hidden','done');
   splash?.setAttribute('aria-hidden','true');
@@ -20,7 +22,7 @@ await page.waitForTimeout(900);
 
 for(const mode of ['day','twilight','night']){
   await page.evaluate(theme=>{
-    window.ASCENDUX?.activateScreen?.('today',{record:false});
+    window.ASCENDUX?.activateScreen?.('today',{replace:true,history:false});
     window.PathTheme?.set?.(theme);
     document.documentElement.dataset.theme=theme;
     window.scrollTo(0,0);
@@ -33,7 +35,7 @@ for(const mode of ['day','twilight','night']){
 for(const screen of ['today','path','journal','library','me']){
   await page.evaluate(screenId=>{
     window.PathTheme?.set?.('day');
-    window.ASCENDUX?.activateScreen?.(screenId,{record:false});
+    window.ASCENDUX?.activateScreen?.(screenId,{replace:true,history:false});
     document.body.classList.remove('auth-required','access-required');
     document.querySelectorAll('.library-overlay,.practice-overlay').forEach(el=>el.classList.add('hidden'));
     window.scrollTo(0,0);
