@@ -1,3 +1,0 @@
-/* Retired.
-   Screen-driven palette rules caused Day/Twilight/Night to mix and repaint when navigation changed.
-   theme-authority.css is now the single app-wide visual authority, keyed only by html[data-theme]. */
