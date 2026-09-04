@@ -37,6 +37,31 @@ test('ASCENDUX is the navigation authority and normalizes practice journal flow'
   assert.doesNotMatch(ux,/createElement\(['"]style['"]\)/);
 });
 
+test('history suppression is honored for redirects and event-driven transitions',()=>{
+  const ux=read('ux-fixes.js');
+  assert.match(ux,/historyReady&&history&&previous!==id/);
+  assert.match(ux,/activateScreen\('me',\{record:false,history:false\}\)/);
+  assert.match(ux,/ascend:practice-confirmed'[\s\S]*activateScreen\('journal',\{record:false,history:false\}\)/);
+  assert.match(ux,/ascend:journal-saved'[\s\S]*activateScreen\('today',\{record:false,history:false\}\)/);
+});
+
+test('About overlay has close-button and backdrop ownership under ASCENDUX',()=>{
+  const ux=read('ux-fixes.js');
+  assert.match(ux,/querySelector\('\.about-close'\)\?\.addEventListener\('click',\(\)=>closeOverlay\(about\)\)/);
+  assert.match(ux,/about\?\.addEventListener\('click',event=>\{if\(event\.target===about\)closeOverlay\(about\)\}\)/);
+  assert.match(ux,/menu-about'[\s\S]*about\?\.classList\.remove\('hidden'\)/);
+});
+
+test('Journal authority emits post-save flow for successful remote and local persistence only',()=>{
+  const journal=read('journal-sync-authority.js');
+  assert.match(journal,/if\(!window\.PathBackend\?\.isSignedIn\?\.\(\)\)\{/);
+  assert.match(journal,/if\(!saveLocal\(entry\)\)[\s\S]*return;/);
+  assert.match(journal,/emitSaved\(\{remote:false,signedIn:false\}\)/);
+  assert.match(journal,/emitSaved\(\{remote:true,stageId:stage\.id\}\)/);
+  assert.match(journal,/emitSaved\(\{remote:false,signedIn:true\}\)/);
+  assert.match(journal,/hasMeaningfulContent\(form\)\)return/);
+});
+
 test('official practice completion never increments local progress on sync failure',()=>{
   const integrity=read('progress-integrity.js');
   assert.match(integrity,/window\.ASCENDPracticeCompletion/);
