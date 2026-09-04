@@ -4,9 +4,21 @@
 
   let submitting=false;
 
+  function mergeUnique(current=[],incoming=[]){
+    const seen=new Set();
+    return [...current,...incoming].filter(item=>{
+      const key=JSON.stringify(item);
+      if(seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+  }
   function persistPendingAttempt(reason){
     try{
-      if(!Array.isArray(localState.pendingPractices))localState.pendingPractices=[];
+      const stored=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
+      localState.practiceDays=Math.max(Number(localState.practiceDays)||0,Number(stored.practiceDays)||0);
+      localState.entries=mergeUnique(Array.isArray(stored.entries)?stored.entries:[],Array.isArray(localState.entries)?localState.entries:[]);
+      localState.pendingPractices=mergeUnique(Array.isArray(stored.pendingPractices)?stored.pendingPractices:[],Array.isArray(localState.pendingPractices)?localState.pendingPractices:[]);
       localState.pendingPractices.push({
         stage_id:currentStage?.id||null,
         practice_id:currentPractice?.id||null,
