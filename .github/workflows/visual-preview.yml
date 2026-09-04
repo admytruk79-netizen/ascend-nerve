@@ -7,6 +7,12 @@ on:
       - 'mobile-app/www/**'
       - 'mobile-app/tests/visual-capture.mjs'
       - '.github/workflows/visual-preview.yml'
+  pull_request:
+    branches: [ main, ascend-path-foundation ]
+    paths:
+      - 'mobile-app/www/**'
+      - 'mobile-app/tests/visual-capture.mjs'
+      - '.github/workflows/visual-preview.yml'
 
 jobs:
   capture:
