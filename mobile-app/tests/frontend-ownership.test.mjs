@@ -38,13 +38,19 @@ test('retired approved-screen layers are absent and Today bridge only boots the 
 test('Library presentation is owned by the master screen module',()=>{
   const library=read('app/screens/library.js');
   const compatibility=read('contextual-library.js');
-  assert.match(library,/window\.ASCENDLibrary=\{render,openItem(?:,context:\(\)=>curriculumContext)?\}/);
+  const experience=read('experience.js');
+  assert.match(library,/window\.ASCENDLibrary=\{render,openItem,context:\(\)=>curriculumContext,contentAccess\}/);
   assert.match(library,/FOR YOUR CURRENT MONTH/);
   assert.match(library,/PathEngine\.current/);
   assert.match(library,/LibraryEngine\?\.recommend/);
+  assert.match(library,/contentRules/);
+  assert.match(library,/currentStage\?\.sort_order/);
+  assert.match(library,/ascend:journal-saved['"],\(\)=>\{curriculumContext=null/);
   assert.match(library,/assets\/seasonal-art\//);
   assert.match(compatibility,/window\.ASCENDLibrary\?\.render/);
   assert.doesNotMatch(compatibility,/gateLibraryCards|renderRelatedTeaching|querySelectorAll\('#library-list/);
+  assert.doesNotMatch(experience,/openLibraryCard|recordLibraryView|library-list['"]|library-recommended['"]/);
+  assert.doesNotMatch(experience,/menu-button.*aboutOverlay/);
 });
 
 test('My ASCEND owns hierarchy and Resonance controls while engine remains behavior-only',()=>{
@@ -78,11 +84,15 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
   assert.doesNotMatch(legacyApp,/let remaining=\d+,interval=null,running=false/);
 });
 
-test('theme and component CSS are statically composed',()=>{
+test('theme and component CSS are statically composed with a genuinely light Day palette',()=>{
   const theme=read('theme.css');
   assert.match(theme,/theme-authority\.css/);
   assert.match(theme,/mirror-component\.css/);
   assert.match(theme,/training-components\.css/);
+  assert.match(theme,/html\[data-theme="day"\]\{[\s\S]*color-scheme:light/);
+  assert.match(theme,/--ui-bg:#f4efe4/);
+  assert.match(theme,/--ui-field:#fffdf8/);
+  assert.match(theme,/:focus-visible/);
 });
 
 test('signing identity remains outside frontend reconstruction',()=>{
