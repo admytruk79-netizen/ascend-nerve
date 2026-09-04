@@ -91,13 +91,13 @@ test('readiness evidence includes life application and maintenance without repla
 });
 
 test('Library recommendations and visible cards respect Core month progression',()=>{
-  const contextual=read('contextual-library.js');
-  assert.match(contextual,/metadata\?\.month/);
-  assert.match(contextual,/metadata\?\.min_month/);
-  assert.match(contextual,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
-  assert.match(contextual,/Opens in Month \$\{needed\}/);
-  assert.match(contextual,/classList\.toggle\('month-locked',locked\)/);
-  assert.match(contextual,/ASCENDProgression\?\.current/);
+  const library=read('app/screens/library.js');
+  assert.match(library,/metadata\?\.month/);
+  assert.match(library,/metadata\?\.min_month/);
+  assert.match(library,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
+  assert.match(library,/Opens in Month \$\{needed\}/);
+  assert.match(library,/classList\.toggle\('month-locked',locked\)/);
+  assert.match(library,/ASCENDProgression\?\.current/);
 });
 
 test('teacher review UI uses the live stage-gate schema',()=>{
