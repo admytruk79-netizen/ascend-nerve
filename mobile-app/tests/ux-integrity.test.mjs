@@ -107,18 +107,21 @@ test('valid authenticated session clears the auth gate',()=>{
   assert.match(router,/if\(!confirmedUser\)showScreen\('me'/);
 });
 
-test('Resonance refresh belongs to the Me owner and requires confirmed authenticated identity',()=>{
+test('Resonance refresh belongs to the My ASCEND owner and engine does not own controls',()=>{
   const meOwner=read('app/screens/me.js');
   const auth=read('app/data/auth.js');
   const bridge=read('design-v3-today.js');
   const mirror=read('mirror-engine.js');
   assert.match(meOwner,/import \{Auth\} from '\.\.\/data\/auth\.js'/);
   assert.match(meOwner,/Auth\.me\(\)/);
-  assert.match(meOwner,/if\(me\)window\.ASCENDMirror\?\.load\?\.\('stage'\)/);
+  assert.match(meOwner,/ASCENDMirror\?\.load\?\.\('stage'\)/);
+  assert.match(meOwner,/dataset\.resonanceOwner='me'/);
+  assert.match(meOwner,/dataset\.role='teacher-review'/);
   assert.match(auth,/PathBackend\?\.me\?\.\(\)/);
   assert.doesNotMatch(meOwner,/PathBackend\?\.me/);
   assert.doesNotMatch(bridge,/PathBackend\?\.me/);
   assert.doesNotMatch(bridge,/mirror-engine\.js/);
+  assert.doesNotMatch(mirror,/refresh-mirror|cloneNode\(true\)|function wire\(/);
   assert.match(mirror,/does not determine attainment/);
 });
 
