@@ -50,10 +50,18 @@ test('meaningful Journal submission reaches the persistence listener',()=>{
 test('confirmed practice hands off to Journal and confirmed Journal save returns to Today',()=>{
   const progress=read('progress-integrity.js');
   const journal=read('app/screens/journal.js');
+  const today=read('app/screens/today.js');
   assert.match(progress,/function handoffToJournal\(\)/);
   assert.match(progress,/activateScreen\?\.\('journal'\)/);
   assert.match(progress,/Record what you actually observed/);
   assert.match(journal,/Backend\.saveJournal/);
+  assert.match(journal,/Reflection saved privately to your ASCEND Path journal/);
   assert.match(journal,/activateScreen\?\.\('today'\)/);
   assert.match(journal,/ascend:journal-saved/);
+  assert.match(today,/ascend:practice-timer-complete/);
+  assert.match(today,/Timer complete/);
+  assert.match(today,/ascend:practice-completed/);
+  assert.match(today,/Practice completed and recorded/);
+  assert.match(today,/ascend:journal-saved/);
+  assert.match(today,/Reflection saved to your Journal/);
 });
