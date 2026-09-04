@@ -65,6 +65,7 @@ test('My ASCEND owns hierarchy and Resonance controls while engine remains behav
 test('practice timer is elapsed-time authoritative and loaded by the master bootstrap',()=>{
   const timer=read('practice-timer-authority.js');
   const bootstrap=read('app/bootstrap.js');
+  const legacyApp=read('app.js');
   assert.match(timer,/deadline=Date\.now\(\)\+remainingMs/);
   assert.match(timer,/remainingMs=Math\.max\(0,deadline-Date\.now\(\)\)/);
   assert.match(timer,/if\(remainingMs<=0\)complete\(\)/);
@@ -72,6 +73,9 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
   assert.match(timer,/data\.timerAuthority|dataset\.timerAuthority/);
   assert.match(bootstrap,/practice-timer-authority\.js/);
   assert.match(bootstrap,/data-practice-timer-authority/);
+  assert.doesNotMatch(legacyApp,/setInterval\([^\n]*remaining/);
+  assert.doesNotMatch(legacyApp,/function drawTimer|function resetTimerUI|function stop\(\).*clearInterval/);
+  assert.doesNotMatch(legacyApp,/let remaining=\d+,interval=null,running=false/);
 });
 
 test('theme and component CSS are statically composed',()=>{
