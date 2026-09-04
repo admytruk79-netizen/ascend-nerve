@@ -7,12 +7,27 @@
     const node=document.getElementById('sync-state');
     if(node)node.textContent=text;
   }
+  function readStoredState(){
+    try{return JSON.parse(localStorage.getItem('ascendPathState')||'{}')}catch{return{}}
+  }
+  function mergeUnique(current=[],incoming=[]){
+    const seen=new Set();
+    return [...current,...incoming].filter(item=>{
+      const key=JSON.stringify(item);
+      if(seen.has(key))return false;
+      seen.add(key);
+      return true;
+    });
+  }
   function saveLocal(entry){
     try{
-      const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
-      state.entries=Array.isArray(state.entries)?state.entries:[];
-      state.entries.push(entry);
-      localStorage.setItem('ascendPathState',JSON.stringify(state));
+      const stored=readStoredState();
+      const owner=(typeof localState==='object'&&localState)?localState:stored;
+      owner.practiceDays=Math.max(Number(owner.practiceDays)||0,Number(stored.practiceDays)||0);
+      owner.entries=mergeUnique(Array.isArray(stored.entries)?stored.entries:[],Array.isArray(owner.entries)?owner.entries:[]);
+      owner.pendingPractices=mergeUnique(Array.isArray(stored.pendingPractices)?stored.pendingPractices:[],Array.isArray(owner.pendingPractices)?owner.pendingPractices:[]);
+      owner.entries.push(entry);
+      localStorage.setItem('ascendPathState',JSON.stringify(owner));
       return true;
     }catch(error){
       console.warn('ASCEND local Journal fallback failed',error);
@@ -27,8 +42,8 @@
     if(!window.ASCENDJournalValidation?.hasMeaningfulContent(form))return;
 
     /* Journal persistence has one authority for both remote and local saves.
-       This prevents duplicate persistence and guarantees the same post-save
-       navigation event regardless of authentication state. */
+       Local fallback writes through app.js's long-lived localState owner so a
+       later writer cannot serialize stale state over a saved reflection. */
     event.preventDefault();
     event.stopImmediatePropagation();
 
