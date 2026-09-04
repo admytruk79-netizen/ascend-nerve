@@ -61,6 +61,36 @@ function resume(){activeRenderer.resume()}
 function complete(){activeRenderer.complete()}
 function exit(){activeRenderer.exit()}
 
+function openBriefing(){
+  const briefing=document.getElementById('practice-briefing');
+  if(!briefing)return false;
+  prepare();
+  briefing.classList.remove('hidden');
+  return true;
+}
+
+function beginOverlay(){
+  const briefing=document.getElementById('practice-briefing');
+  const overlay=document.getElementById('practice-overlay');
+  if(!overlay)return false;
+  briefing?.classList.add('hidden');
+  overlay.classList.remove('hidden');
+  start();
+  return true;
+}
+
+function closeBriefing(){
+  document.getElementById('practice-briefing')?.classList.add('hidden');
+  exit();
+}
+
+function closeOverlay({resetTimer=false}={}){
+  window.ASCENDPracticeTimer?.pause?.();
+  if(resetTimer)window.ASCENDPracticeTimer?.reset?.();
+  document.getElementById('practice-overlay')?.classList.add('hidden');
+  exit();
+}
+
 function syncTimerState(){
   queueMicrotask(()=>{
     const timer=window.ASCENDPracticeTimer;
@@ -86,9 +116,9 @@ export function initPracticeRuntime(){
   const finish=document.getElementById('finish-practice');
 
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
-  briefingBegin?.addEventListener('click',()=>start());
-  briefingClose?.addEventListener('click',()=>exit());
-  overlayClose?.addEventListener('click',()=>exit());
+  briefingBegin?.addEventListener('click',()=>beginOverlay());
+  briefingClose?.addEventListener('click',()=>closeBriefing());
+  overlayClose?.addEventListener('click',()=>closeOverlay({resetTimer:true}));
   timerToggle?.addEventListener('click',syncTimerState);
   finish?.addEventListener('click',()=>{
     if(finish.classList.contains('ready'))complete();
@@ -97,8 +127,10 @@ export function initPracticeRuntime(){
     if(activeRenderer.state==='running')pause();
   });
 
+  window.ASCENDOpenPractice=openBriefing;
   window.ASCENDPracticeRuntime={
     prepare,start,pause,resume,complete,exit,
+    openBriefing,beginOverlay,closeBriefing,closeOverlay,
     current:()=>activeRenderer,
     selectRenderer
   };
