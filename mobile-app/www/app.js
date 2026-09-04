@@ -1,6 +1,7 @@
 const screens=[...document.querySelectorAll('.screen')];
 const nav=[...document.querySelectorAll('.bottom-nav button')];
 const localState=JSON.parse(localStorage.getItem('ascendPathState')||'{"practiceDays":0,"entries":[]}');
+window.localState=localState;
 let user=null,entitlement=null,curriculum=null,currentStage=null,currentPractice=null,progressRow=null,markerObservations=[],recentJournalText='',libraryQuery='',libraryType='all';
 
 function saveLocal(){localStorage.setItem('ascendPathState',JSON.stringify(localState));renderCounts(localState.practiceDays)}

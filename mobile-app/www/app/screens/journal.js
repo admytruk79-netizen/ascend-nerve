@@ -67,17 +67,24 @@ function refreshPersistenceContext(){
 
 function localEntries(){
   try{
-    const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
-    return Array.isArray(state.entries)?state.entries:[];
+    return Array.isArray(window.localState?.entries)?window.localState.entries:[];
   }catch{return[]}
 }
 
+/*
+ * Journal entries must land in the same in-memory localState object that
+ * app.js and progress-integrity.js hold and later re-serialize whole to
+ * localStorage (e.g. persistPendingAttempt on a failed practice completion).
+ * Writing to localStorage independently here left that entry only in
+ * storage, not in localState.entries - the next unrelated writer would then
+ * overwrite storage with the stale in-memory state and silently erase it.
+ */
 function saveLocal(entry){
   try{
-    const state=JSON.parse(localStorage.getItem('ascendPathState')||'{}');
-    state.entries=Array.isArray(state.entries)?state.entries:[];
-    state.entries.push(entry);
-    localStorage.setItem('ascendPathState',JSON.stringify(state));
+    if(!window.localState)return false;
+    window.localState.entries=Array.isArray(window.localState.entries)?window.localState.entries:[];
+    window.localState.entries.push(entry);
+    window.saveLocal?.();
     return true;
   }catch(error){
     console.warn('ASCEND local Journal fallback failed',error);

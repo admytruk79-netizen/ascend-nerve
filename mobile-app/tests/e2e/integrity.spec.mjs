@@ -99,6 +99,39 @@ test('Library recommendations never surface locked future material and cards wor
   await expect(page.locator('#library-title')).toHaveText('Available Teaching');
 });
 
+test('a local Journal fallback save survives a later failed practice completion',async({page})=>{
+  await boot(page);
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/path_journal_entries',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.locator('textarea[name="life_application"]').fill('Saved while the connection was down.');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('saved on this device');
+  const afterJournal=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterJournal).toBe(1);
+
+  // A second, unrelated writer (a failed practice completion) re-serializes
+  // the whole ascendPathState object. It must not clobber the entry the
+  // Journal fallback just wrote.
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_record_practice_completion',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+  // Drive the overlay/timer state directly instead of clicking "Begin
+  // 10-Minute Practice" - that click also fires practice-timer-authority.js's
+  // own rAF-deferred reset() on the same briefing-begin button, which can
+  // land after this setup and strip the 'ready' class it depends on.
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await page.evaluate(()=>{
+    document.getElementById('practice-briefing').classList.add('hidden');
+    document.getElementById('practice-overlay').classList.remove('hidden');
+    window.ASCENDPracticeTimer.remainingSeconds=()=>0;
+    document.getElementById('finish-practice').classList.add('ready');
+  });
+  await page.getByRole('button',{name:'Finish Practice'}).click();
+  await expect(page.locator('#timer-hint')).toContainText('does not count toward progression yet');
+
+  const afterFailedPractice=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterFailedPractice).toBe(1);
+});
+
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
