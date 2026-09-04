@@ -102,7 +102,21 @@ They may support:
 
 They may never rename or reorder the canonical 24-month Core Formation.
 
-## 5. Primary application structure
+## 5. Asset and placeholder governance
+
+No placeholder, stub, draft asset, or scaffold module ships as final by convenience or default. This applies equally to visual assets (art, images, audio) and to code scaffolding (a module or renderer committed to satisfy the one-owner architecture before its real behavior is implemented).
+
+Every placeholder or stub must carry, at the point it is introduced:
+
+- an explicit TEMPORARY marker (a code comment, commit message, or tracked note — not silence)
+- a named replacement owner and, where known, a target date or milestone
+- a record of what "done" looks like for the replacement
+
+A module that exists only to satisfy a target file structure (see section 14) but contains no real implementation is a stub, not a completed step, and must not be reported or treated as finished work. Orphaned assets committed but never wired into the running application (unused images, unreferenced scripts) are migration debt and should be identified and either finished, wired in, or removed — not left silently in the tree.
+
+Every commissioned, licensed, or reused art asset records its source and, where applicable, credit — including seasonal/experience-layer artwork drawn from `assets/seasonal-art/`.
+
+## 6. Primary application structure
 
 ```text
 ASCEND Path
@@ -138,7 +152,7 @@ ASCEND Path
     └── account/access/settings
 ```
 
-## 6. Daily flow
+## 7. Daily flow
 
 The normal practitioner flow is:
 
@@ -157,7 +171,7 @@ Today
 
 The visible ritual artwork is not the hold target. The actual central circle owns the hold interaction. The surrounding scene remains scrollable and non-interactive unless explicitly assigned another action.
 
-## 7. Today screen
+## 8. Today screen
 
 Today must answer four questions immediately:
 
@@ -178,7 +192,7 @@ Requirements:
 - clear stop/exit path
 - Journal handoff after practice
 
-## 8. Path screen
+## 9. Path screen
 
 Path is the School map, not a flat card list.
 
@@ -195,7 +209,7 @@ It must show:
 
 The frontend renders Path Engine/backend state; it does not calculate readiness truth independently.
 
-## 9. Journal and Reflection
+## 10. Journal and Reflection
 
 Journal follows the principle **Observation first, interpretation cautiously**.
 
@@ -215,7 +229,7 @@ Reflection artwork is selected semantically and supports the reflection. It does
 
 Journal must provide history/review so the practitioner can revisit previous entries and observe change over time.
 
-## 10. Library
+## 11. Library
 
 Library is contextual support.
 
@@ -229,7 +243,7 @@ Library recommendations are selected using canonical month metadata. Obsolete st
 
 Reading Library material never advances Core Formation.
 
-## 11. Resonance
+## 12. Resonance
 
 The practitioner-facing name is **Resonance**.
 
@@ -243,7 +257,9 @@ Resonance may reflect patterns in saved observations and journal language. It ca
 
 Principle: **Resonance reflects. It does not decide.**
 
-## 12. Account and entitlement UX
+This boundary must be stated to the practitioner inside the application, in plain language, at the point Resonance is presented — not held only as an internal design principle. Language should make clear that Resonance reflects patterns in the student's own record and does not diagnose, does not guarantee outcomes, and does not replace a teacher's judgment where review is required.
+
+## 13. Account and entitlement UX
 
 For a signed-in entitled practitioner, billing/login controls must not dominate My ASCEND.
 
@@ -257,7 +273,7 @@ Normal hierarchy:
 
 Purchase, restore, login and lifetime-key controls appear only when relevant to access state.
 
-## 13. Technical ownership model
+## 14. Technical ownership model
 
 Target ownership:
 
@@ -295,9 +311,9 @@ mobile-app/www/
     responsive.css
 ```
 
-Migration is incremental: proven backend/engine code is adapted, not gratuitously rewritten.
+Migration is incremental: proven backend/engine code is adapted, not gratuitously rewritten. A file existing at its target path is not the same as that concern being migrated — see section 5. A module is only a real owner once the legacy path it replaces has been retired per section 15.
 
-## 14. One-owner rule
+## 15. One-owner rule
 
 Every concern has one owner:
 
@@ -311,7 +327,7 @@ Every concern has one owner:
 
 Runtime DOM-repair layers and competing CSS overrides are migration debt and must be retired as replacement owners become active.
 
-## 15. Design system
+## 16. Design system
 
 The product should feel premium, cinematic, restrained and coherent.
 
@@ -328,7 +344,7 @@ The product should feel premium, cinematic, restrained and coherent.
 - reduced-motion respected
 - tablet layouts receive dedicated responsive treatment
 
-## 16. Interaction and accessibility
+## 17. Interaction and accessibility
 
 All migrated screens preserve:
 
@@ -344,7 +360,17 @@ All migrated screens preserve:
 
 Android Back unwinds modal/overlay state before leaving the application.
 
-## 17. Practice renderer contract
+Neuroinclusive standard — the celestial/ritual metaphor is an enhancement, never the only route. A complete, plain, conventional path through the same content and actions must remain available at all times:
+
+- no flashing, strobing, sudden audio, autoplay speech, or motion that cannot be paused or stopped
+- a reduced-motion mode that removes non-essential animation without removing function
+- no essential label or action conveyed only through color, position, hover, or animation
+- alt text for meaningful imagery; captions or transcripts for meditation audio and video where feasible
+- readable text sizes, comfortable line length, and layouts that tolerate browser/OS zoom and larger text
+- clear, plain language; a short orientation ("what this contains") before dense reflective or spiritual material
+- touch targets and spacing appropriate for one-handed mobile use
+
+## 18. Practice renderer contract
 
 Every practice renderer must support a common lifecycle:
 
@@ -360,7 +386,9 @@ Renderer completion reports practice completion to the authoritative progression
 
 Breathing/sphere renderers own their animation synchronization and timing. UI code does not duplicate timer authority.
 
-## 18. Testing gates
+## 19. Testing gates
+
+### 19.1 Technical gates
 
 Before release integration:
 
@@ -377,7 +405,19 @@ Before release integration:
 11. Android debug build
 12. signed AAB only after explicit release integration
 
-## 19. Reconstruction execution order
+A technical gate passing is necessary but not sufficient — see 19.2.
+
+### 19.2 User-outcome criteria
+
+Technical gates confirm the application runs correctly; they do not by themselves confirm it works for a practitioner. Before release integration, also confirm:
+
+- a first-time student can say what to do today within 10–15 seconds of opening the app, without instruction
+- a student can complete Today → Practice Briefing → Practice → Finish → Journal without hesitation or getting stuck
+- a student can tell, at a glance, which Library or Path items are available now versus locked
+- a student encountering Resonance understands, without being told separately, that it reflects rather than decides
+- reduced-motion and keyboard-only use do not degrade any of the above
+
+## 20. Reconstruction execution order
 
 1. Protect Android/Play invariants
 2. Establish master document and one-owner architecture
@@ -394,6 +434,18 @@ Before release integration:
 13. Integrate intentionally into release branch
 14. Build signed AAB
 
-## 20. Current implementation rule
+## 21. Current implementation rule
 
 The reconstruction branch is a preview/development branch. It must not change Play signing, package identity, backend credentials or billing identity. Production release follows only after the reconstructed frontend has passed the validation gates above.
+
+## 22. Decision Register
+
+Open items surfaced during reconstruction, tracked here instead of left in chat history. Each carries a recommended default so work is not blocked pending discussion, and an owner/status so it isn't lost.
+
+| ID | Decision | Recommended default | Owner / status |
+|---|---|---|---|
+| D-01 | `app/curriculum/{path-engine,readiness}.js` and `app/practices/{breath,sphere,guided,reflection,observation,contract}.js` exist per the section 14 target structure but are unwired stubs — the legacy `app.js` timer/practice logic and `practice-timer-authority.js` remain the real, running owners. | Treat these as not-yet-started against execution-order step 10, not completed. Either implement and wire them in, or remove them so the file tree doesn't overstate progress. | Open |
+| D-02 | PR #7 targets base branch `ascend-path-foundation`, not `main`. The `Build ASCEND Path Android Debug` workflow only triggers on PRs into `main`, so gate 19.1 item 11 (Android debug build) has never run for this PR. | Either retarget the PR's eventual merge path to include a debug-build check, or manually dispatch `build-android-debug.yml` before release integration and record the result here. | Open |
+| D-03 | `path_stages.metadata.seasonal_images` in Supabase is no longer read by any code path after the season-based artwork refactor (`SEASONAL_ART` in `app.js` is now the source of truth). | Leave the column as historical data; do not reintroduce a second source of truth for seasonal art. | Resolved — left in place, unread |
+| D-04 | Whether the Resonance UI actually surfaces the "reflects, does not decide" boundary language required by section 12, or only holds it as an internal principle. | Audit the My ASCEND / Resonance screen; add user-facing boundary text if missing. | Open — audit not yet performed |
+| D-05 | Section 17's neuroinclusive checklist (captions/transcripts for meditation audio, zoom tolerance, "what this contains" orientation) is new; current compliance across the app is unverified. | Audit before treating gate 19.1 item 3 (navigation/accessibility) as satisfied by the new standard. | Open — audit not yet performed |
