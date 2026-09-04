@@ -95,8 +95,9 @@ test('Library recommendations and visible cards respect Core month progression',
   assert.match(library,/metadata\?\.month/);
   assert.match(library,/metadata\?\.min_month/);
   assert.match(library,/Number\(item\?\.metadata\?\.month\)===currentMonth/);
-  assert.match(library,/Opens in Month \$\{needed\}/);
-  assert.match(library,/classList\.toggle\('month-locked',locked\)/);
+  assert.match(library,/const locked=!eligible\(item\)/);
+  assert.match(library,/Opens in Month \$\{minMonth\(item\)\}/);
+  assert.match(library,/setAttribute\('aria-disabled','true'\)/);
   assert.match(library,/ASCENDProgression\?\.current/);
 });
 
