@@ -63,6 +63,18 @@ test('practice completion integrity never advances locally after failed verifica
   assert.doesNotMatch(integrity,/renderPath\(\)/);
 });
 
+test('timer expiry cannot clear authentication and session survives WebView process restart',()=>{
+  const timer=read('practice-timer-authority.js');
+  const backend=read('backend.js');
+  assert.match(timer,/ascend:practice-timer-complete/);
+  assert.match(timer,/Timer complete — tap Finish Practice below/);
+  assert.doesNotMatch(timer,/signOut|persist\(null\)|localStorage\.removeItem|location\.(?:assign|replace)|window\.close|navigator\.app\.exitApp/);
+  assert.match(backend,/const STORAGE='ascendPathSession'/);
+  assert.match(backend,/let session=JSON\.parse\(localStorage\.getItem\(STORAGE\)\|\|'null'\)/);
+  assert.match(backend,/localStorage\.setItem\(STORAGE,JSON\.stringify\(next\)\)/);
+  assert.match(backend,/function signOut\(\)\{persist\(null\)/);
+});
+
 test('training-in-life evidence is attached to Today and recorded through the server progression gate',()=>{
   const layers=read('training-layers.js');
   assert.match(layers,/TRAINING BEYOND THE FORMAL PRACTICE/);
