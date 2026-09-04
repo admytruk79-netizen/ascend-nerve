@@ -35,6 +35,18 @@ test('retired Today and approved-screen helpers do not rebuild primary screens',
   assert.match(today,/app\/bootstrap\.js/);
 });
 
+test('Library presentation is owned by the master screen module',()=>{
+  const library=read('app/screens/library.js');
+  const compatibility=read('contextual-library.js');
+  assert.match(library,/window\.ASCENDLibrary=\{render,openItem\}/);
+  assert.match(library,/FOR YOUR CURRENT MONTH/);
+  assert.match(library,/ASCENDProgression\?\.current/);
+  assert.match(library,/LibraryEngine\?\.recommend/);
+  assert.match(library,/assets\/seasonal-art\//);
+  assert.match(compatibility,/window\.ASCENDLibrary\?\.render/);
+  assert.doesNotMatch(compatibility,/gateLibraryCards|renderRelatedTeaching|querySelectorAll\('#library-list/);
+});
+
 test('practice timer is elapsed-time authoritative and loaded by the master bootstrap',()=>{
   const timer=read('practice-timer-authority.js');
   const bootstrap=read('app/bootstrap.js');
