@@ -9,7 +9,7 @@
   nav.forEach(button=>{if(!button.hasAttribute('aria-label'))button.setAttribute('aria-label',button.textContent.trim())});
   const currentScreen=()=>screens.find(screen=>screen.classList.contains('active'))?.id||'today';
 
-  function activateScreen(id,{record=true,history=true,focus=false}={}){
+  function activateScreen(id,{record=true,history:pushHistory=true,focus=false}={}){
     if(!validScreens.has(id))id='today';
     const previous=currentScreen();
     if(previous===id){
@@ -29,7 +29,7 @@
       button.classList.toggle('active',active);
       if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
     });
-    if(historyReady&&history&&previous!==id)window.history.pushState({ascend:true,screen:id},'',location.href);
+    if(historyReady&&pushHistory&&previous!==id)window.history.pushState({ascend:true,screen:id},'',location.href);
     window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
     navigating=false;
     document.dispatchEvent(new CustomEvent('ascend:navigation',{detail:{from:previous,to:id}}));
@@ -124,6 +124,8 @@
   menu?.addEventListener('click',event=>{if(event.target===menu)menu.classList.add('hidden')});
   menu?.querySelectorAll('[data-menu-screen]').forEach(button=>button.addEventListener('click',()=>{menu.classList.add('hidden');activateScreen(button.dataset.menuScreen)}));
   document.getElementById('menu-about')?.addEventListener('click',()=>{menu?.classList.add('hidden');about?.classList.remove('hidden')});
+  document.querySelector('.about-close')?.addEventListener('click',()=>closeOverlay(about));
+  about?.addEventListener('click',event=>{if(event.target===about)closeOverlay(about)});
 
   document.addEventListener('click',event=>{
     if(event.target.closest('[data-go-signin]')){activateScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),180);return}
@@ -140,7 +142,6 @@
     journalHeading.insertAdjacentElement('afterend',context);
   }
 
-  // Practice completion service emits this only after the backend confirms a session.
   document.addEventListener('ascend:practice-confirmed',()=>{
     activateScreen('journal');
     const status=document.getElementById('journal-status');
