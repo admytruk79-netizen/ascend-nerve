@@ -8,6 +8,12 @@ create unique index if not exists training_branch_repetition_log_request_once
   on public.training_branch_repetition_log(user_id,module_id,request_id)
   where request_id is not null;
 
+-- A fresh database may still have the legacy two-argument function from
+-- development_program_branch.sql. Remove that signature before defining the
+-- backward-compatible three-argument function (whose third argument defaults
+-- to null), otherwise PostgREST can see two competing RPC candidates.
+drop function if exists public.record_branch_repetition(uuid,boolean);
+
 create or replace function public.record_branch_repetition(
   p_module_id uuid,
   p_safety_ack boolean default false,
