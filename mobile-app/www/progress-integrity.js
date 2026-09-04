@@ -1,6 +1,8 @@
 (()=>{
   const finish=document.getElementById('finish-practice');
-  if(!finish)return;
+  const timerHint=document.getElementById('timer-hint');
+  const overlay=document.getElementById('practice-overlay');
+  if(!finish||!timerHint||!overlay)return;
 
   let submitting=false;
 
@@ -21,7 +23,7 @@
 
   function timerRemaining(){
     if(window.ASCENDPracticeTimer?.remainingSeconds)return window.ASCENDPracticeTimer.remainingSeconds();
-    return typeof remaining==='number'?remaining:1;
+    return Number.POSITIVE_INFINITY;
   }
 
   function handoffToJournal(){
@@ -41,7 +43,6 @@
 
     if(submitting)return;
     window.ASCENDPracticeTimer?.pause?.();
-    if(!window.ASCENDPracticeTimer)stop();
 
     if(timerRemaining()>0||!finish.classList.contains('ready')){
       timerHint.textContent='Complete the full practice timer before recording this session.';
@@ -89,7 +90,6 @@
       }
 
       window.ASCENDPracticeTimer?.reset?.();
-      if(!window.ASCENDPracticeTimer)resetTimerUI();
       overlay.classList.add('hidden');
       document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
       handoffToJournal();
