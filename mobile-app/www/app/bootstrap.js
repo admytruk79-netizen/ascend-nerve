@@ -4,6 +4,7 @@ import {initPath} from './screens/path.js';
 import {initJournal} from './screens/journal.js';
 import {initLibrary} from './screens/library.js';
 import {initMe} from './screens/me.js';
+import {initPracticeRuntime} from './practices/runtime.js';
 
 function loadAuthority(src,attribute){
   const existing=document.querySelector(`script[${attribute}]`);
@@ -73,6 +74,7 @@ async function boot(){
      blocking that handoff — a delay here previously left Save Reflection (and other
      screen actions) unbound while this unrelated script was still downloading. */
   await loadAuthority('practice-timer-authority.js?v=20260903-master-ready-1','data-practice-timer-authority');
+  initPracticeRuntime();
 
   document.documentElement.dataset.ascendMasterReady='1';
   document.body.classList.remove('ascend-master-loading');
