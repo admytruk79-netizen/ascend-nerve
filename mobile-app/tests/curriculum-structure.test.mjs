@@ -5,16 +5,36 @@ import fs from 'node:fs';
 const branches=fs.readFileSync(new URL('../www/branches.js',import.meta.url),'utf8');
 const progression=fs.readFileSync(new URL('../www/path-progression.js',import.meta.url),'utf8');
 const journal=fs.readFileSync(new URL('../www/app/screens/journal.js',import.meta.url),'utf8');
+const backend=fs.readFileSync(new URL('../www/backend.js',import.meta.url),'utf8');
 const backendAdapter=fs.readFileSync(new URL('../www/app/data/backend-adapter.js',import.meta.url),'utf8');
 const library=fs.readFileSync(new URL('../www/app/screens/library.js',import.meta.url),'utf8');
 const master=fs.readFileSync(new URL('../../docs/ASCEND_MASTER_SYSTEM_DOCUMENT.md',import.meta.url),'utf8');
 const phaseIIGate=fs.readFileSync(new URL('../../supabase/pending_migrations/enforce_phase_ii_open_gate.sql',import.meta.url),'utf8');
+const monthPractices=fs.readFileSync(new URL('../../supabase/pending_migrations/phase_i_month_practices_school_scale.sql',import.meta.url),'utf8');
 
 test('Phase I remains a 24-module canonical spine',()=>{
   const monthRows=[...progression.matchAll(/\{month:(\d+),title:/g)].map(match=>Number(match[1]));
   assert.deepEqual(monthRows,Array.from({length:24},(_,index)=>index+1));
   assert.match(master,/Phase I[^\n]*Core Formation/i);
   assert.match(master,/24(?:-month| months| canonical monthly modules)/i);
+});
+
+test('every canonical Phase I month has an authored school-scale practice',()=>{
+  const seeded=[...monthPractices.matchAll(/\((\d+),'core-m\d{2}-/g)].map(match=>Number(match[1]));
+  assert.deepEqual(seeded,Array.from({length:24},(_,index)=>index+1));
+  assert.match(monthPractices,/session_architecture.*orientation → preparation → deliberate practice → quiet observation → completion reflection/);
+  assert.match(monthPractices,/'fieldwork'/);
+  assert.match(monthPractices,/'journal_prompt'/);
+  assert.match(monthPractices,/canonical_month',true/);
+  assert.match(monthPractices,/school_scale',true/);
+});
+
+test('Today resolves the canonical current-month practice from authoritative stage links',()=>{
+  assert.match(backend,/function prioritizeCanonicalMonth\(links,practices,currentMonth\)/);
+  assert.match(backend,/Number\(practice\?\.metadata\?\.month\)===Number\(currentMonth\)/);
+  assert.match(backend,/practice\?\.metadata\?\.canonical_month===true/);
+  assert.match(backend,/links:orderedLinks/);
+  assert.match(monthPractices,/path_stage_practices/);
 });
 
 test('only Ancestral Roots and Energy & Bodywork render as Practice Branches',()=>{
