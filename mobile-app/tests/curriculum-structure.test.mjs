@@ -51,12 +51,6 @@ test('Today and practice runtime resolve only the current canonical month',()=>{
 });
 
 test('normalizeCanonicalMonth keeps a legacy-only stage\'s primary link usable during partial migration',()=>{
-  // Devin review finding: the function used to demote every role:'primary'
-  // link to legacy_primary unconditionally, even for a stage that has no
-  // month_primary replacement at all. app.js's stagePractice() and the
-  // practice runtime both require role==='primary' to find a stage's
-  // practice, so that stage would silently lose its assigned practice -
-  // Today shows generic content and practice completion cannot start.
   const source=backend.match(/function normalizeCanonicalMonth\(links,currentMonth\)\{[\s\S]*?\n  \}/)[0];
   const normalizeCanonicalMonth=new Function('return '+source)();
 
@@ -74,14 +68,15 @@ test('normalizeCanonicalMonth keeps a legacy-only stage\'s primary link usable d
 test('server completion accepts only the current Core progression role',()=>{
   assert.match(completionAuthority,/sp\.role in \('month_primary','primary'\)/);
   assert.match(completionAuthority,/practice is not a Core progression practice for this stage/);
-  assert.match(completionAuthority,/legacy primary is not valid while canonical month practice is assigned/);
+  assert.match(completionAuthority,/legacy primary is not valid while current canonical month practice is assigned/);
   assert.match(completionAuthority,/practice is not the current canonical month practice/);
   assert.doesNotMatch(completionAuthority,/sp\.role in \([^\)]*supporting/);
 });
 
 test('server and client use the same calendar-month boundary definition',()=>{
-  assert.match(completionAuthority,/extract\(year from current_date\).*extract\(year from v_progress\.started_at::date\)/s);
-  assert.match(completionAuthority,/extract\(month from current_date\).*extract\(month from v_progress\.started_at::date\)/s);
+  assert.match(completionAuthority,/v_today:=\(now\(\) at time zone v_timezone\)::date/);
+  assert.match(completionAuthority,/extract\(year from v_today\).*extract\(year from \(v_progress\.started_at at time zone v_timezone\)::date\)/s);
+  assert.match(completionAuthority,/extract\(month from v_today\).*extract\(month from \(v_progress\.started_at at time zone v_timezone\)::date\)/s);
   assert.doesNotMatch(completionAuthority,/age\(current_date/);
   assert.match(progression,/now\.getFullYear\(\)-started\.getFullYear\(\)/);
   assert.match(progression,/now\.getMonth\(\)-started\.getMonth\(\)/);
