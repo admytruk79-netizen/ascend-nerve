@@ -5,12 +5,15 @@
 
   let submitting=false;
 
+  function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
+
   function persistPendingAttempt(reason){
     try{
       if(!Array.isArray(localState.pendingPractices)) localState.pendingPractices=[];
+      const practice=activePractice();
       localState.pendingPractices.push({
         stage_id:currentStage?.id||null,
-        practice_id:currentPractice?.id||null,
+        practice_id:practice?.id||null,
         attempted_at:new Date().toISOString(),
         reason:String(reason||'sync_failed')
       });
@@ -57,7 +60,8 @@
       return;
     }
 
-    if(!user||!currentStage||!currentPractice){
+    const practice=activePractice();
+    if(!user||!currentStage||!practice){
       timerHint.textContent='Sign in to record official Path progress. This session has not advanced your stage.';
       setSync('LOCAL');
       return;
@@ -67,9 +71,9 @@
     // advance progression and loadRemote() replaces the mutable globals.
     const completedScope={
       stageId:currentStage.id,
-      practiceId:currentPractice.id,
+      practiceId:practice.id,
       userId:user.id,
-      month:Number(curriculum?.currentMonth||window.ASCENDState?.month||1),
+      month:Number(practice?.frequency_rule?.canonical_month||window.ASCENDState?.month||curriculum?.currentMonth||1),
       date:localDate()
     };
 
@@ -79,7 +83,7 @@
     setSync('SYNCING…');
 
     try{
-      const duration=(currentPractice.default_minutes||10)*60;
+      const duration=(practice.default_minutes||10)*60;
       const result=await PathBackend.completePractice({
         stageId:completedScope.stageId,
         practiceId:completedScope.practiceId,
