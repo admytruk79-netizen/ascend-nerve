@@ -15,29 +15,12 @@ const renderers={
 let activeRenderer=observationRenderer;
 let mounted=false;
 
-function stageRange(sortOrder){
-  const n=Math.max(1,Number(sortOrder)||1);
-  return n<=7?{start:n,end:n}:n===8?{start:8,end:18}:{start:19,end:24};
-}
-
-function elapsedCalendarMonth(startedAt){
-  const now=new Date();
-  const started=new Date(startedAt||now);
-  if(Number.isNaN(started.getTime()))return 1;
-  return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
-}
-
-function liveCanonicalMonth(curriculum,stage){
-  const progress=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
-  const active=progress.find(row=>row.stage_id===stage?.id&&(row.status==='active'||row.status==='review'))||progress.find(row=>row.stage_id===stage?.id);
-  const range=stageRange(stage?.sort_order||1);
-  if(range.start===range.end)return range.start;
-  if(active?.started_at)return Math.min(range.end,range.start+elapsedCalendarMonth(active.started_at)-1);
-  return Number(window.ASCENDState?.month||curriculum?.currentMonth||range.start);
+function canonicalMonth(curriculum){
+  return Number(window.ASCENDProgression?.authority?.()?.month||window.ASCENDAuthority?.month||window.ASCENDState?.month||curriculum?.currentMonth||1);
 }
 
 function canonicalMonthLink(curriculum,stage){
-  const month=liveCanonicalMonth(curriculum,stage);
+  const month=canonicalMonth(curriculum);
   return curriculum?.links?.find(item=>item.stage_id===stage.id&&item.role==='month_primary'&&Number(item.frequency_rule?.canonical_month)===month)||null;
 }
 
@@ -117,7 +100,7 @@ function beginOverlay(){
   syncPracticeCopy(practice);
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
-  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:practice?.id||null,stageId:window.currentStage?.id||null}}));
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:practice?.id||null,stageId:window.currentStage?.id||null,month:canonicalMonth(window.curriculum),date:window.ASCENDProgression?.authority?.()?.curriculumDate||window.ASCENDAuthority?.curriculumDate||null}}));
   start();
   return true;
 }
@@ -169,6 +152,9 @@ export function initPracticeRuntime(){
   document.addEventListener('ascend:practice-timer-complete',()=>{
     if(activeRenderer.state==='running')pause();
   });
+  document.addEventListener('ascend:authority',()=>{
+    if(document.getElementById('practice-briefing')&&!document.getElementById('practice-briefing').classList.contains('hidden'))prepare();
+  });
 
   window.ASCENDOpenPractice=openBriefing;
   window.ASCENDPracticeRuntime={
@@ -176,6 +162,7 @@ export function initPracticeRuntime(){
     openBriefing,beginOverlay,closeBriefing,closeOverlay,
     current:()=>activeRenderer,
     practice:()=>resolvedPractice(),
+    canonicalMonth:()=>canonicalMonth(window.curriculum),
     selectRenderer
   };
 }
