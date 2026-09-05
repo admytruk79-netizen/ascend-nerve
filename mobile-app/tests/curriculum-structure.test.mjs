@@ -50,6 +50,27 @@ test('Today and practice runtime resolve only the current canonical month',()=>{
   assert.match(runtime,/item\.role==='month_primary'&&Number\(item\.frequency_rule\?\.canonical_month\)===month/);
 });
 
+test('normalizeCanonicalMonth keeps a legacy-only stage\'s primary link usable during partial migration',()=>{
+  // Devin review finding: the function used to demote every role:'primary'
+  // link to legacy_primary unconditionally, even for a stage that has no
+  // month_primary replacement at all. app.js's stagePractice() and the
+  // practice runtime both require role==='primary' to find a stage's
+  // practice, so that stage would silently lose its assigned practice -
+  // Today shows generic content and practice completion cannot start.
+  const source=backend.match(/function normalizeCanonicalMonth\(links,currentMonth\)\{[\s\S]*?\n  \}/)[0];
+  const normalizeCanonicalMonth=new Function('return '+source)();
+
+  const legacyOnly=normalizeCanonicalMonth([{stage_id:'legacy-stage',role:'primary',practice_id:'p1',sort_order:1}],5);
+  assert.equal(legacyOnly.find(link=>link.stage_id==='legacy-stage').role,'primary');
+
+  const migrated=normalizeCanonicalMonth([
+    {stage_id:'migrated-stage',role:'primary',practice_id:'old',sort_order:1},
+    {stage_id:'migrated-stage',role:'month_primary',practice_id:'new',sort_order:2,frequency_rule:{canonical_month:5}}
+  ],5);
+  assert.equal(migrated.find(link=>link.practice_id==='new').role,'primary');
+  assert.equal(migrated.find(link=>link.practice_id==='old').role,'legacy_primary');
+});
+
 test('server completion accepts only the current Core progression role',()=>{
   assert.match(completionAuthority,/sp\.role in \('month_primary','primary'\)/);
   assert.match(completionAuthority,/practice is not a Core progression practice for this stage/);

@@ -96,9 +96,10 @@
 
   function normalizeCanonicalMonth(links,currentMonth){
     const month=Number(currentMonth)||1;
+    const promotedStageIds=new Set(links.filter(link=>link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month).map(link=>link.stage_id));
     return links.map(link=>{
       if(link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month)return{...link,source_role:'month_primary',role:'primary'};
-      if(link.role==='primary')return{...link,source_role:'primary',role:'legacy_primary'};
+      if(link.role==='primary'&&promotedStageIds.has(link.stage_id))return{...link,source_role:'primary',role:'legacy_primary'};
       return link;
     }).sort((a,b)=>{
       const score=link=>link.role==='primary'?0:link.role==='month_primary'?1:link.role==='legacy_primary'?2:3;
