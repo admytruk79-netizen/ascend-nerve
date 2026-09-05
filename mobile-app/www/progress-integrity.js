@@ -127,6 +127,7 @@
       handoffToJournal();
     }catch(err){
       console.error(err);
+      // Crucially, do NOT increment local or visible practice-day progress after failed server verification.
       persistPendingAttempt(err?.message||'sync_failed');
       timerHint.textContent='Could not verify this completion. It is saved only as a pending attempt and does not count toward progression yet. Retry when connected.';
       setSync('PENDING');
