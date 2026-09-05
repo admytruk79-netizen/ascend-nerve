@@ -74,14 +74,6 @@ test('menu overlay quick-nav links are styled by the live master stylesheet, not
 });
 
 test('Today ritual chrome and onboarding use theme-reactive tokens, not the static pre-migration palette',()=>{
-  // --gold/--gold2/--teal/--muted/--ivory/--ink/--line are defined once in
-  // styles.css's :root with no per-theme override anywhere, unlike --asc-*
-  // (redefined per html[data-theme] in theme.css). A live file still
-  // consuming the legacy names renders that content stuck in one theme's
-  // colors regardless of the student's actual Day/Twilight/Night choice -
-  // e.g. .ritual-meta ("DAY 1 · 10 min") was nearly unreadable in Day
-  // theme because var(--gold2) never adapts. experience.css and
-  // living-object.css use the same static palette and have the same bug.
   for(const file of ['ritual-today.css','experience.css','living-object.css']){
     const css=read(file);
     assert.doesNotMatch(css,/var\(--(?:gold2?|teal|muted|ivory|ink2?|line)\)/,`${file} must use the theme-reactive --asc-* tokens, not the static legacy palette`);
@@ -97,8 +89,10 @@ test('Today keeps the hold portal primary while preserving an accessible non-hol
   assert.match(today,/ascend-accessible-entry/);
   assert.match(today,/COMPLETION_KEY='ascendTodayCompletionState'/);
   assert.match(today,/function sameScope\(a,b\)/);
-  assert.match(today,/date:localDate\(\),month:Number\(state\.month\)/);
+  assert.match(today,/function authority\(\).*ASCENDProgression\?\.authority/s);
+  assert.match(today,/date:auth\?\.curriculumDate\|\|curriculumDate\(\),month:Number\(auth\?\.month\|\|state\.month\)/);
   assert.match(today,/userId:activeUserId\(\)/);
+  assert.match(today,/ascend:authority/);
   assert.match(today,/ascend:practice-started/);
   assert.match(today,/Available after you complete today’s practice/);
   assert.match(css,/ritual-begin\.ascend-accessible-entry/);
