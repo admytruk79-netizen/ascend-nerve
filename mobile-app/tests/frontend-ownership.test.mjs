@@ -28,11 +28,20 @@ test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
 
 test('retired approved-screen layers are absent and Today bridge only boots the master frontend',()=>{
   const today=read('design-v3-today.js');
-  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css']){
+  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css','initiation-school.css','initiation-school-refinements.css','initiation-school-polish.css','initiation-school-focus.css']){
     assert.equal(fs.existsSync(path.join(root,retired)),false,`${retired} must stay retired`);
   }
   assert.doesNotMatch(today,/today-v3|approved-hero|initiation-school\.css|approved-screens\.js/);
   assert.match(today,/app\/bootstrap\.js/);
+});
+
+test('menu overlay quick-nav links are styled by the live master stylesheet, not a retired class gate',()=>{
+  const screens=read('styles/screens.css');
+  const html=read('index.html');
+  assert.match(html,/class="menu-link"/);
+  assert.doesNotMatch(html,/class="[^"]*\binitiation-school\b/);
+  assert.match(screens,/body\.ascend-master-ui \.menu-link\{/);
+  assert.doesNotMatch(screens,/body\.initiation-school \.menu-link/);
 });
 
 test('Library presentation is owned by the master screen module',()=>{
