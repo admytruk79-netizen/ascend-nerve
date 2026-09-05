@@ -3,7 +3,8 @@ body.ascend-master-ui #today .ritual-context{margin:8px auto 16px;max-width:38re
 body.ascend-master-ui #today #stage-title{font-size:clamp(30px,7vw,40px);margin:6px 0 8px}
 body.ascend-master-ui #today .ritual-scene{position:relative;min-height:286px;margin:0 auto}
 body.ascend-master-ui #today .ritual-portal{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;touch-action:none}
-body.ascend-master-ui #today .ritual-begin{display:none!important}
+body.ascend-master-ui #today .ritual-begin:not(.ascend-accessible-entry){display:none!important}
+body.ascend-master-ui #today .ritual-begin.ascend-accessible-entry{display:block!important}
 body.ascend-master-ui #today .journey-rail{margin-top:16px;text-align:left}
 body.ascend-master-ui #today .journal-handoff{margin-top:12px}
 body.ascend-master-ui #today .today-completion-status{margin:8px auto 14px;max-width:420px;padding:10px 13px;border:1px solid var(--asc-line-strong);border-radius:14px;background:var(--asc-surface);color:var(--asc-teal);font-size:12px;line-height:1.45;text-align:center}
