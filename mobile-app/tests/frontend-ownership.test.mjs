@@ -64,6 +64,21 @@ test('every stylesheet on disk is reachable from a real page, so an orphaned CSS
   assert.deepEqual(orphaned,[],`these CSS files are on disk but not reachable from index.html or delete-account.html: ${orphaned.join(', ')}`);
 });
 
+test('Today ritual chrome and onboarding use theme-reactive tokens, not the static pre-migration palette',()=>{
+  // --gold/--gold2/--teal/--muted/--ivory/--ink/--line are defined once in
+  // styles.css's :root with no per-theme override anywhere, unlike --asc-*
+  // (redefined per html[data-theme] in theme.css). A live file still
+  // consuming the legacy names renders that content stuck in one theme's
+  // colors regardless of the student's actual Day/Twilight/Night choice -
+  // e.g. .ritual-meta ("DAY 1 · 10 min") was nearly unreadable in Day
+  // theme because var(--gold2) never adapts. experience.css and
+  // living-object.css use the same static palette and have the same bug.
+  for(const file of ['ritual-today.css','experience.css','living-object.css']){
+    const css=read(file);
+    assert.doesNotMatch(css,/var\(--(?:gold2?|teal|muted|ivory|ink2?|line)\)/,`${file} must use the theme-reactive --asc-* tokens, not the static legacy palette`);
+  }
+});
+
 test('menu overlay quick-nav links are styled by the live master stylesheet, not a retired class gate',()=>{
   const screens=read('styles/screens.css');
   const html=read('index.html');
