@@ -25,6 +25,14 @@
     return Number.POSITIVE_INFINITY;
   }
 
+  function localDate(){
+    const now=new Date();
+    const y=now.getFullYear();
+    const m=String(now.getMonth()+1).padStart(2,'0');
+    const d=String(now.getDate()).padStart(2,'0');
+    return`${y}-${m}-${d}`;
+  }
+
   function handoffToJournal(){
     requestAnimationFrame(()=>{
       window.ASCENDUX?.activateScreen?.('journal');
@@ -55,6 +63,16 @@
       return;
     }
 
+    // Freeze the identity of the practice being completed before the RPC can
+    // advance progression and loadRemote() replaces the mutable globals.
+    const completedScope={
+      stageId:currentStage.id,
+      practiceId:currentPractice.id,
+      userId:user.id,
+      month:Number(curriculum?.currentMonth||window.ASCENDState?.month||1),
+      date:localDate()
+    };
+
     submitting=true;
     finish.disabled=true;
     finish.textContent='Saving…';
@@ -63,15 +81,15 @@
     try{
       const duration=(currentPractice.default_minutes||10)*60;
       const result=await PathBackend.completePractice({
-        stageId:currentStage.id,
-        practiceId:currentPractice.id,
+        stageId:completedScope.stageId,
+        practiceId:completedScope.practiceId,
         durationSeconds:duration
       });
 
       const days=result?.practice_days??progressRow?.practice_days??0;
       if(progressRow){
         progressRow.practice_days=days;
-        progressRow.last_practice_date=new Date().toISOString().slice(0,10);
+        progressRow.last_practice_date=result?.curriculum_date||completedScope.date;
         progressRow.status=result?.stage_status||progressRow.status;
       }
 
@@ -80,7 +98,14 @@
       document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;
       timerHint.textContent='Practice confirmed and counted toward your Path.';
 
-      if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){
+      const completionDetail={
+        ...completedScope,
+        month:Number(result?.canonical_month||completedScope.month),
+        date:result?.curriculum_date||completedScope.date,
+        practiceDays:days
+      };
+
+      if(result?.current_stage_id&&result.current_stage_id!==completedScope.stageId){
         await loadRemote();
       }else{
         requestPathPaint();
@@ -90,7 +115,7 @@
 
       window.ASCENDPracticeRuntime?.complete?.();
       window.ASCENDPracticeRuntime?.closeOverlay?.({resetTimer:true});
-      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
+      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:completionDetail}));
       handoffToJournal();
     }catch(err){
       console.error(err);
