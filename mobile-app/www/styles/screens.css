@@ -33,8 +33,8 @@ body.ascend-master-ui #journal .journal-orientation span{color:var(--asc-muted);
 body.ascend-master-ui .ascend-reflection-art{margin:12px 0 18px}
 body.ascend-master-ui .ascend-reflection-hero{position:relative;overflow:hidden;border-radius:var(--asc-radius-lg);border:1px solid var(--asc-line);background:var(--asc-surface-strong);aspect-ratio:16/9}
 body.ascend-master-ui .ascend-reflection-hero>img{width:100%;height:100%;object-fit:cover;display:block}
-body.ascend-master-ui .ascend-reflection-hero>div{position:absolute;left:0;right:0;bottom:0;padding:32px 18px 15px;background:linear-gradient(transparent,rgba(2,10,15,.92));text-align:left}
-body.ascend-master-ui .ascend-reflection-hero small,body.ascend-master-ui .ascend-reflection-hero strong{display:block}
+body.ascend-master-ui .ascend-reflection-hero>div{position:absolute;left:0;right:0;bottom:0;padding:48px 18px 16px;background:linear-gradient(rgba(2,10,15,0) 0%,rgba(2,10,15,.55) 45%,rgba(2,10,15,.94) 100%);text-align:left}
+body.ascend-master-ui .ascend-reflection-hero small,body.ascend-master-ui .ascend-reflection-hero strong{display:block;text-shadow:0 1px 4px rgba(0,0,0,.65)}
 body.ascend-master-ui .ascend-reflection-hero small{font-size:10px;letter-spacing:.18em;color:var(--asc-gold-soft)}
 body.ascend-master-ui .ascend-reflection-hero strong{margin-top:4px;font-size:18px;line-height:1.3}
 body.ascend-master-ui .ascend-reflection-choices{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 2px;scrollbar-width:none}
@@ -60,6 +60,13 @@ body.ascend-master-ui #journal-save:disabled{opacity:.65;cursor:wait}
 body.ascend-master-ui #library .library-tools{margin:16px 0}
 body.ascend-master-ui #library-recommended{margin-bottom:20px}
 body.ascend-master-ui #library .content-card{min-height:0}
+
+body.ascend-master-ui .menu-inner{max-width:420px;margin:0 auto}
+body.ascend-master-ui .menu-inner h1{margin:0 0 18px}
+body.ascend-master-ui .menu-links{display:grid;margin:0 0 22px;border-top:1px solid var(--asc-line)}
+body.ascend-master-ui .menu-link{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:0 4px;border:0;border-bottom:1px solid var(--asc-line);border-radius:0;background:transparent;color:var(--asc-text);font-size:15px;text-align:left}
+body.ascend-master-ui .menu-link:after{content:'›';color:var(--asc-gold-soft);font-size:18px}
+body.ascend-master-ui .menu-inner>.secondary{margin-top:8px}
 
 body.ascend-master-ui #me [data-role="formation"]{order:1}
 body.ascend-master-ui #me [data-role="resonance"]{order:2}

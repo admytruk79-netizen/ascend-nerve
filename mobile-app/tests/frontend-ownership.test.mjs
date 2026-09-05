@@ -28,11 +28,64 @@ test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
 
 test('retired approved-screen layers are absent and Today bridge only boots the master frontend',()=>{
   const today=read('design-v3-today.js');
-  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css']){
+  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css','initiation-school.css','initiation-school-refinements.css','initiation-school-polish.css','initiation-school-focus.css','today-web-visual.css']){
     assert.equal(fs.existsSync(path.join(root,retired)),false,`${retired} must stay retired`);
   }
   assert.doesNotMatch(today,/today-v3|approved-hero|initiation-school\.css|approved-screens\.js/);
   assert.match(today,/app\/bootstrap\.js/);
+});
+
+test('every stylesheet on disk is reachable from a real page, so an orphaned CSS file cannot silently go dead again',()=>{
+  const stripQuery=href=>href.split('?')[0];
+  const linkedFrom=(html,baseDir)=>[...html.matchAll(/<link[^>]*href="([^"]+\.css)[^"]*"/g)].map(m=>path.join(baseDir,stripQuery(m[1])));
+  const importedFrom=(cssPath,baseDir)=>{
+    if(!fs.existsSync(cssPath))return[];
+    const css=fs.readFileSync(cssPath,'utf8');
+    return[...css.matchAll(/@import\s+url\(['"]?([^'")]+\.css)[^'")]*['"]?\)/g)].map(m=>path.join(baseDir,stripQuery(m[1])));
+  };
+  const reachable=new Set();
+  const queue=[
+    ...linkedFrom(read('index.html'),root),
+    ...linkedFrom(read('delete-account.html'),root)
+  ];
+  while(queue.length){
+    const file=path.normalize(queue.pop());
+    if(reachable.has(file))continue;
+    reachable.add(file);
+    queue.push(...importedFrom(file,path.dirname(file)));
+  }
+  const onDisk=[];
+  for(const dir of ['','styles']){
+    for(const name of fs.readdirSync(path.join(root,dir))){
+      if(name.endsWith('.css'))onDisk.push(path.normalize(path.join(root,dir,name)));
+    }
+  }
+  const orphaned=onDisk.filter(file=>!reachable.has(file));
+  assert.deepEqual(orphaned,[],`these CSS files are on disk but not reachable from index.html or delete-account.html: ${orphaned.join(', ')}`);
+});
+
+test('menu overlay quick-nav links are styled by the live master stylesheet, not a retired class gate',()=>{
+  const screens=read('styles/screens.css');
+  const html=read('index.html');
+  assert.match(html,/class="menu-link"/);
+  assert.doesNotMatch(html,/class="[^"]*\binitiation-school\b/);
+  assert.match(screens,/body\.ascend-master-ui \.menu-link\{/);
+  assert.doesNotMatch(screens,/body\.initiation-school \.menu-link/);
+});
+
+test('Today ritual chrome and onboarding use theme-reactive tokens, not the static pre-migration palette',()=>{
+  // --gold/--gold2/--teal/--muted/--ivory/--ink/--line are defined once in
+  // styles.css's :root with no per-theme override anywhere, unlike --asc-*
+  // (redefined per html[data-theme] in theme.css). A live file still
+  // consuming the legacy names renders that content stuck in one theme's
+  // colors regardless of the student's actual Day/Twilight/Night choice -
+  // e.g. .ritual-meta ("DAY 1 · 10 min") was nearly unreadable in Day
+  // theme because var(--gold2) never adapts. experience.css and
+  // living-object.css use the same static palette and have the same bug.
+  for(const file of ['ritual-today.css','experience.css','living-object.css']){
+    const css=read(file);
+    assert.doesNotMatch(css,/var\(--(?:gold2?|teal|muted|ivory|ink2?|line)\)/,`${file} must use the theme-reactive --asc-* tokens, not the static legacy palette`);
+  }
 });
 
 test('Today keeps the hold portal primary while preserving an accessible non-hold fallback',()=>{
