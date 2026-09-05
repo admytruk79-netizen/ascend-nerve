@@ -15,12 +15,50 @@ const renderers={
 let activeRenderer=observationRenderer;
 let mounted=false;
 
-function currentPractice(){
+function stageRange(sortOrder){
+  const n=Math.max(1,Number(sortOrder)||1);
+  return n<=7?{start:n,end:n}:n===8?{start:8,end:18}:{start:19,end:24};
+}
+
+function elapsedCalendarMonth(startedAt){
+  const now=new Date();
+  const started=new Date(startedAt||now);
+  if(Number.isNaN(started.getTime()))return 1;
+  return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
+}
+
+function liveCanonicalMonth(curriculum,stage){
+  const progress=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
+  const active=progress.find(row=>row.stage_id===stage?.id&&(row.status==='active'||row.status==='review'))||progress.find(row=>row.stage_id===stage?.id);
+  const range=stageRange(stage?.sort_order||1);
+  if(range.start===range.end)return range.start;
+  if(active?.started_at)return Math.min(range.end,range.start+elapsedCalendarMonth(active.started_at)-1);
+  return Number(window.ASCENDState?.month||curriculum?.currentMonth||range.start);
+}
+
+function canonicalMonthLink(curriculum,stage){
+  const month=liveCanonicalMonth(curriculum,stage);
+  return curriculum?.links?.find(item=>item.stage_id===stage.id&&item.role==='month_primary'&&Number(item.frequency_rule?.canonical_month)===month)||null;
+}
+
+function resolvedPractice(){
   const curriculum=window.curriculum;
   const stage=window.currentStage;
   if(!curriculum||!stage)return null;
-  const link=curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
+  const link=canonicalMonthLink(curriculum,stage)||curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
   return link?curriculum.practices?.find(item=>item.id===link.practice_id)||null:null;
+}
+
+function syncPracticeCopy(practice){
+  if(!practice)return;
+  const minutes=Number(practice.default_minutes)||10;
+  const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value};
+  set('briefing-title',practice.title||'Practice');
+  set('briefing-intention',practice.instructions||'');
+  set('briefing-duration',`${minutes} minutes`);
+  set('briefing-begin',`Begin ${minutes}-Minute Practice`);
+  set('overlay-practice-title',practice.title||'Practice');
+  set('overlay-practice-instructions',practice.instructions||'');
 }
 
 function requestedRenderer(practice){
@@ -28,13 +66,13 @@ function requestedRenderer(practice){
   return typeof value==='string'?value.trim().toLowerCase():'';
 }
 
-function selectRenderer(practice=currentPractice()){
+function selectRenderer(practice=resolvedPractice()){
   activeRenderer=renderers[requestedRenderer(practice)]||observationRenderer;
   return activeRenderer;
 }
 
 function context(){
-  const practice=currentPractice();
+  const practice=resolvedPractice();
   return {
     practice,
     stage:window.currentStage||null,
@@ -44,7 +82,9 @@ function context(){
 }
 
 function prepare(){
-  const renderer=selectRenderer();
+  const practice=resolvedPractice();
+  syncPracticeCopy(practice);
+  const renderer=selectRenderer(practice);
   renderer.prepare(context());
   document.documentElement.dataset.practiceRenderer=renderer.name;
   return renderer;
@@ -73,8 +113,11 @@ function beginOverlay(){
   const briefing=document.getElementById('practice-briefing');
   const overlay=document.getElementById('practice-overlay');
   if(!overlay)return false;
+  const practice=resolvedPractice();
+  syncPracticeCopy(practice);
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:practice?.id||null,stageId:window.currentStage?.id||null}}));
   start();
   return true;
 }
@@ -132,6 +175,7 @@ export function initPracticeRuntime(){
     prepare,start,pause,resume,complete,exit,
     openBriefing,beginOverlay,closeBriefing,closeOverlay,
     current:()=>activeRenderer,
+    practice:()=>resolvedPractice(),
     selectRenderer
   };
 }

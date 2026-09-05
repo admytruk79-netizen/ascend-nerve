@@ -71,10 +71,10 @@
 
   /*
    * Curriculum authority rule:
-   * path_stage_practices is the server-side source of truth for which practice
-   * belongs to the active stage. The client must never substitute a legacy
-   * month-to-practice table (Star Energy, Green Sphere, etc.) over those links.
-   * Month labels are presentation/progression context only.
+   * path_stage_practices is the server-side source of truth. Database role
+   * month_primary owns the exact canonical month. The client exposes only the
+   * currently resolved month_primary as virtual role=primary so legacy code
+   * cannot accidentally choose an earlier/later month or a stage fallback.
    */
   const stageRange=sortOrder=>{const n=Math.max(1,Number(sortOrder)||1);return n<=7?{start:n,end:n}:n===8?{start:8,end:18}:{start:19,end:24}};
   const elapsedMonth=(startedAt)=>{const now=new Date(),started=new Date(startedAt||now);if(Number.isNaN(started.getTime()))return 1;return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1)};
@@ -94,6 +94,19 @@
     }catch(error){console.warn('ASCEND month resolution fell back to Month 1',error);return 1}
   }
 
+  function normalizeCanonicalMonth(links,currentMonth){
+    const month=Number(currentMonth)||1;
+    const promotedStageIds=new Set(links.filter(link=>link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month).map(link=>link.stage_id));
+    return links.map(link=>{
+      if(link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month)return{...link,source_role:'month_primary',role:'primary'};
+      if(link.role==='primary'&&promotedStageIds.has(link.stage_id))return{...link,source_role:'primary',role:'legacy_primary'};
+      return link;
+    }).sort((a,b)=>{
+      const score=link=>link.role==='primary'?0:link.role==='month_primary'?1:link.role==='legacy_primary'?2:3;
+      return score(a)-score(b)||(Number(a.sort_order)||0)-(Number(b.sort_order)||0);
+    });
+  }
+
   async function loadCurriculum(){
     const [phases,stages,practices,links,markers,content,contentRules]=await Promise.all([
       rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
@@ -105,7 +118,8 @@
       rest('path_content_unlock_rules',{query:'select=*'})
     ]);
     const currentMonth=await resolveCurriculumMonth(stages);
-    return{phases,stages,practices,links,markers,content,contentRules,currentMonth};
+    const normalizedLinks=normalizeCanonicalMonth(links,currentMonth);
+    return{phases,stages,practices,links:normalizedLinks,markers,content,contentRules,currentMonth};
   }
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}

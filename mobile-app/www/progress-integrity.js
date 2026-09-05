@@ -5,12 +5,15 @@
 
   let submitting=false;
 
+  function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
+
   function persistPendingAttempt(reason){
     try{
       if(!Array.isArray(localState.pendingPractices)) localState.pendingPractices=[];
+      const practice=activePractice();
       localState.pendingPractices.push({
         stage_id:currentStage?.id||null,
-        practice_id:currentPractice?.id||null,
+        practice_id:practice?.id||null,
         attempted_at:new Date().toISOString(),
         reason:String(reason||'sync_failed')
       });
@@ -23,6 +26,14 @@
   function timerRemaining(){
     if(window.ASCENDPracticeTimer?.remainingSeconds)return window.ASCENDPracticeTimer.remainingSeconds();
     return Number.POSITIVE_INFINITY;
+  }
+
+  function localDate(){
+    const now=new Date();
+    const y=now.getFullYear();
+    const m=String(now.getMonth()+1).padStart(2,'0');
+    const d=String(now.getDate()).padStart(2,'0');
+    return`${y}-${m}-${d}`;
   }
 
   function handoffToJournal(){
@@ -49,11 +60,22 @@
       return;
     }
 
-    if(!user||!currentStage||!currentPractice){
+    const practice=activePractice();
+    if(!user||!currentStage||!practice){
       timerHint.textContent='Sign in to record official Path progress. This session has not advanced your stage.';
       setSync('LOCAL');
       return;
     }
+
+    // Freeze the identity of the practice being completed before the RPC can
+    // advance progression and loadRemote() replaces the mutable globals.
+    const completedScope={
+      stageId:currentStage.id,
+      practiceId:practice.id,
+      userId:user.id,
+      month:Number(practice?.frequency_rule?.canonical_month||window.ASCENDState?.month||curriculum?.currentMonth||1),
+      date:localDate()
+    };
 
     submitting=true;
     finish.disabled=true;
@@ -61,17 +83,17 @@
     setSync('SYNCING…');
 
     try{
-      const duration=(currentPractice.default_minutes||10)*60;
+      const duration=(practice.default_minutes||10)*60;
       const result=await PathBackend.completePractice({
-        stageId:currentStage.id,
-        practiceId:currentPractice.id,
+        stageId:completedScope.stageId,
+        practiceId:completedScope.practiceId,
         durationSeconds:duration
       });
 
       const days=result?.practice_days??progressRow?.practice_days??0;
       if(progressRow){
         progressRow.practice_days=days;
-        progressRow.last_practice_date=new Date().toISOString().slice(0,10);
+        progressRow.last_practice_date=result?.curriculum_date||completedScope.date;
         progressRow.status=result?.stage_status||progressRow.status;
       }
 
@@ -80,7 +102,14 @@
       document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;
       timerHint.textContent='Practice confirmed and counted toward your Path.';
 
-      if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){
+      const completionDetail={
+        ...completedScope,
+        month:Number(result?.canonical_month||completedScope.month),
+        date:result?.curriculum_date||completedScope.date,
+        practiceDays:days
+      };
+
+      if(result?.current_stage_id&&result.current_stage_id!==completedScope.stageId){
         await loadRemote();
       }else{
         requestPathPaint();
@@ -90,7 +119,7 @@
 
       window.ASCENDPracticeRuntime?.complete?.();
       window.ASCENDPracticeRuntime?.closeOverlay?.({resetTimer:true});
-      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
+      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:completionDetail}));
       handoffToJournal();
     }catch(err){
       console.error(err);
