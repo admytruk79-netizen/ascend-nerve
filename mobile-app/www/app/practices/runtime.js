@@ -80,6 +80,7 @@ function beginOverlay(){
   if(!overlay)return false;
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:currentPractice()?.id||null,stageId:window.currentStage?.id||null}}));
   start();
   return true;
 }
