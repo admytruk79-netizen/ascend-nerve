@@ -48,6 +48,7 @@ test('Today and practice runtime resolve only the current canonical month',()=>{
   assert.match(backend,/source_role:'primary',role:'legacy_primary'/);
   assert.match(backend,/links:normalizedLinks/);
   assert.match(runtime,/item\.role==='month_primary'&&Number\(item\.frequency_rule\?\.canonical_month\)===month/);
+  assert.match(runtime,/ASCENDProgression\?\.authority/);
 });
 
 test('normalizeCanonicalMonth keeps a legacy-only stage\'s primary link usable during partial migration',()=>{
@@ -73,13 +74,16 @@ test('server completion accepts only the current Core progression role',()=>{
   assert.doesNotMatch(completionAuthority,/sp\.role in \([^\)]*supporting/);
 });
 
-test('server and client use the same calendar-month boundary definition',()=>{
+test('server and client use the same profile-timezone calendar boundary contract',()=>{
   assert.match(completionAuthority,/v_today:=\(now\(\) at time zone v_timezone\)::date/);
   assert.match(completionAuthority,/extract\(year from v_today\).*extract\(year from \(v_progress\.started_at at time zone v_timezone\)::date\)/s);
   assert.match(completionAuthority,/extract\(month from v_today\).*extract\(month from \(v_progress\.started_at at time zone v_timezone\)::date\)/s);
   assert.doesNotMatch(completionAuthority,/age\(current_date/);
-  assert.match(progression,/now\.getFullYear\(\)-started\.getFullYear\(\)/);
-  assert.match(progression,/now\.getMonth\(\)-started\.getMonth\(\)/);
+  assert.match(progression,/select=path_started_at,current_stage_id,timezone/);
+  assert.match(progression,/timeZone:validTimezone\(timezone\)/);
+  assert.match(progression,/const started=zonedDateParts\(startedAt\|\|now,timezone\)/);
+  assert.match(progression,/const current=zonedDateParts\(now,timezone\)/);
+  assert.match(progression,/curriculumDate:curriculumDate\(new Date\(\),timezone\)/);
 });
 
 test('Resonance resolves related practice using month_primary instead of maybeSingle primary',()=>{
