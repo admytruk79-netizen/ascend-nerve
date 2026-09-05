@@ -42,7 +42,10 @@ test('Today keeps the hold portal primary while preserving an accessible non-hol
   assert.match(today,/Press and hold for two seconds to open the briefing/);
   assert.match(today,/Can’t hold\? Open briefing/);
   assert.match(today,/ascend-accessible-entry/);
-  assert.match(today,/PRACTICE_COMPLETE_KEY/);
+  assert.match(today,/COMPLETION_KEY='ascendTodayCompletionState'/);
+  assert.match(today,/function sameScope\(a,b\)/);
+  assert.match(today,/date:localDate\(\),month:Number\(state\.month\)/);
+  assert.match(today,/userId:activeUserId\(\)/);
   assert.match(today,/ascend:practice-started/);
   assert.match(today,/Available after you complete today’s practice/);
   assert.match(css,/ritual-begin\.ascend-accessible-entry/);
