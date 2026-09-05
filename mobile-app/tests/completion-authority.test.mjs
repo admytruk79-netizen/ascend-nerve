@@ -12,10 +12,13 @@ test('Core completion only accepts primary progression roles',()=>{
   assert.match(sql,/practice is not a Core progression practice for this stage/);
 });
 
-test('calendar-month authority ignores day-of-month boundaries',()=>{
+test('calendar-month authority ignores day-of-month boundaries in the student timezone',()=>{
   assert.doesNotMatch(sql,/age\(current_date/);
-  assert.match(sql,/extract\(year from current_date\)/);
-  assert.match(sql,/extract\(month from current_date\)/);
+  assert.match(sql,/select coalesce\(nullif\(timezone,''\),'UTC'\) into v_timezone/);
+  assert.match(sql,/v_today:=\(now\(\) at time zone v_timezone\)::date/);
+  assert.match(sql,/extract\(year from v_today\)/);
+  assert.match(sql,/extract\(month from v_today\)/);
+  assert.match(sql,/v_progress\.started_at at time zone v_timezone/);
   const calendarMonth=(started,now)=>Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
   assert.equal(calendarMonth(new Date(2026,0,31),new Date(2026,1,1)),2);
   assert.equal(calendarMonth(new Date(2024,0,30),new Date(2024,1,1)),2);
