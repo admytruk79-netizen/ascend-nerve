@@ -9,8 +9,8 @@ const fixtures={
     {id:'stage-1',phase_id:'phase-1',slug:'entry-seven-days',title:'Self-Contemplation at the Beginning of the Path',subtitle:'Beginning',sort_order:1,required_practice_days:7,progression_mode:'readiness',objective:'Observe without forcing interpretation.',is_published:true},
     {id:'stage-2',phase_id:'phase-1',slug:'clarity',title:'Clarity of Thought',subtitle:'Clarity',sort_order:2,required_practice_days:14,progression_mode:'readiness',objective:'Develop clarity.',is_published:true}
   ],
-  path_practices:[{id:'practice-1',slug:'entry-self-contemplation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',metadata:{},is_published:true}],
-  path_stage_practices:[{stage_id:'stage-1',practice_id:'practice-1',role:'primary'}],
+  path_practices:[{id:'practice-1',slug:'core-m01-observation-foundation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',metadata:{month:1,canonical_month:true,school_scale:true},is_published:true}],
+  path_stage_practices:[{stage_id:'stage-1',practice_id:'practice-1',role:'month_primary',frequency_rule:{canonical_month:1},sort_order:101}],
   path_profiles:[{user_id:'00000000-0000-0000-0000-000000000001',display_name:'Integrity',current_stage_id:'stage-1',path_started_at:'2026-08-27T00:00:00Z',onboarding_completed_at:'2026-08-27T00:00:00Z'}],
   path_student_progress:[{id:'progress-1',user_id:'00000000-0000-0000-0000-000000000001',stage_id:'stage-1',status:'active',practice_days:0,started_at:'2026-08-27T00:00:00Z'}],
   path_attainment_markers:[],
@@ -27,12 +27,7 @@ const testUser={id:'00000000-0000-0000-0000-000000000001',email:'integrity@ascen
 
 async function boot(page){
   await page.addInitScript(()=>{
-    localStorage.setItem('ascendPathSession',JSON.stringify({
-      access_token:'test-access-token',
-      refresh_token:'test-refresh-token',
-      expires_in:3600,
-      token_type:'bearer'
-    }));
+    localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'test-access-token',refresh_token:'test-refresh-token',expires_in:3600,token_type:'bearer'}));
   });
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',async route=>{
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)});
@@ -56,7 +51,7 @@ test('empty Journal never persists and meaningful Journal persists remotely when
   await boot(page);
   await page.getByRole('button',{name:'Journal',exact:true}).click();
   await page.getByRole('button',{name:'Save Reflection'}).click();
-  await expect(page.locator('#journal-status')).toContainText('at least one observation');
+  await expect(page.locator('#journal-status')).toContainText('Begin with one observation');
   const count=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
   expect(count).toBe(0);
 
@@ -67,18 +62,39 @@ test('empty Journal never persists and meaningful Journal persists remotely when
   const payload=request.postDataJSON();
   expect(payload.life_application).toBe('Paused before responding.');
   expect(payload.user_id).toBe(testUser.id);
-  await expect(page.locator('#journal-status')).toContainText('saved privately to your ASCEND Path journal');
+  await expect(page.locator('#journal-status')).toContainText('saved and synced to your private Journal');
   const localEntries=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries);
   expect(localEntries).toHaveLength(0);
 });
 
-test('formal practice briefing uses the server-linked primary practice',async({page})=>{
+test('formal practice briefing uses the server-linked current-month practice',async({page})=>{
   await boot(page);
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await expect(page.locator('#briefing-title')).toHaveText('Self-Contemplation');
   await expect(page.locator('#briefing-intention')).toHaveText('Observe thought without following it.');
   await expect(page.locator('#briefing-duration')).toHaveText('10 minutes');
+});
+
+test('accessible non-hold Today entry is visible and opens only the briefing',async({page})=>{
+  await boot(page);
+  const fallback=page.getByRole('button',{name:/Open the practice briefing.*without using press and hold/i});
+  await expect(fallback).toBeVisible();
+  expect(await fallback.evaluate(node=>getComputedStyle(node).display)).not.toBe('none');
+  await fallback.click();
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+});
+
+test('standalone Journal save does not unlock the post-practice handoff',async({page})=>{
+  await boot(page);
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.locator('textarea[name="life_application"]').fill('A standalone observation from ordinary life.');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('saved and synced to your private Journal');
+  await page.waitForFunction(()=>document.getElementById('today')?.classList.contains('active'));
+  await expect(page.locator('#today-reflect')).not.toHaveClass(/is-ready/);
+  await expect(page.locator('#today-reflect')).toHaveAttribute('data-practice-complete','false');
 });
 
 test('Library recommendations never surface locked future material and cards work from keyboard',async({page})=>{
@@ -110,22 +126,19 @@ test('a local Journal fallback save survives a later failed practice completion'
   const afterJournal=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
   expect(afterJournal).toBe(1);
 
-  // A second, unrelated writer (a failed practice completion) re-serializes
-  // the whole ascendPathState object. It must not clobber the entry the
-  // Journal fallback just wrote.
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_record_practice_completion',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
-  // Drive the overlay/timer state directly instead of clicking "Begin
-  // 10-Minute Practice" - that click also fires practice-timer-authority.js's
-  // own rAF-deferred reset() on the same briefing-begin button, which can
-  // land after this setup and strip the 'ready' class it depends on.
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
   await page.evaluate(()=>{
     document.getElementById('practice-briefing').classList.add('hidden');
     document.getElementById('practice-overlay').classList.remove('hidden');
     window.ASCENDPracticeTimer.remainingSeconds=()=>0;
-    document.getElementById('finish-practice').classList.add('ready');
+    const finish=document.getElementById('finish-practice');
+    finish.classList.add('ready');
+    finish.disabled=false;
+    finish.setAttribute('aria-disabled','false');
+    finish.textContent='Finish Practice';
   });
-  await page.getByRole('button',{name:'Finish Practice'}).click();
+  await page.getByRole('button',{name:'Finish Practice',exact:true}).click();
   await expect(page.locator('#timer-hint')).toContainText('does not count toward progression yet');
 
   const afterFailedPractice=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
@@ -137,8 +150,9 @@ test('Finish Practice cannot advance before the timer completes',async({page})=>
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
   await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
   await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
-  await page.getByRole('button',{name:'Finish Practice'}).click();
-  await expect(page.locator('#timer-hint')).toContainText('Complete the full practice timer');
+  const finish=page.locator('#finish-practice');
+  await expect(finish).toBeDisabled();
+  await expect(finish).not.toHaveClass(/ready/);
   const days=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"practiceDays":0}').practiceDays||0);
   expect(days).toBe(0);
   await expect(page.locator('#primary-check')).not.toBeChecked();
