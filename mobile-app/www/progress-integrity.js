@@ -6,15 +6,20 @@
   let submitting=false;
 
   function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
+  function authority(){return window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||null}
 
   function persistPendingAttempt(reason){
     try{
       if(!Array.isArray(localState.pendingPractices)) localState.pendingPractices=[];
       const practice=activePractice();
+      const auth=authority();
       localState.pendingPractices.push({
         stage_id:currentStage?.id||null,
         practice_id:practice?.id||null,
         attempted_at:new Date().toISOString(),
+        curriculum_date:auth?.curriculumDate||null,
+        canonical_month:Number(auth?.month)||null,
+        timezone:auth?.timezone||null,
         reason:String(reason||'sync_failed')
       });
       localStorage.setItem('ascendPathState',JSON.stringify(localState));
@@ -28,14 +33,6 @@
     return Number.POSITIVE_INFINITY;
   }
 
-  function localDate(){
-    const now=new Date();
-    const y=now.getFullYear();
-    const m=String(now.getMonth()+1).padStart(2,'0');
-    const d=String(now.getDate()).padStart(2,'0');
-    return`${y}-${m}-${d}`;
-  }
-
   function handoffToJournal(){
     requestAnimationFrame(()=>{
       window.ASCENDUX?.activateScreen?.('journal');
@@ -46,8 +43,6 @@
   }
 
   finish.addEventListener('click',async e=>{
-    // Capture the click before the legacy completion handler so only this
-    // integrity-safe path is allowed to mutate progression UI state.
     e.preventDefault();
     e.stopImmediatePropagation();
 
@@ -67,14 +62,14 @@
       return;
     }
 
-    // Freeze the identity of the practice being completed before the RPC can
-    // advance progression and loadRemote() replaces the mutable globals.
+    const auth=authority();
     const completedScope={
       stageId:currentStage.id,
       practiceId:practice.id,
       userId:user.id,
-      month:Number(practice?.frequency_rule?.canonical_month||window.ASCENDState?.month||curriculum?.currentMonth||1),
-      date:localDate()
+      month:Number(window.ASCENDPracticeRuntime?.canonicalMonth?.()||auth?.month||window.ASCENDState?.month||curriculum?.currentMonth||1),
+      date:auth?.curriculumDate||null,
+      timezone:auth?.timezone||null
     };
 
     submitting=true;
@@ -106,8 +101,16 @@
         ...completedScope,
         month:Number(result?.canonical_month||completedScope.month),
         date:result?.curriculum_date||completedScope.date,
+        timezone:result?.timezone||completedScope.timezone,
         practiceDays:days
       };
+      window.ASCENDAuthority={
+        ...(window.ASCENDAuthority||{}),
+        month:completionDetail.month,
+        curriculumDate:completionDetail.date,
+        timezone:completionDetail.timezone
+      };
+      window.ASCENDProgression?.invalidate?.();
 
       if(result?.current_stage_id&&result.current_stage_id!==completedScope.stageId){
         await loadRemote();
@@ -119,11 +122,11 @@
 
       window.ASCENDPracticeRuntime?.complete?.();
       window.ASCENDPracticeRuntime?.closeOverlay?.({resetTimer:true});
+      document.dispatchEvent(new CustomEvent('ascend:authority',{detail:window.ASCENDAuthority}));
       document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:completionDetail}));
       handoffToJournal();
     }catch(err){
       console.error(err);
-      // Crucially, do NOT increment local or visible practice-day progress.
       persistPendingAttempt(err?.message||'sync_failed');
       timerHint.textContent='Could not verify this completion. It is saved only as a pending attempt and does not count toward progression yet. Retry when connected.';
       setSync('PENDING');
