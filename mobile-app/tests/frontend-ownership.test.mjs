@@ -38,22 +38,29 @@ test('retired approved-screen layers are absent and Today bridge only boots the 
 test('Today keeps the hold portal primary while preserving an accessible non-hold fallback',()=>{
   const today=read('app/screens/today.js');
   const css=read('ritual-today.css');
+  const screens=read('styles/screens.css');
   assert.match(today,/Press and hold for two seconds to open the briefing/);
   assert.match(today,/Can’t hold\? Open briefing/);
   assert.match(today,/ascend-accessible-entry/);
-  assert.match(today,/setReflectionReady\(true\)/);
+  assert.match(today,/PRACTICE_COMPLETE_KEY/);
+  assert.match(today,/ascend:practice-started/);
   assert.match(today,/Available after you complete today’s practice/);
   assert.match(css,/ritual-begin\.ascend-accessible-entry/);
+  assert.match(screens,/ritual-begin:not\(\.ascend-accessible-entry\)\{display:none!important\}/);
+  assert.match(screens,/ritual-begin\.ascend-accessible-entry\{display:block!important\}/);
   assert.match(css,/journal-handoff\.is-ready/);
 });
 
-test('Path orients the student before exposing the wider school map',()=>{
+test('Path orients the student before exposing the wider school map and preserves last confirmed position',()=>{
   const pathScreen=read('app/screens/path.js');
   const css=read('styles/screens.css');
   assert.match(pathScreen,/data-path-orientation/);
   assert.match(pathScreen,/CURRENT FORMATION/);
   assert.match(pathScreen,/Phase \$\{phase\} · Month \$\{month\} of 24/);
   assert.match(pathScreen,/Continue · \$\{item\.title\}/);
+  assert.match(pathScreen,/let lastConfirmedContext=null/);
+  assert.match(pathScreen,/if\(lastConfirmedContext\)\{paintOrientation\(card,lastConfirmedContext\);return\}/);
+  assert.match(pathScreen,/ascend:month',event=>renderOrientation\(screen,event\.detail\|\|null\)/);
   assert.match(pathScreen,/Practice Branches/);
   assert.match(pathScreen,/does not advance Core Formation/);
   assert.match(css,/path-orientation/);
