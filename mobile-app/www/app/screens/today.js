@@ -7,13 +7,8 @@ function monthItem(month){
   return PathEngine.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
 }
 
-function localDate(){
-  const now=new Date();
-  const y=now.getFullYear();
-  const m=String(now.getMonth()+1).padStart(2,'0');
-  const d=String(now.getDate()).padStart(2,'0');
-  return`${y}-${m}-${d}`;
-}
+function authority(){return window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||null}
+function curriculumDate(){return authority()?.curriculumDate||new Date().toISOString().slice(0,10)}
 
 function activeUserId(){
   const rows=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
@@ -22,13 +17,15 @@ function activeUserId(){
 }
 
 function currentScope(){
-  return{date:localDate(),month:Number(state.month)||1,stageId:window.currentStage?.id||null,userId:activeUserId()};
+  const auth=authority();
+  return{date:auth?.curriculumDate||curriculumDate(),month:Number(auth?.month||state.month)||1,stageId:window.currentStage?.id||null,userId:activeUserId()};
 }
 
 function completionScope(detail={}){
+  const auth=authority();
   return{
-    date:detail.date||localDate(),
-    month:Number(detail.month)||1,
+    date:detail.date||auth?.curriculumDate||curriculumDate(),
+    month:Number(detail.month||auth?.month||state.month)||1,
     stageId:detail.stageId||null,
     userId:detail.userId||null
   };
@@ -93,7 +90,8 @@ function restoreCompletion(){
 }
 
 export function renderToday(detail={}){
-  const month=Math.max(1,Math.min(24,Number(detail.month)||1));
+  const auth=authority();
+  const month=Math.max(1,Math.min(24,Number(detail.month||auth?.month||state.month)||1));
   const item=monthItem(month);
   setMonth(month);
   const title=document.getElementById('stage-title');
@@ -119,8 +117,9 @@ export function initToday(){
   PathEngine.current().then(context=>{
     if(context&&Number.isFinite(Number(context.month)))renderToday({month:context.month});
   }).catch(()=>{});
-  document.addEventListener('ascend:curriculum',()=>renderToday({month:state.month}));
+  document.addEventListener('ascend:curriculum',()=>renderToday({month:authority()?.month||state.month}));
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
+  document.addEventListener('ascend:authority',event=>renderToday({month:event.detail?.month||authority()?.month||state.month}));
   document.addEventListener('ascend:practice-timer-complete',()=>announce('✓ Timer complete — finish the practice to record this step.'));
   document.addEventListener('ascend:practice-completed',event=>{
     const scope=completionScope(event.detail||{});
