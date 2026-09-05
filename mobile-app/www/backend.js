@@ -132,7 +132,31 @@
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}
   async function completePractice({stageId,practiceId,durationSeconds}){return rpc('path_record_practice_completion',{p_stage_id:stageId,p_practice_id:practiceId,p_duration_seconds:durationSeconds})}
   async function recordTrainingAssignment(assignmentId,status='practiced'){return rpc('path_record_training_assignment',{p_assignment_id:assignmentId,p_status:status})}
-  async function saveJournal(userId,stageId,entry){const entryDate=window.ASCENDAuthority?.curriculumDate||new Date().toISOString().slice(0,10);return rest('path_journal_entries',{method:'POST',body:{user_id:userId,stage_id:stageId,entry_date:entryDate,observation:entry.observation||null,inner_state:entry.inner_state||null,life_application:entry.life_application||null,interpretation:entry.interpretation||null,unresolved:entry.unresolved||null,share_with_teacher:!!entry.share_with_teacher},prefer:'return=representation'})}
+  async function saveJournal(userId,stageId,entry={}){
+    let entryDate=window.ASCENDAuthority?.curriculumDate||null;
+    if(!entryDate){
+      try{
+        const profiles=await rest('path_profiles',{query:`user_id=eq.${userId}&select=timezone&limit=1`});
+        const timezone=validTimezone(profiles[0]?.timezone||'UTC');
+        entryDate=curriculumDate(new Date(),timezone);
+        window.ASCENDAuthority={...(window.ASCENDAuthority||{}),timezone,curriculumDate:entryDate};
+      }catch{
+        entryDate=curriculumDate(new Date(),'UTC');
+      }
+    }
+    return rest('path_journal_entries',{method:'POST',body:{
+      user_id:userId,
+      stage_id:stageId,
+      entry_date:entryDate,
+      observation:entry.observation||null,
+      inner_state:entry.inner_state||null,
+      life_application:entry.life_application||null,
+      interpretation:entry.interpretation||null,
+      unresolved:entry.unresolved||null,
+      share_with_teacher:!!entry.share_with_teacher,
+      context:entry.context&&typeof entry.context==='object'?entry.context:{}
+    },prefer:'return=representation'})
+  }
   async function getMarkerObservations(userId,stageId){return rest('path_student_marker_observations',{query:`user_id=eq.${userId}&stage_id=eq.${stageId}&select=*`})}
   async function saveMarkerObservation(userId,stageId,markerId,state,reflection=''){return rest('path_student_marker_observations',{method:'POST',body:{user_id:userId,stage_id:stageId,marker_id:markerId,state,reflection:reflection||null,observed_at:new Date().toISOString()},prefer:'resolution=merge-duplicates,return=minimal'})}
   async function submitReadinessReview(stageId){return rpc('path_submit_readiness_review',{p_stage_id:stageId})}
