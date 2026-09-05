@@ -34,9 +34,9 @@ begin
 
   select * into v_progress
   from public.path_student_progress
-  where user_id=v_user and stage_id=p_stage_id and status='active'
+  where user_id=v_user and stage_id=p_stage_id and status in ('active','review')
   for update;
-  if not found then raise exception 'stage is not active for this student'; end if;
+  if not found then raise exception 'stage is not active or in review for this student'; end if;
 
   select * into v_stage
   from public.path_stages
@@ -111,7 +111,7 @@ begin
     user_id,stage_id,practice_id,started_at,completed_at,duration_seconds,completion_status,metadata
   ) values(
     v_user,p_stage_id,p_practice_id,now()-make_interval(secs=>p_duration_seconds),now(),p_duration_seconds,'completed',
-    jsonb_build_object('source','mobile','duration_validated',true,'minimum_seconds',v_min_seconds,'canonical_month',v_current_month,'progression_role',v_role)
+    jsonb_build_object('source','mobile','duration_validated',true,'minimum_seconds',v_min_seconds,'canonical_month',v_current_month,'progression_role',v_role,'stage_status_at_completion',v_progress.status)
   );
 
   v_days:=v_progress.practice_days;
@@ -122,7 +122,10 @@ begin
      where id=v_progress.id;
   end if;
 
-  if v_stage.progression_mode='time'
+  -- Review-mode students keep practicing and recording, but this RPC never
+  -- bypasses the pending review by advancing a reviewed stage automatically.
+  if v_progress.status='active'
+     and v_stage.progression_mode='time'
      and v_days>=v_stage.required_practice_days
      and (current_date-v_progress.started_at::date+1)>=v_stage.minimum_days then
     update public.path_student_progress
