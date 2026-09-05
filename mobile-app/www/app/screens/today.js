@@ -1,11 +1,39 @@
 import {state,setMonth} from '../state.js';
 import {PathEngine} from '../curriculum/path-engine.js';
 
-const PRACTICE_COMPLETE_KEY='ascendTodayPracticeComplete';
+const COMPLETION_KEY='ascendTodayCompletionState';
 
 function monthItem(month){
   return PathEngine.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
 }
+
+function localDate(){
+  const now=new Date();
+  const y=now.getFullYear();
+  const m=String(now.getMonth()+1).padStart(2,'0');
+  const d=String(now.getDate()).padStart(2,'0');
+  return`${y}-${m}-${d}`;
+}
+
+function activeUserId(){
+  const rows=Array.isArray(window.__pathProgress)?window.__pathProgress:[];
+  const active=rows.find(row=>row.status==='active'||row.status==='review')||rows[rows.length-1];
+  return active?.user_id||null;
+}
+
+function currentScope(){
+  return{date:localDate(),month:Number(state.month)||1,stageId:window.currentStage?.id||null,userId:activeUserId()};
+}
+
+function sameScope(a,b){
+  return!!a&&!!b&&a.date===b.date&&Number(a.month)===Number(b.month)&&a.stageId===b.stageId&&a.userId===b.userId;
+}
+
+function readCompletion(){
+  try{const value=JSON.parse(sessionStorage.getItem(COMPLETION_KEY)||'null');return value&&typeof value==='object'?value:null}catch{return null}
+}
+function writeCompletion(value){if(value)sessionStorage.setItem(COMPLETION_KEY,JSON.stringify(value));else sessionStorage.removeItem(COMPLETION_KEY)}
+function scopedCompletion(){const stored=readCompletion();return sameScope(stored?.scope,currentScope())?stored:null}
 
 function completionStatus(){
   let node=document.getElementById('today-completion-status');
@@ -22,8 +50,7 @@ function completionStatus(){
 }
 
 function reflectionHandoff(){return document.getElementById('today-reflect')}
-function practiceComplete(){return sessionStorage.getItem(PRACTICE_COMPLETE_KEY)==='true'}
-function setPracticeComplete(value){if(value)sessionStorage.setItem(PRACTICE_COMPLETE_KEY,'true');else sessionStorage.removeItem(PRACTICE_COMPLETE_KEY)}
+function practiceComplete(){return scopedCompletion()?.practiceComplete===true}
 
 function setReflectionReady(ready){
   const handoff=reflectionHandoff();
@@ -41,12 +68,17 @@ function announce(message,{persist=false,practiceComplete:completed=false}={}){
   node.textContent=message;
   node.classList.remove('hidden');
   if(completed)setReflectionReady(true);
-  if(persist)sessionStorage.setItem('ascendTodayCompletion',message);
+  if(persist)writeCompletion({scope:currentScope(),message,practiceComplete:completed});
 }
 
-function clearTransientCompletion(){
-  const stored=sessionStorage.getItem('ascendTodayCompletion');
-  if(stored)announce(stored,{practiceComplete:practiceComplete()});
+function restoreCompletion(){
+  const stored=scopedCompletion();
+  if(!stored){
+    const stale=readCompletion();if(stale)writeCompletion(null);
+    setReflectionReady(false);
+    return;
+  }
+  announce(stored.message||'Practice completed.',{practiceComplete:stored.practiceComplete===true});
 }
 
 export function renderToday(detail={}){
@@ -68,8 +100,7 @@ export function renderToday(detail={}){
     begin.classList.add('ascend-accessible-entry');
     begin.setAttribute('aria-label',`Open the practice briefing for ${item.title||'practice'} without using press and hold`);
   }
-  setReflectionReady(practiceComplete());
-  clearTransientCompletion();
+  restoreCompletion();
 }
 
 export function initToday(){
@@ -81,7 +112,6 @@ export function initToday(){
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
   document.addEventListener('ascend:practice-timer-complete',()=>announce('✓ Timer complete — finish the practice to record this step.'));
   document.addEventListener('ascend:practice-completed',()=>{
-    setPracticeComplete(true);
     announce('✓ Practice completed and recorded. Add your reflection to finish today’s cycle.',{persist:true,practiceComplete:true});
   });
   document.addEventListener('ascend:journal-saved',event=>{
@@ -90,11 +120,11 @@ export function initToday(){
     announce(event.detail?.remote===false?'✓ Reflection saved on this device.':'✓ Reflection saved to your Journal.',{persist:true,practiceComplete:completed});
   });
   document.addEventListener('ascend:screen',event=>{
-    if(event.detail?.screen==='today')clearTransientCompletion();
+    if(event.detail?.screen==='today')restoreCompletion();
   });
   document.addEventListener('ascend:practice-started',()=>{
-    setPracticeComplete(false);
-    sessionStorage.removeItem('ascendTodayCompletion');
+    writeCompletion(null);
     setReflectionReady(false);
+    const node=completionStatus();if(node){node.textContent='';node.classList.add('hidden')}
   });
 }
