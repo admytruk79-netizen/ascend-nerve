@@ -6,11 +6,14 @@ const branches=fs.readFileSync(new URL('../www/branches.js',import.meta.url),'ut
 const progression=fs.readFileSync(new URL('../www/path-progression.js',import.meta.url),'utf8');
 const journal=fs.readFileSync(new URL('../www/app/screens/journal.js',import.meta.url),'utf8');
 const backend=fs.readFileSync(new URL('../www/backend.js',import.meta.url),'utf8');
+const runtime=fs.readFileSync(new URL('../www/app/practices/runtime.js',import.meta.url),'utf8');
 const backendAdapter=fs.readFileSync(new URL('../www/app/data/backend-adapter.js',import.meta.url),'utf8');
 const library=fs.readFileSync(new URL('../www/app/screens/library.js',import.meta.url),'utf8');
 const master=fs.readFileSync(new URL('../../docs/ASCEND_MASTER_SYSTEM_DOCUMENT.md',import.meta.url),'utf8');
 const phaseIIGate=fs.readFileSync(new URL('../../supabase/pending_migrations/enforce_phase_ii_open_gate.sql',import.meta.url),'utf8');
+const monthRole=fs.readFileSync(new URL('../../supabase/pending_migrations/phase_i_month_practice_role.sql',import.meta.url),'utf8');
 const monthPractices=fs.readFileSync(new URL('../../supabase/pending_migrations/phase_i_month_practices_school_scale.sql',import.meta.url),'utf8');
+const resonance=fs.readFileSync(new URL('../../supabase/functions/ascend-resonance/index.ts',import.meta.url),'utf8');
 
 test('Phase I remains a 24-module canonical spine',()=>{
   const monthRows=[...progression.matchAll(/\{month:(\d+),title:/g)].map(match=>Number(match[1]));
@@ -29,12 +32,34 @@ test('every canonical Phase I month has an authored school-scale practice',()=>{
   assert.match(monthPractices,/school_scale',true/);
 });
 
-test('Today resolves the canonical current-month practice from authoritative stage links',()=>{
-  assert.match(backend,/function prioritizeCanonicalMonth\(links,practices,currentMonth\)/);
-  assert.match(backend,/Number\(practice\?\.metadata\?\.month\)===Number\(currentMonth\)/);
-  assert.match(backend,/practice\?\.metadata\?\.canonical_month===true/);
-  assert.match(backend,/links:orderedLinks/);
-  assert.match(monthPractices,/path_stage_practices/);
+test('canonical month practices use a distinct link role and explicit fallback ranges',()=>{
+  assert.match(monthRole,/'month_primary'::text/);
+  assert.match(monthPractices,/sp\.role='primary'/);
+  assert.match(monthPractices,/'month_primary',jsonb_build_object\('cadence','daily','canonical_month',month_no/);
+  assert.match(monthPractices,/when s\.sort_order=8 then 8 else 19 end/);
+  assert.match(monthPractices,/when s\.sort_order=8 then 18 else 24 end/);
+});
+
+test('Today and practice runtime resolve only the current canonical month',()=>{
+  assert.match(backend,/function normalizeCanonicalMonth\(links,currentMonth\)/);
+  assert.match(backend,/link\.role==='month_primary'&&Number\(link\.frequency_rule\?\.canonical_month\)===month/);
+  assert.match(backend,/source_role:'month_primary',role:'primary'/);
+  assert.match(backend,/source_role:'primary',role:'legacy_primary'/);
+  assert.match(backend,/links:normalizedLinks/);
+  assert.match(runtime,/item\.role==='month_primary'&&Number\(item\.frequency_rule\?\.canonical_month\)===month/);
+});
+
+test('server completion rejects wrong-month and legacy competing primaries',()=>{
+  assert.match(monthPractices,/practice is not the current canonical month practice/);
+  assert.match(monthPractices,/legacy primary is not valid while canonical month practice is assigned/);
+  assert.match(monthPractices,/canonical_month',v_current_month/);
+});
+
+test('Resonance resolves related practice using month_primary instead of maybeSingle primary',()=>{
+  assert.match(resonance,/eq\("role","month_primary"\)/);
+  assert.match(resonance,/frequency_rule/);
+  assert.match(resonance,/canonical_month/);
+  assert.match(resonance,/relatedPractice\(admin,user\.id,stageId\)/);
 });
 
 test('only Ancestral Roots and Energy & Bodywork render as Practice Branches',()=>{
