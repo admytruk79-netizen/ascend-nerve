@@ -1,6 +1,8 @@
 import {state,setMonth} from '../state.js';
 import {PathEngine} from '../curriculum/path-engine.js';
 
+const PRACTICE_COMPLETE_KEY='ascendTodayPracticeComplete';
+
 function monthItem(month){
   return PathEngine.MONTHS?.[month-1]||{month:1,title:'Orientation to the Path'};
 }
@@ -20,6 +22,8 @@ function completionStatus(){
 }
 
 function reflectionHandoff(){return document.getElementById('today-reflect')}
+function practiceComplete(){return sessionStorage.getItem(PRACTICE_COMPLETE_KEY)==='true'}
+function setPracticeComplete(value){if(value)sessionStorage.setItem(PRACTICE_COMPLETE_KEY,'true');else sessionStorage.removeItem(PRACTICE_COMPLETE_KEY)}
 
 function setReflectionReady(ready){
   const handoff=reflectionHandoff();
@@ -32,20 +36,17 @@ function setReflectionReady(ready){
   if(small)small.textContent=ready?'Record what you noticed while it is still fresh':'Available after you complete today’s practice';
 }
 
-function announce(message,{persist=false,practiceComplete=false}={}){
+function announce(message,{persist=false,practiceComplete:completed=false}={}){
   const node=completionStatus();if(!node)return;
   node.textContent=message;
   node.classList.remove('hidden');
-  if(practiceComplete)setReflectionReady(true);
+  if(completed)setReflectionReady(true);
   if(persist)sessionStorage.setItem('ascendTodayCompletion',message);
 }
 
 function clearTransientCompletion(){
   const stored=sessionStorage.getItem('ascendTodayCompletion');
-  if(stored){
-    const practiceComplete=/Practice completed|Reflection saved/.test(stored);
-    announce(stored,{practiceComplete});
-  }
+  if(stored)announce(stored,{practiceComplete:practiceComplete()});
 }
 
 export function renderToday(detail={}){
@@ -67,7 +68,7 @@ export function renderToday(detail={}){
     begin.classList.add('ascend-accessible-entry');
     begin.setAttribute('aria-label',`Open the practice briefing for ${item.title||'practice'} without using press and hold`);
   }
-  setReflectionReady(false);
+  setReflectionReady(practiceComplete());
   clearTransientCompletion();
 }
 
@@ -79,12 +80,21 @@ export function initToday(){
   document.addEventListener('ascend:curriculum',()=>renderToday({month:state.month}));
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
   document.addEventListener('ascend:practice-timer-complete',()=>announce('✓ Timer complete — finish the practice to record this step.'));
-  document.addEventListener('ascend:practice-completed',()=>announce('✓ Practice completed and recorded. Add your reflection to finish today’s cycle.',{persist:true,practiceComplete:true}));
+  document.addEventListener('ascend:practice-completed',()=>{
+    setPracticeComplete(true);
+    announce('✓ Practice completed and recorded. Add your reflection to finish today’s cycle.',{persist:true,practiceComplete:true});
+  });
   document.addEventListener('ascend:journal-saved',event=>{
     if(event.detail?.saved===false)return;
-    announce(event.detail?.remote===false?'✓ Reflection saved on this device.':'✓ Reflection saved to your Journal.',{persist:true,practiceComplete:true});
+    const completed=practiceComplete();
+    announce(event.detail?.remote===false?'✓ Reflection saved on this device.':'✓ Reflection saved to your Journal.',{persist:true,practiceComplete:completed});
   });
   document.addEventListener('ascend:screen',event=>{
     if(event.detail?.screen==='today')clearTransientCompletion();
+  });
+  document.addEventListener('ascend:practice-started',()=>{
+    setPracticeComplete(false);
+    sessionStorage.removeItem('ascendTodayCompletion');
+    setReflectionReady(false);
   });
 }
