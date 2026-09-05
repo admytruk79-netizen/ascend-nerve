@@ -15,11 +15,16 @@ const renderers={
 let activeRenderer=observationRenderer;
 let mounted=false;
 
+function canonicalMonthLink(curriculum,stage){
+  const month=Number(curriculum?.currentMonth||window.ASCENDProgression?.MONTHS?.find(item=>item.month===Number(window.ASCENDState?.month))?.month||window.ASCENDState?.month||1);
+  return curriculum?.links?.find(item=>item.stage_id===stage.id&&item.role==='month_primary'&&Number(item.frequency_rule?.canonical_month)===month)||null;
+}
+
 function currentPractice(){
   const curriculum=window.curriculum;
   const stage=window.currentStage;
   if(!curriculum||!stage)return null;
-  const link=curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
+  const link=canonicalMonthLink(curriculum,stage)||curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
   return link?curriculum.practices?.find(item=>item.id===link.practice_id)||null:null;
 }
 
