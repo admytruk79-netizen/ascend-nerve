@@ -96,7 +96,7 @@
   // Keep the browser contract synchronized with the stored profile timezone.
   // This prevents a device timezone change while traveling from silently
   // selecting a different canonical month/date than the completion RPC.
-  setInterval(()=>{
+  if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(()=>{
     if(document.visibilityState==='visible'&&window.PathBackend?.isSignedIn?.())current({fresh:true}).then(next=>{
       document.dispatchEvent(new CustomEvent('ascend:authority',{detail:next}));
     }).catch(()=>{});
