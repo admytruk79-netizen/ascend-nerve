@@ -145,6 +145,27 @@ test('a local Journal fallback save survives a later failed practice completion'
   expect(afterFailedPractice).toBe(1);
 });
 
+test('a malicious branch/module title in Journal context renders as text, not markup',async({page})=>{
+  // Devin review (security): journal.js's renderContext() used to build the
+  // "REFLECTING ON" orientation banner with a template literal assigned to
+  // innerHTML, interpolating contextText() - which can return an untrusted
+  // moduleTitle/branchTitle sourced from curriculum data. A crafted title
+  // would have its markup parsed and injected into the app's own origin.
+  await boot(page);
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.evaluate(()=>{
+    document.dispatchEvent(new CustomEvent('ascend:journal-context',{detail:{
+      kind:'practice_branch',
+      branchTitle:'<img src=x onerror="window.__ascendXss=true">',
+      moduleTitle:'<script>window.__ascendXss=true</script>Session'
+    }}));
+  });
+  const heading=page.locator('#journal-orientation strong');
+  await expect(heading).toContainText('<script>window.__ascendXss=true</script>Session');
+  expect(await heading.evaluate(node=>node.children.length)).toBe(0);
+  expect(await page.evaluate(()=>window.__ascendXss)).toBeUndefined();
+});
+
 test('Finish Practice cannot advance before the timer completes',async({page})=>{
   await boot(page);
   await page.evaluate(()=>window.ASCENDOpenPractice?.());

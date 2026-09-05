@@ -32,7 +32,11 @@ function renderContext(){
   const screen=document.getElementById('journal');if(!screen)return;
   let orientation=document.getElementById('journal-orientation');
   if(!orientation){orientation=document.createElement('aside');orientation.id='journal-orientation';orientation.className='journal-orientation';orientation.setAttribute('aria-label','Reflection context');screen.querySelector('h1')?.insertAdjacentElement('afterend',orientation)}
-  orientation.innerHTML=`<small>REFLECTING ON</small><strong>${contextText()}</strong><span>Begin with what you actually noticed. One honest observation is enough; the other fields are optional.</span>`;
+  orientation.replaceChildren();
+  const eyebrow=document.createElement('small');eyebrow.textContent='REFLECTING ON';
+  const heading=document.createElement('strong');heading.textContent=contextText();
+  const helper=document.createElement('span');helper.textContent='Begin with what you actually noticed. One honest observation is enough; the other fields are optional.';
+  orientation.append(eyebrow,heading,helper);
   const observation=screen.querySelector('textarea[name="observation"]');
   observation?.setAttribute('placeholder','What did you actually notice during or after the practice?');
   observation?.setAttribute('aria-describedby','journal-orientation');
