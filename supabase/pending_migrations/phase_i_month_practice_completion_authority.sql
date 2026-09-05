@@ -16,7 +16,8 @@ declare
   v_progress public.path_student_progress%rowtype;
   v_stage public.path_stages%rowtype;
   v_practice public.path_practices%rowtype;
-  v_today date:=current_date;
+  v_timezone text:='UTC';
+  v_today date;
   v_days integer;
   v_next_stage uuid;
   v_min_seconds integer;
@@ -26,11 +27,24 @@ declare
   v_start integer;
   v_end integer;
   v_elapsed integer;
-  v_has_month_primary boolean;
+  v_has_current_month_primary boolean;
 begin
   if v_user is null then raise exception 'authentication required'; end if;
   if p_duration_seconds is null or p_duration_seconds<=0 then raise exception 'valid practice duration required'; end if;
   if p_duration_seconds>86400 then raise exception 'practice duration exceeds maximum allowed'; end if;
+
+  select coalesce(nullif(timezone,''),'UTC') into v_timezone
+  from public.path_profiles
+  where user_id=v_user
+  limit 1;
+  if not found then v_timezone:='UTC'; end if;
+
+  begin
+    perform now() at time zone v_timezone;
+  exception when invalid_parameter_value then
+    v_timezone:='UTC';
+  end;
+  v_today:=(now() at time zone v_timezone)::date;
 
   select * into v_progress
   from public.path_student_progress
@@ -43,10 +57,36 @@ begin
   where id=p_stage_id and is_published=true;
   if not found then raise exception 'stage is not published'; end if;
 
+  v_start:=case
+    when (v_stage.metadata->>'month_start') is not null then (v_stage.metadata->>'month_start')::int
+    when v_stage.sort_order<=7 then v_stage.sort_order
+    when v_stage.sort_order=8 then 8
+    else 19
+  end;
+  v_end:=case
+    when (v_stage.metadata->>'month_end') is not null then (v_stage.metadata->>'month_end')::int
+    when v_stage.sort_order<=7 then v_stage.sort_order
+    when v_stage.sort_order=8 then 18
+    else 24
+  end;
+
+  -- Calendar-month arithmetic is evaluated in the student's stored IANA
+  -- timezone so server validation and the student's local curriculum day do
+  -- not split at UTC midnight.
+  v_elapsed:=greatest(1,
+    ((extract(year from v_today)::int-extract(year from (v_progress.started_at at time zone v_timezone)::date)::int)*12)
+    +(extract(month from v_today)::int-extract(month from (v_progress.started_at at time zone v_timezone)::date)::int)
+    +1
+  );
+  v_current_month:=least(v_end,v_start+v_elapsed-1);
+
   select exists(
-    select 1 from public.path_stage_practices
-    where stage_id=p_stage_id and role='month_primary'
-  ) into v_has_month_primary;
+    select 1 from public.path_stage_practices sp
+    where sp.stage_id=p_stage_id
+      and sp.role='month_primary'
+      and case when sp.frequency_rule ? 'canonical_month'
+               then (sp.frequency_rule->>'canonical_month')::int else null end=v_current_month
+  ) into v_has_current_month_primary;
 
   select sp.role,
          case when sp.frequency_rule ? 'canonical_month'
@@ -63,32 +103,9 @@ begin
     raise exception 'practice is not a Core progression practice for this stage';
   end if;
 
-  v_start:=case
-    when (v_stage.metadata->>'month_start') is not null then (v_stage.metadata->>'month_start')::int
-    when v_stage.sort_order<=7 then v_stage.sort_order
-    when v_stage.sort_order=8 then 8
-    else 19
-  end;
-  v_end:=case
-    when (v_stage.metadata->>'month_end') is not null then (v_stage.metadata->>'month_end')::int
-    when v_stage.sort_order<=7 then v_stage.sort_order
-    when v_stage.sort_order=8 then 18
-    else 24
-  end;
-
-  -- Calendar-month arithmetic deliberately ignores day-of-month, matching
-  -- backend.js/path-progression.js/ascend-resonance. A Jan 31 start advances
-  -- on Feb 1 rather than waiting for a nonexistent Feb 31 anniversary.
-  v_elapsed:=greatest(1,
-    ((extract(year from current_date)::int-extract(year from v_progress.started_at::date)::int)*12)
-    +(extract(month from current_date)::int-extract(month from v_progress.started_at::date)::int)
-    +1
-  );
-  v_current_month:=least(v_end,v_start+v_elapsed-1);
-
-  if v_has_month_primary then
+  if v_has_current_month_primary then
     if v_role<>'month_primary' then
-      raise exception 'legacy primary is not valid while canonical month practice is assigned';
+      raise exception 'legacy primary is not valid while current canonical month practice is assigned';
     end if;
     if v_link_month is distinct from v_current_month then
       raise exception 'practice is not the current canonical month practice';
@@ -111,7 +128,7 @@ begin
     user_id,stage_id,practice_id,started_at,completed_at,duration_seconds,completion_status,metadata
   ) values(
     v_user,p_stage_id,p_practice_id,now()-make_interval(secs=>p_duration_seconds),now(),p_duration_seconds,'completed',
-    jsonb_build_object('source','mobile','duration_validated',true,'minimum_seconds',v_min_seconds,'canonical_month',v_current_month,'progression_role',v_role,'stage_status_at_completion',v_progress.status)
+    jsonb_build_object('source','mobile','duration_validated',true,'minimum_seconds',v_min_seconds,'canonical_month',v_current_month,'progression_role',v_role,'stage_status_at_completion',v_progress.status,'timezone',v_timezone)
   );
 
   v_days:=v_progress.practice_days;
@@ -127,7 +144,7 @@ begin
   if v_progress.status='active'
      and v_stage.progression_mode='time'
      and v_days>=v_stage.required_practice_days
-     and (current_date-v_progress.started_at::date+1)>=v_stage.minimum_days then
+     and (v_today-(v_progress.started_at at time zone v_timezone)::date+1)>=v_stage.minimum_days then
     update public.path_student_progress
        set status='established',established_at=coalesce(established_at,now())
      where id=v_progress.id;
@@ -158,7 +175,9 @@ begin
     'current_stage_id',(select current_stage_id from public.path_profiles where user_id=v_user),
     'duration_validated',true,
     'minimum_duration_seconds',v_min_seconds,
-    'canonical_month',v_current_month
+    'canonical_month',v_current_month,
+    'curriculum_date',v_today,
+    'timezone',v_timezone
   );
 end;
 $$;
