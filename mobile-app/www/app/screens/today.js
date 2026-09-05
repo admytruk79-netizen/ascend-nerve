@@ -25,6 +25,15 @@ function currentScope(){
   return{date:localDate(),month:Number(state.month)||1,stageId:window.currentStage?.id||null,userId:activeUserId()};
 }
 
+function completionScope(detail={}){
+  return{
+    date:detail.date||localDate(),
+    month:Number(detail.month)||1,
+    stageId:detail.stageId||null,
+    userId:detail.userId||null
+  };
+}
+
 function sameScope(a,b){
   return!!a&&!!b&&a.date===b.date&&Number(a.month)===Number(b.month)&&a.stageId===b.stageId&&a.userId===b.userId;
 }
@@ -63,12 +72,14 @@ function setReflectionReady(ready){
   if(small)small.textContent=ready?'Record what you noticed while it is still fresh':'Available after you complete today’s practice';
 }
 
-function announce(message,{persist=false,practiceComplete:completed=false}={}){
+function announce(message,{persist=false,practiceComplete:completed=false,scope=null}={}){
   const node=completionStatus();if(!node)return;
   node.textContent=message;
   node.classList.remove('hidden');
-  if(completed)setReflectionReady(true);
-  if(persist)writeCompletion({scope:currentScope(),message,practiceComplete:completed});
+  const targetScope=scope||currentScope();
+  const appliesHere=sameScope(targetScope,currentScope());
+  if(completed&&appliesHere)setReflectionReady(true);
+  if(persist)writeCompletion({scope:targetScope,message,practiceComplete:completed});
 }
 
 function restoreCompletion(){
@@ -78,7 +89,7 @@ function restoreCompletion(){
     setReflectionReady(false);
     return;
   }
-  announce(stored.message||'Practice completed.',{practiceComplete:stored.practiceComplete===true});
+  announce(stored.message||'Practice completed.',{practiceComplete:stored.practiceComplete===true,scope:stored.scope});
 }
 
 export function renderToday(detail={}){
@@ -111,8 +122,9 @@ export function initToday(){
   document.addEventListener('ascend:curriculum',()=>renderToday({month:state.month}));
   document.addEventListener('ascend:month',event=>renderToday(event.detail||{}));
   document.addEventListener('ascend:practice-timer-complete',()=>announce('✓ Timer complete — finish the practice to record this step.'));
-  document.addEventListener('ascend:practice-completed',()=>{
-    announce('✓ Practice completed and recorded. Add your reflection to finish today’s cycle.',{persist:true,practiceComplete:true});
+  document.addEventListener('ascend:practice-completed',event=>{
+    const scope=completionScope(event.detail||{});
+    announce('✓ Practice completed and recorded. Add your reflection to finish today’s cycle.',{persist:true,practiceComplete:true,scope});
   });
   document.addEventListener('ascend:journal-saved',event=>{
     if(event.detail?.saved===false)return;
