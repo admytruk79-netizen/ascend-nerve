@@ -18,8 +18,8 @@ with fieldwork(module_number,assignment) as (
 update public.training_branch_modules m
 set field_assignment=f.assignment,
     metadata=coalesce(m.metadata,'{}'::jsonb)||jsonb_build_object('fieldwork_expansion','ASCEND training design','fieldwork_completed',true)
-from fieldwork f
-join public.training_branches b on b.id=m.branch_id
-where b.slug='development-program'
+from fieldwork f, public.training_branches b
+where b.id=m.branch_id
+  and b.slug='development-program'
   and m.module_number=f.module_number
   and coalesce(m.field_assignment,'')='';
