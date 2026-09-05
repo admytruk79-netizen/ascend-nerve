@@ -28,8 +28,6 @@
     {month:24,title:'The Open Gate',focus:'Open Gate / Continuation',gate:'GATE 6'}
   ];
 
-  // Existing backend stages remain readiness milestones. They do not replace
-  // the 24 monthly units, and elapsed time can never bypass server readiness.
   const rangeForStage=sortOrder=>{
     const s=Math.max(1,Number(sortOrder)||1);
     if(s<=7)return{start:s,end:s};
@@ -37,41 +35,72 @@
     return{start:19,end:24};
   };
   const capForStage=sortOrder=>rangeForStage(sortOrder).end;
-  const elapsedMonth=(startedAt,now=new Date())=>{
-    const started=new Date(startedAt||now);
-    if(Number.isNaN(started.getTime()))return 1;
-    return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1);
+
+  function validTimezone(value){
+    const zone=String(value||'UTC');
+    try{new Intl.DateTimeFormat('en-US',{timeZone:zone}).format(new Date());return zone}catch{return'UTC'}
+  }
+  function zonedDateParts(value,timezone){
+    const date=value instanceof Date?value:new Date(value||Date.now());
+    const safe=Number.isNaN(date.getTime())?new Date():date;
+    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:validTimezone(timezone),year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(safe);
+    const get=type=>parts.find(part=>part.type===type)?.value||'';
+    return{year:Number(get('year')),month:Number(get('month')),day:Number(get('day'))};
+  }
+  function curriculumDate(now=new Date(),timezone='UTC'){
+    const p=zonedDateParts(now,timezone);
+    return`${String(p.year).padStart(4,'0')}-${String(p.month).padStart(2,'0')}-${String(p.day).padStart(2,'0')}`;
+  }
+  const elapsedMonth=(startedAt,now=new Date(),timezone='UTC')=>{
+    const started=zonedDateParts(startedAt||now,timezone);
+    const current=zonedDateParts(now,timezone);
+    return Math.max(1,(current.year-started.year)*12+(current.month-started.month)+1);
   };
-  const monthFor=({stageSortOrder=1,stageStartedAt,now=new Date()})=>{
+  const monthFor=({stageSortOrder=1,stageStartedAt,now=new Date(),timezone='UTC'})=>{
     const range=rangeForStage(stageSortOrder);
     if(range.start===range.end)return range.start;
-    return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now)-1);
+    return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now,timezone)-1);
   };
 
   let cache=null,cacheAt=0;
   async function current({fresh=false}={}){
-    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},signedIn:false};
+    if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC'),signedIn:false};
     if(!fresh&&cache&&Date.now()-cacheAt<15000)return cache;
     const user=await PathBackend.me();
-    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},signedIn:false};
+    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC'),signedIn:false};
     const [profiles,stages,progress]=await Promise.all([
-      PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id`}),
+      PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id,timezone`}),
       PathBackend.rest('path_stages',{query:'select=id,sort_order,title,metadata&is_published=eq.true&order=sort_order.asc'}),
       PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
     ]);
     const profile=profiles[0]||{};
+    const timezone=validTimezone(profile.timezone||'UTC');
     const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
     const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
     cache={
-      month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at}),
+      month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at,timezone}),
       stageSortOrder:Number(stage.sort_order)||1,
       stageTitle:stage.title||'Beginning',
       stageMetadata:stage.metadata||{},
+      timezone,
+      curriculumDate:curriculumDate(new Date(),timezone),
       signedIn:true
     };
+    window.ASCENDAuthority={month:cache.month,timezone:cache.timezone,curriculumDate:cache.curriculumDate};
     cacheAt=Date.now();
     return cache;
   }
   function invalidate(){cache=null;cacheAt=0}
-  window.ASCENDProgression={MONTHS,rangeForStage,capForStage,elapsedMonth,monthFor,current,invalidate};
+  function authority(){return window.ASCENDAuthority||cache||null}
+
+  // Keep the browser contract synchronized with the stored profile timezone.
+  // This prevents a device timezone change while traveling from silently
+  // selecting a different canonical month/date than the completion RPC.
+  setInterval(()=>{
+    if(document.visibilityState==='visible'&&window.PathBackend?.isSignedIn?.())current({fresh:true}).then(next=>{
+      document.dispatchEvent(new CustomEvent('ascend:authority',{detail:next}));
+    }).catch(()=>{});
+  },60000);
+
+  window.ASCENDProgression={MONTHS,rangeForStage,capForStage,elapsedMonth,monthFor,curriculumDate,current,invalidate,authority};
 })();
