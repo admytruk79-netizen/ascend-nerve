@@ -8,6 +8,7 @@ const PHASES=[
   'Resonance · Relational & Subtle Practice',
   'Synthesis · Independent Practice'
 ];
+let lastConfirmedContext=null;
 
 function orientationCard(screen){
   let card=screen.querySelector('[data-path-orientation]');
@@ -22,24 +23,39 @@ function orientationCard(screen){
   return card;
 }
 
-async function renderOrientation(screen){
+function paintOrientation(card,context,{confirmed=false}={}){
+  const month=Math.max(1,Math.min(24,Number(context?.month)||1));
+  const phase=Math.ceil(month/4);
+  const item=PathEngine.MONTHS?.[month-1];
+  const position=card.querySelector('[data-path-position]');
+  const next=card.querySelector('[data-path-next]');
+  if(position)position.textContent=`Phase ${phase} · Month ${month} of 24`;
+  if(next)next.textContent=item?.title?`Continue · ${item.title}`:'Continue your assigned practice';
+  card.dataset.phase=String(phase);
+  card.dataset.orientationState=confirmed?'confirmed':'cached';
+  card.title=PHASES[phase-1]||'';
+}
+
+async function renderOrientation(screen,eventContext=null){
   const card=orientationCard(screen);
+  if(eventContext&&Number.isFinite(Number(eventContext.month))){
+    lastConfirmedContext={...eventContext,month:Number(eventContext.month)};
+    paintOrientation(card,lastConfirmedContext,{confirmed:true});
+    return;
+  }
   try{
     const context=await PathEngine.current();
-    const month=Math.max(1,Math.min(24,Number(context?.month)||1));
-    const phase=Math.ceil(month/4);
-    const item=PathEngine.MONTHS?.[month-1];
-    const position=card.querySelector('[data-path-position]');
-    const next=card.querySelector('[data-path-next]');
-    if(position)position.textContent=`Phase ${phase} · Month ${month} of 24`;
-    if(next)next.textContent=item?.title?`Continue · ${item.title}`:'Continue your assigned practice';
-    card.dataset.phase=String(phase);
-    card.title=PHASES[phase-1]||'';
+    if(context&&Number.isFinite(Number(context.month))){
+      lastConfirmedContext={...context,month:Number(context.month)};
+      paintOrientation(card,lastConfirmedContext,{confirmed:true});
+    }
   }catch{
+    if(lastConfirmedContext){paintOrientation(card,lastConfirmedContext);return}
     const position=card.querySelector('[data-path-position]');
     const next=card.querySelector('[data-path-next]');
     if(position)position.textContent='Current formation';
     if(next)next.textContent='Continue your assigned practice';
+    card.dataset.orientationState='unconfirmed';
   }
 }
 
@@ -64,6 +80,6 @@ export function initPath(){
     renderOrientation(screen);
     PathEngine.paint();
   });
-  document.addEventListener('ascend:month',()=>renderOrientation(screen));
+  document.addEventListener('ascend:month',event=>renderOrientation(screen,event.detail||null));
   document.addEventListener('ascend:curriculum',()=>renderOrientation(screen));
 }
