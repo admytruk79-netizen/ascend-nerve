@@ -1,0 +1,103 @@
+/* ASCEND web visual recovery — presentation only. Core behavior, routes and progression contracts untouched. */
+
+body.ascend-master-ui{background:
+  radial-gradient(circle at 50% -8%,rgba(85,200,189,.08),transparent 34%),
+  radial-gradient(circle at 84% 18%,rgba(214,179,106,.07),transparent 28%),
+  var(--bg0);}
+body.ascend-master-ui .screen{animation:ascendScreenIn .28s ease both}
+@keyframes ascendScreenIn{from{opacity:.72;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* TODAY — one living focal point, secondary information recedes. */
+body.ascend-master-ui #today{padding-top:4px!important}
+body.ascend-master-ui #today .ritual-context{margin:4px auto 8px}
+body.ascend-master-ui #today #stage-title{font-size:clamp(28px,7vw,38px);letter-spacing:-.025em}
+body.ascend-master-ui #today .ritual-meta{opacity:.82}
+body.ascend-master-ui #today .ritual-scene{min-height:330px;margin-top:8px;border:1px solid rgba(214,179,106,.14);border-radius:28px;box-shadow:0 24px 64px rgba(0,0,0,.28),inset 0 0 70px rgba(2,9,16,.24)}
+body.ascend-master-ui #today .ritual-scene:before{content:"";position:absolute;inset:0;z-index:1;background:radial-gradient(circle at 50% 48%,transparent 0 25%,rgba(3,12,18,.04) 42%,rgba(3,12,18,.5) 100%);pointer-events:none}
+body.ascend-master-ui #today .ritual-portal{width:188px;height:188px;z-index:3!important}
+body.ascend-master-ui #today .ritual-progress{filter:drop-shadow(0 0 12px rgba(85,200,189,.42)) drop-shadow(0 0 28px rgba(214,179,106,.12))}
+body.ascend-master-ui #today .ritual-copy strong{font-size:14px;letter-spacing:.08em}
+body.ascend-master-ui #today .journey-rail{margin-top:10px;padding:10px 12px;border-color:rgba(214,179,106,.12);background:linear-gradient(180deg,rgba(8,27,37,.42),rgba(3,14,22,.22));box-shadow:none}
+body.ascend-master-ui #today .journal-handoff{display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;padding:10px 12px;text-align:left}
+body.ascend-master-ui #today .journal-handoff strong,body.ascend-master-ui #today .journal-handoff small{display:block;white-space:normal}
+body.ascend-master-ui #today .today-completion-status{background:rgba(5,21,30,.48);box-shadow:none}
+
+/* MENU — sheet rather than dashboard. */
+body.ascend-master-ui .menu-overlay{backdrop-filter:blur(18px);background:rgba(2,8,13,.58)}
+body.ascend-master-ui .menu-panel{border-left:1px solid rgba(214,179,106,.16);background:linear-gradient(180deg,rgba(6,22,31,.98),rgba(2,10,16,.985));box-shadow:-24px 0 70px rgba(0,0,0,.34)}
+body.ascend-master-ui .menu-inner{max-width:390px;padding-top:12px}
+body.ascend-master-ui .menu-inner h1{font-size:clamp(30px,8vw,42px);letter-spacing:-.03em;margin-bottom:28px}
+body.ascend-master-ui .menu-links{border-top-color:rgba(214,179,106,.1)}
+body.ascend-master-ui .menu-link{min-height:58px;padding:0 2px;border-bottom-color:rgba(214,179,106,.1);font-family:Georgia,serif;font-size:17px;letter-spacing:.01em}
+body.ascend-master-ui .menu-link:after{font-size:22px;opacity:.62}
+body.ascend-master-ui .menu-inner>.secondary{min-height:48px;border-color:rgba(214,179,106,.16);background:transparent}
+
+/* JOURNAL — writing comes before ambient imagery. */
+body.ascend-master-ui #journal.active{display:flex;flex-direction:column}
+body.ascend-master-ui #journal.active>.eyebrow{order:1}
+body.ascend-master-ui #journal.active>h1{order:2;margin-bottom:4px}
+body.ascend-master-ui #journal.active>.journal-orientation{order:3}
+body.ascend-master-ui #journal.active>#journal-form{order:4}
+body.ascend-master-ui #journal.active>#journal-status{order:5}
+body.ascend-master-ui #journal.active>#reflection-art{order:6;margin-top:26px}
+body.ascend-master-ui #journal.active>#journal-history{order:7}
+body.ascend-master-ui #journal-form{padding:18px;border:1px solid rgba(214,179,106,.13);border-radius:20px;background:linear-gradient(180deg,rgba(7,24,33,.66),rgba(3,14,21,.38));box-shadow:0 20px 54px rgba(0,0,0,.14)}
+body.ascend-master-ui #journal-form>label:first-child textarea{min-height:164px}
+body.ascend-master-ui #journal-form textarea{border-color:rgba(214,179,106,.13);background:rgba(2,10,15,.42)}
+body.ascend-master-ui .ascend-reflection-art{opacity:.78}
+body.ascend-master-ui .ascend-reflection-hero{aspect-ratio:2.1/1;border-color:rgba(214,179,106,.11)}
+body.ascend-master-ui .ascend-reflection-choices{opacity:.8}
+
+/* PATH — readable journey, not an admin list. */
+body.ascend-master-ui #path>h1{font-size:clamp(34px,8vw,46px);letter-spacing:-.035em}
+body.ascend-master-ui #path .path-summary-copy{max-width:40rem;color:var(--asc-muted);line-height:1.6}
+body.ascend-master-ui #path .path-orientation{margin-top:20px;padding:18px;border-color:rgba(214,179,106,.14);background:linear-gradient(145deg,rgba(8,29,39,.68),rgba(4,16,24,.4))}
+body.ascend-master-ui #path .formation-map{position:relative;gap:16px;padding-left:12px}
+body.ascend-master-ui #path .formation-map:before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:1px;background:linear-gradient(var(--asc-teal),rgba(214,179,106,.22),transparent)}
+body.ascend-master-ui #path .formation-group{border-color:rgba(214,179,106,.11);background:rgba(4,17,25,.36)}
+body.ascend-master-ui #path .formation-group>summary{min-height:54px}
+body.ascend-master-ui #path .month-card{min-height:58px;border-bottom:1px solid rgba(214,179,106,.07)}
+body.ascend-master-ui #path .month-card.current{border-color:rgba(85,200,189,.28);background:linear-gradient(90deg,rgba(85,200,189,.09),rgba(214,179,106,.04))}
+
+/* INTRO — inherits the active world rather than forcing Night. */
+html[data-theme="day"] .path-intro .intro-guide{background-color:#e9e2d5}
+html[data-theme="day"] .path-intro .intro-guide:before{background:linear-gradient(180deg,rgba(240,235,225,.83),rgba(229,221,207,.9))}
+html[data-theme="day"] .path-intro .intro-step h1{color:#17272c}
+html[data-theme="day"] .path-intro .intro-step p{color:#4f5b5c}
+html[data-theme="day"] .path-intro .intro-callout,html[data-theme="day"] .path-intro .intro-consent{background:rgba(255,255,255,.55)}
+html[data-theme="day"] .path-intro .intro-consent span{color:#384649}
+html[data-theme="twilight"] .path-intro .intro-guide{background-color:#0b2632}
+.path-intro .intro-step{padding-top:5vh}
+.path-intro .intro-step p{line-height:1.72}
+.path-intro [data-intro-step="5"] p{max-width:360px;line-height:1.62}
+.path-intro .intro-consent{box-shadow:0 16px 42px rgba(0,0,0,.12)}
+
+/* PRACTICE BRIEFING — staged, calm, readable. */
+.practice-briefing{background-position:center 24%;}
+.practice-briefing:before{background:linear-gradient(180deg,rgba(2,9,16,.72),rgba(2,9,16,.9))}
+.briefing-inner{max-width:480px}
+.briefing-orbit{width:76px;height:76px;margin-bottom:18px}
+.briefing-inner h1{max-width:420px;margin:0 auto 12px;text-align:center;font-size:clamp(30px,8vw,40px);line-height:1.08}
+.briefing-meta{margin-bottom:22px}
+.briefing-inner section{margin:0 0 10px;padding:15px 17px;border:1px solid rgba(214,179,106,.12);border-radius:16px;background:rgba(4,17,25,.48)}
+.briefing-inner section small{display:block;margin-bottom:7px}
+.briefing-inner section p,.briefing-inner li{margin-top:6px;line-height:1.65}
+.briefing-note{border:1px solid rgba(85,200,189,.12);background:rgba(85,200,189,.055)}
+.briefing-inner .primary{margin-top:8px;border-radius:28px}
+
+/* Theme coherence. */
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail,
+html[data-theme="day"] body.ascend-master-ui #journal-form,
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation{background:rgba(255,255,255,.58);box-shadow:0 16px 44px rgba(68,58,40,.08)}
+html[data-theme="day"] body.ascend-master-ui #journal-form textarea{background:rgba(255,255,255,.72)}
+html[data-theme="day"] body.ascend-master-ui .menu-panel{background:linear-gradient(180deg,rgba(246,241,232,.99),rgba(232,225,212,.99))}
+
+@media(max-width:520px){
+  body.ascend-master-ui #today .ritual-scene{min-height:300px;border-radius:24px}
+  body.ascend-master-ui #today .ritual-portal{width:170px;height:170px}
+  body.ascend-master-ui #journal-form{padding:15px}
+  .path-intro .intro-step{padding-top:3vh}
+  .briefing-inner section{padding:14px 15px}
+}
+@media(max-height:720px){body.ascend-master-ui #today .ritual-scene{min-height:250px}body.ascend-master-ui #today .ritual-portal{width:150px;height:150px}}
+@media(prefers-reduced-motion:reduce){body.ascend-master-ui .screen{animation:none!important}}
