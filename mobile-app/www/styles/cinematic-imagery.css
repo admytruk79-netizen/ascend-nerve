@@ -27,15 +27,24 @@ body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:
 html[data-theme="day"] body.ascend-master-ui #path:before{opacity:.09;filter:saturate(.72)}
 html[data-theme="day"] body.ascend-master-ui #path .path-summary-copy{color:#556166}
 
-/* Intro / briefing: established ASCEND threshold imagery, with selectors strong enough to beat legacy ID rules. */
+/* Menu: preserve the cinematic sheet in every theme instead of flattening to a plain day panel. */
+html[data-theme] body.ascend-master-ui .menu-panel{background:linear-gradient(180deg,rgba(3,12,18,.78),rgba(2,9,14,.96)),url('../assets/ascend-path-intro-instrument.jpg') center/cover no-repeat!important;border-left:1px solid rgba(214,179,106,.2)!important}
+html[data-theme] body.ascend-master-ui .menu-panel:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,8,13,.42),rgba(2,8,13,.82));pointer-events:none}
+html[data-theme] body.ascend-master-ui .menu-inner{position:relative;z-index:1;color:#f3ecdf}
+html[data-theme] body.ascend-master-ui .menu-link{color:#f3ecdf!important;border-bottom-color:rgba(214,179,106,.13)!important}
+html[data-theme] body.ascend-master-ui .menu-inner h1{color:#f3ecdf!important;text-shadow:0 2px 14px rgba(0,0,0,.35)}
+
+/* Intro / briefing: established ASCEND threshold imagery, rendered on a dedicated layer so legacy backgrounds cannot hide it. */
 .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(2,9,16,.64),rgba(2,9,16,.9)),url('../assets/ascend-path-intro-instrument.jpg')!important;background-size:cover!important;background-position:center!important}
-html[data-theme] #practice-briefing.practice-briefing{background:linear-gradient(180deg,rgba(2,9,16,.44),rgba(2,9,16,.84)),url('../assets/ascend-twilight-ritual-bg.jpg') center/cover no-repeat!important;isolation:isolate}
-html[data-theme] #practice-briefing.practice-briefing:before{background:linear-gradient(180deg,rgba(2,9,16,.2),rgba(2,9,16,.58))!important}
-html[data-theme] #practice-briefing.practice-briefing .briefing-inner{position:relative;z-index:2;padding:58px 28px 34px;border-radius:28px;background:linear-gradient(180deg,rgba(3,13,20,.12),rgba(3,13,20,.38));backdrop-filter:blur(1.5px)}
+html[data-theme] #practice-briefing.practice-briefing{position:fixed!important;isolation:isolate;background:#03101a!important;overflow:hidden}
+html[data-theme] #practice-briefing.practice-briefing:before{content:""!important;position:absolute!important;inset:0!important;z-index:0!important;background-image:linear-gradient(180deg,rgba(2,9,16,.22),rgba(2,9,16,.78)),url('../assets/ascend-twilight-ritual-bg.jpg')!important;background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;opacity:1!important;pointer-events:none!important}
+html[data-theme] #practice-briefing.practice-briefing:after{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 50% 24%,rgba(214,179,106,.16),transparent 32%),linear-gradient(180deg,transparent 0,rgba(2,9,16,.2) 52%,rgba(2,9,16,.46) 100%);pointer-events:none}
+html[data-theme] #practice-briefing.practice-briefing .briefing-inner{position:relative;z-index:2;padding:58px 28px 34px;border-radius:28px;background:linear-gradient(180deg,rgba(3,13,20,.16),rgba(3,13,20,.34));backdrop-filter:blur(1px)}
 html[data-theme="day"] .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(247,243,235,.84),rgba(229,221,207,.94)),url('../assets/ascend-path-intro-instrument.jpg')!important}
-html[data-theme="day"] #practice-briefing.practice-briefing{background:linear-gradient(180deg,rgba(244,237,223,.6),rgba(232,222,204,.88)),url('../assets/ascend-today-morning-serenity.svg') center/cover no-repeat!important}
-html[data-theme="day"] #practice-briefing.practice-briefing:before{background:linear-gradient(180deg,rgba(245,239,226,.12),rgba(235,226,209,.56))!important}
-html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{background:rgba(250,246,237,.3)}
+html[data-theme="day"] #practice-briefing.practice-briefing{background:#e8dfcf!important}
+html[data-theme="day"] #practice-briefing.practice-briefing:before{background-image:linear-gradient(180deg,rgba(244,237,223,.28),rgba(232,222,204,.78)),url('../assets/ascend-today-morning-serenity.svg')!important;filter:saturate(.82) brightness(1.02)}
+html[data-theme="day"] #practice-briefing.practice-briefing:after{background:radial-gradient(circle at 50% 24%,rgba(173,129,49,.12),transparent 32%),linear-gradient(180deg,rgba(247,241,229,.04),rgba(234,225,210,.32))}
+html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{background:rgba(250,246,237,.28)}
 
 @media(max-width:520px){html[data-theme] #practice-briefing.practice-briefing .briefing-inner{padding:52px 24px 30px}}
 @media(prefers-reduced-motion:reduce){body.ascend-master-ui .ascend-reflection-hero img{transform:none}}
