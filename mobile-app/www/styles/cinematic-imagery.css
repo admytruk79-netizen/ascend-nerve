@@ -23,8 +23,8 @@ body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:
 
 /* Intro / briefing: use the established ASCEND threshold photograph as cinematic atmosphere. */
 .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(2,9,16,.64),rgba(2,9,16,.9)),url('../assets/ascend-path-intro-instrument.jpg')!important;background-size:cover!important;background-position:center!important}
-.practice-briefing{background-image:linear-gradient(180deg,rgba(2,9,16,.58),rgba(2,9,16,.92)),url('assets/ascend-twilight-ritual-bg.jpg')!important;background-size:cover!important;background-position:center!important}
+html[data-theme] #practice-briefing.practice-briefing{background-image:linear-gradient(180deg,rgba(2,9,16,.58),rgba(2,9,16,.92)),url('../assets/ascend-twilight-ritual-bg.jpg')!important;background-size:cover!important;background-position:center!important}
 html[data-theme="day"] .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(247,243,235,.84),rgba(229,221,207,.94)),url('../assets/ascend-path-intro-instrument.jpg')!important}
-html[data-theme="day"] .practice-briefing{background-image:linear-gradient(180deg,rgba(244,237,223,.84),rgba(232,222,204,.94)),url('assets/ascend-today-morning-serenity.svg')!important}
+html[data-theme="day"] #practice-briefing.practice-briefing{background-image:linear-gradient(180deg,rgba(244,237,223,.84),rgba(232,222,204,.94)),url('../assets/ascend-today-morning-serenity.svg')!important}
 
 @media(prefers-reduced-motion:reduce){body.ascend-master-ui .ascend-reflection-hero img{transform:none}}
