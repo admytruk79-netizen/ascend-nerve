@@ -71,27 +71,45 @@
 
   /*
    * Curriculum authority rule:
-   * path_stage_practices is the server-side source of truth for which practice
-   * belongs to the active stage. The client must never substitute a legacy
-   * month-to-practice table (Star Energy, Green Sphere, etc.) over those links.
-   * Month labels are presentation/progression context only.
+   * path_stage_practices is the server-side source of truth. Database role
+   * month_primary owns the exact canonical month. The student's stored profile
+   * timezone owns calendar boundaries so travel/device timezone changes cannot
+   * select a different practice than the completion RPC accepts.
    */
   const stageRange=sortOrder=>{const n=Math.max(1,Number(sortOrder)||1);return n<=7?{start:n,end:n}:n===8?{start:8,end:18}:{start:19,end:24}};
-  const elapsedMonth=(startedAt)=>{const now=new Date(),started=new Date(startedAt||now);if(Number.isNaN(started.getTime()))return 1;return Math.max(1,(now.getFullYear()-started.getFullYear())*12+(now.getMonth()-started.getMonth())+1)};
-  async function resolveCurriculumMonth(stages){
+  function validTimezone(value){const zone=String(value||'UTC');try{new Intl.DateTimeFormat('en-US',{timeZone:zone}).format(new Date());return zone}catch{return'UTC'}}
+  function zonedDateParts(value,timezone){const date=value instanceof Date?value:new Date(value||Date.now());const safe=Number.isNaN(date.getTime())?new Date():date;const parts=new Intl.DateTimeFormat('en-CA',{timeZone:validTimezone(timezone),year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(safe);const get=type=>parts.find(part=>part.type===type)?.value||'';return{year:Number(get('year')),month:Number(get('month')),day:Number(get('day'))}}
+  function curriculumDate(now=new Date(),timezone='UTC'){const p=zonedDateParts(now,timezone);return`${String(p.year).padStart(4,'0')}-${String(p.month).padStart(2,'0')}-${String(p.day).padStart(2,'0')}`}
+  const elapsedMonth=(startedAt,now=new Date(),timezone='UTC')=>{const started=zonedDateParts(startedAt||now,timezone),current=zonedDateParts(now,timezone);return Math.max(1,(current.year-started.year)*12+(current.month-started.month)+1)};
+  async function resolveCurriculumContext(stages){
     try{
-      const currentUser=await me();if(!currentUser)return 1;
+      const currentUser=await me();if(!currentUser)return{month:1,timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC')};
       const [profiles,progress]=await Promise.all([
-        rest('path_profiles',{query:`user_id=eq.${currentUser.id}&select=path_started_at,current_stage_id&limit=1`}),
+        rest('path_profiles',{query:`user_id=eq.${currentUser.id}&select=path_started_at,current_stage_id,timezone&limit=1`}),
         rest('path_student_progress',{query:`user_id=eq.${currentUser.id}&select=stage_id,status,started_at&order=started_at.asc`})
       ]);
       const profile=profiles[0]||{};
+      const timezone=validTimezone(profile.timezone||'UTC');
       const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
       const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0];
       const range=stageRange(stage?.sort_order||1);
-      if(range.start===range.end)return range.start;
-      return Math.min(range.end,range.start+elapsedMonth(active?.started_at||profile.path_started_at)-1);
-    }catch(error){console.warn('ASCEND month resolution fell back to Month 1',error);return 1}
+      const month=range.start===range.end?range.start:Math.min(range.end,range.start+elapsedMonth(active?.started_at||profile.path_started_at,new Date(),timezone)-1);
+      return{month,timezone,curriculumDate:curriculumDate(new Date(),timezone)};
+    }catch(error){console.warn('ASCEND curriculum authority fell back to Month 1 UTC',error);return{month:1,timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC')}}
+  }
+  async function resolveCurriculumMonth(stages){return(await resolveCurriculumContext(stages)).month}
+
+  function normalizeCanonicalMonth(links,currentMonth){
+    const month=Number(currentMonth)||1;
+    const promotedStageIds=new Set(links.filter(link=>link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month).map(link=>link.stage_id));
+    return links.map(link=>{
+      if(link.role==='month_primary'&&Number(link.frequency_rule?.canonical_month)===month)return{...link,source_role:'month_primary',role:'primary'};
+      if(link.role==='primary'&&promotedStageIds.has(link.stage_id))return{...link,source_role:'primary',role:'legacy_primary'};
+      return link;
+    }).sort((a,b)=>{
+      const score=link=>link.role==='primary'?0:link.role==='month_primary'?1:link.role==='legacy_primary'?2:3;
+      return score(a)-score(b)||(Number(a.sort_order)||0)-(Number(b.sort_order)||0);
+    });
   }
 
   async function loadCurriculum(){
@@ -104,14 +122,42 @@
       rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),
       rest('path_content_unlock_rules',{query:'select=*'})
     ]);
-    const currentMonth=await resolveCurriculumMonth(stages);
-    return{phases,stages,practices,links,markers,content,contentRules,currentMonth};
+    const authority=await resolveCurriculumContext(stages);
+    const currentMonth=authority.month;
+    const normalizedLinks=normalizeCanonicalMonth(links,currentMonth);
+    window.ASCENDAuthority={month:authority.month,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
+    return{phases,stages,practices,links:normalizedLinks,markers,content,contentRules,currentMonth,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
   }
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}
   async function completePractice({stageId,practiceId,durationSeconds}){return rpc('path_record_practice_completion',{p_stage_id:stageId,p_practice_id:practiceId,p_duration_seconds:durationSeconds})}
   async function recordTrainingAssignment(assignmentId,status='practiced'){return rpc('path_record_training_assignment',{p_assignment_id:assignmentId,p_status:status})}
-  async function saveJournal(userId,stageId,entry){return rest('path_journal_entries',{method:'POST',body:{user_id:userId,stage_id:stageId,entry_date:new Date().toISOString().slice(0,10),observation:entry.observation||null,inner_state:entry.inner_state||null,life_application:entry.life_application||null,interpretation:entry.interpretation||null,unresolved:entry.unresolved||null,share_with_teacher:!!entry.share_with_teacher},prefer:'return=representation'})}
+  async function saveJournal(userId,stageId,entry={}){
+    let timezone=window.ASCENDAuthority?.timezone||null;
+    if(!timezone){
+      try{
+        const profiles=await rest('path_profiles',{query:`user_id=eq.${userId}&select=timezone&limit=1`});
+        timezone=validTimezone(profiles[0]?.timezone||'UTC');
+      }catch{
+        timezone='UTC';
+      }
+    }
+    timezone=validTimezone(timezone||'UTC');
+    const entryDate=curriculumDate(new Date(),timezone);
+    window.ASCENDAuthority={...(window.ASCENDAuthority||{}),timezone,curriculumDate:entryDate};
+    return rest('path_journal_entries',{method:'POST',body:{
+      user_id:userId,
+      stage_id:stageId,
+      entry_date:entryDate,
+      observation:entry.observation||null,
+      inner_state:entry.inner_state||null,
+      life_application:entry.life_application||null,
+      interpretation:entry.interpretation||null,
+      unresolved:entry.unresolved||null,
+      share_with_teacher:!!entry.share_with_teacher,
+      context:entry.context&&typeof entry.context==='object'?entry.context:{}
+    },prefer:'return=representation'})
+  }
   async function getMarkerObservations(userId,stageId){return rest('path_student_marker_observations',{query:`user_id=eq.${userId}&stage_id=eq.${stageId}&select=*`})}
   async function saveMarkerObservation(userId,stageId,markerId,state,reflection=''){return rest('path_student_marker_observations',{method:'POST',body:{user_id:userId,stage_id:stageId,marker_id:markerId,state,reflection:reflection||null,observed_at:new Date().toISOString()},prefer:'resolution=merge-duplicates,return=minimal'})}
   async function submitReadinessReview(stageId){return rpc('path_submit_readiness_review',{p_stage_id:stageId})}

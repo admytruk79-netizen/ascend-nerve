@@ -15,12 +15,50 @@ const renderers={
 let activeRenderer=observationRenderer;
 let mounted=false;
 
-function currentPractice(){
+function canonicalMonth(curriculum){
+  return Number(window.ASCENDProgression?.authority?.()?.month||window.ASCENDAuthority?.month||window.ASCENDState?.month||curriculum?.currentMonth||1);
+}
+
+function canonicalMonthLink(curriculum,stage){
+  const month=canonicalMonth(curriculum);
+  return curriculum?.links?.find(item=>item.stage_id===stage.id&&item.role==='month_primary'&&Number(item.frequency_rule?.canonical_month)===month)||null;
+}
+
+function resolvedPractice(){
   const curriculum=window.curriculum;
   const stage=window.currentStage;
   if(!curriculum||!stage)return null;
-  const link=curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
+  const link=canonicalMonthLink(curriculum,stage)||curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
   return link?curriculum.practices?.find(item=>item.id===link.practice_id)||null:null;
+}
+
+function syncPracticeCopy(practice){
+  if(!practice)return;
+  const minutes=Number(practice.default_minutes)||10;
+  const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value};
+  set('briefing-title',practice.title||'Practice');
+  set('briefing-intention',practice.instructions||'');
+  set('briefing-duration',`${minutes} minutes`);
+  set('briefing-begin',`Begin ${minutes}-Minute Practice`);
+  set('overlay-practice-title',practice.title||'Practice');
+  set('overlay-practice-instructions',practice.instructions||'');
+}
+
+function ensureBriefingAtmosphere(){
+  const briefing=document.getElementById('practice-briefing');
+  if(!briefing)return null;
+  let atmosphere=briefing.querySelector(':scope > .briefing-atmosphere');
+  if(atmosphere)return atmosphere;
+  atmosphere=document.createElement('div');
+  atmosphere.className='briefing-atmosphere';
+  atmosphere.setAttribute('aria-hidden','true');
+  const image=document.createElement('img');
+  image.className='briefing-atmosphere-image';
+  image.src='assets/ascend-twilight-ritual-bg.jpg';
+  image.alt='';
+  atmosphere.appendChild(image);
+  briefing.prepend(atmosphere);
+  return atmosphere;
 }
 
 function requestedRenderer(practice){
@@ -28,13 +66,13 @@ function requestedRenderer(practice){
   return typeof value==='string'?value.trim().toLowerCase():'';
 }
 
-function selectRenderer(practice=currentPractice()){
+function selectRenderer(practice=resolvedPractice()){
   activeRenderer=renderers[requestedRenderer(practice)]||observationRenderer;
   return activeRenderer;
 }
 
 function context(){
-  const practice=currentPractice();
+  const practice=resolvedPractice();
   return {
     practice,
     stage:window.currentStage||null,
@@ -44,7 +82,10 @@ function context(){
 }
 
 function prepare(){
-  const renderer=selectRenderer();
+  const practice=resolvedPractice();
+  syncPracticeCopy(practice);
+  ensureBriefingAtmosphere();
+  const renderer=selectRenderer(practice);
   renderer.prepare(context());
   document.documentElement.dataset.practiceRenderer=renderer.name;
   return renderer;
@@ -64,6 +105,7 @@ function exit(){activeRenderer.exit()}
 function openBriefing(){
   const briefing=document.getElementById('practice-briefing');
   if(!briefing)return false;
+  ensureBriefingAtmosphere();
   prepare();
   briefing.classList.remove('hidden');
   return true;
@@ -73,8 +115,11 @@ function beginOverlay(){
   const briefing=document.getElementById('practice-briefing');
   const overlay=document.getElementById('practice-overlay');
   if(!overlay)return false;
+  const practice=resolvedPractice();
+  syncPracticeCopy(practice);
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:practice?.id||null,stageId:window.currentStage?.id||null,month:canonicalMonth(window.curriculum),date:window.ASCENDProgression?.authority?.()?.curriculumDate||window.ASCENDAuthority?.curriculumDate||null}}));
   start();
   return true;
 }
@@ -115,6 +160,7 @@ export function initPracticeRuntime(){
   const timerToggle=document.getElementById('timer-toggle');
   const finish=document.getElementById('finish-practice');
 
+  ensureBriefingAtmosphere();
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
   briefingBegin?.addEventListener('click',()=>beginOverlay());
   briefingClose?.addEventListener('click',()=>closeBriefing());
@@ -126,12 +172,17 @@ export function initPracticeRuntime(){
   document.addEventListener('ascend:practice-timer-complete',()=>{
     if(activeRenderer.state==='running')pause();
   });
+  document.addEventListener('ascend:authority',()=>{
+    if(document.getElementById('practice-briefing')&&!document.getElementById('practice-briefing').classList.contains('hidden'))prepare();
+  });
 
   window.ASCENDOpenPractice=openBriefing;
   window.ASCENDPracticeRuntime={
     prepare,start,pause,resume,complete,exit,
     openBriefing,beginOverlay,closeBriefing,closeOverlay,
     current:()=>activeRenderer,
+    practice:()=>resolvedPractice(),
+    canonicalMonth:()=>canonicalMonth(window.curriculum),
     selectRenderer
   };
 }

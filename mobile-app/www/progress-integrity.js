@@ -5,13 +5,21 @@
 
   let submitting=false;
 
+  function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
+  function authority(){return window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||null}
+
   function persistPendingAttempt(reason){
     try{
       if(!Array.isArray(localState.pendingPractices)) localState.pendingPractices=[];
+      const practice=activePractice();
+      const auth=authority();
       localState.pendingPractices.push({
         stage_id:currentStage?.id||null,
-        practice_id:currentPractice?.id||null,
+        practice_id:practice?.id||null,
         attempted_at:new Date().toISOString(),
+        curriculum_date:auth?.curriculumDate||null,
+        canonical_month:Number(auth?.month)||null,
+        timezone:auth?.timezone||null,
         reason:String(reason||'sync_failed')
       });
       localStorage.setItem('ascendPathState',JSON.stringify(localState));
@@ -35,8 +43,6 @@
   }
 
   finish.addEventListener('click',async e=>{
-    // Capture the click before the legacy completion handler so only this
-    // integrity-safe path is allowed to mutate progression UI state.
     e.preventDefault();
     e.stopImmediatePropagation();
 
@@ -49,11 +55,22 @@
       return;
     }
 
-    if(!user||!currentStage||!currentPractice){
+    const practice=activePractice();
+    if(!user||!currentStage||!practice){
       timerHint.textContent='Sign in to record official Path progress. This session has not advanced your stage.';
       setSync('LOCAL');
       return;
     }
+
+    const auth=authority();
+    const completedScope={
+      stageId:currentStage.id,
+      practiceId:practice.id,
+      userId:user.id,
+      month:Number(window.ASCENDPracticeRuntime?.canonicalMonth?.()||auth?.month||window.ASCENDState?.month||curriculum?.currentMonth||1),
+      date:auth?.curriculumDate||null,
+      timezone:auth?.timezone||null
+    };
 
     submitting=true;
     finish.disabled=true;
@@ -61,17 +78,17 @@
     setSync('SYNCING…');
 
     try{
-      const duration=(currentPractice.default_minutes||10)*60;
+      const duration=(practice.default_minutes||10)*60;
       const result=await PathBackend.completePractice({
-        stageId:currentStage.id,
-        practiceId:currentPractice.id,
+        stageId:completedScope.stageId,
+        practiceId:completedScope.practiceId,
         durationSeconds:duration
       });
 
       const days=result?.practice_days??progressRow?.practice_days??0;
       if(progressRow){
         progressRow.practice_days=days;
-        progressRow.last_practice_date=new Date().toISOString().slice(0,10);
+        progressRow.last_practice_date=result?.curriculum_date||completedScope.date;
         progressRow.status=result?.stage_status||progressRow.status;
       }
 
@@ -80,7 +97,22 @@
       document.getElementById('stage-day').textContent=`DAY ${Math.max(1,days+1)}`;
       timerHint.textContent='Practice confirmed and counted toward your Path.';
 
-      if(result?.current_stage_id&&result.current_stage_id!==currentStage.id){
+      const completionDetail={
+        ...completedScope,
+        month:Number(result?.canonical_month||completedScope.month),
+        date:result?.curriculum_date||completedScope.date,
+        timezone:result?.timezone||completedScope.timezone,
+        practiceDays:days
+      };
+      window.ASCENDAuthority={
+        ...(window.ASCENDAuthority||{}),
+        month:completionDetail.month,
+        curriculumDate:completionDetail.date,
+        timezone:completionDetail.timezone
+      };
+      window.ASCENDProgression?.invalidate?.();
+
+      if(result?.current_stage_id&&result.current_stage_id!==completedScope.stageId){
         await loadRemote();
       }else{
         requestPathPaint();
@@ -90,11 +122,12 @@
 
       window.ASCENDPracticeRuntime?.complete?.();
       window.ASCENDPracticeRuntime?.closeOverlay?.({resetTimer:true});
-      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{stageId:currentStage.id,practiceId:currentPractice.id,practiceDays:days}}));
+      document.dispatchEvent(new CustomEvent('ascend:authority',{detail:window.ASCENDAuthority}));
+      document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:completionDetail}));
       handoffToJournal();
     }catch(err){
       console.error(err);
-      // Crucially, do NOT increment local or visible practice-day progress.
+      // Crucially, do NOT increment local or visible practice-day progress after failed server verification.
       persistPendingAttempt(err?.message||'sync_failed');
       timerHint.textContent='Could not verify this completion. It is saved only as a pending attempt and does not count toward progression yet. Retry when connected.';
       setSync('PENDING');
