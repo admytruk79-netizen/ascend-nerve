@@ -1,26 +1,88 @@
-/* Final briefing visibility correction. Keep behavior untouched; make approved ritual artwork visibly present on the actual content surface. */
-html[data-theme] #practice-briefing.practice-briefing .briefing-inner{
-  background-image:
-    linear-gradient(180deg,rgba(2,9,16,.20) 0%,rgba(2,9,16,.42) 42%,rgba(2,9,16,.78) 100%),
-    url('../assets/ascend-twilight-ritual-bg.jpg')!important;
-  background-size:cover!important;
-  background-position:center 24%!important;
-  background-repeat:no-repeat!important;
-  box-shadow:inset 0 0 80px rgba(2,9,16,.34)!important;
+/* Practice Briefing artwork now renders through a dedicated DOM layer created
+   by the practice runtime. This avoids legacy/background overrides while
+   keeping all practice behavior untouched. */
+html[data-theme] #practice-briefing.practice-briefing{
+  position:fixed!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:#02090e!important;
 }
+
+html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+
+html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 24%;
+  opacity:.82;
+  transform:scale(1.025);
+  filter:saturate(.9) contrast(1.03) brightness(.72);
+}
+
+html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 24%,rgba(216,181,107,.17),transparent 28%),
+    linear-gradient(180deg,rgba(2,9,16,.10) 0%,rgba(2,9,16,.32) 42%,rgba(2,9,16,.88) 100%);
+}
+
+html[data-theme] #practice-briefing.practice-briefing .briefing-inner{
+  position:relative;
+  z-index:2;
+  background:linear-gradient(180deg,rgba(3,13,20,.05),rgba(3,13,20,.34))!important;
+  box-shadow:inset 0 0 80px rgba(2,9,16,.16)!important;
+  backdrop-filter:blur(.3px);
+}
+
 html[data-theme] #practice-briefing.practice-briefing .briefing-inner>*,
 html[data-theme] #practice-briefing.practice-briefing .briefing-close{
   position:relative;
-  z-index:1;
+  z-index:3;
 }
+
+html[data-theme="day"] #practice-briefing.practice-briefing{
+  background:#e9dfcf!important;
+}
+
+html[data-theme="day"] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
+  opacity:.46;
+  filter:saturate(.72) contrast(.96) brightness(1.18);
+}
+
+html[data-theme="day"] #practice-briefing.practice-briefing>.briefing-atmosphere:after{
+  background:
+    radial-gradient(circle at 50% 24%,rgba(174,126,48,.13),transparent 30%),
+    linear-gradient(180deg,rgba(247,241,229,.46) 0%,rgba(238,228,211,.58) 48%,rgba(230,217,196,.84) 100%);
+}
+
 html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{
-  background-image:
-    linear-gradient(180deg,rgba(245,238,224,.40) 0%,rgba(236,226,207,.58) 50%,rgba(226,215,195,.78) 100%),
-    url('../assets/ascend-today-morning-serenity.svg')!important;
-  background-size:cover!important;
-  background-position:center!important;
-  box-shadow:inset 0 0 72px rgba(125,101,61,.08)!important;
+  background:rgba(250,246,237,.14)!important;
+  color:#10212b!important;
+  box-shadow:inset 0 0 72px rgba(125,101,61,.05)!important;
 }
+
+html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner :is(h1,h2,h3,strong){
+  color:#10212b!important;
+  text-shadow:none!important;
+}
+
+html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner :is(p,li,small){
+  color:#4f5b60!important;
+}
+
 @media(max-width:520px){
-  html[data-theme] #practice-briefing.practice-briefing .briefing-inner{background-position:center top!important}
+  html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
+    object-position:center top;
+  }
 }
