@@ -27,9 +27,10 @@ body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:
 html[data-theme="day"] body.ascend-master-ui #path:before{opacity:.09;filter:saturate(.72)}
 html[data-theme="day"] body.ascend-master-ui #path .path-summary-copy{color:#556166}
 
-/* Menu: preserve the cinematic sheet in every theme instead of flattening to a plain day panel. */
-html[data-theme] body.ascend-master-ui .menu-panel{background:linear-gradient(180deg,rgba(3,12,18,.78),rgba(2,9,14,.96)),url('../assets/ascend-path-intro-instrument.jpg') center/cover no-repeat!important;border-left:1px solid rgba(214,179,106,.2)!important}
-html[data-theme] body.ascend-master-ui .menu-panel:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,8,13,.42),rgba(2,8,13,.82));pointer-events:none}
+/* Menu: apply the cinematic artwork to the actual structure: .menu-overlay > .menu-inner. */
+html[data-theme] body.ascend-master-ui .menu-overlay{position:fixed;isolation:isolate;background:#02090e!important;overflow:auto}
+html[data-theme] body.ascend-master-ui .menu-overlay:before{content:"";position:absolute;inset:0;z-index:0;background-image:linear-gradient(180deg,rgba(3,12,18,.58),rgba(2,9,14,.94)),url('../assets/ascend-path-intro-instrument.jpg');background-position:center;background-size:cover;background-repeat:no-repeat;pointer-events:none}
+html[data-theme] body.ascend-master-ui .menu-overlay:after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,13,.28),rgba(2,8,13,.76));pointer-events:none}
 html[data-theme] body.ascend-master-ui .menu-inner{position:relative;z-index:1;color:#f3ecdf}
 html[data-theme] body.ascend-master-ui .menu-link{color:#f3ecdf!important;border-bottom-color:rgba(214,179,106,.13)!important}
 html[data-theme] body.ascend-master-ui .menu-inner h1{color:#f3ecdf!important;text-shadow:0 2px 14px rgba(0,0,0,.35)}
