@@ -140,7 +140,8 @@ test('branch and Phase II Journal handoff preserves structured curriculum contex
   assert.match(journal,/entry\.context=context/);
   assert.match(journal,/ascend:journal-context/);
   assert.match(journal,/function contextLabel\(entry\)\{return entry\?\.context&&typeof entry\.context==='object'\?contextText\(entry\.context\):''\}/);
-  assert.match(backendAdapter,/context:entry\.context&&typeof entry\.context==='object'\?entry\.context:\{\}/);
+  assert.match(backendAdapter,/window\.PathBackend\?\.saveJournal\?\.\(userId,stageId,entry\)/);
+  assert.match(backend,/context:entry\.context&&typeof entry\.context==='object'\?entry\.context:\{\}/);
 });
 
 test('Library recommendations can follow active curriculum context without bypassing month eligibility',()=>{
