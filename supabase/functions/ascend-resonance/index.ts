@@ -29,16 +29,20 @@ function pickQuestion(themes:{label:string}[],entryCount:number):string{return t
 function buildSummary(count:number,lifeApplication:number,unresolved:number):string{if(count===0)return"Resonance begins with your own record.";const parts=[`You recorded ${count} ${count===1?"entry":"entries"}`];if(lifeApplication)parts.push(`${lifeApplication} connecting the practice to ordinary life`);if(unresolved)parts.push(`${unresolved} left deliberately unresolved`);return`${parts.join(", ")}.`}
 
 function stageRange(stage:StageRow){const meta=stage.metadata||{};const order=Number(stage.sort_order)||1;const start=Number(meta.month_start)||(order<=7?order:order===8?8:19);const end=Number(meta.month_end)||(order<=7?order:order===8?18:24);return{start,end}}
-function elapsedMonth(startedAt:string|null|undefined){if(!startedAt)return 1;const started=new Date(startedAt),now=new Date();if(Number.isNaN(started.getTime()))return 1;return Math.max(1,(now.getUTCFullYear()-started.getUTCFullYear())*12+(now.getUTCMonth()-started.getUTCMonth())+1)}
+function validTimezone(value:unknown):string{const zone=String(value||"UTC");try{new Intl.DateTimeFormat("en-US",{timeZone:zone}).format(new Date());return zone}catch{return"UTC"}}
+function zonedDateParts(value:Date|string|number|null|undefined,timezone:string){const date=value instanceof Date?value:new Date(value||Date.now());const safe=Number.isNaN(date.getTime())?new Date():date;const parts=new Intl.DateTimeFormat("en-CA",{timeZone:validTimezone(timezone),year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(safe);const get=(type:string)=>parts.find(part=>part.type===type)?.value||"";return{year:Number(get("year")),month:Number(get("month")),day:Number(get("day"))}}
+function elapsedMonth(startedAt:string|null|undefined,timezone="UTC"){const now=new Date();const started=zonedDateParts(startedAt||now,timezone),current=zonedDateParts(now,timezone);return Math.max(1,(current.year-started.year)*12+(current.month-started.month)+1)}
 
 async function relatedPractice(admin:ReturnType<typeof createClient>,userId:string,stageId:string|null):Promise<string|null>{
   if(!stageId)return null;
   const {data:stage}=await admin.from("path_stages").select("sort_order,metadata").eq("id",stageId).maybeSingle();
   if(!stage)return null;
   const range=stageRange(stage as StageRow);
+  let timezone="UTC";
+  try{const {data:profile}=await admin.from("path_profiles").select("timezone").eq("user_id",userId).maybeSingle();timezone=validTimezone(profile?.timezone||"UTC")}catch{timezone="UTC"}
   const {data:progressRows}=await admin.from("path_student_progress").select("started_at,status").eq("user_id",userId).eq("stage_id",stageId).order("started_at",{ascending:false}).limit(1);
   const progress=progressRows?.[0]||null;
-  const currentMonth=Math.min(range.end,range.start+elapsedMonth(progress?.started_at)-1);
+  const currentMonth=Math.min(range.end,range.start+elapsedMonth(progress?.started_at,timezone)-1);
   const {data:monthLinks}=await admin.from("path_stage_practices").select("practice_id,frequency_rule").eq("stage_id",stageId).eq("role","month_primary");
   const monthLink=(monthLinks||[]).find(link=>Number((link.frequency_rule as Record<string,unknown>|null)?.canonical_month)===currentMonth);
   let practiceId=monthLink?.practice_id||null;
