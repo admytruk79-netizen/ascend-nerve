@@ -81,6 +81,32 @@ html[data-theme="day"] body.ascend-master-ui #today .journal-handoff{
   box-shadow:0 16px 40px rgba(83,61,28,.08)!important;
 }
 
+/* Light cards must carry their own readable text authority. Keep this scoped
+   to cards with light Day surfaces so text on photographic/image overlays
+   remains intentionally light. */
+html[data-theme="day"] body.ascend-master-ui .rhythm-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #journal-form :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #path .formation-group :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui .library-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui .auth-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #today .journal-handoff :is(h2,h3,strong){
+  color:#10212b!important;
+  text-shadow:none!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .rhythm-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #journal-form :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #path .formation-group :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui .library-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui .auth-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #today .journal-handoff :is(p,small,label,li){
+  color:#566367!important;
+}
+
 html[data-theme="day"] body.ascend-master-ui textarea,
 html[data-theme="day"] body.ascend-master-ui input,
 html[data-theme="day"] body.ascend-master-ui select{
