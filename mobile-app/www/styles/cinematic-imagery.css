@@ -1,0 +1,30 @@
+/* ASCEND cinematic imagery — presentation only. Uses existing approved app artwork. */
+body.ascend-master-ui .ritual-scene{background-image:linear-gradient(180deg,rgba(2,8,13,.04),rgba(2,8,13,.48)),url('../assets/ascend-twilight-ritual-bg.jpg')!important;background-size:cover!important;background-position:center!important}
+html[data-theme="night"] body.ascend-master-ui .ritual-scene{filter:saturate(.82) brightness(.68) contrast(1.08)}
+html[data-theme="twilight"] body.ascend-master-ui .ritual-scene{filter:saturate(.94) brightness(.88)}
+html[data-theme="day"] body.ascend-master-ui .ritual-scene{background-image:linear-gradient(180deg,rgba(247,240,222,.08),rgba(24,36,39,.2)),url('../assets/ascend-today-morning-serenity.svg')!important;filter:saturate(.82) brightness(1.05)}
+
+/* The portal remains the interaction; imagery forms the threshold behind it. */
+body.ascend-master-ui .ritual-portal:before,body.ascend-master-ui .ritual-portal:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+body.ascend-master-ui .ritual-portal:before{inset:-18px;border:1px solid rgba(220,184,105,.36);box-shadow:0 0 42px rgba(220,184,105,.16),inset 0 0 30px rgba(220,184,105,.07)}
+body.ascend-master-ui .ritual-portal:after{inset:-38px;border:1px solid rgba(220,184,105,.12)}
+
+/* Journal: reflection imagery is an atmospheric coda, never the primary task. */
+body.ascend-master-ui #reflection-art{position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(180deg,rgba(4,17,25,.18),rgba(4,17,25,.5))}
+body.ascend-master-ui .ascend-reflection-hero{position:relative;overflow:hidden}
+body.ascend-master-ui .ascend-reflection-hero img{width:100%;height:100%;object-fit:cover;filter:saturate(.72) brightness(.68);transform:scale(1.01)}
+body.ascend-master-ui .ascend-reflection-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,9,16,.08),rgba(2,9,16,.68));pointer-events:none}
+body.ascend-master-ui .ascend-reflection-hero>div{position:absolute;z-index:2;inset:auto 0 0}
+body.ascend-master-ui .ascend-reflection-choices img{width:100%;height:100%;object-fit:cover;filter:saturate(.66) brightness(.74)}
+
+/* Path: faint symbolic landscape behind the journey, keeping text fully readable. */
+body.ascend-master-ui #path{position:relative;isolation:isolate}
+body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:50%;top:58px;width:min(100vw,620px);height:330px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(3,10,16,.18),rgba(3,10,16,.92)),url('../assets/seasonal-art/april-training-the-will.png') center 35%/cover no-repeat;opacity:.22;mask-image:linear-gradient(to bottom,#000 0,#000 58%,transparent 100%);pointer-events:none}
+
+/* Intro / briefing: use the established ASCEND threshold photograph as cinematic atmosphere. */
+.path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(2,9,16,.64),rgba(2,9,16,.9)),url('../assets/ascend-path-intro-instrument.jpg')!important;background-size:cover!important;background-position:center!important}
+.practice-briefing{background-image:linear-gradient(180deg,rgba(2,9,16,.58),rgba(2,9,16,.92)),url('assets/ascend-twilight-ritual-bg.jpg')!important;background-size:cover!important;background-position:center!important}
+html[data-theme="day"] .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(247,243,235,.84),rgba(229,221,207,.94)),url('../assets/ascend-path-intro-instrument.jpg')!important}
+html[data-theme="day"] .practice-briefing{background-image:linear-gradient(180deg,rgba(244,237,223,.84),rgba(232,222,204,.94)),url('assets/ascend-today-morning-serenity.svg')!important}
+
+@media(prefers-reduced-motion:reduce){body.ascend-master-ui .ascend-reflection-hero img{transform:none}}
