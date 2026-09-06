@@ -4,6 +4,10 @@ html[data-theme="night"] body.ascend-master-ui .ritual-scene{filter:saturate(.82
 html[data-theme="twilight"] body.ascend-master-ui .ritual-scene{filter:saturate(.94) brightness(.88)}
 html[data-theme="day"] body.ascend-master-ui .ritual-scene{background-image:linear-gradient(180deg,rgba(247,240,222,.08),rgba(24,36,39,.2)),url('../assets/ascend-today-morning-serenity.svg')!important;filter:saturate(.82) brightness(1.05)}
 
+/* Keep Today singular: legacy completion controls stay visually hidden. */
+body.ascend-master-ui #today .rhythm-card.visually-hidden,
+body.ascend-master-ui #today .quiet-note.visually-hidden{display:none!important}
+
 /* The portal remains the interaction; imagery forms the threshold behind it. */
 body.ascend-master-ui .ritual-portal:before,body.ascend-master-ui .ritual-portal:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
 body.ascend-master-ui .ritual-portal:before{inset:-18px;border:1px solid rgba(220,184,105,.36);box-shadow:0 0 42px rgba(220,184,105,.16),inset 0 0 30px rgba(220,184,105,.07)}
@@ -17,14 +21,21 @@ body.ascend-master-ui .ascend-reflection-hero:after{content:"";position:absolute
 body.ascend-master-ui .ascend-reflection-hero>div{position:absolute;z-index:2;inset:auto 0 0}
 body.ascend-master-ui .ascend-reflection-choices img{width:100%;height:100%;object-fit:cover;filter:saturate(.66) brightness(.74)}
 
-/* Path: faint symbolic landscape behind the journey, keeping text fully readable. */
+/* Path: symbolic landscape sits below the heading so copy remains readable. */
 body.ascend-master-ui #path{position:relative;isolation:isolate}
-body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:50%;top:58px;width:min(100vw,620px);height:330px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(3,10,16,.18),rgba(3,10,16,.92)),url('../assets/seasonal-art/april-training-the-will.png') center 35%/cover no-repeat;opacity:.22;mask-image:linear-gradient(to bottom,#000 0,#000 58%,transparent 100%);pointer-events:none}
+body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:50%;top:142px;width:min(100vw,620px);height:300px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(3,10,16,.1),rgba(3,10,16,.88)),url('../assets/seasonal-art/april-training-the-will.png') center 34%/cover no-repeat;opacity:.18;mask-image:linear-gradient(to bottom,transparent 0,#000 16%,#000 66%,transparent 100%);pointer-events:none}
+html[data-theme="day"] body.ascend-master-ui #path:before{opacity:.09;filter:saturate(.72)}
+html[data-theme="day"] body.ascend-master-ui #path .path-summary-copy{color:#556166}
 
-/* Intro / briefing: use the established ASCEND threshold photograph as cinematic atmosphere. */
+/* Intro / briefing: established ASCEND threshold imagery, with selectors strong enough to beat legacy ID rules. */
 .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(2,9,16,.64),rgba(2,9,16,.9)),url('../assets/ascend-path-intro-instrument.jpg')!important;background-size:cover!important;background-position:center!important}
-html[data-theme] #practice-briefing.practice-briefing{background-image:linear-gradient(180deg,rgba(2,9,16,.58),rgba(2,9,16,.92)),url('../assets/ascend-twilight-ritual-bg.jpg')!important;background-size:cover!important;background-position:center!important}
+html[data-theme] #practice-briefing.practice-briefing{background:linear-gradient(180deg,rgba(2,9,16,.44),rgba(2,9,16,.84)),url('../assets/ascend-twilight-ritual-bg.jpg') center/cover no-repeat!important;isolation:isolate}
+html[data-theme] #practice-briefing.practice-briefing:before{background:linear-gradient(180deg,rgba(2,9,16,.2),rgba(2,9,16,.58))!important}
+html[data-theme] #practice-briefing.practice-briefing .briefing-inner{position:relative;z-index:2;padding:58px 28px 34px;border-radius:28px;background:linear-gradient(180deg,rgba(3,13,20,.12),rgba(3,13,20,.38));backdrop-filter:blur(1.5px)}
 html[data-theme="day"] .path-intro .intro-guide{background-image:linear-gradient(180deg,rgba(247,243,235,.84),rgba(229,221,207,.94)),url('../assets/ascend-path-intro-instrument.jpg')!important}
-html[data-theme="day"] #practice-briefing.practice-briefing{background-image:linear-gradient(180deg,rgba(244,237,223,.84),rgba(232,222,204,.94)),url('../assets/ascend-today-morning-serenity.svg')!important}
+html[data-theme="day"] #practice-briefing.practice-briefing{background:linear-gradient(180deg,rgba(244,237,223,.6),rgba(232,222,204,.88)),url('../assets/ascend-today-morning-serenity.svg') center/cover no-repeat!important}
+html[data-theme="day"] #practice-briefing.practice-briefing:before{background:linear-gradient(180deg,rgba(245,239,226,.12),rgba(235,226,209,.56))!important}
+html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{background:rgba(250,246,237,.3)}
 
+@media(max-width:520px){html[data-theme] #practice-briefing.practice-briefing .briefing-inner{padding:52px 24px 30px}}
 @media(prefers-reduced-motion:reduce){body.ascend-master-ui .ascend-reflection-hero img{transform:none}}
