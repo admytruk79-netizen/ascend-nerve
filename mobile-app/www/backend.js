@@ -133,17 +133,18 @@
   async function completePractice({stageId,practiceId,durationSeconds}){return rpc('path_record_practice_completion',{p_stage_id:stageId,p_practice_id:practiceId,p_duration_seconds:durationSeconds})}
   async function recordTrainingAssignment(assignmentId,status='practiced'){return rpc('path_record_training_assignment',{p_assignment_id:assignmentId,p_status:status})}
   async function saveJournal(userId,stageId,entry={}){
-    let entryDate=window.ASCENDAuthority?.curriculumDate||null;
-    if(!entryDate){
+    let timezone=window.ASCENDAuthority?.timezone||null;
+    if(!timezone){
       try{
         const profiles=await rest('path_profiles',{query:`user_id=eq.${userId}&select=timezone&limit=1`});
-        const timezone=validTimezone(profiles[0]?.timezone||'UTC');
-        entryDate=curriculumDate(new Date(),timezone);
-        window.ASCENDAuthority={...(window.ASCENDAuthority||{}),timezone,curriculumDate:entryDate};
+        timezone=validTimezone(profiles[0]?.timezone||'UTC');
       }catch{
-        entryDate=curriculumDate(new Date(),'UTC');
+        timezone='UTC';
       }
     }
+    timezone=validTimezone(timezone||'UTC');
+    const entryDate=curriculumDate(new Date(),timezone);
+    window.ASCENDAuthority={...(window.ASCENDAuthority||{}),timezone,curriculumDate:entryDate};
     return rest('path_journal_entries',{method:'POST',body:{
       user_id:userId,
       stage_id:stageId,
