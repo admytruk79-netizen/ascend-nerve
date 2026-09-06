@@ -1,31 +1,32 @@
-/* Practice Briefing artwork now renders through a dedicated DOM layer created
-   by the practice runtime. This avoids legacy/background overrides while
-   keeping all practice behavior untouched. */
+/* Practice Briefing artwork renders through a dedicated DOM layer created by
+   the practice runtime. The content surface is explicitly pinned above it so
+   imagery can never displace or cover the briefing copy and controls. */
 html[data-theme] #practice-briefing.practice-briefing{
   position:fixed!important;
+  inset:0!important;
   isolation:isolate!important;
   overflow:hidden!important;
   background:#02090e!important;
 }
 
 html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  overflow:hidden;
-  pointer-events:none;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
 }
 
 html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center 24%;
-  opacity:.82;
-  transform:scale(1.025);
-  filter:saturate(.9) contrast(1.03) brightness(.72);
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center 24%!important;
+  opacity:.82!important;
+  transform:scale(1.025)!important;
+  filter:saturate(.9) contrast(1.03) brightness(.72)!important;
 }
 
 html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere:after{
@@ -37,18 +38,32 @@ html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere:after
     linear-gradient(180deg,rgba(2,9,16,.10) 0%,rgba(2,9,16,.32) 42%,rgba(2,9,16,.88) 100%);
 }
 
+/* The briefing is a readable glass layer over the atmosphere, not another
+   background image. Absolute pinning also prevents the decorative layer from
+   affecting legacy flex/grid layout. */
 html[data-theme] #practice-briefing.practice-briefing .briefing-inner{
-  position:relative;
-  z-index:2;
-  background:linear-gradient(180deg,rgba(3,13,20,.05),rgba(3,13,20,.34))!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  display:block!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  padding:calc(env(safe-area-inset-top) + 84px) 28px calc(env(safe-area-inset-bottom) + 36px)!important;
+  background:linear-gradient(180deg,rgba(3,13,20,.10),rgba(3,13,20,.34) 48%,rgba(3,13,20,.62))!important;
   box-shadow:inset 0 0 80px rgba(2,9,16,.16)!important;
   backdrop-filter:blur(.3px);
 }
 
-html[data-theme] #practice-briefing.practice-briefing .briefing-inner>*,
+html[data-theme] #practice-briefing.practice-briefing .briefing-inner>*:not(.briefing-atmosphere){
+  position:relative!important;
+  z-index:3!important;
+}
+
 html[data-theme] #practice-briefing.practice-briefing .briefing-close{
-  position:relative;
-  z-index:3;
+  position:absolute!important;
+  right:22px!important;
+  top:calc(env(safe-area-inset-top) + 18px)!important;
+  z-index:5!important;
 }
 
 html[data-theme="day"] #practice-briefing.practice-briefing{
@@ -56,8 +71,8 @@ html[data-theme="day"] #practice-briefing.practice-briefing{
 }
 
 html[data-theme="day"] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
-  opacity:.46;
-  filter:saturate(.72) contrast(.96) brightness(1.18);
+  opacity:.46!important;
+  filter:saturate(.72) contrast(.96) brightness(1.18)!important;
 }
 
 html[data-theme="day"] #practice-briefing.practice-briefing>.briefing-atmosphere:after{
@@ -67,7 +82,7 @@ html[data-theme="day"] #practice-briefing.practice-briefing>.briefing-atmosphere
 }
 
 html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{
-  background:rgba(250,246,237,.14)!important;
+  background:linear-gradient(180deg,rgba(250,246,237,.12),rgba(250,246,237,.28) 48%,rgba(239,228,210,.54))!important;
   color:#10212b!important;
   box-shadow:inset 0 0 72px rgba(125,101,61,.05)!important;
 }
@@ -83,6 +98,10 @@ html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner :is(
 
 @media(max-width:520px){
   html[data-theme] #practice-briefing.practice-briefing>.briefing-atmosphere .briefing-atmosphere-image{
-    object-position:center top;
+    object-position:center top!important;
+  }
+  html[data-theme] #practice-briefing.practice-briefing .briefing-inner{
+    padding-left:22px!important;
+    padding-right:22px!important;
   }
 }
