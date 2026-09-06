@@ -1,0 +1,190 @@
+/* ASCEND cinematic dark visual system — presentation only.
+   Keeps app behavior intact while restoring the intended celestial / ritual visual language. */
+
+html[data-theme] body.ascend-master-ui{
+  --asc-bg:#02080d;
+  --asc-panel:rgba(5,16,24,.76);
+  --asc-panel-soft:rgba(7,20,29,.58);
+  --asc-line:rgba(213,177,101,.16);
+  --asc-text:#f2ecdf;
+  --asc-muted:#9aa7aa;
+  --asc-gold:#d8b56b;
+  --asc-teal:#70bdb7;
+  color:var(--asc-text)!important;
+  background:
+    radial-gradient(circle at 50% -8%,rgba(216,181,107,.12),transparent 27%),
+    radial-gradient(circle at 86% 18%,rgba(112,189,183,.08),transparent 22%),
+    linear-gradient(180deg,#07131c 0%,#030b11 46%,#02070b 100%)!important;
+}
+
+/* Typography: refined, modern, readable. */
+html[data-theme] body.ascend-master-ui,
+html[data-theme] body.ascend-master-ui button,
+html[data-theme] body.ascend-master-ui input,
+html[data-theme] body.ascend-master-ui textarea,
+html[data-theme] body.ascend-master-ui select,
+html[data-theme] body.ascend-master-ui .screen>h1,
+html[data-theme] body.ascend-master-ui .ritual-context h1,
+html[data-theme] body.ascend-master-ui .briefing-inner h1,
+html[data-theme] body.ascend-master-ui .brand,
+html[data-theme] body.ascend-master-ui #journal.active>h1,
+html[data-theme] body.ascend-master-ui #path>h1{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+}
+html[data-theme] body.ascend-master-ui .screen>h1,
+html[data-theme] body.ascend-master-ui .ritual-context h1,
+html[data-theme] body.ascend-master-ui .briefing-inner h1{
+  font-weight:350!important;
+  letter-spacing:-.035em!important;
+}
+
+/* App chrome stays atmospheric in every mode — no cream/light shell. */
+html[data-theme] body.ascend-master-ui .topbar{
+  background:linear-gradient(180deg,rgba(3,11,17,.96),rgba(3,11,17,.74))!important;
+  border-bottom:1px solid rgba(216,181,107,.12)!important;
+  box-shadow:0 14px 36px rgba(0,0,0,.22)!important;
+  backdrop-filter:blur(18px)!important;
+}
+html[data-theme] body.ascend-master-ui .brand,
+html[data-theme] body.ascend-master-ui .brand span,
+html[data-theme] body.ascend-master-ui .mode-pill,
+html[data-theme] body.ascend-master-ui .icon-button{color:var(--asc-text)!important}
+html[data-theme] body.ascend-master-ui .bottom-nav{
+  background:rgba(2,8,13,.94)!important;
+  border-top:1px solid rgba(216,181,107,.12)!important;
+  box-shadow:0 -18px 44px rgba(0,0,0,.34)!important;
+  backdrop-filter:blur(18px)!important;
+}
+html[data-theme] body.ascend-master-ui .bottom-nav button{color:#8e999d!important}
+html[data-theme] body.ascend-master-ui .bottom-nav button.active{color:var(--asc-gold)!important}
+
+/* TODAY: abstract celestial threshold, no people, one clear focal portal. */
+html[data-theme] body.ascend-master-ui #today{color:var(--asc-text)!important}
+html[data-theme] body.ascend-master-ui #today .ritual-context .eyebrow,
+html[data-theme] body.ascend-master-ui #today .ritual-meta{color:var(--asc-gold)!important}
+html[data-theme] body.ascend-master-ui #today #stage-title{color:var(--asc-text)!important;text-shadow:0 2px 24px rgba(0,0,0,.22)}
+html[data-theme] body.ascend-master-ui #today .ritual-scene{
+  min-height:390px!important;
+  border:1px solid rgba(216,181,107,.18)!important;
+  border-radius:30px!important;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(226,192,119,.24) 0 2%,rgba(226,192,119,.08) 14%,transparent 29%),
+    radial-gradient(circle at 34% 20%,rgba(112,189,183,.10),transparent 24%),
+    radial-gradient(circle at 72% 78%,rgba(216,181,107,.08),transparent 26%),
+    linear-gradient(165deg,#102533 0%,#07141d 48%,#02090e 100%)!important;
+  filter:none!important;
+  box-shadow:0 32px 78px rgba(0,0,0,.48),inset 0 0 80px rgba(0,0,0,.24)!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-scene:before{
+  background:
+    radial-gradient(circle at 50% 50%,transparent 0 19%,rgba(216,181,107,.10) 19.4% 19.8%,transparent 20.2% 29%,rgba(216,181,107,.075) 29.4% 29.8%,transparent 30.2% 41%,rgba(216,181,107,.05) 41.4% 41.8%,transparent 42.2%),
+    linear-gradient(180deg,rgba(2,8,13,.04),rgba(2,8,13,.16) 58%,rgba(2,8,13,.50))!important;
+  opacity:1!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-scene:after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(circle at 18% 24%,rgba(242,236,223,.22) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 79% 18%,rgba(242,236,223,.16) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 68% 68%,rgba(216,181,107,.18) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 29% 76%,rgba(112,189,183,.14) 0 1px,transparent 1.5px)!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-portal{
+  width:210px!important;height:210px!important;
+  border-color:rgba(216,181,107,.34)!important;
+  background:radial-gradient(circle,rgba(216,181,107,.12),rgba(4,15,22,.34) 58%,rgba(2,8,13,.54))!important;
+  box-shadow:0 0 56px rgba(216,181,107,.16),inset 0 0 38px rgba(216,181,107,.08)!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-copy strong{color:#f6efe2!important;font-size:14px!important;letter-spacing:.08em!important}
+html[data-theme] body.ascend-master-ui #today .ritual-copy small{color:#aeb8b7!important}
+html[data-theme] body.ascend-master-ui #today .ritual-feedback{color:var(--asc-teal)!important}
+html[data-theme] body.ascend-master-ui #today .journey-rail,
+html[data-theme] body.ascend-master-ui #today .journal-handoff{
+  background:linear-gradient(180deg,rgba(8,23,32,.76),rgba(4,14,21,.82))!important;
+  border:1px solid var(--asc-line)!important;
+  color:var(--asc-text)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.20)!important;
+}
+
+/* Shared screens: dark glass, restrained gold structure. */
+html[data-theme] body.ascend-master-ui .screen{color:var(--asc-text)!important}
+html[data-theme] body.ascend-master-ui .screen>h1{color:var(--asc-text)!important}
+html[data-theme] body.ascend-master-ui .eyebrow{color:var(--asc-gold)!important}
+html[data-theme] body.ascend-master-ui .quiet-note,
+html[data-theme] body.ascend-master-ui .path-summary-copy{color:var(--asc-muted)!important}
+html[data-theme] body.ascend-master-ui .rhythm-card,
+html[data-theme] body.ascend-master-ui #journal-form,
+html[data-theme] body.ascend-master-ui #path .path-orientation,
+html[data-theme] body.ascend-master-ui #path .formation-group,
+html[data-theme] body.ascend-master-ui .library-card,
+html[data-theme] body.ascend-master-ui .auth-card{
+  background:linear-gradient(180deg,rgba(8,23,32,.78),rgba(4,14,21,.82))!important;
+  border-color:var(--asc-line)!important;
+  color:var(--asc-text)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.18)!important;
+}
+html[data-theme] body.ascend-master-ui textarea,
+html[data-theme] body.ascend-master-ui input{
+  background:rgba(1,8,13,.62)!important;
+  border-color:rgba(216,181,107,.16)!important;
+  color:var(--asc-text)!important;
+}
+
+/* Journal artwork remains secondary; no bright card treatment. */
+html[data-theme] body.ascend-master-ui #reflection-art{
+  background:linear-gradient(180deg,rgba(7,20,29,.28),rgba(3,11,17,.58))!important;
+  border-color:rgba(216,181,107,.10)!important;
+}
+
+/* Path: keep symbolic atmosphere subtle and legible. */
+html[data-theme] body.ascend-master-ui #path:before{opacity:.11!important;filter:saturate(.48) brightness(.62)!important}
+html[data-theme] body.ascend-master-ui #path .month-card.current{
+  background:linear-gradient(90deg,rgba(216,181,107,.14),rgba(216,181,107,.035))!important;
+  border-color:rgba(216,181,107,.28)!important;
+}
+
+/* Menu / intro / briefing remain immersive in every appearance mode. */
+html[data-theme] body.ascend-master-ui .menu-overlay{background:#02090e!important}
+html[data-theme] .path-intro .intro-guide,
+html[data-theme="day"] .path-intro .intro-guide{
+  background-color:#02090e!important;
+  color:var(--asc-text)!important;
+}
+html[data-theme] .path-intro .intro-step h1,
+html[data-theme="day"] .path-intro .intro-step h1{color:var(--asc-text)!important}
+html[data-theme] .path-intro .intro-step p,
+html[data-theme="day"] .path-intro .intro-step p{color:#aab5b7!important}
+html[data-theme] #practice-briefing.practice-briefing,
+html[data-theme="day"] #practice-briefing.practice-briefing{
+  background-image:
+    radial-gradient(circle at 50% 24%,rgba(216,181,107,.13),transparent 28%),
+    linear-gradient(180deg,#0c202c,#041019 56%,#02090e)!important;
+  background-color:#02090e!important;
+  filter:none!important;
+}
+html[data-theme] #practice-briefing.practice-briefing .briefing-inner,
+html[data-theme="day"] #practice-briefing.practice-briefing .briefing-inner{
+  background-image:
+    radial-gradient(circle at 50% 18%,rgba(216,181,107,.10),transparent 25%),
+    linear-gradient(180deg,rgba(4,15,22,.36),rgba(2,9,14,.72))!important;
+  color:var(--asc-text)!important;
+  box-shadow:inset 0 0 90px rgba(0,0,0,.22)!important;
+}
+
+/* Remove accidental light-mode inversions from legacy rules. */
+html[data-theme="day"] body.ascend-master-ui .topbar,
+html[data-theme="day"] body.ascend-master-ui .bottom-nav,
+html[data-theme="day"] body.ascend-master-ui #today,
+html[data-theme="day"] body.ascend-master-ui #path,
+html[data-theme="day"] body.ascend-master-ui #journal,
+html[data-theme="day"] body.ascend-master-ui #library,
+html[data-theme="day"] body.ascend-master-ui #me{color:var(--asc-text)!important}
+
+@media(max-width:520px){
+  html[data-theme] body.ascend-master-ui #today .ritual-scene{min-height:365px!important;border-radius:26px!important}
+  html[data-theme] body.ascend-master-ui #today .ritual-portal{width:190px!important;height:190px!important}
+}
