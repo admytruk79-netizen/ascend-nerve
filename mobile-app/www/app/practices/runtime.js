@@ -44,6 +44,23 @@ function syncPracticeCopy(practice){
   set('overlay-practice-instructions',practice.instructions||'');
 }
 
+function ensureBriefingAtmosphere(){
+  const briefing=document.getElementById('practice-briefing');
+  if(!briefing)return null;
+  let atmosphere=briefing.querySelector(':scope > .briefing-atmosphere');
+  if(atmosphere)return atmosphere;
+  atmosphere=document.createElement('div');
+  atmosphere.className='briefing-atmosphere';
+  atmosphere.setAttribute('aria-hidden','true');
+  const image=document.createElement('img');
+  image.className='briefing-atmosphere-image';
+  image.src='assets/ascend-twilight-ritual-bg.jpg';
+  image.alt='';
+  atmosphere.appendChild(image);
+  briefing.prepend(atmosphere);
+  return atmosphere;
+}
+
 function requestedRenderer(practice){
   const value=practice?.metadata?.renderer||practice?.metadata?.practice_renderer||practice?.renderer;
   return typeof value==='string'?value.trim().toLowerCase():'';
@@ -67,6 +84,7 @@ function context(){
 function prepare(){
   const practice=resolvedPractice();
   syncPracticeCopy(practice);
+  ensureBriefingAtmosphere();
   const renderer=selectRenderer(practice);
   renderer.prepare(context());
   document.documentElement.dataset.practiceRenderer=renderer.name;
@@ -87,6 +105,7 @@ function exit(){activeRenderer.exit()}
 function openBriefing(){
   const briefing=document.getElementById('practice-briefing');
   if(!briefing)return false;
+  ensureBriefingAtmosphere();
   prepare();
   briefing.classList.remove('hidden');
   return true;
@@ -141,6 +160,7 @@ export function initPracticeRuntime(){
   const timerToggle=document.getElementById('timer-toggle');
   const finish=document.getElementById('finish-practice');
 
+  ensureBriefingAtmosphere();
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
   briefingBegin?.addEventListener('click',()=>beginOverlay());
   briefingClose?.addEventListener('click',()=>closeBriefing());
