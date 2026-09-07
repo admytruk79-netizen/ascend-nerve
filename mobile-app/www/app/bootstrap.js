@@ -146,7 +146,7 @@ function bindAuthoritativeFinish(){
       if(hint)hint.textContent='Practice recorded.';
     }catch(error){
       console.error('Could not record authoritative ASCEND practice completion',error);
-      if(hint)hint.textContent='Practice was not recorded. Check your connection and try Finish Practice again.';
+      if(hint)hint.textContent='Practice was not recorded and does not count toward progression yet. Check your connection and try Finish Practice again.';
     }finally{
       pending=false;
       finish.removeAttribute('aria-busy');
