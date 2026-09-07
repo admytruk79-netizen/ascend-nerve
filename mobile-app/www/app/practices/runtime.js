@@ -36,6 +36,7 @@ function syncPracticeCopy(practice){
   if(!practice)return;
   const minutes=Number(practice.default_minutes)||10;
   const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value};
+  set('practice-name',`${minutes} min`);
   set('briefing-title',practice.title||'Practice');
   set('briefing-intention',practice.instructions||'');
   set('briefing-duration',`${minutes} minutes`);
@@ -173,6 +174,8 @@ export function initPracticeRuntime(){
     if(activeRenderer.state==='running')pause();
   });
   document.addEventListener('ascend:authority',()=>{
+    const practice=resolvedPractice();
+    syncPracticeCopy(practice);
     if(document.getElementById('practice-briefing')&&!document.getElementById('practice-briefing').classList.contains('hidden'))prepare();
   });
 
