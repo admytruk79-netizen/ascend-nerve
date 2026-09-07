@@ -131,6 +131,7 @@ function cancelPendingBegin(){
   beginAttempt+=1;
   beginPending=false;
   const button=document.getElementById('briefing-begin');
+  button?.removeAttribute('aria-busy');
   if(button)button.disabled=false;
 }
 
