@@ -68,3 +68,23 @@ test('completion authority is bound to a server-created session scope',()=>{
   assert.match(sql,/v_session\.started_at/);
   assert.match(sql,/v_session\.canonical_month/);
 });
+
+test('authoritative completion preserves the student identity used by Today scope guards',()=>{
+  const bootstrap=read('app/bootstrap.js');
+  const today=read('app/screens/today.js');
+  assert.match(today,/userId:activeUserId\(\)/);
+  assert.match(today,/a\.userId===b\.userId/);
+  assert.match(bootstrap,/function progressForStage\(stageId\)/);
+  assert.match(bootstrap,/const userId=session\.userId\|\|progress\?\.user_id\|\|null/);
+  assert.match(bootstrap,/ascend:practice-completed[\s\S]*userId,/);
+});
+
+test('router does not own Finish Practice after authoritative completion takes capture ownership',()=>{
+  const router=read('app/router.js');
+  const bootstrap=read('app/bootstrap.js');
+  assert.doesNotMatch(router,/getElementById\('finish-practice'\)/);
+  assert.doesNotMatch(router,/finish\?\.addEventListener\('click'/);
+  assert.match(bootstrap,/function bindAuthoritativeFinish\(\)/);
+  assert.match(bootstrap,/p_session_id:session\.sessionId/);
+  assert.match(bootstrap,/event\.stopImmediatePropagation\(\)/);
+});
