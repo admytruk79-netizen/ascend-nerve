@@ -84,7 +84,20 @@ test('router does not own Finish Practice after authoritative completion takes c
   const bootstrap=read('app/bootstrap.js');
   assert.doesNotMatch(router,/getElementById\('finish-practice'\)/);
   assert.doesNotMatch(router,/finish\?\.addEventListener\('click'/);
+  assert.match(router,/ascend:practice-completed/);
+  assert.match(router,/Practice complete\. Note anything you want to remember\./);
   assert.match(bootstrap,/function bindAuthoritativeFinish\(\)/);
   assert.match(bootstrap,/p_session_id:session\.sessionId/);
   assert.match(bootstrap,/event\.stopImmediatePropagation\(\)/);
+});
+
+test('timer owns only timer state and runtime coordinates practice lifecycle',()=>{
+  const timer=read('practice-timer-authority.js');
+  const runtime=read('app/practices/runtime.js');
+  assert.doesNotMatch(timer,/briefingBegin\.addEventListener/);
+  assert.doesNotMatch(timer,/overlay\.querySelector\([^\n]*overlay-close/);
+  assert.doesNotMatch(timer,/finish\.addEventListener/);
+  assert.match(timer,/window\.ASCENDPracticeTimer=\{reset,start,pause,tick/);
+  assert.match(runtime,/window\.ASCENDPracticeTimer\?\.reset\?\.\(\)/);
+  assert.match(runtime,/closeOverlay\(\{resetTimer=false\}=\{\}\)/);
 });
