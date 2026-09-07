@@ -126,11 +126,13 @@ test('a local Journal fallback save survives a later failed practice completion'
   const afterJournal=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
   expect(afterJournal).toBe(1);
 
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_begin_practice_session',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({session_id:'session-integrity-1',canonical_month:1,curriculum_date:'2026-08-27',timezone:'UTC'})}));
   await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_record_practice_completion',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
   await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
+  await expect(page.locator('#practice-overlay')).not.toHaveClass(/hidden/);
   await page.evaluate(()=>{
-    document.getElementById('practice-briefing').classList.add('hidden');
-    document.getElementById('practice-overlay').classList.remove('hidden');
     window.ASCENDPracticeTimer.remainingSeconds=()=>0;
     const finish=document.getElementById('finish-practice');
     finish.classList.add('ready');
