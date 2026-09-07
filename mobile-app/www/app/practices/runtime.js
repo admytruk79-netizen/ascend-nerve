@@ -14,6 +14,8 @@ const renderers={
 
 let activeRenderer=observationRenderer;
 let activeSession=null;
+let beginAttempt=0;
+let beginPending=false;
 let mounted=false;
 
 function canonicalMonth(curriculum){
@@ -118,52 +120,83 @@ function openBriefing(){
   return true;
 }
 
+function cancelPendingBegin(){
+  beginAttempt+=1;
+  beginPending=false;
+  const button=document.getElementById('briefing-begin');
+  if(button)button.disabled=false;
+}
+
 async function beginOverlay(){
   const briefing=document.getElementById('practice-briefing');
   const overlay=document.getElementById('practice-overlay');
-  if(!overlay)return false;
+  const button=document.getElementById('briefing-begin');
+  if(!overlay||!briefing||beginPending)return false;
+
   const practice=resolvedPractice();
   const stageId=window.currentStage?.id||null;
   const authority=window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||{};
+  const attempt=++beginAttempt;
   let serverScope=null;
 
-  if(window.PathBackend?.isSignedIn?.()&&practice?.id&&stageId){
-    try{
+  beginPending=true;
+  overlay.classList.add('hidden');
+  button?.setAttribute('aria-busy','true');
+  if(button)button.disabled=true;
+
+  try{
+    if(window.PathBackend?.isSignedIn?.()&&practice?.id&&stageId){
       serverScope=await window.PathBackend.rpc('path_begin_practice_session',{
         p_stage_id:stageId,
         p_practice_id:practice.id
       });
-    }catch(error){
-      const status=document.getElementById('timer-hint')||document.getElementById('briefing-intention');
+    }
+
+    // The user may dismiss the briefing while the server request is pending.
+    // A late response must never reopen the practice overlay.
+    if(attempt!==beginAttempt||briefing.classList.contains('hidden'))return false;
+
+    activeSession={
+      practice,
+      practiceId:practice?.id||null,
+      stageId,
+      sessionId:serverScope?.session_id||null,
+      month:Number(serverScope?.canonical_month||canonicalMonth(window.curriculum)),
+      date:serverScope?.curriculum_date||authority?.curriculumDate||null,
+      timezone:serverScope?.timezone||authority?.timezone||null
+    };
+    syncPracticeCopy(practice);
+    briefing.classList.add('hidden');
+    overlay.classList.remove('hidden');
+    document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,sessionId:activeSession.sessionId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
+    start();
+    return true;
+  }catch(error){
+    if(attempt===beginAttempt){
+      overlay.classList.add('hidden');
+      briefing.classList.remove('hidden');
+      const status=document.getElementById('briefing-intention');
       if(status)status.textContent='Could not establish an official practice session. Check your connection and try again.';
       console.error('Could not start authoritative ASCEND practice session',error);
-      return false;
+    }
+    return false;
+  }finally{
+    if(attempt===beginAttempt){
+      beginPending=false;
+      button?.removeAttribute('aria-busy');
+      if(button)button.disabled=false;
     }
   }
-
-  activeSession={
-    practice,
-    practiceId:practice?.id||null,
-    stageId,
-    sessionId:serverScope?.session_id||null,
-    month:Number(serverScope?.canonical_month||canonicalMonth(window.curriculum)),
-    date:serverScope?.curriculum_date||authority?.curriculumDate||null,
-    timezone:serverScope?.timezone||authority?.timezone||null
-  };
-  syncPracticeCopy(practice);
-  briefing?.classList.add('hidden');
-  overlay.classList.remove('hidden');
-  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,sessionId:activeSession.sessionId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
-  start();
-  return true;
 }
 
 function closeBriefing(){
+  cancelPendingBegin();
   document.getElementById('practice-briefing')?.classList.add('hidden');
   exit();
 }
 
 function closeOverlay({resetTimer=false}={}){
+  cancelPendingBegin();
   window.ASCENDPracticeTimer?.pause?.();
   if(resetTimer)window.ASCENDPracticeTimer?.reset?.();
   document.getElementById('practice-overlay')?.classList.add('hidden');
@@ -197,9 +230,24 @@ export function initPracticeRuntime(){
 
   ensureBriefingAtmosphere();
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
-  briefingBegin?.addEventListener('click',()=>{void beginOverlay()});
-  briefingClose?.addEventListener('click',()=>closeBriefing());
-  overlayClose?.addEventListener('click',()=>closeOverlay({resetTimer:true}));
+
+  // Runtime owns practice start. Capture prevents the legacy app.js bubble
+  // handler from exposing the timer before the authoritative RPC succeeds.
+  briefingBegin?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void beginOverlay();
+  },true);
+  briefingClose?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeBriefing();
+  },true);
+  overlayClose?.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeOverlay({resetTimer:true});
+  },true);
   timerToggle?.addEventListener('click',syncTimerState);
   finish?.addEventListener('click',()=>{
     if(finish.classList.contains('ready'))complete();
@@ -215,7 +263,7 @@ export function initPracticeRuntime(){
     const overlay=document.getElementById('practice-overlay');
     const briefingOpen=briefing&&!briefing.classList.contains('hidden');
     const overlayOpen=overlay&&!overlay.classList.contains('hidden');
-    if(briefingOpen&&!overlayOpen)prepare();
+    if(briefingOpen&&!overlayOpen&&!beginPending)prepare();
   });
 
   window.ASCENDOpenPractice=openBriefing;
