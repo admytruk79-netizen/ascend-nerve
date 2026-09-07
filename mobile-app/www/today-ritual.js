@@ -45,7 +45,7 @@
     portal.setAttribute('aria-label','Opening practice briefing');
     if(feedback)feedback.textContent='The path is open.';
     vibrate([35,35,55],'MEDIUM');
-    setTimeout(openPractice,120);
+    openPractice();
   };
   const tick=now=>{
     if(!holding||completed)return;
