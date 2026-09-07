@@ -173,6 +173,7 @@ async function beginOverlay(){
       timezone:serverScope?.timezone||authority?.timezone||null
     };
     syncPracticeCopy(practice);
+    window.ASCENDPracticeTimer?.reset?.();
     briefing.classList.add('hidden');
     overlay.classList.remove('hidden');
     document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,sessionId:activeSession.sessionId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
@@ -238,10 +239,9 @@ export function initPracticeRuntime(){
   const finish=document.getElementById('finish-practice');
 
   ensureBriefingAtmosphere();
+  briefingBegin?.setAttribute('aria-describedby','briefing-intention briefing-duration');
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
 
-  // Runtime owns practice start. Capture prevents the legacy app.js bubble
-  // handler from exposing the timer before authoritative scope is established.
   briefingBegin?.addEventListener('click',event=>{
     event.preventDefault();
     event.stopImmediatePropagation();
