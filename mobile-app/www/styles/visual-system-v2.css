@@ -209,7 +209,7 @@ html[data-theme] body.ascend-master-ui #today .ritual-feedback{
   color:var(--asc-cool)!important;
   font-size:11px!important;
 }
-html[data-theme] body.ascend-master-ui #today .ritual-begin{
+html[data-theme] body.ascend-master-ui #today .ritual-begin:not(.ascend-accessible-entry){
   display:none!important;
 }
 
