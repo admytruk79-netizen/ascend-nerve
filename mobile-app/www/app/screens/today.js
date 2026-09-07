@@ -84,6 +84,7 @@ function restoreCompletion(){
   if(!stored){
     const stale=readCompletion();if(stale)writeCompletion(null);
     setReflectionReady(false);
+    const node=completionStatus();if(node){node.textContent='';node.classList.add('hidden')}
     return;
   }
   announce(stored.message||'Practice completed.',{practiceComplete:stored.practiceComplete===true,scope:stored.scope});
