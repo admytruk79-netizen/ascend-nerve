@@ -1,12 +1,13 @@
 name: Deploy ASCEND Path Web Preview
 
-# Non-destructive preview deployment:
-# - existing ascend-path-foundation remains at the Pages root
+# Combined Pages deployment:
+# - ascend-path-foundation is published at the Pages root
 # - ascend-uiux-refinement is published under /preview/
+# Re-deploy whenever either branch changes so the live root never lags behind a merge.
 
 on:
   push:
-    branches: [ ascend-uiux-refinement ]
+    branches: [ ascend-path-foundation, ascend-uiux-refinement ]
     paths:
       - 'mobile-app/**'
       - '.github/workflows/deploy-web-preview.yml'
@@ -25,7 +26,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout current preview candidate
+      - name: Checkout current candidate
         uses: actions/checkout@v4
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -48,10 +49,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout current preview candidate
+      - name: Checkout current candidate
         uses: actions/checkout@v4
 
-      - name: Checkout existing foundation
+      - name: Checkout foundation for live root
         uses: actions/checkout@v4
         with:
           ref: ascend-path-foundation
@@ -63,7 +64,11 @@ jobs:
           set -euo pipefail
           mkdir -p _site/preview
           cp -a foundation/mobile-app/www/. _site/
-          cp -a mobile-app/www/. _site/preview/
+          if [ "${GITHUB_REF_NAME}" = "ascend-uiux-refinement" ]; then
+            cp -a mobile-app/www/. _site/preview/
+          else
+            cp -a foundation/mobile-app/www/. _site/preview/
+          fi
           touch _site/.nojekyll
 
       - name: Configure Pages
