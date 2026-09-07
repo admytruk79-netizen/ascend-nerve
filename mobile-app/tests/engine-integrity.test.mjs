@@ -65,12 +65,14 @@ test('practice completion integrity never advances locally after failed verifica
 
 test('practice finish remains unavailable until timer completion and next action is explicit',()=>{
   const timer=read('practice-timer-authority.js');
+  const bootstrap=read('app/bootstrap.js');
   assert.match(timer,/finish\.disabled=!ready/);
   assert.match(timer,/finish\.setAttribute\('aria-disabled',String\(!ready\)\)/);
   assert.match(timer,/setFinishReady\(false\)/);
   assert.match(timer,/setFinishReady\(true\)/);
   assert.match(timer,/Finish Practice to record this practice, then continue to your Journal/);
-  assert.match(timer,/Recording your practice\. Your Journal reflection is next/);
+  assert.match(bootstrap,/Recording practice…/);
+  assert.match(bootstrap,/Practice recorded\./);
   assert.match(timer,/toggle\.textContent='Resume'/);
 });
 
