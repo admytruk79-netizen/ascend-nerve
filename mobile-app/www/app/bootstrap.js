@@ -77,7 +77,33 @@ function progressForStage(stageId){
   return window.__pathProgress.find(row=>row.stage_id===stageId)||null;
 }
 
-function syncCompletionResult(result,session){
+async function refreshAdvancedContext(nextStageId,userId){
+  if(!nextStageId||!userId)return false;
+  try{
+    const [curriculum,progress]=await Promise.all([
+      window.PathBackend.loadCurriculum(),
+      window.PathBackend.getProgress(userId)
+    ]);
+    const nextStage=curriculum?.stages?.find(stage=>stage.id===nextStageId)||null;
+    if(!nextStage)return false;
+    window.curriculum=curriculum;
+    window.__pathProgress=Array.isArray(progress)?progress:[];
+    window.currentStage=nextStage;
+    const authority=window.ASCENDAuthority||{};
+    document.dispatchEvent(new CustomEvent('ascend:authority',{detail:{
+      month:Number(authority.month||curriculum.currentMonth)||1,
+      timezone:authority.timezone||curriculum.timezone||'UTC',
+      curriculumDate:authority.curriculumDate||curriculum.curriculumDate||null
+    }}));
+    document.dispatchEvent(new CustomEvent('ascend:curriculum'));
+    return true;
+  }catch(error){
+    console.error('Could not refresh ASCEND after server stage advancement',error);
+    return false;
+  }
+}
+
+async function syncCompletionResult(result,session){
   const progress=progressForStage(session.stageId);
   const userId=session.userId||progress?.user_id||null;
   const days=Number(result?.practice_days);
@@ -106,6 +132,8 @@ function syncCompletionResult(result,session){
     date:session.date,
     timezone:session.timezone
   }}));
+  const nextStageId=result?.current_stage_id||null;
+  if(nextStageId&&nextStageId!==session.stageId&&await refreshAdvancedContext(nextStageId,userId))return;
   document.dispatchEvent(new CustomEvent('ascend:curriculum'));
 }
 
@@ -146,7 +174,7 @@ function bindAuthoritativeFinish(){
         p_duration_seconds:seconds,
         p_session_id:session.sessionId
       });
-      syncCompletionResult(result,session);
+      await syncCompletionResult(result,session);
       runtime.complete();
       document.getElementById('practice-overlay')?.classList.add('hidden');
       timer?.reset?.();
