@@ -3,6 +3,7 @@ import {breathRenderer} from './breath.js';
 import {sphereRenderer} from './sphere.js';
 import {guidedRenderer} from './guided.js';
 import {reflectionRenderer} from './reflection.js';
+import {beginAuthoritativePracticeSession} from './session-authority.js';
 
 const renderers={
   observation:observationRenderer,
@@ -145,12 +146,7 @@ async function beginOverlay(){
   if(button)button.disabled=true;
 
   try{
-    if(window.PathBackend?.isSignedIn?.()&&practice?.id&&stageId){
-      serverScope=await window.PathBackend.rpc('path_begin_practice_session',{
-        p_stage_id:stageId,
-        p_practice_id:practice.id
-      });
-    }
+    serverScope=await beginAuthoritativePracticeSession({stageId,practiceId:practice?.id||null});
 
     // The user may dismiss the briefing while the server request is pending.
     // A late response must never reopen the practice overlay.
@@ -232,7 +228,7 @@ export function initPracticeRuntime(){
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
 
   // Runtime owns practice start. Capture prevents the legacy app.js bubble
-  // handler from exposing the timer before the authoritative RPC succeeds.
+  // handler from exposing the timer before authoritative scope is established.
   briefingBegin?.addEventListener('click',event=>{
     event.preventDefault();
     event.stopImmediatePropagation();
