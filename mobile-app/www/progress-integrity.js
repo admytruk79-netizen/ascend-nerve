@@ -18,6 +18,7 @@
       localState.pendingPractices.push({
         stage_id:session?.stageId||currentStage?.id||null,
         practice_id:session?.practiceId||practice?.id||null,
+        server_session_id:session?.sessionId||null,
         attempted_at:new Date().toISOString(),
         curriculum_date:session?.date||auth?.curriculumDate||null,
         canonical_month:Number(session?.month||auth?.month)||null,
@@ -65,11 +66,17 @@
       setSync('LOCAL');
       return;
     }
+    if(!session?.sessionId){
+      timerHint.textContent='This practice has no authoritative server session and cannot count toward progression. Start the practice again while connected.';
+      setSync('PENDING');
+      return;
+    }
 
     const auth=authority();
     const completedScope={
       stageId,
       practiceId:session?.practiceId||practice.id,
+      sessionId:session.sessionId,
       userId:user.id,
       month:Number(session?.month||window.ASCENDPracticeRuntime?.canonicalMonth?.()||auth?.month||window.ASCENDState?.month||curriculum?.currentMonth||1),
       date:session?.date||auth?.curriculumDate||null,
@@ -83,10 +90,11 @@
 
     try{
       const duration=(practice.default_minutes||10)*60;
-      const result=await PathBackend.completePractice({
-        stageId:completedScope.stageId,
-        practiceId:completedScope.practiceId,
-        durationSeconds:duration
+      const result=await PathBackend.rpc('path_record_practice_completion',{
+        p_stage_id:completedScope.stageId,
+        p_practice_id:completedScope.practiceId,
+        p_duration_seconds:duration,
+        p_session_id:completedScope.sessionId
       });
 
       const days=result?.practice_days??progressRow?.practice_days??0;
@@ -103,14 +111,14 @@
 
       const completionDetail={
         ...completedScope,
-        month:Number(result?.canonical_month||completedScope.month),
+        month:Number(result?.session_canonical_month||result?.canonical_month||completedScope.month),
         date:result?.curriculum_date||completedScope.date,
         timezone:result?.timezone||completedScope.timezone,
         practiceDays:days
       };
       window.ASCENDAuthority={
         ...(window.ASCENDAuthority||{}),
-        month:completionDetail.month,
+        month:Number(result?.canonical_month||completionDetail.month),
         curriculumDate:completionDetail.date,
         timezone:completionDetail.timezone
       };
@@ -131,7 +139,6 @@
       handoffToJournal();
     }catch(err){
       console.error(err);
-      // Crucially, do NOT increment local or visible practice-day progress after failed server verification.
       persistPendingAttempt(err?.message||'sync_failed');
       timerHint.textContent='Could not verify this completion. It is saved only as a pending attempt and does not count toward progression yet. Retry when connected.';
       setSync('PENDING');
