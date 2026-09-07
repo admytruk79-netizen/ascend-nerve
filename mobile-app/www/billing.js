@@ -35,6 +35,19 @@
   function notify() { statusListeners.forEach(fn => fn()); }
   function onStatusChange(fn) { statusListeners.push(fn); }
 
+  function rejectStoreResult(result, action) {
+    // cordova-plugin-purchase v13 resolves order()/restorePurchases() with an
+    // IError instead of rejecting. Any truthy return from these two APIs is
+    // therefore a billing failure and must never pass as purchase success.
+    if (!result) return;
+    lastStoreError = result;
+    const message = result.message || result.error || `${action} failed in Google Play Billing.`;
+    const error = new Error(message);
+    if (result.code !== undefined) error.code = result.code;
+    error.storeError = result;
+    throw error;
+  }
+
   function getOffers(product) {
     if (!product) return [];
     if (Array.isArray(product.offers)) return product.offers.filter(Boolean);
@@ -147,13 +160,15 @@
       if (!product) return Promise.reject(new Error(notLoadedReason(tier)));
       const offer = chooseOffer(product);
       if (!offer) return Promise.reject(new Error('Google Play returned the product but no purchasable offer.'));
-      return typeof offer.order === 'function' ? offer.order() : CdvPurchase.store.order(offer);
+      const orderPromise = typeof offer.order === 'function' ? offer.order() : CdvPurchase.store.order(offer);
+      return Promise.resolve(orderPromise).then(result => rejectStoreResult(result, 'Purchase'));
     });
   }
 
   function restore() {
     if (!available) return Promise.reject(new Error('Google Play Billing is unavailable in this build.'));
-    return waitUntilReady(10000).then(() => CdvPurchase.store.restorePurchases());
+    return waitUntilReady(10000).then(() => Promise.resolve(CdvPurchase.store.restorePurchases())
+      .then(result => rejectStoreResult(result, 'Restore')));
   }
 
   global.AscendBilling = {
