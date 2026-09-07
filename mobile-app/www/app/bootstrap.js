@@ -194,6 +194,7 @@ async function boot(){
   if(document.documentElement.dataset.ascendMasterBoot==='1')return;
   document.documentElement.dataset.ascendMasterBoot='1';
   document.documentElement.dataset.ascendMasterReady='0';
+  document.documentElement.classList.add('ascend-master-loading');
   document.body.classList.add('ascend-master-loading');
 
   await waitForLegacyData();
@@ -216,6 +217,7 @@ async function boot(){
   bindAuthoritativeFinish();
 
   document.documentElement.dataset.ascendMasterReady='1';
+  document.documentElement.classList.remove('ascend-master-loading');
   document.body.classList.remove('ascend-master-loading');
   document.dispatchEvent(new CustomEvent('ascend:master-ready'));
 }
@@ -224,7 +226,8 @@ const start=()=>boot().catch(error=>{
   console.error('ASCEND master bootstrap failed',error);
   document.documentElement.dataset.ascendMasterBoot='error';
   document.documentElement.dataset.ascendMasterReady='error';
-  document.body.classList.remove('ascend-master-loading');
+  document.documentElement.classList.add('ascend-master-loading');
+  document.body.classList.add('ascend-master-loading');
 });
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
