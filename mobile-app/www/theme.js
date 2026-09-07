@@ -2,6 +2,10 @@
   const KEY='ascendPathTheme';
   const VALID=['day','twilight','night'];
 
+  // Loaded in <head>, before legacy app.js: fail closed until the master
+  // frontend owns all interactive controls.
+  document.documentElement.classList.add('ascend-master-loading');
+
   function normalizePref(pref){return VALID.includes(pref)?pref:'night'}
 
   function getPref(){
@@ -57,8 +61,6 @@
     apply();
   }
 
-  // Set the root theme immediately. CSS is loaded statically through theme.css,
-  // so there is no hidden-document interval and no runtime stylesheet race.
   apply();
 
   if(document.readyState==='loading'){
