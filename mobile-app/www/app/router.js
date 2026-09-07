@@ -110,16 +110,6 @@ function bindContextNavigation(){
     if(event.target.closest('[data-go-journal]')){showScreen('journal');setTimeout(()=>document.querySelector('#journal-form textarea[name="observation"]')?.focus(),160)}
   });
   document.addEventListener('ascend:journal-saved',event=>{if(event.detail?.saved===false)return;showScreen('today')});
-  const finish=document.getElementById('finish-practice');
-  finish?.addEventListener('click',()=>{
-    if(!finish.classList.contains('ready'))return;
-    setTimeout(()=>{
-      if(!document.getElementById('practice-overlay')?.classList.contains('hidden'))return;
-      showScreen('journal');
-      const status=document.getElementById('journal-status');if(status)status.textContent='Practice complete. Note anything you want to remember.';
-      document.querySelector('#journal-form textarea[name="observation"]')?.focus();
-    },250);
-  });
 }
 
 export function initRouter(){
