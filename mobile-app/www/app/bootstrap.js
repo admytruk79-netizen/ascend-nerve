@@ -72,7 +72,14 @@ function detachLegacyPracticeControls(){
   });
 }
 
+function progressForStage(stageId){
+  if(!stageId||!Array.isArray(window.__pathProgress))return null;
+  return window.__pathProgress.find(row=>row.stage_id===stageId)||null;
+}
+
 function syncCompletionResult(result,session){
+  const progress=progressForStage(session.stageId);
+  const userId=session.userId||progress?.user_id||null;
   const days=Number(result?.practice_days);
   if(Number.isFinite(days)){
     for(const id of ['practice-days','profile-days']){
@@ -83,7 +90,6 @@ function syncCompletionResult(result,session){
     if(day)day.textContent=`DAY ${Math.max(1,days+1)}`;
     const journeyDay=document.getElementById('journey-now-day');
     if(journeyDay)journeyDay.textContent=`Day ${Math.max(1,days+1)}`;
-    const progress=Array.isArray(window.__pathProgress)?window.__pathProgress.find(row=>row.stage_id===session.stageId):null;
     if(progress){
       progress.practice_days=days;
       progress.last_practice_date=session.date||progress.last_practice_date;
@@ -92,6 +98,7 @@ function syncCompletionResult(result,session){
   }
   document.dispatchEvent(new CustomEvent('ascend:practice-completed',{detail:{
     ...result,
+    userId,
     stageId:session.stageId,
     practiceId:session.practiceId,
     sessionId:session.sessionId,
