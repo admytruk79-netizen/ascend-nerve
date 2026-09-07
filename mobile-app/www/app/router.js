@@ -109,6 +109,12 @@ function bindContextNavigation(){
     if(event.target.closest('[data-go-signin]')){showScreen('me');setTimeout(()=>document.getElementById('google-sign-in')?.focus(),200);return}
     if(event.target.closest('[data-go-journal]')){showScreen('journal');setTimeout(()=>document.querySelector('#journal-form textarea[name="observation"]')?.focus(),160)}
   });
+  document.addEventListener('ascend:practice-completed',()=>{
+    showScreen('journal');
+    const status=document.getElementById('journal-status');
+    if(status)status.textContent='Practice complete. Note anything you want to remember.';
+    setTimeout(()=>document.querySelector('#journal-form textarea[name="observation"]')?.focus(),160);
+  });
   document.addEventListener('ascend:journal-saved',event=>{if(event.detail?.saved===false)return;showScreen('today')});
 }
 
