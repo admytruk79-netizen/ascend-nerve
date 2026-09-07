@@ -3,7 +3,7 @@ import {breathRenderer} from './breath.js';
 import {sphereRenderer} from './sphere.js';
 import {guidedRenderer} from './guided.js';
 import {reflectionRenderer} from './reflection.js';
-import {beginAuthoritativePracticeSession} from './session-authority.js';
+import {beginAuthoritativePracticeSession,abandonAuthoritativePracticeSession} from './session-authority.js';
 
 const renderers={
   observation:observationRenderer,
@@ -40,6 +40,12 @@ function activePractice(){return activeSession?.practice||resolvedPractice()}
 function activeCanonicalMonth(){return Number(activeSession?.month||canonicalMonth(window.curriculum))}
 function activeScope(){return activeSession?{...activeSession}:null}
 function clearActiveSession(){activeSession=null}
+function abandonSession(sessionId){
+  if(!sessionId)return;
+  void abandonAuthoritativePracticeSession(sessionId).catch(error=>{
+    console.warn('Could not mark ASCEND practice session abandoned',error);
+  });
+}
 
 function syncPracticeCopy(practice){
   if(!practice)return;
@@ -149,8 +155,12 @@ async function beginOverlay(){
     serverScope=await beginAuthoritativePracticeSession({stageId,practiceId:practice?.id||null});
 
     // The user may dismiss the briefing while the server request is pending.
-    // A late response must never reopen the practice overlay.
-    if(attempt!==beginAttempt||briefing.classList.contains('hidden'))return false;
+    // A late response must never reopen the practice overlay and must not leave
+    // a live authoritative start row behind.
+    if(attempt!==beginAttempt||briefing.classList.contains('hidden')){
+      abandonSession(serverScope?.session_id||null);
+      return false;
+    }
 
     activeSession={
       practice,
@@ -193,11 +203,13 @@ function closeBriefing(){
 
 function closeOverlay({resetTimer=false}={}){
   cancelPendingBegin();
+  const sessionId=activeSession?.sessionId||null;
   window.ASCENDPracticeTimer?.pause?.();
   if(resetTimer)window.ASCENDPracticeTimer?.reset?.();
   document.getElementById('practice-overlay')?.classList.add('hidden');
   exit();
   clearActiveSession();
+  abandonSession(sessionId);
 }
 
 function syncTimerState(){
