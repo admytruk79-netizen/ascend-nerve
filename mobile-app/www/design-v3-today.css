@@ -1,21 +1,19 @@
-/* ASCEND authoritative UI entrypoint. Legacy presentation files are deleted; this is the single visual composition root. */
-@import url('./theme-authority.css?v=20260907-authority-2');
-@import url('./mirror-component.css?v=20260907-authority-2');
-@import url('./training-components.css?v=20260907-authority-2');
-@import url('./styles/tokens.css?v=20260907-authority-2');
-@import url('./styles/base.css?v=20260907-authority-2');
-@import url('./styles/components.css?v=20260907-authority-2');
-@import url('./styles/screens.css?v=20260907-authority-2');
-@import url('./styles/responsive.css?v=20260907-authority-2');
-@import url('./styles/cinematic-imagery.css?v=20260907-authority-2');
-@import url('./styles/briefing-visual-fix.css?v=20260907-authority-2');
-@import url('./styles/practice-in-progress-visual.css?v=20260907-authority-2');
-@import url('./styles/journal-visual.css?v=20260907-authority-2');
-@import url('./styles/visual-system-v2.css?v=20260907-authority-5');
+/* ASCEND authoritative UI entrypoint. Legacy/contaminated presentation layers are intentionally excluded. */
+@import url('./theme-authority.css?v=20260907-clean-1');
+@import url('./mirror-component.css?v=20260907-clean-1');
+@import url('./training-components.css?v=20260907-clean-1');
+@import url('./styles/tokens.css?v=20260907-clean-1');
+@import url('./styles/base.css?v=20260907-clean-1');
+@import url('./styles/components.css?v=20260907-clean-1');
+@import url('./styles/screens.css?v=20260907-clean-1');
+@import url('./styles/responsive.css?v=20260907-clean-1');
+@import url('./styles/briefing-visual-fix.css?v=20260907-clean-1');
+@import url('./styles/practice-in-progress-visual.css?v=20260907-clean-1');
+@import url('./styles/journal-visual.css?v=20260907-clean-1');
 
-/* Final root ownership: prevent any browser/default background from flashing between screens. */
+/* Neutral root only. No legacy Today artwork, beige palette, portal treatment, or cinematic image layer. */
 html[data-theme]{background:#071017!important}
-html[data-theme="day"]{background:#f6f5f1!important}
-html[data-theme] body.ascend-master-ui{background-color:#071017!important}
-html[data-theme="day"] body.ascend-master-ui{background-color:#f6f5f1!important}
+html[data-theme="day"]{background:#f6f7f6!important}
+html[data-theme] body.ascend-master-ui{background:#071017!important;color:#f5f7f4!important}
+html[data-theme="day"] body.ascend-master-ui{background:#f6f7f6!important;color:#132229!important}
 html[data-theme] body.ascend-master-ui .screen{background:transparent!important}
