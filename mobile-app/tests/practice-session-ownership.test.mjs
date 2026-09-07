@@ -101,3 +101,14 @@ test('timer owns only timer state and runtime coordinates practice lifecycle',()
   assert.match(runtime,/window\.ASCENDPracticeTimer\?\.reset\?\.\(\)/);
   assert.match(runtime,/closeOverlay\(\{resetTimer=false\}=\{\}\)/);
 });
+
+test('server stage advancement reloads authoritative curriculum and progress instead of painting stale local stage',()=>{
+  const bootstrap=read('app/bootstrap.js');
+  assert.match(bootstrap,/async function refreshAdvancedContext\(nextStageId,userId\)/);
+  assert.match(bootstrap,/window\.PathBackend\.loadCurriculum\(\)/);
+  assert.match(bootstrap,/window\.PathBackend\.getProgress\(userId\)/);
+  assert.match(bootstrap,/window\.currentStage=nextStage/);
+  assert.match(bootstrap,/result\?\.current_stage_id/);
+  assert.match(bootstrap,/await refreshAdvancedContext\(nextStageId,userId\)/);
+  assert.match(bootstrap,/await syncCompletionResult\(result,session\)/);
+});
