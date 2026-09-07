@@ -66,11 +66,16 @@ test('normalizeCanonicalMonth keeps a legacy-only stage\'s primary link usable d
   assert.equal(migrated.find(link=>link.practice_id==='old').role,'legacy_primary');
 });
 
-test('server completion accepts only the current Core progression role',()=>{
+test('server completion is bound to the server-start Core practice scope',()=>{
+  assert.match(completionAuthority,/create or replace function public\.path_begin_practice_session/);
   assert.match(completionAuthority,/sp\.role in \('month_primary','primary'\)/);
   assert.match(completionAuthority,/practice is not a Core progression practice for this stage/);
-  assert.match(completionAuthority,/legacy primary is not valid while current canonical month practice is assigned/);
   assert.match(completionAuthority,/practice is not the current canonical month practice/);
+  assert.match(completionAuthority,/if p_session_id is null then raise exception 'server practice session required'/);
+  assert.match(completionAuthority,/v_session\.practice_id is distinct from p_practice_id/);
+  assert.match(completionAuthority,/v_link_month is distinct from v_session\.canonical_month/);
+  assert.match(completionAuthority,/started_at,completed_at,duration_seconds/);
+  assert.match(completionAuthority,/v_session\.started_at,now\(\),p_duration_seconds/);
   assert.doesNotMatch(completionAuthority,/sp\.role in \([^\)]*supporting/);
 });
 
