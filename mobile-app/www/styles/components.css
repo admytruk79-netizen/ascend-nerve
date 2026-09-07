@@ -2,8 +2,12 @@ body.ascend-master-ui .rhythm-card,body.ascend-master-ui .content-card,body.asce
 body.ascend-master-ui .rhythm-card,body.ascend-master-ui .content-card,body.ascend-master-ui .core-now{padding:var(--asc-space-3)}
 body.ascend-master-ui .primary{border-radius:999px;min-height:48px;padding:12px 20px;background:var(--asc-gold);color:#152029;border:0;font-weight:700}
 body.ascend-master-ui .secondary{border-radius:999px;min-height:46px;padding:11px 18px;border:1px solid var(--asc-line-strong);background:transparent;color:var(--asc-text)}
-body.ascend-master-ui .primary,body.ascend-master-ui .secondary{transition:transform .16s ease,opacity .16s ease,border-color .16s ease,background-color .16s ease}
+body.ascend-master-ui .text-action{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:4px 2px;border:0;background:transparent;color:var(--asc-gold-soft);font-weight:600}
+body.ascend-master-ui .text-action:after{content:'›';font-size:16px;line-height:1}
+body.ascend-master-ui .primary,body.ascend-master-ui .secondary,body.ascend-master-ui .text-action{transition:transform .16s ease,opacity .16s ease,border-color .16s ease,background-color .16s ease,color .16s ease}
 body.ascend-master-ui .primary:active,body.ascend-master-ui .secondary:active{transform:scale(.985)}
+body.ascend-master-ui .text-action:active{opacity:.7}
+body.ascend-master-ui .text-action:hover,body.ascend-master-ui .text-action:focus-visible{color:var(--asc-gold)}
 body.ascend-master-ui button:disabled{opacity:.48;cursor:not-allowed}
 body.ascend-master-ui textarea,body.ascend-master-ui input[type="search"],body.ascend-master-ui input[type="email"],body.ascend-master-ui input[type="password"],body.ascend-master-ui input[type="text"]{border:1px solid var(--asc-line);background:rgba(2,12,18,.55);color:var(--asc-text);border-radius:var(--asc-radius-sm)}
 body.ascend-master-ui textarea:focus,body.ascend-master-ui input[type="search"]:focus,body.ascend-master-ui input[type="email"]:focus,body.ascend-master-ui input[type="password"]:focus,body.ascend-master-ui input[type="text"]:focus{border-color:var(--asc-line-strong);background:rgba(2,12,18,.72)}
