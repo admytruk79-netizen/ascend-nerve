@@ -1,7 +1,6 @@
 -- Canonical Phase I practice-session authority.
--- The server now owns the session-start timestamp and canonical practice scope.
--- This prevents month-boundary failures for paused/backgrounded sessions without
--- trusting arbitrary client timestamps.
+-- The server owns session start, completion, abandonment, canonical practice scope,
+-- and stale-session lifecycle without trusting arbitrary client timestamps.
 
 create table if not exists public.path_practice_session_starts (
   id uuid primary key default gen_random_uuid(),
@@ -13,13 +12,43 @@ create table if not exists public.path_practice_session_starts (
   curriculum_date date not null,
   timezone text not null default 'UTC',
   completed_at timestamptz,
+  abandoned_at timestamptz,
   metadata jsonb not null default '{}'::jsonb
 );
+
+alter table public.path_practice_session_starts
+  add column if not exists abandoned_at timestamptz;
 
 create index if not exists path_practice_session_starts_user_open_idx
   on public.path_practice_session_starts(user_id,completed_at,started_at desc);
 
+create index if not exists path_practice_session_starts_stale_open_idx
+  on public.path_practice_session_starts(started_at)
+  where completed_at is null and abandoned_at is null;
+
 revoke all on public.path_practice_session_starts from anon,authenticated;
+
+create or replace function public.path_cleanup_stale_practice_sessions()
+returns integer
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_count integer;
+begin
+  update public.path_practice_session_starts
+     set abandoned_at=coalesce(abandoned_at,now()),
+         metadata=coalesce(metadata,'{}'::jsonb)||jsonb_build_object('abandon_reason','stale_timeout')
+   where completed_at is null
+     and abandoned_at is null
+     and started_at<now()-interval '48 hours';
+  get diagnostics v_count=row_count;
+  return v_count;
+end;
+$$;
+
+revoke all on function public.path_cleanup_stale_practice_sessions() from public;
 
 create or replace function public.path_begin_practice_session(
   p_stage_id uuid,
@@ -46,6 +75,10 @@ declare
   v_session_id uuid;
 begin
   if v_user is null then raise exception 'authentication required'; end if;
+
+  -- Any student's begin can retire globally stale starts. Cleanup therefore does
+  -- not depend on the same user ever returning to the app.
+  perform public.path_cleanup_stale_practice_sessions();
 
   select coalesce(nullif(timezone,''),'UTC') into v_timezone
   from public.path_profiles where user_id=v_user limit 1;
@@ -114,10 +147,6 @@ begin
     raise exception 'practice is not published';
   end if;
 
-  -- Do not let stale abandoned starts accumulate indefinitely for the same user.
-  delete from public.path_practice_session_starts
-   where user_id=v_user and completed_at is null and started_at<now()-interval '48 hours';
-
   insert into public.path_practice_session_starts(
     user_id,stage_id,practice_id,canonical_month,curriculum_date,timezone,metadata
   ) values(
@@ -139,6 +168,43 @@ $$;
 revoke all on function public.path_begin_practice_session(uuid,uuid) from public;
 grant execute on function public.path_begin_practice_session(uuid,uuid) to authenticated;
 
+create or replace function public.path_abandon_practice_session(p_session_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_user uuid:=auth.uid();
+  v_session public.path_practice_session_starts%rowtype;
+begin
+  if v_user is null then raise exception 'authentication required'; end if;
+  if p_session_id is null then raise exception 'server practice session required'; end if;
+
+  select * into v_session
+  from public.path_practice_session_starts
+  where id=p_session_id and user_id=v_user
+  for update;
+  if not found then raise exception 'practice session not found'; end if;
+
+  if v_session.completed_at is not null then
+    return jsonb_build_object('session_id',v_session.id,'completed',true,'abandoned',false);
+  end if;
+
+  if v_session.abandoned_at is null then
+    update public.path_practice_session_starts
+       set abandoned_at=now(),
+           metadata=coalesce(metadata,'{}'::jsonb)||jsonb_build_object('abandon_reason','client_exit')
+     where id=v_session.id;
+  end if;
+
+  return jsonb_build_object('session_id',v_session.id,'completed',false,'abandoned',true);
+end;
+$$;
+
+revoke all on function public.path_abandon_practice_session(uuid) from public;
+grant execute on function public.path_abandon_practice_session(uuid) to authenticated;
+
 create or replace function public.path_record_practice_completion(
   p_stage_id uuid,
   p_practice_id uuid,
@@ -156,10 +222,12 @@ declare
   v_stage public.path_stages%rowtype;
   v_practice public.path_practices%rowtype;
   v_session public.path_practice_session_starts%rowtype;
+  v_recorded public.path_practice_sessions%rowtype;
   v_timezone text:='UTC';
   v_today date;
   v_days integer;
   v_next_stage uuid;
+  v_current_stage uuid;
   v_min_seconds integer;
   v_role text;
   v_link_month integer;
@@ -178,11 +246,62 @@ begin
   where id=p_session_id and user_id=v_user
   for update;
   if not found then raise exception 'practice session not found'; end if;
-  if v_session.completed_at is not null then raise exception 'practice session already completed'; end if;
   if v_session.stage_id is distinct from p_stage_id or v_session.practice_id is distinct from p_practice_id then
     raise exception 'practice session scope mismatch';
   end if;
-  if v_session.started_at<now()-interval '48 hours' then raise exception 'practice session expired'; end if;
+
+  -- Idempotent recovery: if the authoritative completion committed but the RPC
+  -- response was lost, return the recorded result instead of mutating progress again.
+  if v_session.completed_at is not null then
+    select * into v_recorded
+    from public.path_practice_sessions
+    where user_id=v_user
+      and stage_id=p_stage_id
+      and practice_id=p_practice_id
+      and completion_status='completed'
+      and metadata->>'server_session_id'=v_session.id::text
+    order by completed_at desc
+    limit 1;
+    if not found then raise exception 'completed practice session has no authoritative completion record'; end if;
+    if v_recorded.duration_seconds is distinct from p_duration_seconds then
+      raise exception 'practice completion retry duration mismatch';
+    end if;
+
+    v_timezone:=coalesce(nullif(v_session.timezone,''),'UTC');
+    begin
+      perform now() at time zone v_timezone;
+    exception when invalid_parameter_value then
+      raise exception 'practice session timezone is invalid';
+    end;
+
+    select * into v_progress
+    from public.path_student_progress
+    where user_id=v_user and stage_id=p_stage_id
+    limit 1;
+    select current_stage_id into v_current_stage from public.path_profiles where user_id=v_user limit 1;
+
+    return jsonb_build_object(
+      'practice_days',coalesce(v_progress.practice_days,0),
+      'stage_id',p_stage_id,
+      'stage_status',v_progress.status,
+      'current_stage_id',v_current_stage,
+      'duration_validated',true,
+      'minimum_duration_seconds',coalesce((v_recorded.metadata->>'minimum_seconds')::int,300),
+      'canonical_month',coalesce((v_recorded.metadata->>'completion_canonical_month')::int,v_session.canonical_month),
+      'session_canonical_month',v_session.canonical_month,
+      'curriculum_date',(v_recorded.completed_at at time zone v_timezone)::date,
+      'timezone',v_timezone
+    );
+  end if;
+
+  if v_session.abandoned_at is not null then raise exception 'practice session abandoned'; end if;
+  if v_session.started_at<now()-interval '48 hours' then
+    update public.path_practice_session_starts
+       set abandoned_at=coalesce(abandoned_at,now()),
+           metadata=coalesce(metadata,'{}'::jsonb)||jsonb_build_object('abandon_reason','stale_timeout')
+     where id=v_session.id;
+    raise exception 'practice session expired';
+  end if;
 
   v_timezone:=coalesce(nullif(v_session.timezone,''),'UTC');
   begin
@@ -239,7 +358,6 @@ begin
   if p_duration_seconds<v_min_seconds then
     raise exception 'practice duration too short: minimum % seconds',v_min_seconds;
   end if;
-  -- The server start proves that at least the claimed active duration could have elapsed.
   if extract(epoch from (now()-v_session.started_at))+5<p_duration_seconds then
     raise exception 'practice duration exceeds elapsed server session time';
   end if;
@@ -260,7 +378,9 @@ begin
       'timezone',v_timezone
     )
   );
-  update public.path_practice_session_starts set completed_at=now() where id=v_session.id;
+  update public.path_practice_session_starts
+     set completed_at=now(),abandoned_at=null
+   where id=v_session.id;
 
   v_days:=v_progress.practice_days;
   if v_progress.last_practice_date is distinct from v_today then
