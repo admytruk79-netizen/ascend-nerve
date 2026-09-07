@@ -166,15 +166,20 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
   assert.doesNotMatch(legacyApp,/let remaining=\d+,interval=null,running=false/);
 });
 
-test('theme and component CSS are statically composed with a genuinely light Day palette',()=>{
+test('theme and component CSS are statically composed while the authoritative visual system owns the genuinely light Day palette',()=>{
   const theme=read('theme.css');
+  const master=read('design-v3-today.css');
+  const visual=read('styles/visual-system-v2.css');
   assert.match(theme,/theme-authority\.css/);
   assert.match(theme,/mirror-component\.css/);
   assert.match(theme,/training-components\.css/);
-  assert.match(theme,/html\[data-theme="day"\]\{[\s\S]*color-scheme:light/);
-  assert.match(theme,/--ui-bg:#f4efe4/);
-  assert.match(theme,/--ui-field:#fffdf8/);
   assert.match(theme,/:focus-visible/);
+  assert.match(master,/visual-system-v2\.css/);
+  assert.doesNotMatch(master,/day-palette-fix\.css|web-recovery\.css/);
+  assert.match(visual,/html\[data-theme="day"\] body\.ascend-master-ui\{/);
+  assert.match(visual,/--asc-bg:#f6f5f1/);
+  assert.match(visual,/--asc-panel:rgba\(255,255,255,\.66\)/);
+  assert.match(visual,/linear-gradient\(180deg,#faf9f6 0%,#f4f2ed 56%,#ece9e2 100%\)/);
 });
 
 test('signing identity remains outside frontend reconstruction',()=>{
