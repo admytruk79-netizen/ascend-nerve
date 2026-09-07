@@ -6,20 +6,22 @@
   let submitting=false;
 
   function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
+  function activeSession(){return window.ASCENDPracticeRuntime?.session?.()||null}
   function authority(){return window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||null}
 
   function persistPendingAttempt(reason){
     try{
       if(!Array.isArray(localState.pendingPractices)) localState.pendingPractices=[];
       const practice=activePractice();
+      const session=activeSession();
       const auth=authority();
       localState.pendingPractices.push({
-        stage_id:currentStage?.id||null,
-        practice_id:practice?.id||null,
+        stage_id:session?.stageId||currentStage?.id||null,
+        practice_id:session?.practiceId||practice?.id||null,
         attempted_at:new Date().toISOString(),
-        curriculum_date:auth?.curriculumDate||null,
-        canonical_month:Number(auth?.month)||null,
-        timezone:auth?.timezone||null,
+        curriculum_date:session?.date||auth?.curriculumDate||null,
+        canonical_month:Number(session?.month||auth?.month)||null,
+        timezone:session?.timezone||auth?.timezone||null,
         reason:String(reason||'sync_failed')
       });
       localStorage.setItem('ascendPathState',JSON.stringify(localState));
@@ -56,7 +58,9 @@
     }
 
     const practice=activePractice();
-    if(!user||!currentStage||!practice){
+    const session=activeSession();
+    const stageId=session?.stageId||currentStage?.id||null;
+    if(!user||!stageId||!practice){
       timerHint.textContent='Sign in to record official Path progress. This session has not advanced your stage.';
       setSync('LOCAL');
       return;
@@ -64,12 +68,12 @@
 
     const auth=authority();
     const completedScope={
-      stageId:currentStage.id,
-      practiceId:practice.id,
+      stageId,
+      practiceId:session?.practiceId||practice.id,
       userId:user.id,
-      month:Number(window.ASCENDPracticeRuntime?.canonicalMonth?.()||auth?.month||window.ASCENDState?.month||curriculum?.currentMonth||1),
-      date:auth?.curriculumDate||null,
-      timezone:auth?.timezone||null
+      month:Number(session?.month||window.ASCENDPracticeRuntime?.canonicalMonth?.()||auth?.month||window.ASCENDState?.month||curriculum?.currentMonth||1),
+      date:session?.date||auth?.curriculumDate||null,
+      timezone:session?.timezone||auth?.timezone||null
     };
 
     submitting=true;
