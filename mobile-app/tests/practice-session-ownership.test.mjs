@@ -8,17 +8,19 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 
 test('authoritative practice start keeps the timer hidden until the server session exists',()=>{
   const runtime=read('app/practices/runtime.js');
+  const sessionAuthority=read('app/practices/session-authority.js');
   assert.match(runtime,/async function beginOverlay\(\)/);
   assert.match(runtime,/overlay\.classList\.add\('hidden'\)/);
-  assert.match(runtime,/await window\.PathBackend\.rpc\('path_begin_practice_session'/);
+  assert.match(runtime,/await beginAuthoritativePracticeSession\(/);
+  assert.match(sessionAuthority,/window\.PathBackend\.rpc\('path_begin_practice_session'/);
   assert.match(runtime,/serverScope\?\.session_id/);
   assert.match(runtime,/overlay\.classList\.remove\('hidden'\)/);
   assert.ok(
-    runtime.indexOf("overlay.classList.add('hidden')")<runtime.indexOf("await window.PathBackend.rpc('path_begin_practice_session'"),
+    runtime.indexOf("overlay.classList.add('hidden')")<runtime.indexOf("await beginAuthoritativePracticeSession("),
     'overlay must be forced hidden before the authoritative start RPC'
   );
   assert.ok(
-    runtime.indexOf("await window.PathBackend.rpc('path_begin_practice_session'")<runtime.indexOf("overlay.classList.remove('hidden')"),
+    runtime.indexOf("await beginAuthoritativePracticeSession(")<runtime.indexOf("overlay.classList.remove('hidden')"),
     'overlay must not be exposed until the authoritative start RPC has returned'
   );
 });
