@@ -9,3 +9,10 @@
 @import url('./styles/practice-in-progress-visual.css?v=20260907-authority-1');
 @import url('./styles/journal-visual.css?v=20260907-authority-1');
 @import url('./styles/visual-system-v2.css?v=20260907-authority-4');
+
+/* Final root ownership: prevent legacy body/html colors from leaking through or flashing between screens. */
+html[data-theme]{background:#071017!important}
+html[data-theme="day"]{background:#f6f5f1!important}
+html[data-theme] body.ascend-master-ui{background-color:#071017!important}
+html[data-theme="day"] body.ascend-master-ui{background-color:#f6f5f1!important}
+html[data-theme] body.ascend-master-ui .screen{background:transparent!important}
