@@ -13,6 +13,7 @@ const renderers={
 };
 
 let activeRenderer=observationRenderer;
+let activeSession=null;
 let mounted=false;
 
 function canonicalMonth(curriculum){
@@ -31,6 +32,11 @@ function resolvedPractice(){
   const link=canonicalMonthLink(curriculum,stage)||curriculum.links?.find(item=>item.stage_id===stage.id&&item.role==='primary');
   return link?curriculum.practices?.find(item=>item.id===link.practice_id)||null:null;
 }
+
+function activePractice(){return activeSession?.practice||resolvedPractice()}
+function activeCanonicalMonth(){return Number(activeSession?.month||canonicalMonth(window.curriculum))}
+function activeScope(){return activeSession?{...activeSession}:null}
+function clearActiveSession(){activeSession=null}
 
 function syncPracticeCopy(practice){
   if(!practice)return;
@@ -67,13 +73,13 @@ function requestedRenderer(practice){
   return typeof value==='string'?value.trim().toLowerCase():'';
 }
 
-function selectRenderer(practice=resolvedPractice()){
+function selectRenderer(practice=activePractice()){
   activeRenderer=renderers[requestedRenderer(practice)]||observationRenderer;
   return activeRenderer;
 }
 
 function context(){
-  const practice=resolvedPractice();
+  const practice=activePractice();
   return {
     practice,
     stage:window.currentStage||null,
@@ -83,7 +89,7 @@ function context(){
 }
 
 function prepare(){
-  const practice=resolvedPractice();
+  const practice=activePractice();
   syncPracticeCopy(practice);
   ensureBriefingAtmosphere();
   const renderer=selectRenderer(practice);
@@ -100,7 +106,7 @@ function start(){
 
 function pause(){activeRenderer.pause()}
 function resume(){activeRenderer.resume()}
-function complete(){activeRenderer.complete()}
+function complete(){activeRenderer.complete();clearActiveSession()}
 function exit(){activeRenderer.exit()}
 
 function openBriefing(){
@@ -117,10 +123,20 @@ function beginOverlay(){
   const overlay=document.getElementById('practice-overlay');
   if(!overlay)return false;
   const practice=resolvedPractice();
+  const authority=window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||{};
+  const month=canonicalMonth(window.curriculum);
+  activeSession={
+    practice,
+    practiceId:practice?.id||null,
+    stageId:window.currentStage?.id||null,
+    month,
+    date:authority?.curriculumDate||null,
+    timezone:authority?.timezone||null
+  };
   syncPracticeCopy(practice);
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
-  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:practice?.id||null,stageId:window.currentStage?.id||null,month:canonicalMonth(window.curriculum),date:window.ASCENDProgression?.authority?.()?.curriculumDate||window.ASCENDAuthority?.curriculumDate||null}}));
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
   start();
   return true;
 }
@@ -135,6 +151,7 @@ function closeOverlay({resetTimer=false}={}){
   if(resetTimer)window.ASCENDPracticeTimer?.reset?.();
   document.getElementById('practice-overlay')?.classList.add('hidden');
   exit();
+  clearActiveSession();
 }
 
 function syncTimerState(){
@@ -189,8 +206,9 @@ export function initPracticeRuntime(){
     prepare,start,pause,resume,complete,exit,
     openBriefing,beginOverlay,closeBriefing,closeOverlay,
     current:()=>activeRenderer,
-    practice:()=>resolvedPractice(),
-    canonicalMonth:()=>canonicalMonth(window.curriculum),
+    practice:()=>activePractice(),
+    session:()=>activeScope(),
+    canonicalMonth:()=>activeCanonicalMonth(),
     selectRenderer
   };
 }
