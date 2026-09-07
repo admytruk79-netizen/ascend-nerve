@@ -18,15 +18,20 @@ declare
   v_practice public.path_practices%rowtype;
   v_timezone text:='UTC';
   v_today date;
+  v_session_started_at timestamptz;
+  v_session_start_date date;
   v_days integer;
   v_next_stage uuid;
   v_min_seconds integer;
   v_role text;
   v_link_month integer;
   v_current_month integer;
+  v_session_start_month integer;
+  v_session_practice_month integer;
   v_start integer;
   v_end integer;
   v_elapsed integer;
+  v_start_elapsed integer;
   v_has_current_month_primary boolean;
 begin
   if v_user is null then raise exception 'authentication required'; end if;
@@ -44,7 +49,10 @@ begin
   exception when invalid_parameter_value then
     v_timezone:='UTC';
   end;
+
+  v_session_started_at:=now()-make_interval(secs=>p_duration_seconds);
   v_today:=(now() at time zone v_timezone)::date;
+  v_session_start_date:=(v_session_started_at at time zone v_timezone)::date;
 
   select * into v_progress
   from public.path_student_progress
@@ -80,6 +88,19 @@ begin
   );
   v_current_month:=least(v_end,v_start+v_elapsed-1);
 
+  -- The claimed duration determines an authoritative session-start instant.
+  -- If that instant is in the immediately preceding local calendar month,
+  -- allow that month's canonical practice. This handles sessions that begin
+  -- before midnight on the last day of a month and finish after the boundary
+  -- without trusting a client-supplied month.
+  v_start_elapsed:=greatest(1,
+    ((extract(year from v_session_start_date)::int-extract(year from (v_progress.started_at at time zone v_timezone)::date)::int)*12)
+    +(extract(month from v_session_start_date)::int-extract(month from (v_progress.started_at at time zone v_timezone)::date)::int)
+    +1
+  );
+  v_session_start_month:=least(v_end,v_start+v_start_elapsed-1);
+  v_session_practice_month:=v_current_month;
+
   select exists(
     select 1 from public.path_stage_practices sp
     where sp.stage_id=p_stage_id
@@ -108,7 +129,15 @@ begin
       raise exception 'legacy primary is not valid while current canonical month practice is assigned';
     end if;
     if v_link_month is distinct from v_current_month then
-      raise exception 'practice is not the current canonical month practice';
+      if date_trunc('month',v_session_start_date::timestamp)
+           = date_trunc('month',(v_today::timestamp-interval '1 month'))
+         and date_trunc('month',v_session_start_date::timestamp)
+           <> date_trunc('month',v_today::timestamp)
+         and v_link_month is not distinct from v_session_start_month then
+        v_session_practice_month:=v_session_start_month;
+      else
+        raise exception 'practice is not the current canonical month practice';
+      end if;
     end if;
   elsif v_role<>'primary' then
     raise exception 'practice cannot satisfy Core progression';
@@ -127,8 +156,18 @@ begin
   insert into public.path_practice_sessions(
     user_id,stage_id,practice_id,started_at,completed_at,duration_seconds,completion_status,metadata
   ) values(
-    v_user,p_stage_id,p_practice_id,now()-make_interval(secs=>p_duration_seconds),now(),p_duration_seconds,'completed',
-    jsonb_build_object('source','mobile','duration_validated',true,'minimum_seconds',v_min_seconds,'canonical_month',v_current_month,'progression_role',v_role,'stage_status_at_completion',v_progress.status,'timezone',v_timezone)
+    v_user,p_stage_id,p_practice_id,v_session_started_at,now(),p_duration_seconds,'completed',
+    jsonb_build_object(
+      'source','mobile',
+      'duration_validated',true,
+      'minimum_seconds',v_min_seconds,
+      'canonical_month',v_session_practice_month,
+      'completion_canonical_month',v_current_month,
+      'session_start_canonical_month',v_session_start_month,
+      'progression_role',v_role,
+      'stage_status_at_completion',v_progress.status,
+      'timezone',v_timezone
+    )
   );
 
   v_days:=v_progress.practice_days;
@@ -176,6 +215,7 @@ begin
     'duration_validated',true,
     'minimum_duration_seconds',v_min_seconds,
     'canonical_month',v_current_month,
+    'session_canonical_month',v_session_practice_month,
     'curriculum_date',v_today,
     'timezone',v_timezone
   );
