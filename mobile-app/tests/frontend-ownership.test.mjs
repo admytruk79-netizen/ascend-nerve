@@ -7,14 +7,13 @@ const root=path.resolve('www');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 
 const runtimeUiFiles=[
-  'design-v3-today.js',
-  'training-dashboard.js',
-  'contextual-library.js',
-  'month-path.js',
-  'mirror-engine.js',
-  'training-layers.js',
-  'practitioner-mode.js',
-  'practice-timer-authority.js'
+  'design-v3-today.js','training-dashboard.js','contextual-library.js','month-path.js','mirror-engine.js','training-layers.js','practitioner-mode.js','practice-timer-authority.js'
+];
+
+const retiredCss=[
+  'styles.css','living-object.css','theme.css','experience.css','ritual-today.css','theme-authority.css',
+  'styles/visual-system-v2.css','styles/cinematic-imagery.css','styles/briefing-visual-fix.css',
+  'styles/practice-in-progress-visual.css','styles/journal-visual.css'
 ];
 
 test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
@@ -26,9 +25,9 @@ test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
   }
 });
 
-test('retired approved-screen layers are absent and Today bridge only boots the master frontend',()=>{
+test('retired visual layers are physically absent and Today bridge only boots the master frontend',()=>{
   const today=read('design-v3-today.js');
-  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css','initiation-school.css','initiation-school-refinements.css','initiation-school-polish.css','initiation-school-focus.css','today-web-visual.css','styles.css','living-object.css','theme.css','experience.css','ritual-today.css']){
+  for(const retired of ['approved-screens.js','approved-screens.css','approved-render-overrides.css','ux-fixes.js','ux-fixes.css','initiation-school.css','initiation-school-refinements.css','initiation-school-polish.css','initiation-school-focus.css','today-web-visual.css',...retiredCss]){
     assert.equal(fs.existsSync(path.join(root,retired)),false,`${retired} must stay retired`);
   }
   assert.doesNotMatch(today,/today-v3|approved-hero|initiation-school\.css|approved-screens\.js/);
@@ -44,10 +43,7 @@ test('every stylesheet on disk is reachable from a real page, so an orphaned CSS
     return[...css.matchAll(/@import\s+url\(['"]?([^'")]+\.css)[^'")]*['"]?\)/g)].map(m=>path.join(baseDir,stripQuery(m[1])));
   };
   const reachable=new Set();
-  const queue=[
-    ...linkedFrom(read('index.html'),root),
-    ...linkedFrom(read('delete-account.html'),root)
-  ];
+  const queue=[...linkedFrom(read('index.html'),root),...linkedFrom(read('delete-account.html'),root)];
   while(queue.length){
     const file=path.normalize(queue.pop());
     if(reachable.has(file))continue;
@@ -73,30 +69,29 @@ test('menu overlay quick-nav links are styled by the live master stylesheet, not
   assert.doesNotMatch(screens,/body\.initiation-school \.menu-link/);
 });
 
-test('Today ritual chrome and onboarding are owned by the modern theme-reactive stack',()=>{
+test('Today styling is owned only by the clean shared stack',()=>{
   const master=read('design-v3-today.css');
   const screens=read('styles/screens.css');
-  const visual=read('styles/visual-system-v2.css');
-  for(const file of ['styles.css','living-object.css','theme.css','experience.css','ritual-today.css']){
-    assert.equal(fs.existsSync(path.join(root,file)),false,`${file} must remain deleted`);
-  }
-  assert.match(master,/theme-authority\.css/);
+  const components=read('styles/components.css');
+  const tokens=read('styles/tokens.css');
+  for(const file of retiredCss)assert.equal(fs.existsSync(path.join(root,file)),false,`${file} must remain deleted`);
+  assert.match(master,/styles\/tokens\.css/);
+  assert.match(master,/styles\/base\.css/);
+  assert.match(master,/styles\/components\.css/);
   assert.match(master,/styles\/screens\.css/);
-  assert.match(master,/styles\/visual-system-v2\.css/);
-  assert.doesNotMatch(`${master}\n${screens}\n${visual}`,/var\(--(?:gold2?|teal|muted|ivory|ink2?|line)\)/);
+  assert.doesNotMatch(master,/theme-authority|visual-system-v2|cinematic-imagery|briefing-visual-fix|practice-in-progress-visual|journal-visual/);
+  assert.doesNotMatch(`${screens}\n${components}\n${tokens}`,/--ui-|Georgia,serif|border-radius:999px|border-radius:99px/);
 });
 
-test('Today keeps the hold portal primary while preserving an accessible non-hold fallback',()=>{
+test('Today keeps the hold interaction and accessible fallback without depending on a retired visual layer',()=>{
   const today=read('app/screens/today.js');
   const screens=read('styles/screens.css');
-  const visual=read('styles/visual-system-v2.css');
   assert.match(today,/Press and hold for two seconds to open the briefing/);
   assert.match(today,/Can’t hold\? Open briefing/);
   assert.match(today,/ascend-accessible-entry/);
   assert.match(today,/COMPLETION_KEY='ascendTodayCompletionState'/);
   assert.match(today,/function sameScope\(a,b\)/);
   assert.match(today,/function authority\(\).*ASCENDProgression\?\.authority/s);
-  assert.match(today,/date:auth\?\.curriculumDate\|\|curriculumDate\(\),month:Number\(auth\?\.month\|\|state\.month\)/);
   assert.match(today,/userId:activeUserId\(\)/);
   assert.match(today,/ascend:authority/);
   assert.match(today,/ascend:practice-started/);
@@ -104,7 +99,7 @@ test('Today keeps the hold portal primary while preserving an accessible non-hol
   assert.match(screens,/ritual-begin:not\(\.ascend-accessible-entry\)\{display:none!important\}/);
   assert.match(screens,/ritual-begin\.ascend-accessible-entry\{display:block!important\}/);
   assert.match(screens,/journal-handoff/);
-  assert.match(visual,/ritual-portal/);
+  assert.equal(fs.existsSync(path.join(root,'styles/visual-system-v2.css')),false);
 });
 
 test('Path orients the student before exposing the wider school map and preserves last confirmed position',()=>{
@@ -172,20 +167,17 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
   assert.doesNotMatch(legacyApp,/let remaining=\d+,interval=null,running=false/);
 });
 
-test('theme and component CSS are statically composed while the authoritative visual system owns the genuinely light Day palette',()=>{
+test('clean composition has no retired CSS references and Day palette is neutral rather than beige/gold',()=>{
   const master=read('design-v3-today.css');
-  const visual=read('styles/visual-system-v2.css');
+  const tokens=read('styles/tokens.css');
   const html=read('index.html');
-  assert.match(master,/theme-authority\.css/);
   assert.match(master,/mirror-component\.css/);
   assert.match(master,/training-components\.css/);
-  assert.match(master,/visual-system-v2\.css/);
-  assert.doesNotMatch(master,/day-palette-fix\.css|web-recovery\.css/);
+  assert.doesNotMatch(master,/theme-authority|visual-system-v2|cinematic-imagery|briefing-visual-fix|practice-in-progress-visual|journal-visual|day-palette-fix|web-recovery/);
   assert.doesNotMatch(html,/styles\.css|living-object\.css|theme\.css|experience\.css|ritual-today\.css/);
-  assert.match(visual,/html\[data-theme="day"\] body\.ascend-master-ui\{/);
-  assert.match(visual,/--asc-bg:#f6f5f1/);
-  assert.match(visual,/--asc-panel:rgba\(255,255,255,\.66\)/);
-  assert.match(visual,/linear-gradient\(180deg,#faf9f6 0%,#f4f2ed 56%,#ece9e2 100%\)/);
+  assert.match(tokens,/html\[data-theme="day"\]/);
+  assert.match(tokens,/--asc-bg:#f5f7f6/);
+  assert.doesNotMatch(tokens,/#f6f5f1|#faf9f6|#ece9e2|#d3b978|#d5a24d/);
 });
 
 test('signing identity remains outside frontend reconstruction',()=>{
