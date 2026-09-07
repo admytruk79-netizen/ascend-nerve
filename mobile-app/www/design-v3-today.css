@@ -1,19 +1,17 @@
-/* ASCEND authoritative UI entrypoint. Legacy/contaminated presentation layers are intentionally excluded. */
-@import url('./theme-authority.css?v=20260907-clean-1');
-@import url('./mirror-component.css?v=20260907-clean-1');
-@import url('./training-components.css?v=20260907-clean-1');
-@import url('./styles/tokens.css?v=20260907-clean-1');
-@import url('./styles/base.css?v=20260907-clean-1');
-@import url('./styles/components.css?v=20260907-clean-1');
-@import url('./styles/screens.css?v=20260907-clean-1');
-@import url('./styles/responsive.css?v=20260907-clean-1');
-@import url('./styles/briefing-visual-fix.css?v=20260907-clean-1');
-@import url('./styles/practice-in-progress-visual.css?v=20260907-clean-1');
-@import url('./styles/journal-visual.css?v=20260907-clean-1');
+/* ASCEND authoritative UI entrypoint. Only the current clean design system is composed here. */
+@import url('./mirror-component.css?v=20260907-clean-2');
+@import url('./training-components.css?v=20260907-clean-2');
+@import url('./styles/tokens.css?v=20260907-clean-2');
+@import url('./styles/base.css?v=20260907-clean-2');
+@import url('./styles/components.css?v=20260907-clean-2');
+@import url('./styles/screens.css?v=20260907-clean-2');
+@import url('./styles/responsive.css?v=20260907-clean-2');
+@import url('./styles/briefing-visual-fix.css?v=20260907-clean-2');
+@import url('./styles/practice-in-progress-visual.css?v=20260907-clean-2');
+@import url('./styles/journal-visual.css?v=20260907-clean-2');
 
-/* Neutral root only. No legacy Today artwork, beige palette, portal treatment, or cinematic image layer. */
 html[data-theme]{background:#071017!important}
-html[data-theme="day"]{background:#f6f7f6!important}
-html[data-theme] body.ascend-master-ui{background:#071017!important;color:#f5f7f4!important}
-html[data-theme="day"] body.ascend-master-ui{background:#f6f7f6!important;color:#132229!important}
+html[data-theme="day"]{background:#f5f7f6!important}
+html[data-theme] body.ascend-master-ui{background:#071017!important;color:#f4f7f6!important}
+html[data-theme="day"] body.ascend-master-ui{background:#f5f7f6!important;color:#142126!important}
 html[data-theme] body.ascend-master-ui .screen{background:transparent!important}
