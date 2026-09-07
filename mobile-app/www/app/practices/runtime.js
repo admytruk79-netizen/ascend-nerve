@@ -175,8 +175,13 @@ export function initPracticeRuntime(){
   });
   document.addEventListener('ascend:authority',()=>{
     const practice=resolvedPractice();
-    syncPracticeCopy(practice);
-    if(document.getElementById('practice-briefing')&&!document.getElementById('practice-briefing').classList.contains('hidden'))prepare();
+    const practiceName=document.getElementById('practice-name');
+    if(practice&&practiceName)practiceName.textContent=`${Number(practice.default_minutes)||10} min`;
+    const briefing=document.getElementById('practice-briefing');
+    const overlay=document.getElementById('practice-overlay');
+    const briefingOpen=briefing&&!briefing.classList.contains('hidden');
+    const overlayOpen=overlay&&!overlay.classList.contains('hidden');
+    if(briefingOpen&&!overlayOpen)prepare();
   });
 
   window.ASCENDOpenPractice=openBriefing;
