@@ -118,25 +118,42 @@ function openBriefing(){
   return true;
 }
 
-function beginOverlay(){
+async function beginOverlay(){
   const briefing=document.getElementById('practice-briefing');
   const overlay=document.getElementById('practice-overlay');
   if(!overlay)return false;
   const practice=resolvedPractice();
+  const stageId=window.currentStage?.id||null;
   const authority=window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||{};
-  const month=canonicalMonth(window.curriculum);
+  let serverScope=null;
+
+  if(window.PathBackend?.isSignedIn?.()&&practice?.id&&stageId){
+    try{
+      serverScope=await window.PathBackend.rpc('path_begin_practice_session',{
+        p_stage_id:stageId,
+        p_practice_id:practice.id
+      });
+    }catch(error){
+      const status=document.getElementById('timer-hint')||document.getElementById('briefing-intention');
+      if(status)status.textContent='Could not establish an official practice session. Check your connection and try again.';
+      console.error('Could not start authoritative ASCEND practice session',error);
+      return false;
+    }
+  }
+
   activeSession={
     practice,
     practiceId:practice?.id||null,
-    stageId:window.currentStage?.id||null,
-    month,
-    date:authority?.curriculumDate||null,
-    timezone:authority?.timezone||null
+    stageId,
+    sessionId:serverScope?.session_id||null,
+    month:Number(serverScope?.canonical_month||canonicalMonth(window.curriculum)),
+    date:serverScope?.curriculum_date||authority?.curriculumDate||null,
+    timezone:serverScope?.timezone||authority?.timezone||null
   };
   syncPracticeCopy(practice);
   briefing?.classList.add('hidden');
   overlay.classList.remove('hidden');
-  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
+  document.dispatchEvent(new CustomEvent('ascend:practice-started',{detail:{practiceId:activeSession.practiceId,stageId:activeSession.stageId,sessionId:activeSession.sessionId,month:activeSession.month,date:activeSession.date,timezone:activeSession.timezone}}));
   start();
   return true;
 }
@@ -180,7 +197,7 @@ export function initPracticeRuntime(){
 
   ensureBriefingAtmosphere();
   portal?.addEventListener('pointerdown',()=>prepare(),{passive:true});
-  briefingBegin?.addEventListener('click',()=>beginOverlay());
+  briefingBegin?.addEventListener('click',()=>{void beginOverlay()});
   briefingClose?.addEventListener('click',()=>closeBriefing());
   overlayClose?.addEventListener('click',()=>closeOverlay({resetTimer:true}));
   timerToggle?.addEventListener('click',syncTimerState);
