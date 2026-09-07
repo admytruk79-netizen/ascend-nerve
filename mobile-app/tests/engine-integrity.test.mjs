@@ -63,11 +63,22 @@ test('practice completion integrity never advances locally after failed verifica
   assert.doesNotMatch(integrity,/renderPath\(\)/);
 });
 
+test('practice finish remains unavailable until timer completion and next action is explicit',()=>{
+  const timer=read('practice-timer-authority.js');
+  assert.match(timer,/finish\.disabled=!ready/);
+  assert.match(timer,/finish\.setAttribute\('aria-disabled',String\(!ready\)\)/);
+  assert.match(timer,/setFinishReady\(false\)/);
+  assert.match(timer,/setFinishReady\(true\)/);
+  assert.match(timer,/Finish Practice to record this practice, then continue to your Journal/);
+  assert.match(timer,/Recording your practice\. Your Journal reflection is next/);
+  assert.match(timer,/toggle\.textContent='Resume'/);
+});
+
 test('timer expiry cannot clear authentication and session survives WebView process restart',()=>{
   const timer=read('practice-timer-authority.js');
   const backend=read('backend.js');
   assert.match(timer,/ascend:practice-timer-complete/);
-  assert.match(timer,/Timer complete — tap Finish Practice below/);
+  assert.match(timer,/Timer complete\. Finish Practice to record this practice/);
   assert.doesNotMatch(timer,/signOut|persist\(null\)|localStorage\.removeItem|location\.(?:assign|replace)|window\.close|navigator\.app\.exitApp/);
   assert.match(backend,/const STORAGE='ascendPathSession'/);
   assert.match(backend,/let session=JSON\.parse\(localStorage\.getItem\(STORAGE\)\|\|'null'\)/);

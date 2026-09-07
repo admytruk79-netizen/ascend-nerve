@@ -29,20 +29,27 @@ test('practice renderers never own curriculum progression',()=>{
 
 test('practice runtime coordinates renderer and overlay lifecycle without owning progression',()=>{
   const runtime=read('app/practices/runtime.js');
+  const sessionAuthority=read('app/practices/session-authority.js');
   const bootstrap=read('app/bootstrap.js');
   const integrity=read('progress-integrity.js');
   for(const name of renderers)assert.match(runtime,new RegExp(`\\./${name}\\.js`));
   assert.match(runtime,/metadata\?\.renderer/);
   assert.match(runtime,/metadata\?\.practice_renderer/);
   assert.match(runtime,/observationRenderer/);
+  assert.match(runtime,/beginAuthoritativePracticeSession/);
   assert.match(runtime,/ASCENDPracticeRuntime/);
   assert.match(runtime,/ASCENDOpenPractice=openBriefing/);
   assert.match(runtime,/function openBriefing\(/);
   assert.match(runtime,/function beginOverlay\(/);
   assert.match(runtime,/function closeBriefing\(/);
   assert.match(runtime,/function closeOverlay\(/);
+  assert.match(runtime,/beginAttempt/);
+  assert.match(runtime,/briefing\.classList\.contains\('hidden'\)/);
   assert.match(runtime,/ascend:practice-timer-complete/);
   assert.doesNotMatch(runtime,/completePractice|PathBackend|path_student_progress/);
+  assert.match(sessionAuthority,/path_begin_practice_session/);
+  assert.match(sessionAuthority,/PathBackend\.rpc/);
+  assert.doesNotMatch(sessionAuthority,/path_record_practice_completion|path_student_progress|completePractice/);
   assert.match(integrity,/ASCENDPracticeRuntime\?\.closeOverlay/);
   assert.doesNotMatch(integrity,/getElementById\('practice-overlay'\)/);
   assert.match(bootstrap,/initPracticeRuntime/);
