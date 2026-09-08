@@ -2,9 +2,15 @@
   const KEY='ascendPathTheme';
   const VALID=['day','twilight','night'];
 
-  // Loaded in <head>, before legacy app.js: fail closed until the master
-  // frontend owns all interactive controls.
-  document.documentElement.classList.add('ascend-master-loading');
+  // Loaded in <head>, before app.js: fail closed and mark the document as
+  // master UI immediately. Body receives the master class at DOM ready so
+  // the consolidated styles can never fall back to raw/legacy presentation
+  // while bootstrap is still starting.
+  document.documentElement.classList.add('ascend-master-loading','ascend-master-ui');
+
+  function ensureMasterBody(){
+    document.body?.classList.add('ascend-master-ui','ascend-master-loading');
+  }
 
   function normalizePref(pref){return VALID.includes(pref)?pref:'night'}
 
@@ -47,6 +53,7 @@
   }
 
   function mount(){
+    ensureMasterBody();
     const cycle=document.getElementById('theme-cycle');
     if(cycle&&!cycle.dataset.themeWired){
       cycle.dataset.themeWired='true';
