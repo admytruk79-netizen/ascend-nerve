@@ -4,10 +4,15 @@
   if(!finish||!timerHint)return;
 
   let submitting=false;
+  let replaying=false;
 
   function activePractice(){return window.ASCENDPracticeRuntime?.practice?.()||currentPractice||null}
   function activeSession(){return window.ASCENDPracticeRuntime?.session?.()||null}
   function authority(){return window.ASCENDProgression?.authority?.()||window.ASCENDAuthority||null}
+
+  function persistState(){
+    try{localStorage.setItem('ascendPathState',JSON.stringify(localState))}catch(err){console.error('Could not persist ASCEND local state',err)}
+  }
 
   function persistPendingAttempt(reason){
     try{
@@ -23,6 +28,7 @@
         curriculum_date:session?.date||auth?.curriculumDate||null,
         canonical_month:Number(session?.month||auth?.month)||null,
         timezone:session?.timezone||auth?.timezone||null,
+        duration_seconds:(Number(practice?.default_minutes)||10)*60,
         reason:String(reason||'sync_failed')
       };
       const existingIndex=attempt.server_session_id
@@ -30,7 +36,7 @@
         :-1;
       if(existingIndex>=0)localState.pendingPractices[existingIndex]=attempt;
       else localState.pendingPractices.push(attempt);
-      localStorage.setItem('ascendPathState',JSON.stringify(localState));
+      persistState();
     }catch(err){
       console.error('Could not persist pending practice attempt',err);
     }
@@ -58,6 +64,53 @@
       const refreshed=await PathBackend.refresh?.();
       if(!refreshed)throw error;
       return PathBackend.rpc('path_record_practice_completion',payload);
+    }
+  }
+
+  function pendingDuration(item){
+    const saved=Number(item?.duration_seconds);
+    if(Number.isFinite(saved)&&saved>0)return saved;
+    const practice=curriculum?.practices?.find?.(row=>row.id===item?.practice_id);
+    return (Number(practice?.default_minutes)||10)*60;
+  }
+
+  async function replayPendingAttempts(){
+    if(replaying||submitting||!user||!PathBackend?.isSignedIn?.())return;
+    const pending=Array.isArray(localState.pendingPractices)?localState.pendingPractices.slice():[];
+    if(!pending.length)return;
+    replaying=true;
+    let recovered=0;
+    const keep=[];
+    try{
+      for(const item of pending){
+        if(!item?.stage_id||!item?.practice_id||!item?.server_session_id){keep.push(item);continue}
+        const payload={
+          p_stage_id:item.stage_id,
+          p_practice_id:item.practice_id,
+          p_duration_seconds:pendingDuration(item),
+          p_session_id:item.server_session_id
+        };
+        try{
+          await recordCompletionWithAuthRetry(payload);
+          recovered+=1;
+        }catch(error){
+          const message=String(error?.message||'').toLowerCase();
+          if(message.includes('practice session expired')||message.includes('practice session abandoned')||message.includes('practice session not found')){
+            console.warn('ASCEND pending practice can no longer be replayed',item.server_session_id,error);
+            continue;
+          }
+          keep.push({...item,reason:String(error?.message||item.reason||'sync_failed'),last_retry_at:new Date().toISOString()});
+        }
+      }
+      localState.pendingPractices=keep;
+      persistState();
+      if(recovered>0){
+        timerHint.textContent=recovered===1?'A pending practice was verified and restored to your Path.':`${recovered} pending practices were verified and restored to your Path.`;
+        try{await loadRemote()}catch(error){console.warn('ASCEND recovered pending completion but could not refresh remote state',error)}
+        document.dispatchEvent(new CustomEvent('ascend:pending-practices-recovered',{detail:{count:recovered}}));
+      }
+    }finally{
+      replaying=false;
     }
   }
 
@@ -141,6 +194,11 @@
       };
       window.ASCENDProgression?.invalidate?.();
 
+      if(Array.isArray(localState.pendingPractices)){
+        localState.pendingPractices=localState.pendingPractices.filter(item=>item?.server_session_id!==completedScope.sessionId);
+        persistState();
+      }
+
       if(result?.current_stage_id&&result.current_stage_id!==completedScope.stageId){
         await loadRemote();
       }else{
@@ -156,9 +214,10 @@
       handoffToJournal();
     }catch(err){
       console.error(err);
-      // Crucially, do NOT increment local or visible practice-day progress after failed server verification.
+      // Do not increment local or visible practice-day progress after failed server verification.
+      // Preserve the authoritative server session so it can be replayed idempotently.
       persistPendingAttempt(err?.message||'sync_failed');
-      timerHint.textContent='Could not verify this completion. It is saved only as a pending attempt and does not count toward progression yet. Retry when connected.';
+      timerHint.textContent='Could not verify this completion yet. It is safely queued and will retry automatically when your connection is available.';
       setSync('PENDING');
     }finally{
       submitting=false;
@@ -166,4 +225,8 @@
       finish.textContent='Finish Practice';
     }
   },true);
+
+  window.addEventListener('online',()=>void replayPendingAttempts());
+  document.addEventListener('ascend:authority',()=>void replayPendingAttempts());
+  setTimeout(()=>void replayPendingAttempts(),1800);
 })();
