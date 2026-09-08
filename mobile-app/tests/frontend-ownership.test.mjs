@@ -11,9 +11,13 @@ const runtimeUiFiles=[
 ];
 
 const retiredCss=[
-  'styles.css','living-object.css','theme.css','experience.css','ritual-today.css','theme-authority.css',
-  'styles/visual-system-v2.css','styles/cinematic-imagery.css','styles/briefing-visual-fix.css',
-  'styles/practice-in-progress-visual.css','styles/journal-visual.css'
+  'styles.css','living-object.css','theme.css','theme-authority.css'
+];
+
+const approvedCinematicCss=[
+  'experience.css','ritual-today.css','styles/visual-system-v2.css','styles/cinematic-imagery.css',
+  'styles/briefing-visual-fix.css','styles/practice-in-progress-visual.css','styles/journal-visual.css',
+  'styles/day-palette-fix.css','styles/web-recovery.css'
 ];
 
 test('frontend helpers do not inject stylesheets or style tags at runtime',()=>{
@@ -69,21 +73,23 @@ test('menu overlay quick-nav links are styled by the live master stylesheet, not
   assert.doesNotMatch(screens,/body\.initiation-school \.menu-link/);
 });
 
-test('Today styling is owned only by the clean shared stack',()=>{
+test('Today styling is owned by the shared structural stack plus the approved cinematic presentation layer',()=>{
   const master=read('design-v3-today.css');
   const screens=read('styles/screens.css');
   const components=read('styles/components.css');
   const tokens=read('styles/tokens.css');
   for(const file of retiredCss)assert.equal(fs.existsSync(path.join(root,file)),false,`${file} must remain deleted`);
+  for(const file of approvedCinematicCss)assert.equal(fs.existsSync(path.join(root,file)),true,`${file} is part of the approved cinematic presentation and must exist`);
   assert.match(master,/styles\/tokens\.css/);
   assert.match(master,/styles\/base\.css/);
   assert.match(master,/styles\/components\.css/);
   assert.match(master,/styles\/screens\.css/);
-  assert.doesNotMatch(master,/theme-authority|visual-system-v2|cinematic-imagery|briefing-visual-fix|practice-in-progress-visual|journal-visual/);
+  assert.match(master,/visual-system-v2\.css/);
+  assert.doesNotMatch(master,/theme-authority/);
   assert.doesNotMatch(`${screens}\n${components}\n${tokens}`,/--ui-|Georgia,serif|border-radius:999px|border-radius:99px/);
 });
 
-test('Today keeps the hold interaction and accessible fallback without depending on a retired visual layer',()=>{
+test('Today keeps the hold interaction and accessible fallback alongside the approved cinematic visual layer',()=>{
   const today=read('app/screens/today.js');
   const screens=read('styles/screens.css');
   assert.match(today,/Press and hold for two seconds to open the briefing/);
@@ -99,7 +105,7 @@ test('Today keeps the hold interaction and accessible fallback without depending
   assert.match(screens,/ritual-begin:not\(\.ascend-accessible-entry\)\{display:none!important\}/);
   assert.match(screens,/ritual-begin\.ascend-accessible-entry\{display:block!important\}/);
   assert.match(screens,/journal-handoff/);
-  assert.equal(fs.existsSync(path.join(root,'styles/visual-system-v2.css')),false);
+  assert.equal(fs.existsSync(path.join(root,'styles/visual-system-v2.css')),true);
 });
 
 test('Path orients the student before exposing the wider school map and preserves last confirmed position',()=>{
@@ -167,14 +173,14 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
   assert.doesNotMatch(legacyApp,/let remaining=\d+,interval=null,running=false/);
 });
 
-test('clean composition has no retired CSS references and Day palette is neutral rather than beige/gold',()=>{
+test('composition has no genuinely-retired CSS references and the shared design tokens stay neutral',()=>{
   const master=read('design-v3-today.css');
   const tokens=read('styles/tokens.css');
   const html=read('index.html');
   assert.match(master,/mirror-component\.css/);
   assert.match(master,/training-components\.css/);
-  assert.doesNotMatch(master,/theme-authority|visual-system-v2|cinematic-imagery|briefing-visual-fix|practice-in-progress-visual|journal-visual|day-palette-fix|web-recovery/);
-  assert.doesNotMatch(html,/styles\.css|living-object\.css|theme\.css|experience\.css|ritual-today\.css/);
+  assert.doesNotMatch(master,/theme-authority/);
+  assert.doesNotMatch(html,/styles\.css|living-object\.css|theme\.css/);
   assert.match(tokens,/html\[data-theme="day"\]/);
   assert.match(tokens,/--asc-bg:#f5f7f6/);
   assert.doesNotMatch(tokens,/#f6f5f1|#faf9f6|#ece9e2|#d3b978|#d5a24d/);
