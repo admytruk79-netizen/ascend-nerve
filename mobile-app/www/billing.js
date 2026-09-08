@@ -117,7 +117,7 @@
           const transactions = Array.isArray(receipt.transactions) ? receipt.transactions : [receipt];
           Promise.all(transactions.map(t => {
             const productId = t.products?.[0]?.id || t.productId || receipt.productId;
-            return productId ? verifyOnServer(productId, t).catch(err => { lastVerifyError = err; console.error('[AscendBilling] server verification failed', err); }) : null;
+            return productId ? verifyOnServer(productId, t).then(() => { lastVerifyError = null; }).catch(err => { lastVerifyError = err; console.error('[AscendBilling] server verification failed', err); }) : null;
           })).finally(() => { receipt.finish(); notify(); });
         });
 
@@ -155,6 +155,7 @@
   function purchase(tier) {
     if (!PRODUCTS[tier]) return Promise.reject(new Error('Unknown ASCEND Path product.'));
     if (!available) return Promise.reject(new Error('Google Play Billing is unavailable in this build. Install ASCEND Path from Google Play to purchase.'));
+    lastVerifyError = null;
     return waitUntilReady(10000).then(() => {
       const product = getProduct(PRODUCTS[tier]);
       if (!product) return Promise.reject(new Error(notLoadedReason(tier)));

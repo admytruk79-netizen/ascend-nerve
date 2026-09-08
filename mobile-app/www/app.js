@@ -112,7 +112,7 @@ document.getElementById('lifetime-key-form')?.addEventListener('submit',async ev
 document.getElementById('sign-out').addEventListener('click',()=>{PathBackend.signOut();user=null;entitlement=null;progressRow=null;markerObservations=[];recentJournalText='';window.__pathProgress=[];window.ASCENDProgression?.invalidate?.();document.body.classList.remove('access-required');showAccount();renderCounts(localState.practiceDays);document.getElementById('stage-review-card').classList.add('hidden');document.getElementById('mirror-content').innerHTML='<p>Sign in and begin journaling to create a grounded reflection.</p>';loadRemote()});
 
 function refreshPaywallPrices(){['monthly','annual','lifetime'].forEach(tier=>{const el=document.getElementById(`price-${tier}`),price=window.AscendBilling?.getPriceString(tier);if(el&&price)el.textContent=price})}
-window.AscendBilling?.onStatusChange(()=>{refreshPaywallPrices();if(user)loadRemote()});
+window.AscendBilling?.onStatusChange(()=>{refreshPaywallPrices();const verifyError=window.AscendBilling?.lastVerifyError();const status=document.getElementById('paywall-status');if(verifyError&&status)status.textContent=verifyError.message||'Purchase could not be verified. Contact support if you were charged.';if(user)loadRemote()});
 window.AscendBilling?.init();
 setTimeout(refreshPaywallPrices,1500);
 
