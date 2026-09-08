@@ -4,6 +4,13 @@
   document.body?.classList.add('ascend-master-loading');
   document.documentElement.dataset.ascendMasterReady='0';
 
+  function backgroundImageUrl(node){
+    if(!node)return'';
+    const value=getComputedStyle(node).backgroundImage||node.style?.backgroundImage||'';
+    const match=value.match(/url\(["']?(.*?)["']?\)/i);
+    return match?.[1]||'';
+  }
+
   function installReflectionLightbox(){
     if(window.__ASCEND_REFLECTION_LIGHTBOX__)return;
     window.__ASCEND_REFLECTION_LIGHTBOX__=true;
@@ -13,7 +20,7 @@
     overlay.className='ascend-art-lightbox hidden';
     overlay.setAttribute('role','dialog');
     overlay.setAttribute('aria-modal','true');
-    overlay.setAttribute('aria-label','Reflection artwork');
+    overlay.setAttribute('aria-label','ASCEND artwork');
     overlay.innerHTML='<button type="button" class="ascend-art-lightbox-close" aria-label="Close artwork">×</button><figure><img alt=""/><figcaption></figcaption></figure>';
     document.body.appendChild(overlay);
 
@@ -21,28 +28,39 @@
       overlay.classList.add('hidden');
       document.body.classList.remove('art-lightbox-open');
     };
-    const open=(image,label='')=>{
-      if(!image?.src)return;
+    const openSrc=(src,label='')=>{
+      if(!src)return;
       const target=overlay.querySelector('img');
       const caption=overlay.querySelector('figcaption');
-      target.src=image.src;
-      target.alt=image.alt||label||'Reflection artwork';
-      caption.textContent=label||document.getElementById('reflection-art-label')?.textContent?.trim()||'';
+      target.src=src;
+      target.alt=label||'ASCEND artwork';
+      caption.textContent=label||'';
       caption.hidden=!caption.textContent;
       overlay.classList.remove('hidden');
       document.body.classList.add('art-lightbox-open');
       overlay.querySelector('.ascend-art-lightbox-close')?.focus();
     };
+    const openImage=(image,label='')=>openSrc(image?.src||'',label||image?.alt||'');
 
     overlay.querySelector('.ascend-art-lightbox-close')?.addEventListener('click',close);
     overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
     document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.classList.contains('hidden'))close()});
     document.addEventListener('click',event=>{
-      const hero=event.target.closest?.('.ascend-reflection-hero');
-      if(!hero||!document.getElementById('journal')?.contains(hero))return;
+      const journalHero=event.target.closest?.('.ascend-reflection-hero');
+      if(journalHero&&document.getElementById('journal')?.contains(journalHero)){
+        event.preventDefault();
+        event.stopPropagation();
+        openImage(journalHero.querySelector('img'),journalHero.querySelector('strong')?.textContent?.trim());
+        return;
+      }
+
+      const libraryArt=event.target.closest?.('.content-card-art,.library-reader-art');
+      if(!libraryArt)return;
       event.preventDefault();
-      event.stopPropagation();
-      open(hero.querySelector('img'),hero.querySelector('strong')?.textContent?.trim());
+      event.stopImmediatePropagation();
+      const card=libraryArt.closest('.content-card');
+      const label=card?.querySelector('strong')?.textContent?.trim()||document.getElementById('library-title')?.textContent?.trim()||'ASCEND artwork';
+      openSrc(backgroundImageUrl(libraryArt),label);
     },true);
   }
 
