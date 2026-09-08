@@ -100,7 +100,7 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installPresentationFixes,{once:true});
   else installPresentationFixes();
 
-  import('./app/bootstrap.js?v=20260908-master-ready-2').catch(error=>{
+  import('./app/bootstrap.js?v=20260908-master-ready-3').catch(error=>{
     console.error('ASCEND master bootstrap failed',error);
     document.body?.classList.remove('ascend-master-loading');
     document.documentElement.dataset.ascendMasterReady='error';
