@@ -23,7 +23,7 @@ body.ascend-master-ui #path .core-now-top>div{min-width:0}
 body.ascend-master-ui #path .core-now-top small{display:block;margin-bottom:6px;color:var(--asc-muted);font-size:9px;line-height:1.35;letter-spacing:.13em}
 body.ascend-master-ui #path .core-now-top strong{display:block;color:var(--asc-text);font-size:18px;line-height:1.25;overflow-wrap:anywhere}
 body.ascend-master-ui #path .core-now-top em{align-self:start;white-space:nowrap;color:var(--asc-accent);font-size:9px;font-style:normal;letter-spacing:.12em}
-body.ascend-master-ui #path .core-now-track{height:4px;overflow:hidden;border-radius:999px;background:var(--asc-line)}
+body.ascend-master-ui #path .core-now-track{height:4px;overflow:hidden;border-radius:4px;background:var(--asc-line)}
 body.ascend-master-ui #path .core-now-track i{display:block;height:100%;border-radius:inherit;background:var(--asc-accent)}
 body.ascend-master-ui #path .core-now-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 14px;color:var(--asc-muted);font-size:10px;line-height:1.4}
 body.ascend-master-ui #path .core-now .path-summary-copy{margin:0;font-size:12px}
