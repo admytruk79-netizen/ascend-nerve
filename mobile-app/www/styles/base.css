@@ -11,6 +11,11 @@ body.ascend-master-ui .screen{display:none;width:min(100%,var(--asc-content));ma
 body.ascend-master-ui .screen.active{display:block}
 .splash{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--asc-bg);transition:opacity .5s ease,visibility .5s ease}
 .splash.is-hidden,.splash.done{opacity:0;visibility:hidden;pointer-events:none}
+body.ascend-master-ui .practice-overlay,body.ascend-master-ui .library-overlay{position:fixed;inset:0;z-index:80;overflow:auto;background:var(--asc-bg);padding:calc(env(safe-area-inset-top) + 60px) 20px calc(env(safe-area-inset-bottom) + 40px)}
+body.ascend-master-ui .practice-overlay{display:flex;flex-direction:column;align-items:center;text-align:center}
+body.ascend-master-ui .overlay-close{position:fixed;right:16px;top:calc(env(safe-area-inset-top) + 12px);z-index:90;width:40px;height:40px;border:1px solid var(--asc-line);border-radius:50%;background:var(--asc-surface-strong);color:var(--asc-text);font-size:20px;line-height:1;display:grid;place-items:center}
+body.ascend-master-ui .briefing-inner,body.ascend-master-ui .about-inner{max-width:460px;margin:0 auto}
+body.ascend-master-ui .library-body{max-width:520px;margin:0 auto;text-align:left}
 body.ascend-master-ui .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:14px 20px;border-bottom:1px solid var(--asc-line)}
 body.ascend-master-ui .brand-lockup{display:flex;align-items:center;gap:8px}
 body.ascend-master-ui .brand-logo{width:28px;height:28px;border-radius:50%;object-fit:cover;display:block}
