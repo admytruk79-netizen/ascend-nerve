@@ -43,6 +43,23 @@ jobs:
           npx cap sync android
           node scripts/configure-android-oauth.mjs
 
+      - name: Set a monotonically increasing versionCode
+        working-directory: mobile-app/android/app
+        run: |
+          # android/ is gitignored and rebuilt from scratch by `cap add
+          # android` on every run, so the generated build.gradle always
+          # starts at the Capacitor template's default versionCode 1 /
+          # versionName "1.0" -- Play Console accepts that once and then
+          # rejects every later upload with "Version code 1 has already
+          # been used," since nothing here ever advanced it. Minutes since
+          # epoch is strictly increasing across runs, far larger than any
+          # versionCode a person would have typed by hand, and needs no
+          # commit to bump.
+          VERSION_CODE=$(( $(date -u +%s) / 60 ))
+          sed -i "s/versionCode [0-9]\+/versionCode $VERSION_CODE/" build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"$VERSION_CODE\"/" build.gradle
+          grep -n "versionCode\|versionName" build.gradle
+
       - name: Verify Play signing secrets
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
