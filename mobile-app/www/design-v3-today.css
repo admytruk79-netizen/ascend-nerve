@@ -1,12 +1,18 @@
-/* ASCEND authoritative UI entrypoint. Only structural shared modules are composed here. */
+/* ASCEND authoritative UI entrypoint: current structure + approved cinematic concept-board presentation. */
 @import url('./mirror-component.css?v=20260907-clean-3');
 @import url('./training-components.css?v=20260907-clean-3');
 @import url('./styles/tokens.css?v=20260907-clean-3');
 @import url('./styles/base.css?v=20260907-clean-3');
 @import url('./styles/components.css?v=20260907-clean-3');
 @import url('./styles/screens.css?v=20260907-clean-3');
-@import url('./styles/today-premium.css?v=20260907-premium-1');
 @import url('./styles/responsive.css?v=20260907-clean-3');
+@import url('./styles/web-recovery.css?v=20260907-approved-board-1');
+@import url('./styles/cinematic-imagery.css?v=20260907-approved-board-1');
+@import url('./styles/briefing-visual-fix.css?v=20260907-approved-board-1');
+@import url('./styles/visual-system-v2.css?v=20260907-approved-board-1');
+@import url('./styles/day-palette-fix.css?v=20260907-approved-board-1');
+@import url('./styles/practice-in-progress-visual.css?v=20260907-approved-board-1');
+@import url('./styles/journal-visual.css?v=20260907-approved-board-1');
 
 html[data-theme]{background:#071017!important}
 html[data-theme="day"]{background:#f5f7f6!important}
