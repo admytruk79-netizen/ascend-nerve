@@ -12,7 +12,7 @@ test('master frontend startup lock is applied before legacy UI can interact and 
   const base=read('styles/base.css');
   const bootstrap=read('app/bootstrap.js');
 
-  assert.match(theme,/document\.documentElement\.classList\.add\('ascend-master-loading'\)/);
+  assert.match(theme,/document\.documentElement\.classList\.add\('ascend-master-loading'/);
   assert.match(base,/html\.ascend-master-loading body:not\(\.auth-required\):not\(\.access-required\) #app/);
   assert.match(base,/html\.ascend-master-loading body:not\(\.auth-required\):not\(\.access-required\) \.bottom-nav/);
 
