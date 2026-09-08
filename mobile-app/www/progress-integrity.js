@@ -15,7 +15,7 @@
       const practice=activePractice();
       const session=activeSession();
       const auth=authority();
-      localState.pendingPractices.push({
+      const attempt={
         stage_id:session?.stageId||currentStage?.id||null,
         practice_id:session?.practiceId||practice?.id||null,
         server_session_id:session?.sessionId||null,
@@ -24,7 +24,12 @@
         canonical_month:Number(session?.month||auth?.month)||null,
         timezone:session?.timezone||auth?.timezone||null,
         reason:String(reason||'sync_failed')
-      });
+      };
+      const existingIndex=attempt.server_session_id
+        ?localState.pendingPractices.findIndex(item=>item?.server_session_id===attempt.server_session_id)
+        :-1;
+      if(existingIndex>=0)localState.pendingPractices[existingIndex]=attempt;
+      else localState.pendingPractices.push(attempt);
       localStorage.setItem('ascendPathState',JSON.stringify(localState));
     }catch(err){
       console.error('Could not persist pending practice attempt',err);
@@ -43,6 +48,17 @@
       if(status)status.textContent='Practice complete. Record what you actually observed.';
       document.querySelector('#journal-form textarea[name="observation"]')?.focus();
     });
+  }
+
+  async function recordCompletionWithAuthRetry(payload){
+    try{
+      return await PathBackend.rpc('path_record_practice_completion',payload);
+    }catch(error){
+      if(Number(error?.status)!==401)throw error;
+      const refreshed=await PathBackend.refresh?.();
+      if(!refreshed)throw error;
+      return PathBackend.rpc('path_record_practice_completion',payload);
+    }
   }
 
   finish.addEventListener('click',async e=>{
@@ -90,12 +106,13 @@
 
     try{
       const duration=(practice.default_minutes||10)*60;
-      const result=await PathBackend.rpc('path_record_practice_completion',{
+      const payload={
         p_stage_id:completedScope.stageId,
         p_practice_id:completedScope.practiceId,
         p_duration_seconds:duration,
         p_session_id:completedScope.sessionId
-      });
+      };
+      const result=await recordCompletionWithAuthRetry(payload);
 
       const days=result?.practice_days??progressRow?.practice_days??0;
       if(progressRow){
