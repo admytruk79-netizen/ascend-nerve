@@ -12,15 +12,14 @@
 @import url('./styles/cinematic-imagery.css?v=20260908-approved-board-3');
 @import url('./styles/briefing-visual-fix.css?v=20260908-approved-board-3');
 @import url('./styles/visual-system-v2.css?v=20260908-approved-board-3');
-@import url('./styles/day-palette-fix.css?v=20260908-approved-board-3');
+@import url('./styles/day-palette-fix.css?v=20260908-approved-board-4');
 @import url('./styles/practice-in-progress-visual.css?v=20260908-approved-board-3');
 @import url('./styles/journal-visual.css?v=20260908-approved-board-3');
 
-/* The cinematic shell is authoritative in every appearance mode. Day/Twilight
-   may change accents and scene treatment, but must never revert the app shell
-   to the retired cream/white presentation. */
-html[data-theme]{background:#02080d!important}
-html[data-theme] body.ascend-master-ui{
+/* Twilight/Night use the cinematic shell. Day has its own approved warm ivory
+   authority below. Auth/access always remain cinematic dark regardless of mode. */
+html[data-theme]:not([data-theme="day"]){background:#02080d!important}
+html[data-theme]:not([data-theme="day"]) body.ascend-master-ui{
   background-color:#02080d!important;
   color:#f2ecdf!important;
   background-image:
@@ -35,6 +34,10 @@ html[data-theme] body.ascend-master-ui.auth-required,
 html[data-theme] body.ascend-master-ui.access-required{
   background-color:#02080d!important;
   color:#f2ecdf!important;
+  background-image:
+    radial-gradient(circle at 50% -8%,rgba(216,181,107,.12),transparent 27%),
+    radial-gradient(circle at 86% 18%,rgba(112,189,183,.08),transparent 22%),
+    linear-gradient(180deg,#07131c 0%,#030b11 46%,#02070b 100%)!important;
 }
 html[data-theme] body.ascend-master-ui.auth-required #me,
 html[data-theme] body.ascend-master-ui.access-required #me{
@@ -43,32 +46,32 @@ html[data-theme] body.ascend-master-ui.access-required #me{
     radial-gradient(circle at 80% 72%,rgba(112,189,183,.08),transparent 24%),
     linear-gradient(180deg,#07131c 0%,#030b11 58%,#02070b 100%)!important;
 }
-html[data-theme] body.ascend-master-ui .auth-card{
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card{
   background:linear-gradient(180deg,rgba(8,23,32,.88),rgba(4,14,21,.92))!important;
   border:1px solid rgba(216,181,107,.18)!important;
   box-shadow:0 28px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.025)!important;
   color:#f2ecdf!important;
 }
-html[data-theme] body.ascend-master-ui .auth-card h2{color:#f2ecdf!important}
-html[data-theme] body.ascend-master-ui .auth-card p,
-html[data-theme] body.ascend-master-ui .auth-card .google-signin-copy,
-html[data-theme] body.ascend-master-ui .auth-card label span{color:#aab5b7!important}
-html[data-theme] body.ascend-master-ui .auth-card input{
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card h2{color:#f2ecdf!important}
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card p,
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card .google-signin-copy,
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card label span{color:#aab5b7!important}
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card input{
   background:rgba(1,8,13,.72)!important;
   border-color:rgba(216,181,107,.18)!important;
   color:#f2ecdf!important;
 }
-html[data-theme] body.ascend-master-ui .auth-card .primary{
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card .primary{
   background:linear-gradient(135deg,#d8b56b,#b99450)!important;
   border-color:rgba(216,181,107,.42)!important;
   color:#071017!important;
 }
-html[data-theme] body.ascend-master-ui .auth-card .secondary{
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card .secondary{
   background:rgba(8,23,32,.88)!important;
   border-color:rgba(216,181,107,.28)!important;
   color:#f2ecdf!important;
 }
-html[data-theme] body.ascend-master-ui .auth-card .text-button{color:#d8b56b!important}
+html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card .text-button{color:#d8b56b!important}
 
 html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
   background:
@@ -211,6 +214,31 @@ body.art-lightbox-open{overflow:hidden!important}
   line-height:1!important;
 }
 html[data-theme] body.ascend-master-ui .ascend-reflection-hero{cursor:zoom-in!important}
+html[data-theme] body.ascend-master-ui .content-card-art{cursor:zoom-in!important}
+
+/* Final Day authority. This is intentionally last so the light mode cannot be
+   accidentally recolored by generic shell rules added above it. */
+html[data-theme="day"]{background:#f3eee4!important}
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required){
+  background:#f3eee4!important;
+  background-image:none!important;
+  color:var(--asc-text)!important;
+}
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card{
+  background:rgba(255,250,240,.88)!important;
+  border-color:var(--asc-line)!important;
+  color:var(--asc-text)!important;
+  box-shadow:0 16px 40px rgba(83,61,28,.08)!important;
+}
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card h2{color:#10212b!important}
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card p,
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card .google-signin-copy,
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card label span{color:#566367!important}
+html[data-theme="day"] body.ascend-master-ui:not(.auth-required):not(.access-required) .auth-card input{
+  background:rgba(255,252,246,.94)!important;
+  border-color:rgba(151,111,48,.18)!important;
+  color:#10212b!important;
+}
 
 @media(max-width:520px){
   html[data-theme] body.ascend-master-ui #practice-briefing .briefing-inner{padding:66px 22px 28px!important}
