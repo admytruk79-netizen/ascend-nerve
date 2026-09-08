@@ -217,7 +217,7 @@
       // Do not increment local or visible practice-day progress after failed server verification.
       // Preserve the authoritative server session so it can be replayed idempotently.
       persistPendingAttempt(err?.message||'sync_failed');
-      timerHint.textContent='Could not verify this completion yet. It is safely queued and will retry automatically when your connection is available.';
+      timerHint.textContent='Could not verify this completion yet. It does not count toward progression yet, but it is safely queued and will retry automatically when your connection is available.';
       setSync('PENDING');
     }finally{
       submitting=false;
