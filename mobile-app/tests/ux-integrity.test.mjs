@@ -170,6 +170,19 @@ test('Library remains contextual, keyboard operable and does not mutate canonica
   assert.doesNotMatch(gate,/curriculum\.content\s*=/);
 });
 
+test('opening a Library item keeps its seasonal art instead of dropping it for plain text',()=>{
+  // The card thumbnail rendered artFor(item) as a background image, but
+  // openItem() only ever filled in title/type/body text -- tapping any
+  // card with visible art opened a reader that silently lost the image,
+  // showing only text where the art used to be.
+  const library=read('app/screens/library.js');
+  const css=read('experience.css');
+  assert.match(library,/const image=artFor\(item\)/);
+  assert.match(library,/library-reader-art/);
+  assert.match(library,/body\.innerHTML=art\+paragraphs\(copy\)/);
+  assert.match(css,/\.library-reader-art\{/);
+});
+
 test('first-login introduction and primary navigation remain intact',()=>{
   const html=read('index.html');
   const backend=read('backend.js');

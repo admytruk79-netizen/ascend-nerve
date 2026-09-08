@@ -112,7 +112,9 @@ function openItem(item){
   if(title)title.textContent=item.title||'Library';
   if(body){
     const copy=item.body||item.summary||'This item is available as part of your current ASCEND training.';
-    body.innerHTML=paragraphs(copy)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
+    const image=artFor(item);
+    const art=image?`<div class="library-reader-art" style="background-image:url('assets/seasonal-art/${image}')"></div>`:'';
+    body.innerHTML=art+paragraphs(copy)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
   }
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden','false');
