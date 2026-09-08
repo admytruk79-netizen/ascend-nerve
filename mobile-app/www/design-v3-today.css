@@ -21,3 +21,17 @@ html[data-theme="day"]{background:#f5f7f6!important}
 html[data-theme] body.ascend-master-ui{background:#071017!important;color:#f4f7f6!important}
 html[data-theme="day"] body.ascend-master-ui{background:#f5f7f6!important;color:#142126!important}
 html[data-theme] body.ascend-master-ui .screen{background:transparent!important}
+
+html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
+  background:
+    radial-gradient(circle at 50% 48%,rgba(232,150,96,.26) 0 2%,rgba(232,150,96,.09) 15%,transparent 30%),
+    radial-gradient(circle at 32% 22%,rgba(112,120,189,.10),transparent 25%),
+    radial-gradient(circle at 74% 76%,rgba(232,150,96,.08),transparent 27%),
+    linear-gradient(165deg,#3a2440 0%,#241832 48%,#0c0a1c 100%)!important;
+  border-color:rgba(232,150,96,.20)!important;
+}
+html[data-theme="twilight"] body.ascend-master-ui #today .ritual-portal{
+  border-color:rgba(232,150,96,.36)!important;
+  background:radial-gradient(circle,rgba(232,150,96,.14),rgba(20,13,28,.36) 58%,rgba(12,10,20,.55))!important;
+  box-shadow:0 0 56px rgba(232,150,96,.16),inset 0 0 38px rgba(232,150,96,.08)!important;
+}
