@@ -55,8 +55,8 @@ test('Mirror remains subordinate to progression and exposes stage/all-time scope
 
 test('practice completion integrity never advances locally after failed verification',()=>{
   const integrity=read('progress-integrity.js');
-  assert.match(integrity,/do NOT increment local or visible practice-day progress/);
-  assert.match(integrity,/pending attempt and does not count toward progression yet/);
+  assert.match(integrity,/Do not increment local or visible practice-day progress/);
+  assert.match(integrity,/function persistPendingAttempt/);
   assert.match(integrity,/ASCENDPracticeTimer\?\.remainingSeconds/);
   assert.match(integrity,/timerRemaining\(\)>0\|\|!finish\.classList\.contains\('ready'\)/);
   assert.match(integrity,/requestPathPaint\(\)/);
