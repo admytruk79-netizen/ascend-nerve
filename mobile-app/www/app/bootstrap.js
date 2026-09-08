@@ -137,6 +137,17 @@ async function syncCompletionResult(result,session){
   document.dispatchEvent(new CustomEvent('ascend:curriculum'));
 }
 
+async function recordCompletionWithAuthRetry(payload){
+  try{
+    return await window.PathBackend.rpc('path_record_practice_completion',payload);
+  }catch(error){
+    if(Number(error?.status)!==401)throw error;
+    const refreshed=await window.PathBackend.refresh?.();
+    if(!refreshed)throw error;
+    return window.PathBackend.rpc('path_record_practice_completion',payload);
+  }
+}
+
 function bindAuthoritativeFinish(){
   const finish=document.getElementById('finish-practice');
   if(!finish||finish.dataset.completionAuthority==='master')return;
@@ -168,7 +179,7 @@ function bindAuthoritativeFinish(){
     if(hint)hint.textContent='Recording practice…';
     try{
       const seconds=Math.max(1,Math.round((Number(session.practice?.default_minutes)||10)*60));
-      const result=await window.PathBackend.rpc('path_record_practice_completion',{
+      const result=await recordCompletionWithAuthRetry({
         p_stage_id:session.stageId,
         p_practice_id:session.practiceId,
         p_duration_seconds:seconds,
