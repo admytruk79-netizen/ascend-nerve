@@ -123,7 +123,11 @@ test.describe('comprehensive user journey', ()=>{
       const isLight=v=>v>150;
       const buckets=new Set(luminances.map(isLight));
       expect(buckets.size,`mode=${mode} should keep every screen on the same side of light/dark, saw luminances: ${luminances.join(', ')}`).toBe(1);
-      expect(luminances[0]>150).toBe(mode==='day');
+      // The cinematic shell is authoritative in every appearance mode: Day,
+      // Twilight and Night differ only in accent color and scene treatment,
+      // never by reverting to the retired light/cream shell -- so every
+      // mode, Day included, must land on the dark side of the palette.
+      expect(luminances[0]>150,`mode=${mode} must use the dark cinematic shell, saw luminance ${luminances[0]}`).toBe(false);
     }
   });
 
