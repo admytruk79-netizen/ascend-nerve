@@ -54,12 +54,17 @@
         return;
       }
 
-      const libraryArt=event.target.closest?.('.content-card-art,.library-reader-art');
+      // Only the art already inside an opened Library reader expands
+      // fullscreen. Intercepting .content-card-art too would capture the
+      // click before the list card's own listener ever runs (Library cards
+      // bind the whole article, art thumbnail included, to open the reader),
+      // so tapping a card's art thumbnail would silently skip opening the
+      // reader at all instead of showing the fullscreen art from within it.
+      const libraryArt=event.target.closest?.('.library-reader-art');
       if(!libraryArt)return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      const card=libraryArt.closest('.content-card');
-      const label=card?.querySelector('strong')?.textContent?.trim()||document.getElementById('library-title')?.textContent?.trim()||'ASCEND artwork';
+      const label=document.getElementById('library-title')?.textContent?.trim()||'ASCEND artwork';
       openSrc(backgroundImageUrl(libraryArt),label);
     },true);
   }
