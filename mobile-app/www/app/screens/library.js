@@ -114,7 +114,10 @@ function openItem(item){
     const copy=item.body||item.summary||'This item is available as part of your current ASCEND training.';
     const image=artFor(item);
     const art=image?`<div class="library-reader-art" role="button" tabindex="0" aria-label="Expand ${esc(item.title)} artwork" style="background-image:url('assets/seasonal-art/${image}')"></div>`:'';
-    body.innerHTML=art+paragraphs(copy)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
+    const meta=item.metadata||{};
+    const attribution=meta.author?`ASCEND Path Library · ${esc(meta.source||item.title)} · ${esc(meta.author)}`:`ASCEND Path Library · ${esc(meta.source||'ASCEND curriculum')}`;
+    const sourceLink=meta.source_url?`<a class="source-link" href="${esc(meta.source_url)}" target="_blank" rel="noopener noreferrer">${esc(meta.context_action||'View external source')} ›</a>`:'';
+    body.innerHTML=art+paragraphs(copy)+`<div class="source-note">${attribution}</div>`+sourceLink;
   }
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden','false');

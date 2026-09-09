@@ -183,6 +183,23 @@ test('opening a Library item keeps its seasonal art instead of dropping it for p
   assert.match(css,/\.library-reader-art\{/);
 });
 
+test('Library reader surfaces external source attribution and links instead of dropping them',()=>{
+  // path_content_items in the live curriculum carries real citation metadata
+  // (author, source_url, context_action -- e.g. Rudolf Steiner's Six Basic
+  // Exercises links to rsarchive.org) that openItem() never rendered: only a
+  // generic "ASCEND Path Library · <source>" footer, with no author and no
+  // way to reach the actual external source.
+  const library=read('app/screens/library.js');
+  const css=read('experience.css');
+  assert.match(library,/meta\.author/);
+  assert.match(library,/meta\.source_url/);
+  assert.match(library,/meta\.context_action/);
+  assert.match(library,/class="source-link"/);
+  assert.match(library,/target="_blank"/);
+  assert.match(library,/rel="noopener noreferrer"/);
+  assert.match(css,/\.source-link\{/);
+});
+
 test('first-login introduction and primary navigation remain intact',()=>{
   const html=read('index.html');
   const backend=read('backend.js');
