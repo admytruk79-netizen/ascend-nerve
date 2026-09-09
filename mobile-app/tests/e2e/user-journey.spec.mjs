@@ -98,7 +98,7 @@ test.describe('comprehensive user journey', ()=>{
     await expect(page.locator('#library-list [data-slug]')).toHaveCount(3);
   });
 
-  test('Day, Twilight and Night render one consistent palette across Today, Path, Library and Me', async({page})=>{
+  test('Day stays ivory while Twilight and Night stay cinematic dark across the primary screens', async({page})=>{
     await boot(page);
     await waitForJourneyReady(page);
     async function bodyLuminance(){
@@ -123,11 +123,8 @@ test.describe('comprehensive user journey', ()=>{
       const isLight=v=>v>150;
       const buckets=new Set(luminances.map(isLight));
       expect(buckets.size,`mode=${mode} should keep every screen on the same side of light/dark, saw luminances: ${luminances.join(', ')}`).toBe(1);
-      // The cinematic shell is authoritative in every appearance mode: Day,
-      // Twilight and Night differ only in accent color and scene treatment,
-      // never by reverting to the retired light/cream shell -- so every
-      // mode, Day included, must land on the dark side of the palette.
-      expect(luminances[0]>150,`mode=${mode} must use the dark cinematic shell, saw luminance ${luminances[0]}`).toBe(false);
+      if(mode==='day')expect(luminances[0]>150,`Day must use the approved ivory shell, saw luminance ${luminances[0]}`).toBe(true);
+      else expect(luminances[0]>150,`${mode} must use the cinematic dark shell, saw luminance ${luminances[0]}`).toBe(false);
     }
   });
 
@@ -141,14 +138,20 @@ test.describe('comprehensive user journey', ()=>{
     await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
   });
 
-  test('Android Back closes the Library reader before leaving the Library screen', async({page})=>{
+  test('Library artwork expands separately and Android Back closes the reader before leaving Library', async({page})=>{
     await boot(page);
     await waitForJourneyReady(page);
     await page.getByRole('button',{name:'Library'}).click();
     const group=page.locator('details.library-group:has([data-slug="available-teaching"])');
     await group.locator('summary').click();
-    await page.locator('#library-list [data-slug="available-teaching"]').click();
+    const card=page.locator('#library-list [data-slug="available-teaching"]');
+    await card.locator('.content-card-art').click();
+    await expect(page.locator('#ascend-art-lightbox')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#library-overlay')).toHaveClass(/hidden/);
+    await page.locator('.ascend-art-lightbox-close').click();
+    await card.locator('strong').click();
     await expect(page.locator('#library-overlay')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#library-title')).toHaveText('Observation Before Interpretation');
     await page.evaluate(()=>window.ASCENDUX?.handleBack?.());
     await expect(page.locator('#library-overlay')).toHaveClass(/hidden/);
     await expect(page.locator('#library')).toHaveClass(/active/);
