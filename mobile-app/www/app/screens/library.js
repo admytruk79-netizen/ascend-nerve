@@ -50,7 +50,7 @@ function contextScore(item,context=curriculumContext){
   if(!terms.length)return 0;
   const metadata=item?.metadata||{};
   const haystack=[item?.title,item?.summary,item?.body,item?.slug,metadata.source,metadata.part,metadata.realm,metadata.topics].flat().filter(Boolean).join(' ').toLowerCase();
-  return terms.reduce((score,term)=>score+(haystack.includes(term)?1:0),0;
+  return terms.reduce((score,term)=>score+(haystack.includes(term)?1:0),0);
 }
 
 function contextItems(content){
