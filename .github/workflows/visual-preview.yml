@@ -30,7 +30,18 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: |
+          n=0
+          until [ $n -ge 5 ]; do
+            npx playwright install --with-deps chromium && break
+            n=$((n+1))
+            echo "Chromium install failed (attempt $n/5); dl.google.com's chrome-stable apt repo lags its own Release hash briefly -- retrying in $((n*15))s"
+            sleep $((n*15))
+          done
+          if [ $n -ge 5 ]; then
+            echo "::error::Chromium install failed after 5 attempts"
+            exit 1
+          fi
       - name: Start local app
         run: python3 -m http.server 4173 --directory www >/tmp/ascend-visual-http.log 2>&1 &
       - name: Capture Day Twilight Night
