@@ -76,6 +76,17 @@ html[data-theme] body.ascend-master-ui #today .ritual-scene{
   filter:none!important;
   box-shadow:0 32px 78px rgba(0,0,0,.48),inset 0 0 80px rgba(0,0,0,.24)!important;
 }
+/* Twilight uses the real photographic ritual scene; the shared rule above
+   remains the Night default since no dedicated Night photograph exists. */
+html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
+  background:
+    radial-gradient(circle at 50% 48%,rgba(226,192,119,.20) 0 2%,rgba(226,192,119,.06) 14%,transparent 30%),
+    linear-gradient(180deg,rgba(2,9,14,.05) 0%,rgba(2,9,14,.22) 55%,rgba(2,9,14,.64) 100%),
+    url('../assets/ascend-twilight-ritual-bg.jpg')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
 html[data-theme] body.ascend-master-ui #today .ritual-scene:before{
   background:
     radial-gradient(circle at 50% 50%,transparent 0 19%,rgba(216,181,107,.10) 19.4% 19.8%,transparent 20.2% 29%,rgba(216,181,107,.075) 29.4% 29.8%,transparent 30.2% 41%,rgba(216,181,107,.05) 41.4% 41.8%,transparent 42.2%),
