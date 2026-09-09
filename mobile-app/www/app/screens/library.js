@@ -1,11 +1,5 @@
 import {PathEngine} from '../curriculum/path-engine.js';
-
-const SEASONAL_ART={
-  spring:['self-observation-humility.png','march-focused-thought.png','march-object-contemplation.png','march-reverence-patience.png','march-what-am-i-noticing.png','spring-march-awakening-perception.png','discipline-or-freedom.png'],
-  summer:['heart-opening.png','july-discipline-fire.png','may-openness-readiness.png','openness-readiness.png','self-control-gentleness.png','where-does-will-begin.png','april-where-does-will-begin.png','april-training-the-will.png'],
-  autumn:['august-presence-devotion.png','june-gathering-energy.png','confidence-humanity.png','mastery-of-feeling.png','presence-devotion.png','what-am-i-refusing.png','morning-evening-energy.png','april-deliberate-action.png'],
-  winter:['building-or-draining.png','emotional-composure.png','may-ready-to-release.png','ready-to-release.png','may-truth-vs-imagination.png','truth-vs-imagination.png','spring-may-crossing-the-threshold.png','star-energy-practice.png','two-currents-meeting.png','acceptance-practice.png']
-};
+import {ASCEND_SEMANTIC_ART,semanticAssetFor} from '../data/visual-assets.js';
 
 let currentMonth=1;
 let query='';
@@ -72,22 +66,9 @@ function contextHeading(){
   return'';
 }
 
-function seasonForMonth(month){
-  const value=Math.max(1,Math.min(24,Number(month)||1));
-  return value<=6?'spring':value<=12?'summer':value<=18?'autumn':'winter';
-}
-
-function hashSlug(value=''){
-  let hash=0;
-  for(let index=0;index<value.length;index++)hash=(hash*31+value.charCodeAt(index))|0;
-  return Math.abs(hash);
-}
-
-function artFor(item){
-  const images=SEASONAL_ART[seasonForMonth(minMonth(item))]||[];
-  if(!images.length)return null;
-  return images[hashSlug(item?.slug||item?.id||item?.title||'library')%images.length];
-}
+// Artwork is assigned only when curriculum/content metadata names it explicitly.
+// The former month-bucket/hash assignment was intentionally removed: visual meaning must not be random or define curriculum order.
+function artFor(item){return semanticAssetFor(item)}
 
 function ensureReaderStructure(){
   const body=document.getElementById('library-body');
@@ -99,6 +80,11 @@ function ensureReaderStructure(){
 }
 
 function paragraphs(text=''){return String(text).split(/\n\s*\n|\n/).map(value=>value.trim()).filter(Boolean).map(value=>`<p>${esc(value)}</p>`).join('')}
+
+function openArtwork(asset){
+  if(!asset?.src)return;
+  window.ASCENDOpenArtwork?.(asset.src,asset.title||'ASCEND artwork');
+}
 
 function openItem(item){
   if(!item||!contentAccess(item).unlocked)return;
@@ -112,12 +98,18 @@ function openItem(item){
   if(title)title.textContent=item.title||'Library';
   if(body){
     const copy=item.body||item.summary||'This item is available as part of your current ASCEND training.';
-    const image=artFor(item);
-    const art=image?`<div class="library-reader-art" role="button" tabindex="0" aria-label="Expand ${esc(item.title)} artwork" style="background-image:url('assets/seasonal-art/${image}')"></div>`:'';
+    const asset=artFor(item);
+    const art=asset?`<div class="library-reader-art" role="button" tabindex="0" data-art-id="${esc(asset.id)}" aria-label="Expand ${esc(asset.title)} artwork" style="background-image:url('${esc(asset.src)}')"></div>`:'';
     const meta=item.metadata||{};
     const attribution=meta.author?`ASCEND Path Library · ${esc(meta.source||item.title)} · ${esc(meta.author)}`:`ASCEND Path Library · ${esc(meta.source||'ASCEND curriculum')}`;
     const sourceLink=meta.source_url?`<a class="source-link" href="${esc(meta.source_url)}" target="_blank" rel="noopener noreferrer">${esc(meta.context_action||'View external source')} ›</a>`:'';
     body.innerHTML=art+paragraphs(copy)+`<div class="source-note">${attribution}</div>`+sourceLink;
+    if(asset){
+      const artNode=body.querySelector('.library-reader-art');
+      const activate=event=>{event.preventDefault();event.stopPropagation();openArtwork(asset)};
+      artNode?.addEventListener('click',activate);
+      artNode?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')activate(event)});
+    }
   }
   overlay.classList.remove('hidden');
   overlay.setAttribute('aria-hidden','false');
@@ -129,20 +121,20 @@ function card(item,{recommended=false}={}){
   const locked=!access.unlocked;
   node.className='content-card'+(locked?' locked':'');
   if(item.slug)node.dataset.slug=item.slug;
-  const image=artFor(item);
+  const asset=artFor(item);
   if(locked){
     node.setAttribute('aria-disabled','true');node.setAttribute('tabindex','-1');
     node.innerHTML=`<small>LATER</small><strong>${esc(item.title)}</strong><span>${esc(access.label)}</span>`;
     return node;
   }
   node.setAttribute('role','button');node.setAttribute('tabindex','0');node.setAttribute('aria-label',`Open ${item.title}`);
-  node.innerHTML=`${image?`<div class="content-card-art" role="button" tabindex="0" aria-label="Expand ${esc(item.title)} artwork" style="background-image:url('assets/seasonal-art/${image}')"></div>`:''}<small>${esc(String(item.content_type||'teaching').toUpperCase())}</small><strong>${esc(item.title)}</strong><span>${esc(item.summary||'Available now')}</span>`;
+  node.innerHTML=`${asset?`<div class="content-card-art" role="button" tabindex="0" aria-label="Expand ${esc(asset.title)} artwork" style="background-image:url('${esc(asset.src)}')"></div>`:''}<small>${esc(String(item.content_type||'teaching').toUpperCase())}</small><strong>${esc(item.title)}</strong><span>${esc(item.summary||'Available now')}</span>`;
   const activate=()=>openItem(item);
   const expandArt=event=>{
-    if(!image)return false;
+    if(!asset)return false;
     event.preventDefault();
     event.stopPropagation();
-    window.ASCENDOpenArtwork?.(`assets/seasonal-art/${image}`,item.title||'ASCEND artwork');
+    openArtwork(asset);
     return true;
   };
   node.addEventListener('click',event=>{
@@ -154,6 +146,20 @@ function card(item,{recommended=false}={}){
     if(event.target===node&&(event.key==='Enter'||event.key===' ')){event.preventDefault();activate();}
   });
   if(recommended)node.dataset.libraryRecommended='true';
+  return node;
+}
+
+function visualCard(asset){
+  const node=document.createElement('article');
+  node.className='content-card visual-art-card';
+  node.dataset.artId=asset.id;
+  node.setAttribute('role','button');
+  node.setAttribute('tabindex','0');
+  node.setAttribute('aria-label',`Expand ${asset.title} artwork`);
+  node.innerHTML=`<div class="content-card-art" aria-hidden="true" style="background-image:url('${esc(asset.src)}')"></div><small>VISUAL MEDITATION</small><strong>${esc(asset.title)}</strong><span>${esc((asset.tags||[]).join(' · '))}</span>`;
+  const activate=event=>{event?.preventDefault?.();event?.stopPropagation?.();openArtwork(asset)};
+  node.addEventListener('click',activate);
+  node.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')activate(event)});
   return node;
 }
 
@@ -202,6 +208,28 @@ function renderRecommended(content){
   picks.forEach(item=>host.append(card(item,{recommended:true})));
 }
 
+function matchingArtwork(normalized){
+  if(!normalized)return ASCEND_SEMANTIC_ART;
+  return ASCEND_SEMANTIC_ART.filter(asset=>[asset.title,asset.id,...(asset.tags||[])].some(value=>String(value||'').toLowerCase().includes(normalized)));
+}
+
+function appendVisualCollection(list,normalized,grouped){
+  if(type!=='all')return 0;
+  const artwork=matchingArtwork(normalized);
+  if(!artwork.length)return 0;
+  if(grouped){
+    const details=document.createElement('details');
+    details.className='library-group library-visual-group';
+    details.dataset.libraryVisualCollection='true';
+    const summary=document.createElement('summary');
+    summary.innerHTML=`<span>Seasonal & Visual</span><small>${artwork.length}</small>`;
+    const wrap=document.createElement('div');wrap.className='library-group-items';
+    artwork.forEach(asset=>wrap.append(visualCard(asset)));
+    details.append(summary,wrap);list.append(details);
+  }else artwork.forEach(asset=>list.append(visualCard(asset)));
+  return artwork.length;
+}
+
 function renderBrowse(content){
   const list=document.getElementById('library-list');
   const count=document.getElementById('library-count');
@@ -212,6 +240,7 @@ function renderBrowse(content){
   const typed=content.filter(item=>type==='all'||item.content_type===type);
   const visible=typed.filter(item=>!normalized||[item.title,item.summary,item.content_type].some(value=>String(value||'').toLowerCase().includes(normalized)));
   const grouped=!normalized&&type==='all';
+  const visualCount=appendVisualCollection(list,normalized,grouped);
   if(grouped){
     [['teaching','Teachings'],['practice','Practices'],['reading','Readings'],['reference','References']].forEach(([kind,title])=>{
       const items=visible.filter(item=>item.content_type===kind);if(!items.length)return;
@@ -220,8 +249,8 @@ function renderBrowse(content){
       const wrap=document.createElement('div');wrap.className='library-group-items';items.forEach(item=>wrap.append(card(item)));details.append(summary,wrap);list.append(details);
     });
   }else visible.forEach(item=>list.append(card(item)));
-  if(!visible.length)list.innerHTML='<div class="empty-state"><h2>No matching teaching</h2><p>Try another word or content type.</p></div>';
-  if(count)count.textContent=`${visible.length} of ${content.length} Library items`;
+  if(!visible.length&&!visualCount)list.innerHTML='<div class="empty-state"><h2>No matching Library item</h2><p>Try another word or content type.</p></div>';
+  if(count)count.textContent=`${visible.length} content items · ${visualCount||ASCEND_SEMANTIC_ART.length} visual artworks`;
   if(label){label.textContent=grouped?'BROWSE LIBRARY':'RESULTS';label.classList.remove('hidden')}
 }
 
@@ -236,7 +265,7 @@ async function render(){
   const content=Array.isArray(window.curriculum?.content)?window.curriculum.content:[];
   renderRecommended(content);renderBrowse(content);renderRelatedTeaching(content);
   const screen=document.getElementById('library');
-  if(screen){screen.dataset.currentMonth=String(currentMonth);screen.dataset.curriculumContext=curriculumContext?.kind||''}
+  if(screen){screen.dataset.currentMonth=String(currentMonth);screen.dataset.curriculumContext=curriculumContext?.kind||'';screen.dataset.visualArtworkCount=String(ASCEND_SEMANTIC_ART.length)}
 }
 
 function bindControls(screen){
@@ -256,7 +285,7 @@ export function initLibrary(){
   const eyebrow=screen.querySelector(':scope>.eyebrow');const title=screen.querySelector(':scope>h1');
   if(eyebrow)eyebrow.textContent='FOR YOUR CURRENT MONTH';if(title)title.textContent='Library';
   screen.dataset.libraryOwner='master';ensureReaderStructure();bindControls(screen);
-  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext,contentAccess};
+  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext,contentAccess,semanticArtwork:()=>ASCEND_SEMANTIC_ART.slice()};
   document.addEventListener('ascend:journal-context',event=>{curriculumContext=cleanContext(event.detail);render()});
   document.addEventListener('ascend:journal-saved',()=>{curriculumContext=null;render()});
   document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='library')render()});
