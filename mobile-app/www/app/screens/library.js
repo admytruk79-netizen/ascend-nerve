@@ -113,7 +113,7 @@ function openItem(item){
   if(body){
     const copy=item.body||item.summary||'This item is available as part of your current ASCEND training.';
     const image=artFor(item);
-    const art=image?`<div class="library-reader-art" style="background-image:url('assets/seasonal-art/${image}')"></div>`:'';
+    const art=image?`<div class="library-reader-art" role="button" tabindex="0" aria-label="Expand ${esc(item.title)} artwork" style="background-image:url('assets/seasonal-art/${image}')"></div>`:'';
     body.innerHTML=art+paragraphs(copy)+`<div class="source-note">ASCEND Path Library · ${esc(item.metadata?.source||'ASCEND curriculum')}</div>`;
   }
   overlay.classList.remove('hidden');
@@ -133,10 +133,23 @@ function card(item,{recommended=false}={}){
     return node;
   }
   node.setAttribute('role','button');node.setAttribute('tabindex','0');node.setAttribute('aria-label',`Open ${item.title}`);
-  node.innerHTML=`${image?`<div class="content-card-art" style="background-image:url('assets/seasonal-art/${image}')"></div>`:''}<small>${esc(String(item.content_type||'teaching').toUpperCase())}</small><strong>${esc(item.title)}</strong><span>${esc(item.summary||'Available now')}</span>`;
+  node.innerHTML=`${image?`<div class="content-card-art" role="button" tabindex="0" aria-label="Expand ${esc(item.title)} artwork" style="background-image:url('assets/seasonal-art/${image}')"></div>`:''}<small>${esc(String(item.content_type||'teaching').toUpperCase())}</small><strong>${esc(item.title)}</strong><span>${esc(item.summary||'Available now')}</span>`;
   const activate=()=>openItem(item);
-  node.addEventListener('click',activate);
-  node.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate()}});
+  const expandArt=event=>{
+    if(!image)return false;
+    event.preventDefault();
+    event.stopPropagation();
+    window.ASCENDOpenArtwork?.(`assets/seasonal-art/${image}`,item.title||'ASCEND artwork');
+    return true;
+  };
+  node.addEventListener('click',event=>{
+    if(event.target.closest?.('.content-card-art')){expandArt(event);return;}
+    activate();
+  });
+  node.addEventListener('keydown',event=>{
+    if(event.target.closest?.('.content-card-art')&&(event.key==='Enter'||event.key===' ')){expandArt(event);return;}
+    if(event.target===node&&(event.key==='Enter'||event.key===' ')){event.preventDefault();activate();}
+  });
   if(recommended)node.dataset.libraryRecommended='true';
   return node;
 }
