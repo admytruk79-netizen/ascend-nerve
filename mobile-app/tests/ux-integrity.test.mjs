@@ -200,6 +200,17 @@ test('Library reader surfaces external source attribution and links instead of d
   assert.match(css,/\.source-link\{/);
 });
 
+test('Library source_url cannot execute script in the reader -- only http(s) links render',()=>{
+  // esc() only escapes & < > " ' -- it does not restrict the URL scheme, so
+  // a metadata.source_url of "javascript:...stealing localStorage session..."
+  // contains none of those characters and would pass through esc() unchanged
+  // straight into an href attribute the user is invited to tap. Any renderer
+  // for an href built from stored data must gate on scheme, not just escape.
+  const library=read('app/screens/library.js');
+  assert.ok(library.includes("/^https:\\/\\//i.test(meta.source_url"),'source_url must be scheme-checked before use');
+  assert.ok(library.includes('safeSourceUrl?`<a class="source-link" href="${esc(safeSourceUrl)}"'),'href must come from the scheme-checked value, not the raw metadata field');
+});
+
 test('first-login introduction and primary navigation remain intact',()=>{
   const html=read('index.html');
   const backend=read('backend.js');
@@ -220,4 +231,19 @@ test('Google OAuth retains the existing Android callback identity',()=>{
   assert.match(backend,/com\.ascend\.path:\/\/auth-callback/);
   assert.match(backend,/provider=google/);
   assert.match(backend,/appUrlOpen/);
+});
+
+test('a failed web OAuth redirect is surfaced to the user instead of silently discarded',()=>{
+  // completeOAuth() throws on an error hash (consent denied, exchange
+  // failure). listenForOAuthCallback only runs on native and forwards its
+  // error to app.js -- but the web/browser redirect is handled by a
+  // module-level completeOAuth() call at script load that used to be
+  // `catch{}`, leaving the user on a blank screen with no explanation and
+  // the error hash still in the URL to be silently re-swallowed on reload.
+  const backend=read('backend.js');
+  const app=read('app.js');
+  assert.doesNotMatch(backend,/if\(location\.hash\)completeOAuth\(location\.href\)\}catch\{\}/);
+  assert.match(backend,/pendingOAuthError=error/);
+  assert.match(backend,/consumeOAuthError:/);
+  assert.match(app,/PathBackend\.consumeOAuthError\?\.\(\)/);
 });

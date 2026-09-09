@@ -102,7 +102,8 @@ function openItem(item){
     const art=image?`<div class="library-reader-art" role="button" tabindex="0" data-art-id="${esc(image.id)}" aria-label="Expand ${esc(image.title)} artwork" style="background-image:url('${esc(image.src)}')"></div>`:'';
     const meta=item.metadata||{};
     const attribution=meta.author?`ASCEND Path Library · ${esc(meta.source||item.title)} · ${esc(meta.author)}`:`ASCEND Path Library · ${esc(meta.source||'ASCEND curriculum')}`;
-    const sourceLink=meta.source_url?`<a class="source-link" href="${esc(meta.source_url)}" target="_blank" rel="noopener noreferrer">${esc(meta.context_action||'View external source')} ›</a>`:'';
+    const safeSourceUrl=/^https:\/\//i.test(meta.source_url||'')?meta.source_url:null;
+    const sourceLink=safeSourceUrl?`<a class="source-link" href="${esc(safeSourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(meta.context_action||'View external source')} ›</a>`:'';
     body.innerHTML=art+paragraphs(copy)+`<div class="source-note">${attribution}</div>`+sourceLink;
     if(image){
       const artNode=body.querySelector('.library-reader-art');

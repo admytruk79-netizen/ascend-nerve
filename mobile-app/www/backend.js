@@ -27,7 +27,15 @@
     }catch(error){console.error('ASCEND OAuth callback failed',error);throw error}
   }
 
-  try{if(location.hash)completeOAuth(location.href)}catch{}
+  // completeOAuth() throws when Supabase's redirect hash carries an OAuth
+  // error (consent denied, exchange failure). On native, listenForOAuthCallback
+  // surfaces that to the caller -- but on the web/browser redirect flow this
+  // module-level call runs unconditionally at page load with nothing to hand
+  // the error to yet, so it must not just discard it: stash it for app.js to
+  // read once the DOM is wired, and clear the hash so a failed attempt isn't
+  // reprocessed (and re-swallowed) on the next load.
+  let pendingOAuthError=null;
+  try{if(location.hash)completeOAuth(location.href)}catch(error){pendingOAuthError=error;history.replaceState(null,'',location.pathname+location.search)}
 
   async function jsonFetch(url,options={}){const r=await fetch(url,{...options,headers:headers(options.headers||{})});let body=null;try{body=await r.json()}catch{}if(!r.ok){const error=new Error(body?.msg||body?.message||body?.error_description||`Request failed (${r.status})`);error.status=r.status;error.code=body?.code||body?.error_code||'';throw error}return body}
   const isNative=()=>!!window.Capacitor?.isNativePlatform?.();
@@ -174,5 +182,5 @@
   async function isTeacher(userId){const rows=await rest('path_teachers',{query:`user_id=eq.${userId}&select=user_id`});return rows.length>0}
   async function addStudent(email){return rpc('path_add_student',{p_student_email:email})}
   async function deleteAccount(){if(!session?.access_token)throw new Error('Sign in required');const response=await fetch(`${BASE}/functions/v1/delete-account`,{method:'POST',headers:headers(),body:JSON.stringify({confirmation:'DELETE'})});let body={};try{body=await response.json()}catch{}if(!response.ok)throw new Error(body.error||`Deletion failed (${response.status})`);persist(null);sessionStorage.removeItem(RECOVERY);return body}
-  window.PathBackend={signInWithGoogle,listenForOAuthCallback,completeOAuth,signIn,signUp,resendSignup,requestPasswordReset,updatePassword,deleteAccount,signOut,me,refresh,rest,rpc,redeemLifetimeKey,getMyEntitlement,entitlementIsActive,verifyPlayPurchase,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,getRecentJournalText,getMyProfile,getIntroductionStatus,completeIntroduction,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isTeacher,addStudent,isSignedIn:()=>!!session?.access_token,isPasswordRecovery:()=>sessionStorage.getItem(RECOVERY)==='true'};
+  window.PathBackend={signInWithGoogle,listenForOAuthCallback,completeOAuth,signIn,signUp,resendSignup,requestPasswordReset,updatePassword,deleteAccount,signOut,me,refresh,rest,rpc,redeemLifetimeKey,getMyEntitlement,entitlementIsActive,verifyPlayPurchase,loadCurriculum,ensureStudent,getProgress,completePractice,recordTrainingAssignment,saveJournal,getMarkerObservations,saveMarkerObservation,submitReadinessReview,getRecentJournalText,getMyProfile,getIntroductionStatus,completeIntroduction,getMyTeacher,getMyReviews,getMyStudents,getSharedJournalEntries,submitTeacherReview,isTeacher,addStudent,isSignedIn:()=>!!session?.access_token,isPasswordRecovery:()=>sessionStorage.getItem(RECOVERY)==='true',consumeOAuthError:()=>{const error=pendingOAuthError;pendingOAuthError=null;return error}};
 })();
