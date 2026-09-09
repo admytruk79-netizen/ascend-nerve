@@ -41,6 +41,7 @@
       overlay.querySelector('.ascend-art-lightbox-close')?.focus();
     };
     const openImage=(image,label='')=>openSrc(image?.src||'',label||image?.alt||'');
+    window.ASCENDOpenArtwork=openSrc;
 
     overlay.querySelector('.ascend-art-lightbox-close')?.addEventListener('click',close);
     overlay.addEventListener('click',event=>{if(event.target===overlay)close()});
@@ -54,12 +55,6 @@
         return;
       }
 
-      // Only the art already inside an opened Library reader expands
-      // fullscreen. Intercepting .content-card-art too would capture the
-      // click before the list card's own listener ever runs (Library cards
-      // bind the whole article, art thumbnail included, to open the reader),
-      // so tapping a card's art thumbnail would silently skip opening the
-      // reader at all instead of showing the fullscreen art from within it.
       const libraryArt=event.target.closest?.('.library-reader-art');
       if(!libraryArt)return;
       event.preventDefault();
