@@ -13,7 +13,7 @@ const baseFixtures={
   path_student_progress:[{user_id:'00000000-0000-0000-0000-000000000001',stage_id:'stage-1',status:'active',practice_days:7,started_at:'2026-08-20T00:00:00Z'}],
   path_attainment_markers:[{id:'marker-1',stage_id:'stage-1',title:'Inner firmness',marker_type:'steiner'}],
   path_content_items:[
-    {id:'content-1',slug:'available-teaching',title:'Observation Before Interpretation',summary:'Available now',content_type:'teaching',body:'Current-stage material.',metadata:{month:1},is_published:true},
+    {id:'content-1',slug:'available-teaching',title:'Observation Before Interpretation',summary:'Available now',content_type:'teaching',body:'Current-stage material.',metadata:{month:1,art_key:'self-observation-humility'},is_published:true},
     {id:'content-2',slug:'future-teaching',title:'Future Teaching',summary:'Future material',content_type:'teaching',body:'Future-stage material.',metadata:{month:2},is_published:true},
     {id:'content-3',slug:'breath-practice',title:'Grounding Breath',summary:'A short breathing practice',content_type:'practice',body:'Practice material.',metadata:{month:1},is_published:true}
   ],
