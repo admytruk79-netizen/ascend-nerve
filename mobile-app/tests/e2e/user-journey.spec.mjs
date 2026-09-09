@@ -142,13 +142,17 @@ test.describe('comprehensive user journey', ()=>{
     await boot(page);
     await waitForJourneyReady(page);
     await page.getByRole('button',{name:'Library'}).click();
-    const group=page.locator('details.library-group:has([data-slug="available-teaching"])');
-    await group.locator('summary').click();
-    const card=page.locator('#library-list [data-slug="available-teaching"]');
-    await card.locator('.content-card-art').click();
+
+    const visualGroup=page.locator('details.library-visual-group');
+    await visualGroup.locator('summary').click();
+    await visualGroup.locator('.visual-art-card').first().click();
     await expect(page.locator('#ascend-art-lightbox')).not.toHaveClass(/hidden/);
     await expect(page.locator('#library-overlay')).toHaveClass(/hidden/);
     await page.locator('.ascend-art-lightbox-close').click();
+
+    const teachingGroup=page.locator('details.library-group:has([data-slug="available-teaching"])');
+    await teachingGroup.locator('summary').click();
+    const card=page.locator('#library-list [data-slug="available-teaching"]');
     await card.locator('strong').click();
     await expect(page.locator('#library-overlay')).not.toHaveClass(/hidden/);
     await expect(page.locator('#library-title')).toHaveText('Observation Before Interpretation');
