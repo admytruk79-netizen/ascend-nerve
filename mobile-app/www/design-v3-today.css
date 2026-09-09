@@ -15,6 +15,7 @@
 @import url('./styles/day-palette-fix.css?v=20260908-approved-board-4');
 @import url('./styles/practice-in-progress-visual.css?v=20260908-approved-board-3');
 @import url('./styles/journal-visual.css?v=20260908-approved-board-3');
+@import url('./styles/library-visual.css?v=20260909-visual-library-1');
 
 /* Twilight/Night use the cinematic shell. Day has its own approved warm ivory
    authority below. Auth/access always remain cinematic dark regardless of mode. */
