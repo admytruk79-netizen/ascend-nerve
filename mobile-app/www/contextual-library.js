@@ -44,6 +44,10 @@
     if(!match?.[1])return;
     const card=art.closest('.content-card');
     const title=card?.querySelector('strong')?.textContent?.trim()||'ASCEND artwork';
+    if(typeof window.ASCENDOpenArtwork==='function'){
+      window.ASCENDOpenArtwork(match[1],title);
+      return;
+    }
     const box=ensureLightbox();
     const image=box.querySelector('img');
     const caption=box.querySelector('figcaption');
