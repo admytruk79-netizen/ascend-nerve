@@ -50,7 +50,7 @@ function contextScore(item,context=curriculumContext){
   if(!terms.length)return 0;
   const metadata=item?.metadata||{};
   const haystack=[item?.title,item?.summary,item?.body,item?.slug,metadata.source,metadata.part,metadata.realm,metadata.topics].flat().filter(Boolean).join(' ').toLowerCase();
-  return terms.reduce((score,term)=>score+(haystack.includes(term)?1:0),0);
+  return terms.reduce((score,term)=>score+(haystack.includes(term)?1:0),0;
 }
 
 function contextItems(content){
@@ -98,15 +98,15 @@ function openItem(item){
   if(title)title.textContent=item.title||'Library';
   if(body){
     const copy=item.body||item.summary||'This item is available as part of your current ASCEND training.';
-    const asset=artFor(item);
-    const art=asset?`<div class="library-reader-art" role="button" tabindex="0" data-art-id="${esc(asset.id)}" aria-label="Expand ${esc(asset.title)} artwork" style="background-image:url('${esc(asset.src)}')"></div>`:'';
+    const image=artFor(item);
+    const art=image?`<div class="library-reader-art" role="button" tabindex="0" data-art-id="${esc(image.id)}" aria-label="Expand ${esc(image.title)} artwork" style="background-image:url('${esc(image.src)}')"></div>`:'';
     const meta=item.metadata||{};
     const attribution=meta.author?`ASCEND Path Library · ${esc(meta.source||item.title)} · ${esc(meta.author)}`:`ASCEND Path Library · ${esc(meta.source||'ASCEND curriculum')}`;
     const sourceLink=meta.source_url?`<a class="source-link" href="${esc(meta.source_url)}" target="_blank" rel="noopener noreferrer">${esc(meta.context_action||'View external source')} ›</a>`:'';
     body.innerHTML=art+paragraphs(copy)+`<div class="source-note">${attribution}</div>`+sourceLink;
-    if(asset){
+    if(image){
       const artNode=body.querySelector('.library-reader-art');
-      const activate=event=>{event.preventDefault();event.stopPropagation();openArtwork(asset)};
+      const activate=event=>{event.preventDefault();event.stopPropagation();openArtwork(image)};
       artNode?.addEventListener('click',activate);
       artNode?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')activate(event)});
     }
@@ -265,7 +265,12 @@ async function render(){
   const content=Array.isArray(window.curriculum?.content)?window.curriculum.content:[];
   renderRecommended(content);renderBrowse(content);renderRelatedTeaching(content);
   const screen=document.getElementById('library');
-  if(screen){screen.dataset.currentMonth=String(currentMonth);screen.dataset.curriculumContext=curriculumContext?.kind||'';screen.dataset.visualArtworkCount=String(ASCEND_SEMANTIC_ART.length)}
+  if(screen){
+    screen.dataset.currentMonth=String(currentMonth);
+    screen.dataset.curriculumContext=curriculumContext?.kind||'';
+    screen.dataset.visualArtworkCount=String(ASCEND_SEMANTIC_ART.length);
+    screen.dataset.visualAssetRoot='assets/seasonal-art/';
+  }
 }
 
 function bindControls(screen){
@@ -285,7 +290,8 @@ export function initLibrary(){
   const eyebrow=screen.querySelector(':scope>.eyebrow');const title=screen.querySelector(':scope>h1');
   if(eyebrow)eyebrow.textContent='FOR YOUR CURRENT MONTH';if(title)title.textContent='Library';
   screen.dataset.libraryOwner='master';ensureReaderStructure();bindControls(screen);
-  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext,contentAccess,semanticArtwork:()=>ASCEND_SEMANTIC_ART.slice()};
+  window.ASCENDLibrary={render,openItem,context:()=>curriculumContext,contentAccess};
+  window.ASCENDLibrary.semanticArtwork=()=>ASCEND_SEMANTIC_ART.slice();
   document.addEventListener('ascend:journal-context',event=>{curriculumContext=cleanContext(event.detail);render()});
   document.addEventListener('ascend:journal-saved',()=>{curriculumContext=null;render()});
   document.addEventListener('ascend:screen',event=>{if(event.detail?.screen==='library')render()});
