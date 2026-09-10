@@ -100,6 +100,7 @@ export function renderToday(detail={}){
   const monthLabel=document.getElementById('today-month-label');
   const portal=document.getElementById('ritual-portal');
   const begin=document.querySelector('#today [data-action="practice"]');
+  const primaryCheck=document.getElementById('primary-check');
   if(title)title.textContent=item.title||'Orientation to the Path';
   if(eyebrow)eyebrow.textContent=`CORE FORMATION · MONTH ${month}`;
   if(monthLabel)monthLabel.textContent=`Month ${month} of 24`;
@@ -109,6 +110,10 @@ export function renderToday(detail={}){
     begin.classList.remove('ascend-secondary-entry');
     begin.classList.add('ascend-accessible-entry');
     begin.setAttribute('aria-label',`Open the practice briefing for ${item.title||'practice'} without using press and hold`);
+  }
+  if(primaryCheck){
+    primaryCheck.tabIndex=-1;
+    primaryCheck.setAttribute('aria-hidden','true');
   }
   restoreCompletion();
 }
