@@ -45,10 +45,10 @@ export const ASCEND_VISUAL_ASSETS=[
   seasonal('what-am-i-refusing','What Am I Refusing?',['acceptance','resistance','reflection']),
   seasonal('where-does-will-begin','Where Does Will Begin?',['will','reflection','choice']),
 
-  {id:'ascend-logo',title:'ASCEND Logo',role:'brand',src:'assets/ascend-logo.png',tags:['brand','logo']},
+  {id:'ascend-logo',title:'ASCEND Logo',role:'brand',src:'assets/ascend-logo.png?v=20260910-people-free-1',tags:['brand','logo']},
   {id:'ascend-path-intro-instrument',title:'ASCEND Path Threshold',role:'environment',src:'assets/ascend-path-intro-instrument.jpg',tags:['threshold','intro','cinematic']},
-  {id:'ascend-today-morning-serenity',title:'Morning Serenity',role:'environment',src:'assets/ascend-today-morning-serenity.svg',tags:['day','today','environment']},
-  {id:'ascend-twilight-ritual-bg',title:'Twilight Ritual',role:'environment',src:'assets/ascend-twilight-ritual-bg.jpg',tags:['twilight','today','environment']}
+  {id:'ascend-today-morning-serenity',title:'Morning Serenity',role:'environment',src:'assets/ascend-today-morning-serenity.svg?v=20260910-people-free-1',tags:['day','today','environment']},
+  {id:'ascend-twilight-ritual-bg',title:'Twilight Ritual',role:'environment',src:'assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1',tags:['twilight','today','environment']}
 ];
 
 export const ASCEND_SEMANTIC_ART=ASCEND_VISUAL_ASSETS.filter(asset=>asset.role==='seasonal-reflection');

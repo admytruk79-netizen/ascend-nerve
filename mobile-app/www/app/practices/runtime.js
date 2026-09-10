@@ -70,7 +70,7 @@ function ensureBriefingAtmosphere(){
   atmosphere.setAttribute('aria-hidden','true');
   const image=document.createElement('img');
   image.className='briefing-atmosphere-image';
-  image.src='assets/ascend-twilight-ritual-bg.jpg';
+  image.src='assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1';
   image.alt='';
   atmosphere.appendChild(image);
   briefing.prepend(atmosphere);

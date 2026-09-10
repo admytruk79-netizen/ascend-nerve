@@ -16,7 +16,7 @@ html[data-theme] body.ascend-master-ui #practice-overlay.practice-overlay:before
   pointer-events:none;
   background-image:
     linear-gradient(180deg,rgba(2,9,16,.18) 0%,rgba(2,9,16,.44) 48%,rgba(2,9,16,.92) 100%),
-    url('../assets/ascend-twilight-ritual-bg.jpg');
+    url('../assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1');
   background-size:cover;
   background-position:center 30%;
   filter:saturate(.88) contrast(1.03) brightness(.68);
@@ -171,7 +171,7 @@ html[data-theme="day"] body.ascend-master-ui #practice-overlay.practice-overlay{
 html[data-theme="day"] body.ascend-master-ui #practice-overlay.practice-overlay:before{
   background-image:
     linear-gradient(180deg,rgba(248,243,233,.32),rgba(239,230,214,.56) 54%,rgba(228,216,195,.90)),
-    url('../assets/ascend-today-morning-serenity.svg');
+    url('../assets/ascend-today-morning-serenity.svg?v=20260910-people-free-1');
   filter:saturate(.78) brightness(1.06);
 }
 html[data-theme="day"] body.ascend-master-ui #practice-overlay.practice-overlay:after{

@@ -66,15 +66,15 @@ html[data-theme] body.ascend-master-ui #today .ritual-meta{color:var(--asc-gold)
 html[data-theme] body.ascend-master-ui #today #stage-title{color:var(--asc-text)!important;text-shadow:0 2px 24px rgba(0,0,0,.22)}
 html[data-theme] body.ascend-master-ui #today .ritual-scene{
   min-height:390px!important;
-  border:1px solid rgba(216,181,107,.18)!important;
-  border-radius:30px!important;
+  border:0!important;
+  border-radius:26px!important;
   background:
     radial-gradient(circle at 50% 48%,rgba(226,192,119,.24) 0 2%,rgba(226,192,119,.08) 14%,transparent 29%),
     radial-gradient(circle at 34% 20%,rgba(112,189,183,.10),transparent 24%),
     radial-gradient(circle at 72% 78%,rgba(216,181,107,.08),transparent 26%),
     linear-gradient(165deg,#102533 0%,#07141d 48%,#02090e 100%)!important;
   filter:none!important;
-  box-shadow:0 32px 78px rgba(0,0,0,.48),inset 0 0 80px rgba(0,0,0,.24)!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.24)!important;
 }
 /* Twilight uses the real photographic ritual scene; the shared rule above
    remains the Night default since no dedicated Night photograph exists. */
@@ -82,15 +82,16 @@ html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
   background:
     radial-gradient(circle at 50% 48%,rgba(226,192,119,.20) 0 2%,rgba(226,192,119,.06) 14%,transparent 30%),
     linear-gradient(180deg,rgba(2,9,14,.05) 0%,rgba(2,9,14,.22) 55%,rgba(2,9,14,.64) 100%),
-    url('../assets/ascend-twilight-ritual-bg.jpg')!important;
+    url('../assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1')!important;
   background-size:cover!important;
   background-position:center!important;
   background-repeat:no-repeat!important;
 }
+/* A single thin threshold ring, not a stack of concentric bands -- the
+   approved reference shows one hairline circle with a bright center point,
+   not a thick multi-ring disc. */
 html[data-theme] body.ascend-master-ui #today .ritual-scene:before{
-  background:
-    radial-gradient(circle at 50% 50%,transparent 0 19%,rgba(216,181,107,.10) 19.4% 19.8%,transparent 20.2% 29%,rgba(216,181,107,.075) 29.4% 29.8%,transparent 30.2% 41%,rgba(216,181,107,.05) 41.4% 41.8%,transparent 42.2%),
-    linear-gradient(180deg,rgba(2,8,13,.04),rgba(2,8,13,.16) 58%,rgba(2,8,13,.50))!important;
+  background:linear-gradient(180deg,rgba(2,8,13,.04),rgba(2,8,13,.14) 58%,rgba(2,8,13,.42))!important;
   opacity:1!important;
 }
 html[data-theme] body.ascend-master-ui #today .ritual-scene:after{
@@ -106,12 +107,34 @@ html[data-theme] body.ascend-master-ui #today .ritual-scene:after{
     radial-gradient(circle at 29% 76%,rgba(112,189,183,.14) 0 1px,transparent 1.5px)!important;
 }
 html[data-theme] body.ascend-master-ui #today .ritual-portal{
-  width:210px!important;height:210px!important;
-  border-color:rgba(216,181,107,.34)!important;
-  background:radial-gradient(circle,rgba(216,181,107,.12),rgba(4,15,22,.34) 58%,rgba(2,8,13,.54))!important;
-  box-shadow:0 0 56px rgba(216,181,107,.16),inset 0 0 38px rgba(216,181,107,.08)!important;
+  width:190px!important;height:190px!important;
+  border:1px solid rgba(216,181,107,.55)!important;
+  background:transparent!important;
+  box-shadow:0 0 26px rgba(216,181,107,.20)!important;
 }
-html[data-theme] body.ascend-master-ui #today .ritual-copy strong{color:#f6efe2!important;font-size:14px!important;letter-spacing:.08em!important}
+html[data-theme] body.ascend-master-ui #today .ritual-portal:before{
+  content:""!important;
+  position:absolute!important;
+  width:9px!important;height:9px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,#fff8e8,var(--asc-gold) 62%,transparent 100%)!important;
+  box-shadow:0 0 22px 7px rgba(216,181,107,.55)!important;
+  pointer-events:none!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-copy{
+  position:absolute!important;
+  top:100%!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  margin-top:18px!important;
+  width:max-content!important;
+  max-width:240px!important;
+  padding:6px 16px!important;
+  border-radius:999px!important;
+  background:rgba(2,9,14,.42)!important;
+  backdrop-filter:blur(6px)!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-copy strong{color:#f6efe2!important;font-size:13px!important;letter-spacing:.1em!important;text-transform:uppercase!important}
 html[data-theme] body.ascend-master-ui #today .ritual-copy small{color:#aeb8b7!important}
 html[data-theme] body.ascend-master-ui #today .ritual-feedback{color:var(--asc-teal)!important}
 html[data-theme] body.ascend-master-ui #today .journey-rail,
