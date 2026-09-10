@@ -1,0 +1,41 @@
+/* Devin review fixes for the concept-board parity layer. Presentation only. */
+
+/* The foundation declares ritual-scene::after content with !important, so the
+   visible hold instruction must match that priority when replacing it. */
+html[data-theme] body.ascend-master-ui #today .ritual-scene:after{
+  content:'Hold to enter'!important;
+}
+
+/* Preserve the authoritative confirmed-position summary before the wider map.
+   The compact editorial treatment keeps the concept-board hierarchy without
+   hiding the phase/month and next assigned practice maintained by initPath(). */
+html[data-theme] body.ascend-master-ui #path .path-orientation{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:10px!important;
+  margin:0 0 14px!important;
+  padding:10px 12px!important;
+  border:1px solid var(--line)!important;
+  border-radius:6px!important;
+  background:var(--panel-soft)!important;
+  box-shadow:none!important;
+}
+html[data-theme] body.ascend-master-ui #path .path-orientation small{
+  margin-bottom:3px!important;
+  font-size:7px!important;
+  letter-spacing:.14em!important;
+  color:var(--muted)!important;
+}
+html[data-theme] body.ascend-master-ui #path .path-orientation strong{
+  font:400 11px/1.25 Georgia,'Times New Roman',serif!important;
+  color:var(--text)!important;
+}
+html[data-theme] body.ascend-master-ui #path .path-orientation span{
+  font-size:8px!important;
+  line-height:1.3!important;
+  color:var(--gold-soft)!important;
+}
+html[data-theme] body.ascend-master-ui #path .path-orientation-next{
+  padding-left:10px!important;
+  border-left:1px solid var(--line)!important;
+}
