@@ -76,17 +76,10 @@ html[data-theme] body.ascend-master-ui #today .ritual-scene{
   filter:none!important;
   box-shadow:0 8px 28px rgba(0,0,0,.24)!important;
 }
-/* Twilight uses the real photographic ritual scene; the shared rule above
-   remains the Night default since no dedicated Night photograph exists. */
-html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
-  background:
-    radial-gradient(circle at 50% 48%,rgba(226,192,119,.20) 0 2%,rgba(226,192,119,.06) 14%,transparent 30%),
-    linear-gradient(180deg,rgba(2,9,14,.05) 0%,rgba(2,9,14,.22) 55%,rgba(2,9,14,.64) 100%),
-    url('../assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1')!important;
-  background-size:cover!important;
-  background-position:center!important;
-  background-repeat:no-repeat!important;
-}
+/* Twilight's photographic ritual-scene/portal overrides live in
+   design-v3-today.css instead of here: that file is loaded last, so at
+   equal specificity it always wins the cascade over this one -- a
+   duplicate Twilight rule here would silently never apply. */
 /* A single thin threshold ring, not a stack of concentric bands -- the
    approved reference shows one hairline circle with a bright center point,
    not a thick multi-ring disc. */

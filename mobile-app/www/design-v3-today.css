@@ -1,6 +1,6 @@
 /* ASCEND authoritative UI entrypoint: current structure + approved cinematic concept-board presentation. */
 @import url('./experience.css?v=20260908-approved-cinematic-4');
-@import url('./ritual-today.css?v=20260908-approved-cinematic-3');
+@import url('./ritual-today.css?v=20260910-thin-ring-2');
 @import url('./mirror-component.css?v=20260907-clean-3');
 @import url('./training-components.css?v=20260907-clean-3');
 @import url('./styles/tokens.css?v=20260907-clean-3');
@@ -11,8 +11,8 @@
 @import url('./styles/web-recovery.css?v=20260908-approved-board-3');
 @import url('./styles/cinematic-imagery.css?v=20260908-approved-board-3');
 @import url('./styles/briefing-visual-fix.css?v=20260908-approved-board-3');
-@import url('./styles/visual-system-v2.css?v=20260908-approved-board-3');
-@import url('./styles/day-palette-fix.css?v=20260908-approved-board-4');
+@import url('./styles/visual-system-v2.css?v=20260910-thin-ring-2');
+@import url('./styles/day-palette-fix.css?v=20260910-thin-ring-2');
 @import url('./styles/practice-in-progress-visual.css?v=20260908-approved-board-3');
 @import url('./styles/journal-visual.css?v=20260908-approved-board-3');
 @import url('./styles/library-visual.css?v=20260909-visual-library-1');
@@ -74,18 +74,23 @@ html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth
 }
 html[data-theme] body.ascend-master-ui:is(.auth-required,.access-required) .auth-card .text-button{color:#d8b56b!important}
 
+/* This file loads last, so at equal specificity it wins over
+   visual-system-v2.css's Twilight rules -- keep both in sync: real
+   photographic scene, thin single ring, no filled disc. */
 html[data-theme="twilight"] body.ascend-master-ui #today .ritual-scene{
   background:
-    radial-gradient(circle at 50% 48%,rgba(232,150,96,.26) 0 2%,rgba(232,150,96,.09) 15%,transparent 30%),
-    radial-gradient(circle at 32% 22%,rgba(112,120,189,.10),transparent 25%),
-    radial-gradient(circle at 74% 76%,rgba(232,150,96,.08),transparent 27%),
-    linear-gradient(165deg,#3a2440 0%,#241832 48%,#0c0a1c 100%)!important;
-  border-color:rgba(232,150,96,.20)!important;
+    radial-gradient(circle at 50% 48%,rgba(226,192,119,.20) 0 2%,rgba(226,192,119,.06) 14%,transparent 30%),
+    linear-gradient(180deg,rgba(2,9,14,.05) 0%,rgba(2,9,14,.22) 55%,rgba(2,9,14,.64) 100%),
+    url('./assets/ascend-twilight-ritual-bg.jpg?v=20260910-people-free-1')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  border:0!important;
 }
 html[data-theme="twilight"] body.ascend-master-ui #today .ritual-portal{
-  border-color:rgba(232,150,96,.36)!important;
-  background:radial-gradient(circle,rgba(232,150,96,.14),rgba(20,13,28,.36) 58%,rgba(12,10,20,.55))!important;
-  box-shadow:0 0 56px rgba(232,150,96,.16),inset 0 0 38px rgba(232,150,96,.08)!important;
+  border:1px solid rgba(216,181,107,.55)!important;
+  background:transparent!important;
+  box-shadow:0 0 26px rgba(216,181,107,.20)!important;
 }
 
 /* Approved briefing: concise practice structure, not one centered wall of copy. */
