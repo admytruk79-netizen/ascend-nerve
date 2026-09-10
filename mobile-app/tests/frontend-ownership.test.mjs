@@ -73,19 +73,22 @@ test('menu overlay quick-nav links are styled by the live master stylesheet, not
   assert.doesNotMatch(screens,/body\.initiation-school \.menu-link/);
 });
 
-test('Today styling is owned by the shared structural stack plus the approved cinematic presentation layer',()=>{
+test('Today styling is owned by the preserved foundation stack plus the approved presentation wrapper',()=>{
   const master=read('design-v3-today.css');
+  const foundation=read('design-v3-today-current.css');
   const screens=read('styles/screens.css');
   const components=read('styles/components.css');
   const tokens=read('styles/tokens.css');
   for(const file of retiredCss)assert.equal(fs.existsSync(path.join(root,file)),false,`${file} must remain deleted`);
   for(const file of approvedCinematicCss)assert.equal(fs.existsSync(path.join(root,file)),true,`${file} is part of the approved cinematic presentation and must exist`);
-  assert.match(master,/styles\/tokens\.css/);
-  assert.match(master,/styles\/base\.css/);
-  assert.match(master,/styles\/components\.css/);
-  assert.match(master,/styles\/screens\.css/);
-  assert.match(master,/visual-system-v2\.css/);
-  assert.doesNotMatch(master,/theme-authority/);
+  assert.match(master,/design-v3-today-current\.css/);
+  assert.match(master,/styles\/exact-approved-design\.css/);
+  assert.match(foundation,/styles\/tokens\.css/);
+  assert.match(foundation,/styles\/base\.css/);
+  assert.match(foundation,/styles\/components\.css/);
+  assert.match(foundation,/styles\/screens\.css/);
+  assert.match(foundation,/visual-system-v2\.css/);
+  assert.doesNotMatch(`${master}\n${foundation}`,/theme-authority/);
   assert.doesNotMatch(`${screens}\n${components}\n${tokens}`,/--ui-|Georgia,serif|border-radius:999px|border-radius:99px/);
 });
 
@@ -175,11 +178,14 @@ test('practice timer is elapsed-time authoritative and loaded by the master boot
 
 test('composition has no genuinely-retired CSS references and the shared design tokens stay neutral',()=>{
   const master=read('design-v3-today.css');
+  const foundation=read('design-v3-today-current.css');
   const tokens=read('styles/tokens.css');
   const html=read('index.html');
-  assert.match(master,/mirror-component\.css/);
-  assert.match(master,/training-components\.css/);
-  assert.doesNotMatch(master,/theme-authority/);
+  assert.match(master,/design-v3-today-current\.css/);
+  assert.match(master,/styles\/exact-approved-design\.css/);
+  assert.match(foundation,/mirror-component\.css/);
+  assert.match(foundation,/training-components\.css/);
+  assert.doesNotMatch(`${master}\n${foundation}`,/theme-authority/);
   assert.doesNotMatch(html,/styles\.css|living-object\.css|theme\.css/);
   assert.match(tokens,/html\[data-theme="day"\]/);
   assert.match(tokens,/--asc-bg:#f5f7f6/);
