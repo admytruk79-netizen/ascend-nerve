@@ -1,5 +1,6 @@
 /* ASCEND authoritative UI entrypoint. */
 /* Pull the current September 10 foundation experience layer first; parity layers below remain authoritative for the approved concept-board presentation. */
+/* design-v3-today-parity-base.css preserves design-v3-today-current.css plus styles/exact-approved-design.css before the final concept-board parity layers. */
 @import url('./experience.css?v=20260910-thin-ring-2');
 @import url('./design-v3-today-parity-base.css?v=20260910-parity-base-1');
 @import url('./styles/concept-board-parity.css?v=20260910-parity-1');
