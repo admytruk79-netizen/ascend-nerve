@@ -4,6 +4,16 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#081521"/>
+<!-- GitHub Pages does not support a custom Cache-Control response header
+     (no _headers-file mechanism like Netlify/Cloudflare Pages), so a mobile
+     browser can serve this document itself from its disk/back-forward cache
+     on a plain revisit without ever re-fetching it -- meaning every ?v=
+     cache-busted asset reference below stays invisible until the shell HTML
+     is refetched. These meta tags are the only lever available to ask the
+     browser to always revalidate this document. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>ASCEND Path</title>
 <style>html{background:#071017}html[data-theme="day"]{background:#02080d}</style>
 <link rel="stylesheet" href="path-intro.css?v=20260831-consent-2"/>
