@@ -1,0 +1,121 @@
+/* Day-mode correction for the approved ASCEND three-mode visual system.
+   Presentation only: restores a genuinely light Day surface while leaving
+   Twilight/Night and all application behavior untouched. */
+
+html[data-theme="day"] body.ascend-master-ui{
+  --asc-bg:#f3eee4;
+  --asc-panel:rgba(255,250,240,.90);
+  --asc-panel-soft:rgba(248,241,230,.82);
+  --asc-line:rgba(151,111,48,.18);
+  --asc-text:#10212b;
+  --asc-muted:#667276;
+  --asc-gold:#a9772d;
+  --asc-teal:#4d8f8a;
+  color:var(--asc-text)!important;
+  background:#f3eee4!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .screen,
+html[data-theme="day"] body.ascend-master-ui #today,
+html[data-theme="day"] body.ascend-master-ui #path,
+html[data-theme="day"] body.ascend-master-ui #journal,
+html[data-theme="day"] body.ascend-master-ui #library,
+html[data-theme="day"] body.ascend-master-ui #me{
+  color:var(--asc-text)!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .topbar,
+html[data-theme="day"] body.ascend-master-ui .bottom-nav{
+  background:rgba(250,246,238,.94)!important;
+  color:var(--asc-text)!important;
+  border-color:rgba(151,111,48,.14)!important;
+  box-shadow:0 10px 30px rgba(74,52,22,.08)!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .brand,
+html[data-theme="day"] body.ascend-master-ui .brand span,
+html[data-theme="day"] body.ascend-master-ui .mode-pill,
+html[data-theme="day"] body.ascend-master-ui .icon-button,
+html[data-theme="day"] body.ascend-master-ui .screen>h1,
+html[data-theme="day"] body.ascend-master-ui #today #stage-title{
+  color:var(--asc-text)!important;
+  text-shadow:none!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .bottom-nav button{color:#6f7778!important}
+html[data-theme="day"] body.ascend-master-ui .bottom-nav button.active{color:var(--asc-gold)!important}
+
+html[data-theme="day"] body.ascend-master-ui #today .ritual-scene{
+  background:
+    radial-gradient(circle at 50% 48%,rgba(181,132,56,.14) 0 2%,rgba(181,132,56,.05) 15%,transparent 30%),
+    linear-gradient(180deg,rgba(247,241,230,.10) 0%,rgba(238,229,214,.28) 55%,rgba(231,220,203,.48) 100%),
+    url('../assets/ascend-today-morning-serenity.svg?v=20260910-people-free-1')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  border:0!important;
+  box-shadow:0 8px 24px rgba(83,61,28,.14)!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui #today .ritual-portal{
+  border:1px solid rgba(169,119,45,.62)!important;
+  background:transparent!important;
+  box-shadow:0 0 20px rgba(169,119,45,.22)!important;
+}
+html[data-theme="day"] body.ascend-master-ui #today .ritual-portal:before{
+  background:radial-gradient(circle,#fffaf0,#a9772d 62%,transparent 100%)!important;
+  box-shadow:0 0 20px 6px rgba(169,119,45,.45)!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .quiet-note,
+html[data-theme="day"] body.ascend-master-ui .path-summary-copy{
+  color:#48575b!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .rhythm-card,
+html[data-theme="day"] body.ascend-master-ui #journal-form,
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation,
+html[data-theme="day"] body.ascend-master-ui #path .formation-group,
+html[data-theme="day"] body.ascend-master-ui .library-card,
+html[data-theme="day"] body.ascend-master-ui .auth-card,
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail,
+html[data-theme="day"] body.ascend-master-ui #today .journal-handoff{
+  background:rgba(255,250,240,.88)!important;
+  border-color:var(--asc-line)!important;
+  color:var(--asc-text)!important;
+  box-shadow:0 16px 40px rgba(83,61,28,.08)!important;
+}
+
+/* Light cards must carry their own readable text authority. Keep this scoped
+   to cards with light Day surfaces so text on photographic/image overlays
+   remains intentionally light. */
+html[data-theme="day"] body.ascend-master-ui .rhythm-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #journal-form :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #path .formation-group :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui .library-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui .auth-card :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail :is(h2,h3,strong),
+html[data-theme="day"] body.ascend-master-ui #today .journal-handoff :is(h2,h3,strong){
+  color:#10212b!important;
+  text-shadow:none!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui .rhythm-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #journal-form :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #path .path-orientation :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #path .formation-group :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui .library-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui .auth-card :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #today .journey-rail :is(p,small,label,li),
+html[data-theme="day"] body.ascend-master-ui #today .journal-handoff :is(p,small,label,li){
+  color:#566367!important;
+}
+
+html[data-theme="day"] body.ascend-master-ui textarea,
+html[data-theme="day"] body.ascend-master-ui input,
+html[data-theme="day"] body.ascend-master-ui select{
+  background:rgba(255,252,246,.94)!important;
+  border-color:rgba(151,111,48,.18)!important;
+  color:var(--asc-text)!important;
+}

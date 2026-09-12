@@ -1,0 +1,227 @@
+import {test,expect} from '@playwright/test';
+
+const expandedPracticeBody='Settle into a stable posture and allow the body to become quiet without forcing stillness. Notice the difference between an external impression, an inner reaction, and the awareness that can observe both. Let attention rest on what is actually present. When thoughts, images, memories, expectations, or emotional reactions arise, acknowledge them without following or suppressing them. Return to direct observation. Ask quietly what is being experienced now, what is being added by interpretation, and what remains when neither is forced. Continue patiently for the full period. Toward the end, review the practice without judging success or failure. Record concrete observations afterward: changes in attention, recurring distractions, bodily sensations, emotional movements, moments of clarity, and places where interpretation replaced observation. The purpose is not to manufacture a special state but to establish a repeatable discipline of presence, self-observation, and careful distinction between experience and assumption.';
+
+const fixtures={
+  ascend_entitlements:[{access_level:'premium',source:'integrity-test',starts_at:'2026-08-26T00:00:00Z',expires_at:'2099-12-31T23:59:59Z',is_active:true}],
+  path_phases:[{id:'phase-1',title:'Core Formation',sort_order:1}],
+  path_stages:[
+    {id:'stage-1',phase_id:'phase-1',slug:'entry-seven-days',title:'Self-Contemplation at the Beginning of the Path',subtitle:'Beginning',sort_order:1,required_practice_days:7,progression_mode:'readiness',objective:'Observe without forcing interpretation.',is_published:true},
+    {id:'stage-2',phase_id:'phase-1',slug:'clarity',title:'Clarity of Thought',subtitle:'Clarity',sort_order:2,required_practice_days:14,progression_mode:'readiness',objective:'Develop clarity.',is_published:true}
+  ],
+  path_practices:[{id:'practice-1',slug:'core-m01-observation-foundation',title:'Self-Contemplation',default_minutes:10,instructions:'Observe thought without following it.',metadata:{month:1,canonical_month:true,school_scale:true},is_published:true}],
+  path_stage_practices:[{stage_id:'stage-1',practice_id:'practice-1',role:'month_primary',frequency_rule:{canonical_month:1},sort_order:101}],
+  path_profiles:[{user_id:'00000000-0000-0000-0000-000000000001',display_name:'Integrity',current_stage_id:'stage-1',path_started_at:'2026-08-27T00:00:00Z',onboarding_completed_at:'2026-08-27T00:00:00Z'}],
+  path_student_progress:[{id:'progress-1',user_id:'00000000-0000-0000-0000-000000000001',stage_id:'stage-1',status:'active',practice_days:0,started_at:'2026-08-27T00:00:00Z'}],
+  path_attainment_markers:[],
+  path_content_items:[
+    {id:'content-practice',slug:'pre-module-discipline-of-meditation',title:'The Discipline of Meditation',summary:'Full authored practice',content_type:'practice',body:expandedPracticeBody,metadata:{month:1},is_published:true},
+    {id:'content-1',slug:'available-teaching',title:'Available Teaching',summary:'Available now',content_type:'teaching',body:'Current-stage material.',metadata:{month:1},is_published:true},
+    {id:'content-2',slug:'future-teaching',title:'Future Teaching',summary:'Future material',content_type:'teaching',body:'Future-stage material.',metadata:{month:2},is_published:true}
+  ],
+  path_content_unlock_rules:[{content_id:'content-2',stage_id:'stage-2'}],
+  path_training_assignments:[],training_branches:[],training_branch_modules:[]
+};
+
+const testUser={id:'00000000-0000-0000-0000-000000000001',email:'integrity@ascend.test',email_confirmed_at:'2026-08-26T00:00:00Z'};
+
+async function boot(page){
+  await page.addInitScript(()=>{
+    localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'test-access-token',refresh_token:'test-refresh-token',expires_in:3600,token_type:'bearer'}));
+  });
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',async route=>{
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)});
+  });
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',async route=>{
+    const url=new URL(route.request().url());
+    const table=url.pathname.split('/').pop();
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixtures[table]||[])});
+  });
+  await page.goto('/');
+  await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
+  await expect(page.locator('body')).not.toHaveClass(/access-required/);
+  await page.waitForFunction(()=>document.documentElement.dataset.ascendMasterReady==='1');
+  await page.waitForFunction(()=>Boolean(window.curriculum&&window.currentStage&&window.PathBackend?.isSignedIn?.()));
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeVisible();
+  await expect(page.locator('#stage-title')).toContainText('Orientation to the Path');
+}
+
+test('empty Journal never persists and meaningful Journal persists remotely when authenticated',async({page})=>{
+  await boot(page);
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('Begin with one observation');
+  const count=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(count).toBe(0);
+
+  await page.locator('textarea[name="life_application"]').fill('Paused before responding.');
+  const requestPromise=page.waitForRequest(request=>request.url().includes('/rest/v1/path_journal_entries')&&request.method()==='POST');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  const request=await requestPromise;
+  const payload=request.postDataJSON();
+  expect(payload.life_application).toBe('Paused before responding.');
+  expect(payload.user_id).toBe(testUser.id);
+  await expect(page.locator('#journal-status')).toContainText('saved and synced to your private Journal');
+  const localEntries=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries);
+  expect(localEntries).toHaveLength(0);
+});
+
+test('formal practice briefing uses the server-linked current-month practice',async({page})=>{
+  await boot(page);
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#briefing-title')).toHaveText('Self-Contemplation');
+  await expect(page.locator('#briefing-intention')).toHaveText('Observe thought without following it.');
+  await expect(page.locator('#briefing-duration')).toHaveText('10 minutes');
+});
+
+test('accessible non-hold Today entry is visible and opens only the briefing',async({page})=>{
+  await boot(page);
+  const fallback=page.getByRole('button',{name:/Open the practice briefing.*without using press and hold/i});
+  await expect(fallback).toBeVisible();
+  expect(await fallback.evaluate(node=>getComputedStyle(node).display)).not.toBe('none');
+  await fallback.click();
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+});
+
+test('standalone Journal save does not unlock the post-practice handoff',async({page})=>{
+  await boot(page);
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.locator('textarea[name="life_application"]').fill('A standalone observation from ordinary life.');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('saved and synced to your private Journal');
+  await page.waitForFunction(()=>document.getElementById('today')?.classList.contains('active'));
+  await expect(page.locator('#today-reflect')).not.toHaveClass(/is-ready/);
+  await expect(page.locator('#today-reflect')).toHaveAttribute('data-practice-complete','false');
+});
+
+test('Library recommendations never surface locked future material and cards work from keyboard',async({page})=>{
+  await boot(page);
+  await page.getByRole('button',{name:'Library'}).click();
+  await expect(page.locator('#library-recommended [data-slug="future-teaching"]')).toHaveCount(0);
+  await expect(page.locator('#library-list [data-slug="future-teaching"]')).toHaveAttribute('aria-disabled','true');
+  const available=page.locator('#library-list [data-slug="available-teaching"]');
+  await expect(available).toHaveAttribute('role','button');
+  const group=page.locator('details.library-group:has([data-slug="available-teaching"])');
+  const summary=group.locator('summary');
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  await expect(group).toHaveAttribute('open','');
+  await available.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#library-overlay')).not.toHaveClass(/hidden/);
+  await expect(page.locator('#library-title')).toHaveText('Available Teaching');
+});
+
+test('a local Journal fallback save survives a later failed practice completion',async({page})=>{
+  await boot(page);
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/path_journal_entries',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.locator('textarea[name="life_application"]').fill('Saved while the connection was down.');
+  await page.getByRole('button',{name:'Save Reflection'}).click();
+  await expect(page.locator('#journal-status')).toContainText('saved on this device');
+  const afterJournal=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterJournal).toBe(1);
+
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_begin_practice_session',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({session_id:'session-integrity-1',canonical_month:1,curriculum_date:'2026-08-27',timezone:'UTC'})}));
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/rpc/path_record_practice_completion',route=>route.fulfill({status:500,contentType:'application/json',body:'{}'}));
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
+  await expect(page.locator('#practice-overlay')).not.toHaveClass(/hidden/);
+  await page.evaluate(()=>{
+    window.ASCENDPracticeTimer.remainingSeconds=()=>0;
+    const finish=document.getElementById('finish-practice');
+    finish.classList.add('ready');
+    finish.disabled=false;
+    finish.setAttribute('aria-disabled','false');
+    finish.textContent='Finish Practice';
+  });
+  await page.getByRole('button',{name:'Finish Practice',exact:true}).click();
+  await expect(page.locator('#timer-hint')).toContainText('does not count toward progression yet');
+
+  const afterFailedPractice=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"entries":[]}').entries.length);
+  expect(afterFailedPractice).toBe(1);
+});
+
+test('a malicious branch/module title in Journal context renders as text, not markup',async({page})=>{
+  // Devin review (security): journal.js's renderContext() used to build the
+  // "REFLECTING ON" orientation banner with a template literal assigned to
+  // innerHTML, interpolating contextText() - which can return an untrusted
+  // moduleTitle/branchTitle sourced from curriculum data. A crafted title
+  // would have its markup parsed and injected into the app's own origin.
+  await boot(page);
+  await page.getByRole('button',{name:'Journal',exact:true}).click();
+  await page.evaluate(()=>{
+    document.dispatchEvent(new CustomEvent('ascend:journal-context',{detail:{
+      kind:'practice_branch',
+      branchTitle:'<img src=x onerror="window.__ascendXss=true">',
+      moduleTitle:'<script>window.__ascendXss=true</script>Session'
+    }}));
+  });
+  const heading=page.locator('#journal-orientation strong');
+  await expect(heading).toContainText('<script>window.__ascendXss=true</script>Session');
+  expect(await heading.evaluate(node=>node.children.length)).toBe(0);
+  expect(await page.evaluate(()=>window.__ascendXss)).toBeUndefined();
+});
+
+test('Finish Practice cannot advance before the timer completes',async({page})=>{
+  await boot(page);
+  await page.evaluate(()=>window.ASCENDOpenPractice?.());
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.getByRole('button',{name:'Begin 10-Minute Practice'}).click();
+  const finish=page.locator('#finish-practice');
+  await expect(finish).toBeDisabled();
+  await expect(finish).not.toHaveClass(/ready/);
+  const days=await page.evaluate(()=>JSON.parse(localStorage.getItem('ascendPathState')||'{"practiceDays":0}').practiceDays||0);
+  expect(days).toBe(0);
+  await expect(page.locator('#primary-check')).not.toBeChecked();
+});
+
+test('the Twilight portal is a two-second press-and-hold ritual, distinct from a quick tap or early release',async({page})=>{
+  await boot(page);
+  const circle=page.locator('#ritual-portal');
+  const box=await circle.boundingBox();
+  const center={x:box.x+box.width/2,y:box.y+box.height/2};
+
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.mouse.up();
+  await expect(page.locator('#ritual-feedback')).toContainText('Press and hold for two seconds to begin');
+  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
+
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.waitForTimeout(400);
+  await page.mouse.up();
+  await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
+
+  await page.mouse.move(center.x,center.y);
+  await page.mouse.down();
+  await page.waitForTimeout(2150);
+  await expect(page.locator('#practice-briefing')).not.toHaveClass(/hidden/);
+  await page.mouse.up();
+  await expect(page.locator('#practice-overlay')).toHaveClass(/hidden/);
+});
+
+test('refresh never exposes the Path before entitlement is verified',async({page})=>{
+  await page.addInitScript(()=>localStorage.setItem('ascendPathSession',JSON.stringify({access_token:'unpaid-token',refresh_token:'unpaid-refresh',expires_in:3600,token_type:'bearer'})));
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/auth/v1/user',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(testUser)}));
+  await page.route('https://nqionqvuudamqkfbaopk.supabase.co/rest/v1/**',async route=>{
+    const table=new URL(route.request().url()).pathname.split('/').pop();
+    if(table==='ascend_entitlements')await new Promise(resolve=>setTimeout(resolve,500));
+    await route.fulfill({status:200,contentType:'application/json',body:'[]'});
+  });
+  await page.goto('/');
+  await page.evaluate(()=>document.getElementById('splash')?.classList.add('done'));
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
+  await expect(page.locator('body')).toHaveClass(/access-required/);
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
+  await page.reload();
+  await expect(page.locator('body')).not.toHaveClass(/auth-required/);
+  await expect(page.locator('body')).toHaveClass(/access-required/);
+  await expect(page.getByRole('navigation',{name:'Primary navigation'})).toBeHidden();
+});

@@ -1,0 +1,97 @@
+name: Deploy ASCEND Path Web Preview
+
+# Combined Pages deployment:
+# - ascend-path-foundation is published at the Pages root
+# - ascend-uiux-refinement is published under /preview/
+# Re-deploy whenever either branch changes so the live root never lags behind a merge.
+
+on:
+  push:
+    branches: [ ascend-path-foundation, ascend-uiux-refinement ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/deploy-web-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current candidate
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+      - name: Install Chromium
+        working-directory: mobile-app
+        run: |
+          n=0
+          until [ $n -ge 5 ]; do
+            npx playwright install --with-deps chromium && break
+            n=$((n+1))
+            echo "Chromium install failed (attempt $n/5); dl.google.com's chrome-stable apt repo lags its own Release hash briefly -- retrying in $((n*15))s"
+            sleep $((n*15))
+          done
+          if [ $n -ge 5 ]; then
+            echo "::error::Chromium install failed after 5 attempts"
+            exit 1
+          fi
+      - name: Run ASCEND browser tests
+        working-directory: mobile-app
+        run: npm run test:e2e
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current candidate
+        uses: actions/checkout@v4
+
+      - name: Checkout foundation for live root
+        uses: actions/checkout@v4
+        with:
+          ref: ascend-path-foundation
+          path: foundation
+
+      - name: Assemble Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/preview
+          cp -a foundation/mobile-app/www/. _site/
+          if [ "${GITHUB_REF_NAME}" = "ascend-uiux-refinement" ]; then
+            cp -a mobile-app/www/. _site/preview/
+          else
+            cp -a foundation/mobile-app/www/. _site/preview/
+          fi
+          touch _site/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload combined web app
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

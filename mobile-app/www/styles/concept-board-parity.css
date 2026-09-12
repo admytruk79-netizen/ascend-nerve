@@ -1,0 +1,144 @@
+/* Final concept-board parity pass. Presentation only. */
+
+/* Today: keep the hold target as the thin portal itself; render its label below the ring like the approved board. */
+html[data-theme] body.ascend-master-ui #today .ritual-scene{
+  border-radius:0!important;
+  clip-path:none!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-portal{
+  top:49%!important;
+  width:154px!important;
+  height:154px!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+  box-shadow:0 0 24px rgba(201,173,114,.15)!important;
+}
+html[data-theme] body.ascend-master-ui #today .ritual-copy{display:none!important}
+html[data-theme] body.ascend-master-ui #today .ritual-scene:after{
+  content:'Hold to enter';
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:18px;
+  z-index:3;
+  color:var(--text);
+  font:400 12px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;
+  text-align:center;
+  letter-spacing:.01em;
+  pointer-events:none;
+  text-shadow:0 1px 8px rgba(0,0,0,.45);
+}
+html[data-theme='day'] body.ascend-master-ui #today .ritual-scene:after{color:#263033;text-shadow:0 1px 8px rgba(255,255,255,.6)}
+
+/* Journal: image-led editorial composition matching the concept board while retaining all five selectors. */
+html[data-theme] body.ascend-master-ui #journal.active>.eyebrow{order:0!important}
+html[data-theme] body.ascend-master-ui #journal.active>h1{order:1!important}
+html[data-theme] body.ascend-master-ui #journal.active>#reflection-art{order:2!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-orientation{order:3!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-form{order:4!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-status{order:5!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-history{order:6!important}
+html[data-theme] body.ascend-master-ui #journal #reflection-art{
+  display:block!important;
+  margin:2px 0 12px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-hero{
+  height:148px!important;
+  min-height:148px!important;
+  max-height:148px!important;
+  aspect-ratio:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-hero>img{
+  width:100%!important;
+  height:148px!important;
+  object-fit:cover!important;
+}
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-choices{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:6px!important;
+  margin-top:7px!important;
+  padding:0!important;
+  opacity:1!important;
+  overflow:visible!important;
+}
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-choices button{
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  aspect-ratio:1.35/1!important;
+  border-radius:4px!important;
+  opacity:.5!important;
+}
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-choices button.active,
+html[data-theme] body.ascend-master-ui #journal .ascend-reflection-choices button:focus-visible{
+  opacity:1!important;
+  border-color:var(--gold)!important;
+}
+html[data-theme] body.ascend-master-ui #journal #journal-orientation{
+  order:3!important;
+  margin:4px 0 12px!important;
+  padding:0 0 10px!important;
+  border:0!important;
+  border-bottom:1px solid var(--line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+html[data-theme] body.ascend-master-ui #journal #journal-orientation small{font-size:8px!important;letter-spacing:.16em!important}
+html[data-theme] body.ascend-master-ui #journal #journal-orientation strong{font:400 16px/1.25 Georgia,'Times New Roman',serif!important}
+html[data-theme] body.ascend-master-ui #journal #journal-orientation span{margin-top:3px!important;font-size:10px!important;line-height:1.45!important}
+html[data-theme] body.ascend-master-ui #journal #journal-form{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+html[data-theme] body.ascend-master-ui #journal #journal-form>label+label{
+  margin-top:10px!important;
+  padding-top:10px!important;
+  border-top:1px solid var(--line)!important;
+}
+html[data-theme] body.ascend-master-ui #journal #journal-form textarea{
+  margin-top:6px!important;
+  min-height:72px!important;
+  border-radius:5px!important;
+  box-shadow:none!important;
+}
+html[data-theme] body.ascend-master-ui #journal #journal-form>label:first-child textarea{min-height:118px!important}
+html[data-theme] body.ascend-master-ui #journal #journal-save{
+  min-height:44px!important;
+  margin-top:10px!important;
+  border-radius:4px!important;
+  box-shadow:none!important;
+}
+html[data-theme='day'] body.ascend-master-ui #journal #journal-form{background:transparent!important;box-shadow:none!important}
+
+/* Menu: make Today read as the selected destination, like the approved drawer. */
+html[data-theme] body.ascend-master-ui #menu-overlay .menu-link:first-child{
+  background:linear-gradient(90deg,rgba(201,173,114,.18),rgba(201,173,114,.025))!important;
+  color:#f4f1e8!important;
+  box-shadow:inset 2px 0 0 rgba(201,173,114,.92)!important;
+}
+html[data-theme] body.ascend-master-ui #menu-overlay .menu-link:first-child:before{
+  content:'◉';
+  margin-right:10px;
+  color:#d8b56b;
+  font-size:9px;
+}
+
+/* Keep the compact five-tab rail quiet and flush to the viewport edge. */
+html[data-theme] body.ascend-master-ui .bottom-nav{
+  height:54px!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
