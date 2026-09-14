@@ -24,7 +24,7 @@
     cancelAnimationFrame(frame);frame=0;
     clearTimeout(holdTimer);holdTimer=0;
   };
-  const reset=({message='Press and hold for two seconds to begin.'}={})=>{
+  const reset=({message=''}={})=>{
     clearTimers();holding=false;completed=false;pointerId=null;pulseIndex=0;
     portal.classList.remove('is-holding','is-opening');
     portal.setAttribute('aria-label','Press and hold for two seconds to begin practice');
@@ -62,7 +62,7 @@
     if(event.button!==undefined&&event.button!==0)return;
     if(holding)return;
     event.preventDefault();
-    reset({message:'Keep holding for two seconds…'});
+    reset({message:'Keep holding…'});
     holding=true;pointerId=event.pointerId??null;startAt=performance.now();
     portal.classList.add('is-holding');
     try{portal.setPointerCapture?.(event.pointerId)}catch{}
