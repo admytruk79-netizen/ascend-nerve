@@ -1,0 +1,106 @@
+/* Final mobile parity corrections against the approved 12-screen ASCEND board. */
+
+/* TODAY: never render the legacy rounded photograph card. The photograph belongs
+   to the screen atmosphere, while the circular portal is the only foreground object. */
+html[data-theme='night'] body.ascend-master-ui #today .ritual-scene,
+html[data-theme='twilight'] body.ascend-master-ui #today .ritual-scene,
+html[data-theme='day'] body.ascend-master-ui #today .ritual-scene,
+body.ascend-master-ui #today .ritual-scene{
+  height:228px!important;min-height:228px!important;
+  overflow:visible!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;background-color:transparent!important;background-image:none!important;
+  box-shadow:none!important;filter:none!important;backdrop-filter:none!important;
+}
+html[data-theme='night'] body.ascend-master-ui #today .ritual-scene:before,
+html[data-theme='twilight'] body.ascend-master-ui #today .ritual-scene:before,
+html[data-theme='day'] body.ascend-master-ui #today .ritual-scene:before,
+body.ascend-master-ui #today .ritual-scene:before{
+  content:''!important;position:absolute!important;
+  left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
+  width:184px!important;height:184px!important;
+  transform:translate(-50%,-50%)!important;border-radius:50%!important;
+  border:0!important;
+  background:radial-gradient(circle,rgba(255,225,161,.09),rgba(2,7,11,.04) 56%,transparent 72%)!important;
+  box-shadow:0 0 52px rgba(199,155,80,.14)!important;
+  pointer-events:none!important;
+}
+body.ascend-master-ui #today .ritual-portal{
+  top:50%!important;width:158px!important;height:158px!important;
+  border:2px solid var(--asc-gold)!important;
+  background:rgba(3,9,13,.13)!important;
+  backdrop-filter:none!important;
+}
+body.ascend-master-ui #today .ritual-scene:after{bottom:0!important}
+
+/* MENU: true full-screen application menu; the persistent app nav must not shine
+   through the overlay. */
+body.ascend-master-ui #menu-overlay{
+  position:fixed!important;z-index:500!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;min-height:100vh!important;
+  overflow:auto!important;
+  background:
+    linear-gradient(90deg,rgba(3,10,15,.985) 0 76%,rgba(3,10,15,.94)),
+    url('../assets/ascend-threshold-cosmic.jpg') center/cover no-repeat!important;
+}
+body.ascend-master-ui #menu-overlay .menu-inner{
+  min-height:100%!important;padding:58px 28px 48px!important;
+  display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+}
+body.ascend-master-ui #menu-overlay .menu-links{margin-top:4px!important}
+body.ascend-master-ui #menu-overlay .menu-link{
+  position:relative!important;padding-left:48px!important;min-height:48px!important;
+}
+body.ascend-master-ui #menu-overlay .menu-link:before{
+  position:absolute!important;left:16px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:18px!important;text-align:center!important;color:#d9b56d!important;font:400 15px/1 var(--asc-sans)!important;
+}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='today']:before{content:'●'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='path']:before{content:'◇'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='journal']:before{content:'▣'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='library']:before{content:'▥'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='me']:before{content:'○'}
+
+/* PATH: the master system calls for one navigable vertical school map. Hide the
+   duplicated legacy summary card and flatten phases/months into the approved map. */
+body.ascend-master-ui #path .core-now{display:none!important}
+body.ascend-master-ui #path #path-list{margin-top:4px!important}
+body.ascend-master-ui #path .formation-group{
+  border:0!important;border-bottom:1px solid var(--asc-line)!important;
+  border-radius:0!important;background:transparent!important;padding:0!important;box-shadow:none!important;
+}
+body.ascend-master-ui #path .formation-group>summary{min-height:48px!important}
+body.ascend-master-ui #path .formation-months{background:transparent!important;border:0!important}
+body.ascend-master-ui #path .month-card,
+body.ascend-master-ui #path .path-month{
+  border:0!important;border-radius:4px!important;background:transparent!important;box-shadow:none!important;
+}
+body.ascend-master-ui #path .month-card.current,
+body.ascend-master-ui #path .path-month.current{background:rgba(199,155,80,.10)!important}
+
+/* JOURNAL: reflection art is part of the approved interaction, not optional chrome. */
+body.ascend-master-ui #journal #reflection-art,
+body.ascend-master-ui #journal .ascend-reflection-art{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-hero{
+  display:block!important;height:176px!important;min-height:176px!important;
+  margin:0!important;border-radius:0!important;overflow:hidden!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-hero img{
+  display:block!important;width:100%!important;height:176px!important;object-fit:cover!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-choices{display:grid!important}
+
+/* Avoid the oversized legacy page typography anywhere the approved board uses a
+   compact editorial header. */
+body.ascend-master-ui #journal>h1,
+body.ascend-master-ui #path>h1,
+body.ascend-master-ui #library>h1,
+body.ascend-master-ui #me>h1{font-size:30px!important;line-height:1!important;margin-bottom:14px!important}
+
+@media(max-height:760px){
+  body.ascend-master-ui #today .ritual-scene{height:205px!important;min-height:205px!important}
+  body.ascend-master-ui #today .ritual-portal{width:146px!important;height:146px!important}
+}
