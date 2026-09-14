@@ -117,8 +117,21 @@
           const transactions = Array.isArray(receipt.transactions) ? receipt.transactions : [receipt];
           Promise.all(transactions.map(t => {
             const productId = t.products?.[0]?.id || t.productId || receipt.productId;
-            return productId ? verifyOnServer(productId, t).then(() => { lastVerifyError = null; }).catch(err => { lastVerifyError = err; console.error('[AscendBilling] server verification failed', err); }) : null;
-          })).finally(() => { receipt.finish(); notify(); });
+            if (!productId) throw new Error('Verified Google Play receipt did not identify a product.');
+            return verifyOnServer(productId, t);
+          }))
+            .then(() => {
+              lastVerifyError = null;
+              // Finish only after our server has accepted every transaction.
+              // Finishing a receipt whose entitlement write failed can make a
+              // paid user impossible to recover without another Play callback.
+              receipt.finish();
+            })
+            .catch(err => {
+              lastVerifyError = err;
+              console.error('[AscendBilling] server verification failed', err);
+            })
+            .finally(notify);
         });
 
       store.error(err => { lastStoreError = err; console.error('[AscendBilling] store error', err); });
