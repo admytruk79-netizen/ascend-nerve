@@ -110,20 +110,9 @@
     observer.observe(node,{childList:true,subtree:true,characterData:true});
   }
 
-  function installHoldCue(){
-    const scene=document.querySelector('#today .ritual-scene');
-    if(!scene||scene.querySelector('.ritual-hold-label'))return;
-    const cue=document.createElement('div');
-    cue.className='ritual-hold-label';
-    cue.setAttribute('aria-hidden','true');
-    cue.textContent='Hold to enter';
-    scene.appendChild(cue);
-  }
-
   function installPresentationFixes(){
     installReflectionLightbox();
     installBriefingFormatter();
-    installHoldCue();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installPresentationFixes,{once:true});
