@@ -1,4 +1,32 @@
-/* Devin review fixes for the concept-board parity layer. Presentation only. */
+/* Review fixes for the canonical concept-board UI. Presentation only. */
+
+/* Restore the ASCEND emblem explicitly. Several historical presentation layers
+   redefine the topbar/brand lockup; the canonical shell must always show the
+   round emblem next to the ASCEND wordmark in every theme and on Android. */
+html[data-theme] body.ascend-master-ui .topbar .brand-lockup{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-width:0!important;
+}
+html[data-theme] body.ascend-master-ui .topbar .brand-logo{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  flex:0 0 30px!important;
+  border-radius:50%!important;
+  object-fit:contain!important;
+  transform:none!important;
+}
+html[data-theme] body.ascend-master-ui .topbar .brand{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
 
 /* The foundation uses ritual-scene::after as a full-scene decorative overlay with
    inset:0!important. Keep the pseudo-element, but collapse it to a dedicated
