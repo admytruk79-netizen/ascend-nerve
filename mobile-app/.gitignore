@@ -2,3 +2,5 @@ node_modules/
 android/
 dist/
 *.log
+test-results/
+pw.local.config.mjs
