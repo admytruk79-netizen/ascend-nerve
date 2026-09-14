@@ -17,17 +17,22 @@ test('Google Play order and restore error objects cannot resolve as success',()=
 });
 
 test('a verified purchase actually reaches a real PathBackend.verifyPlayPurchase implementation',()=>{
-  // billing.js calls global.PathBackend.verifyPlayPurchase(...) after every
-  // verified transaction. backend.js used to never define this function at
-  // all, so every real Google Play purchase silently threw a TypeError at
-  // the verification step, was swallowed into lastVerifyError, and never
-  // wrote ascend_entitlements -- paying customers stayed locked out with no
-  // error surfaced anywhere.
   assert.match(billing,/global\.PathBackend\.verifyPlayPurchase\(/);
   assert.match(backend,/async function verifyPlayPurchase\(/);
   assert.match(backend,/functions\/v1\/verify-play-purchase/);
   assert.match(backend,/if\(!body\?\.verified\)throw new Error/);
   assert.match(backend,/window\.PathBackend=\{[^}]*verifyPlayPurchase/);
+});
+
+test('a Play receipt is finished only after server entitlement verification succeeds',()=>{
+  const verifiedHandler=billing.match(/\.verified\(receipt => \{([\s\S]*?)\n        \}\);/);
+  assert.ok(verifiedHandler,'verified receipt handler must exist');
+  const body=verifiedHandler[1];
+  assert.match(body,/Promise\.all\(/);
+  assert.match(body,/verifyOnServer\(productId, t\)/);
+  assert.match(body,/\.then\(\(\) => \{[\s\S]*receipt\.finish\(\)/);
+  assert.match(body,/\.catch\(err => \{[\s\S]*lastVerifyError = err/);
+  assert.doesNotMatch(body,/\.finally\([^)]*receipt\.finish/);
 });
 
 test('a failed server verification is surfaced to the paywall instead of leaving it stuck',()=>{
