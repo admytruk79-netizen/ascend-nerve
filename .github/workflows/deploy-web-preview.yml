@@ -1,13 +1,12 @@
-name: Deploy ASCEND Path Web Preview
+name: Deploy ASCEND Path Web
 
-# Combined Pages deployment:
-# - ascend-path-foundation is published at the Pages root
-# - ascend-uiux-refinement is published under /preview/
-# Re-deploy whenever either branch changes so the live root never lags behind a merge.
+# Canonical web deployment only.
+# The live GitHub Pages site is built exclusively from ascend-path-foundation.
+# No secondary /preview application is published.
 
 on:
   push:
-    branches: [ ascend-path-foundation, ascend-uiux-refinement ]
+    branches: [ ascend-path-foundation ]
     paths:
       - 'mobile-app/**'
       - '.github/workflows/deploy-web-preview.yml'
@@ -26,7 +25,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout current candidate
+      - name: Checkout canonical app
         uses: actions/checkout@v4
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -45,7 +44,7 @@ jobs:
           until [ $n -ge 5 ]; do
             npx playwright install --with-deps chromium && break
             n=$((n+1))
-            echo "Chromium install failed (attempt $n/5); dl.google.com's chrome-stable apt repo lags its own Release hash briefly -- retrying in $((n*15))s"
+            echo "Chromium install failed (attempt $n/5); retrying in $((n*15))s"
             sleep $((n*15))
           done
           if [ $n -ge 5 ]; then
@@ -60,26 +59,18 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout current candidate
+      - name: Checkout canonical app
         uses: actions/checkout@v4
 
-      - name: Checkout foundation for live root
-        uses: actions/checkout@v4
-        with:
-          ref: ascend-path-foundation
-          path: foundation
-
-      - name: Assemble Pages site
+      - name: Assemble canonical Pages site
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p _site/preview
-          cp -a foundation/mobile-app/www/. _site/
-          if [ "${GITHUB_REF_NAME}" = "ascend-uiux-refinement" ]; then
-            cp -a mobile-app/www/. _site/preview/
-          else
-            cp -a foundation/mobile-app/www/. _site/preview/
-          fi
+          rm -rf _site
+          mkdir -p _site
+          cp -a mobile-app/www/. _site/
+          # Prevent any stale historical /preview app from surviving in the artifact.
+          rm -rf _site/preview
           touch _site/.nojekyll
 
       - name: Configure Pages
@@ -87,7 +78,7 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload combined web app
+      - name: Upload canonical web app
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
