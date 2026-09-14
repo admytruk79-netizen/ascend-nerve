@@ -190,7 +190,12 @@ test('the Twilight portal is a two-second press-and-hold ritual, distinct from a
   await page.mouse.move(center.x,center.y);
   await page.mouse.down();
   await page.mouse.up();
-  await expect(page.locator('#ritual-feedback')).toContainText('Press and hold for two seconds to begin');
+  // The idle hold instruction used to be duplicated in three places (a
+  // dynamic #ritual-feedback message, an injected .ritual-hold-label cue,
+  // and the always-present .ritual-copy "Press & Hold" label); the first
+  // two were retired as duplicates, so reset() now clears #ritual-feedback
+  // to empty instead of repeating copy the static label already shows.
+  await expect(page.locator('#ritual-feedback')).toHaveText('');
   await expect(page.locator('#practice-briefing')).toHaveClass(/hidden/);
 
   await page.mouse.move(center.x,center.y);
