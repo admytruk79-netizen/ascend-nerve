@@ -1,5 +1,5 @@
 import {readFileSync,writeFileSync,copyFileSync,mkdirSync} from 'node:fs';
-import {dirname,resolve} from 'node:path';
+import {dirname,resolve,normalize} from 'node:path';
 
 const manifestPath=process.argv[2]||'android/app/src/main/AndroidManifest.xml';
 let manifest=readFileSync(manifestPath,'utf8');
@@ -24,21 +24,25 @@ if(!manifest.includes(marker)){
   console.log('ASCEND OAuth intent filter already configured.');
 }
 
-/* Capacitor generates android/ fresh in CI, which otherwise restores the default
-   Capacitor launcher icon. Point the generated application at the real ASCEND
-   round emblem every time so Play builds cannot silently lose app branding. */
-const launcherSource=resolve('www/assets/ascend-logo.png');
-const launcherTarget=resolve('android/app/src/main/res/drawable/ascend_launcher.png');
-mkdirSync(dirname(launcherTarget),{recursive:true});
-copyFileSync(launcherSource,launcherTarget);
+/* Only mutate launcher resources for the real generated Capacitor manifest.
+   Unit tests pass a temporary manifest and must remain side-effect free. */
+const normalizedManifest=normalize(manifestPath).replaceAll('\\','/');
+const isGeneratedAndroidManifest=normalizedManifest.endsWith('android/app/src/main/AndroidManifest.xml');
 
-manifest=manifest
-  .replace(/android:icon="[^"]+"/,'android:icon="@drawable/ascend_launcher"')
-  .replace(/android:roundIcon="[^"]+"/,'android:roundIcon="@drawable/ascend_launcher"');
+if(isGeneratedAndroidManifest){
+  const launcherSource=resolve('www/assets/ascend-logo.png');
+  const launcherTarget=resolve('android/app/src/main/res/drawable/ascend_launcher.png');
+  mkdirSync(dirname(launcherTarget),{recursive:true});
+  copyFileSync(launcherSource,launcherTarget);
 
-if(!manifest.includes('android:icon="@drawable/ascend_launcher"')){
-  throw new Error('Could not configure the ASCEND Android launcher icon.');
+  manifest=manifest
+    .replace(/android:icon="[^"]+"/,'android:icon="@drawable/ascend_launcher"')
+    .replace(/android:roundIcon="[^"]+"/,'android:roundIcon="@drawable/ascend_launcher"');
+
+  if(!manifest.includes('android:icon="@drawable/ascend_launcher"')){
+    throw new Error('Could not configure the ASCEND Android launcher icon.');
+  }
+  console.log('Configured ASCEND launcher icon for generated Android build.');
 }
 
 writeFileSync(manifestPath,manifest);
-console.log('Configured ASCEND launcher icon for generated Android build.');
