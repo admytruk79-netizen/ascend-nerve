@@ -1,0 +1,164 @@
+/* Final mobile parity corrections against the approved 12-screen ASCEND board. */
+
+/* TODAY: never render the legacy rounded photograph card. The photograph belongs
+   to the screen atmosphere. The portal is a single thin threshold ring with a
+   bright center point (never a stack of concentric glow bands -- cinematic-imagery.css
+   and the older approved-app-shell.css draft each drew their own extra rings around
+   this same element, which is what made the portal look like one huge blob instead
+   of the approved hairline circle), with its instruction in a pill below it. */
+html[data-theme='night'] body.ascend-master-ui #today .ritual-scene,
+html[data-theme='twilight'] body.ascend-master-ui #today .ritual-scene,
+html[data-theme='day'] body.ascend-master-ui #today .ritual-scene,
+body.ascend-master-ui #today .ritual-scene{
+  height:260px!important;min-height:260px!important;
+  overflow:visible!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;background-color:transparent!important;background-image:none!important;
+  box-shadow:none!important;filter:none!important;backdrop-filter:none!important;
+}
+html[data-theme='night'] body.ascend-master-ui #today .ritual-scene:before,
+html[data-theme='twilight'] body.ascend-master-ui #today .ritual-scene:before,
+html[data-theme='day'] body.ascend-master-ui #today .ritual-scene:before,
+body.ascend-master-ui #today .ritual-scene:before,
+body.ascend-master-ui #today .ritual-scene:after{content:none!important;display:none!important}
+body.ascend-master-ui #today .ritual-portal{
+  top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;
+  width:172px!important;height:172px!important;
+  border:1px solid rgba(216,181,107,.55)!important;
+  background:transparent!important;
+  box-shadow:0 0 26px rgba(216,181,107,.20)!important;
+  backdrop-filter:none!important;
+}
+body.ascend-master-ui #today .ritual-portal:before{
+  content:''!important;position:absolute!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:9px!important;height:9px!important;border-radius:50%!important;
+  border:0!important;
+  background:radial-gradient(circle,#fff8e8,var(--asc-gold) 62%,transparent 100%)!important;
+  box-shadow:0 0 22px 7px rgba(216,181,107,.55)!important;
+  pointer-events:none!important;
+}
+body.ascend-master-ui #today .ritual-portal:after{content:none!important;display:none!important}
+body.ascend-master-ui #today .ritual-copy{
+  display:flex!important;flex-direction:column!important;align-items:center!important;gap:3px!important;
+  position:absolute!important;left:50%!important;top:100%!important;
+  transform:translateX(-50%)!important;margin-top:14px!important;
+  width:max-content!important;max-width:240px!important;padding:6px 16px!important;
+  border-radius:999px!important;background:rgba(2,9,14,.42)!important;backdrop-filter:blur(6px)!important;
+  text-align:center!important;
+}
+body.ascend-master-ui #today .ritual-copy strong{
+  color:#f6efe2!important;font:500 12px/1.3 var(--asc-sans)!important;letter-spacing:.08em!important;text-transform:uppercase!important;
+}
+body.ascend-master-ui #today .ritual-copy small{color:#aeb8b7!important;font-size:10px!important}
+html[data-theme='day'] body.ascend-master-ui #today .ritual-copy{background:rgba(255,252,245,.78)!important}
+html[data-theme='day'] body.ascend-master-ui #today .ritual-copy strong{color:#252a2c!important}
+html[data-theme='day'] body.ascend-master-ui #today .ritual-copy small{color:#5b6360!important}
+body.ascend-master-ui #today .ritual-hold-label{display:none!important}
+/* The atmosphere photo behind Today read far taller than the approved reference
+   and bled up under the header; contain it to a single band behind the portal. */
+body.ascend-master-ui #today:before{top:-20px!important;height:390px!important}
+
+/* MENU: true full-screen application menu; the persistent app nav must not shine
+   through the overlay. */
+body.ascend-master-ui #menu-overlay{
+  position:fixed!important;z-index:500!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;min-height:100vh!important;
+  overflow:auto!important;
+  background:
+    linear-gradient(90deg,rgba(3,10,15,.985) 0 76%,rgba(3,10,15,.94)),
+    url('../assets/ascend-threshold-cosmic.jpg') center/cover no-repeat!important;
+}
+body.ascend-master-ui #menu-overlay .menu-inner{
+  min-height:100%!important;padding:58px 28px 48px!important;
+  display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+}
+body.ascend-master-ui #menu-overlay .menu-links{margin-top:4px!important}
+body.ascend-master-ui #menu-overlay .menu-link{
+  position:relative!important;padding-left:48px!important;min-height:48px!important;
+}
+body.ascend-master-ui #menu-overlay .menu-link:before{
+  position:absolute!important;left:16px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:18px!important;text-align:center!important;color:#d9b56d!important;font:400 15px/1 var(--asc-sans)!important;
+}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='today']:before,
+body.ascend-master-ui #menu-overlay .menu-links .menu-link:nth-child(1):before{content:'●'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='path']:before,
+body.ascend-master-ui #menu-overlay .menu-links .menu-link:nth-child(2):before{content:'◇'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='journal']:before,
+body.ascend-master-ui #menu-overlay .menu-links .menu-link:nth-child(3):before{content:'▣'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='library']:before,
+body.ascend-master-ui #menu-overlay .menu-links .menu-link:nth-child(4):before{content:'▥'}
+body.ascend-master-ui #menu-overlay .menu-link[data-screen='me']:before,
+body.ascend-master-ui #menu-overlay .menu-links .menu-link:nth-child(5):before{content:'○'}
+
+/* Practice screens are true immersive screens in the approved design. They must
+   cover the persistent app chrome instead of floating above a visible bottom nav. */
+body.ascend-master-ui #practice-briefing,
+body.ascend-master-ui #practice-overlay{
+  position:fixed!important;z-index:520!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;min-height:100vh!important;
+  overflow:auto!important;
+}
+
+/* PATH: the master system calls for one navigable vertical school map. Hide the
+   duplicated legacy summary card and flatten phases/months into the approved map. */
+body.ascend-master-ui #path .core-now{display:none!important}
+body.ascend-master-ui #path #path-list{margin-top:4px!important}
+body.ascend-master-ui #path .formation-group{
+  border:0!important;border-bottom:1px solid var(--asc-line)!important;
+  border-radius:0!important;background:transparent!important;padding:0!important;box-shadow:none!important;
+}
+body.ascend-master-ui #path .formation-group>summary{min-height:48px!important}
+body.ascend-master-ui #path .formation-months{background:transparent!important;border:0!important}
+body.ascend-master-ui #path .month-card,
+body.ascend-master-ui #path .path-month{
+  border:0!important;border-radius:4px!important;background:transparent!important;box-shadow:none!important;
+}
+body.ascend-master-ui #path .month-card.current,
+body.ascend-master-ui #path .path-month.current{background:rgba(199,155,80,.10)!important}
+
+/* JOURNAL: writing is primary, per the reference design and the Master Doc's
+   "Journal: structured observation" contract -- the entry screen leads with
+   the prompts, not a required art choice. Artwork stays available but sits
+   after the form instead of gating the top of the screen. */
+html[data-theme] body.ascend-master-ui #journal.active>.eyebrow{order:0!important}
+html[data-theme] body.ascend-master-ui #journal.active>h1{order:1!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-form{order:2!important}
+html[data-theme] body.ascend-master-ui #journal.active>#reflection-art{order:3!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-status{order:4!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-history{order:5!important}
+body.ascend-master-ui #journal #reflection-art,
+body.ascend-master-ui #journal .ascend-reflection-art{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+  margin:2px 0 14px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-hero{
+  display:block!important;height:176px!important;min-height:176px!important;max-height:none!important;aspect-ratio:auto!important;
+  margin:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;box-shadow:none!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-hero img{
+  display:block!important;width:100%!important;height:176px!important;object-fit:cover!important;
+  filter:saturate(.72) brightness(.82) contrast(.96)!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-choices{
+  display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:6px!important;
+  margin-top:7px!important;padding:0!important;opacity:1!important;
+}
+body.ascend-master-ui #journal .ascend-reflection-choices button{
+  width:100%!important;height:auto!important;aspect-ratio:1.35/1!important;flex-basis:auto!important;border-radius:4px!important;
+}
+
+/* Avoid the oversized legacy page typography anywhere the approved board uses a
+   compact editorial header. */
+body.ascend-master-ui #journal>h1,
+body.ascend-master-ui #path>h1,
+body.ascend-master-ui #library>h1,
+body.ascend-master-ui #me>h1{font-size:30px!important;line-height:1!important;margin-bottom:14px!important}
+
+@media(max-height:760px){
+  body.ascend-master-ui #today .ritual-scene{height:230px!important;min-height:230px!important}
+  body.ascend-master-ui #today .ritual-portal{width:150px!important;height:150px!important}
+  body.ascend-master-ui #today:before{height:340px!important}
+}
