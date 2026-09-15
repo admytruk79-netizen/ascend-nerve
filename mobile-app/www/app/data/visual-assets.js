@@ -5,7 +5,7 @@ const seasonal=(id,title,tags=[])=>({
   id,
   title,
   role:'seasonal-reflection',
-  src:`assets/seasonal-art/${id}.png`,
+  src:`assets/seasonal-art/${id}.jpg`,
   tags
 });
 

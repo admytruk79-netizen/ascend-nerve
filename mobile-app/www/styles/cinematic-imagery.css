@@ -23,7 +23,7 @@ body.ascend-master-ui .ascend-reflection-choices img{width:100%;height:100%;obje
 
 /* Path: symbolic landscape sits below the heading so copy remains readable. */
 body.ascend-master-ui #path{position:relative;isolation:isolate}
-body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:50%;top:142px;width:min(100vw,620px);height:300px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(3,10,16,.1),rgba(3,10,16,.88)),url('../assets/seasonal-art/april-training-the-will.png') center 34%/cover no-repeat;opacity:.18;mask-image:linear-gradient(to bottom,transparent 0,#000 16%,#000 66%,transparent 100%);pointer-events:none}
+body.ascend-master-ui #path:before{content:"";position:absolute;z-index:-1;left:50%;top:142px;width:min(100vw,620px);height:300px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(3,10,16,.1),rgba(3,10,16,.88)),url('../assets/seasonal-art/april-training-the-will.jpg') center 34%/cover no-repeat;opacity:.18;mask-image:linear-gradient(to bottom,transparent 0,#000 16%,#000 66%,transparent 100%);pointer-events:none}
 html[data-theme="day"] body.ascend-master-ui #path:before{opacity:.09;filter:saturate(.72)}
 html[data-theme="day"] body.ascend-master-ui #path .path-summary-copy{color:#556166}
 

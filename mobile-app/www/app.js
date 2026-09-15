@@ -44,10 +44,10 @@ function renderStage(){if(!currentStage)return;currentPractice=stagePractice(cur
    actual visual theme (reviewed individually), not by the month prefix in
    their filename, which in several cases didn't match the artwork. */
 const SEASONAL_ART={
-  spring:['self-observation-humility.png','march-focused-thought.png','march-object-contemplation.png','march-reverence-patience.png','march-what-am-i-noticing.png','spring-march-awakening-perception.png','spring-april-clarifying-the-will.png','discipline-or-freedom.png'],
-  summer:['heart-opening.png','july-discipline-fire.png','may-openness-readiness.png','openness-readiness.png','self-control-gentleness.png','where-does-will-begin.png','april-where-does-will-begin.png','april-training-the-will.png'],
-  autumn:['august-presence-devotion.png','june-gathering-energy.png','confidence-humanity.png','mastery-of-feeling.png','presence-devotion.png','what-am-i-refusing.png','morning-evening-energy.png','april-deliberate-action.png'],
-  winter:['building-or-draining.png','emotional-composure.png','may-ready-to-release.png','ready-to-release.png','may-truth-vs-imagination.png','truth-vs-imagination.png','spring-may-crossing-the-threshold.png','star-energy-practice.png','two-currents-meeting.png','acceptance-practice.png']
+  spring:['self-observation-humility.jpg','march-focused-thought.jpg','march-object-contemplation.jpg','march-reverence-patience.jpg','march-what-am-i-noticing.jpg','spring-march-awakening-perception.jpg','spring-april-clarifying-the-will.jpg','discipline-or-freedom.jpg'],
+  summer:['heart-opening.jpg','july-discipline-fire.jpg','may-openness-readiness.jpg','openness-readiness.jpg','self-control-gentleness.jpg','where-does-will-begin.jpg','april-where-does-will-begin.jpg','april-training-the-will.jpg'],
+  autumn:['august-presence-devotion.jpg','june-gathering-energy.jpg','confidence-humanity.jpg','mastery-of-feeling.jpg','presence-devotion.jpg','what-am-i-refusing.jpg','morning-evening-energy.jpg','april-deliberate-action.jpg'],
+  winter:['building-or-draining.jpg','emotional-composure.jpg','may-ready-to-release.jpg','ready-to-release.jpg','may-truth-vs-imagination.jpg','truth-vs-imagination.jpg','spring-may-crossing-the-threshold.jpg','star-energy-practice.jpg','two-currents-meeting.jpg','acceptance-practice.jpg']
 };
 function seasonForMonth(month){const m=Math.max(1,Math.min(24,Number(month)||1));return m<=6?'spring':m<=12?'summer':m<=18?'autumn':'winter'}
 function hashSlug(s=''){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}

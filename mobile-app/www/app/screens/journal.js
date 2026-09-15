@@ -1,11 +1,11 @@
 import {Backend} from '../data/backend-adapter.js';
 
 const REFLECTION_ART=[
-  {src:'assets/seasonal-art/march-what-am-i-noticing.png',label:'What am I noticing?'},
-  {src:'assets/seasonal-art/where-does-will-begin.png',label:'Where does will begin?'},
-  {src:'assets/seasonal-art/truth-vs-imagination.png',label:'Truth vs imagination'},
-  {src:'assets/seasonal-art/what-am-i-refusing.png',label:'What am I refusing?'},
-  {src:'assets/seasonal-art/discipline-or-freedom.png',label:'Discipline or freedom?'}
+  {src:'assets/seasonal-art/march-what-am-i-noticing.jpg',label:'What am I noticing?'},
+  {src:'assets/seasonal-art/where-does-will-begin.jpg',label:'Where does will begin?'},
+  {src:'assets/seasonal-art/truth-vs-imagination.jpg',label:'Truth vs imagination'},
+  {src:'assets/seasonal-art/what-am-i-refusing.jpg',label:'What am I refusing?'},
+  {src:'assets/seasonal-art/discipline-or-freedom.jpg',label:'Discipline or freedom?'}
 ];
 
 const JOURNAL_FIELDS=['observation','inner_state','life_application','interpretation','unresolved'];
