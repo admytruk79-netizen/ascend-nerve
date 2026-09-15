@@ -118,12 +118,14 @@ body.ascend-master-ui #path .path-month{
 body.ascend-master-ui #path .month-card.current,
 body.ascend-master-ui #path .path-month.current{background:rgba(199,155,80,.10)!important}
 
-/* JOURNAL: the approved board is image-led. Override the older journal stylesheet
-   that deliberately reordered the artwork after the writing form. */
+/* JOURNAL: writing is primary, per the reference design and the Master Doc's
+   "Journal: structured observation" contract -- the entry screen leads with
+   the prompts, not a required art choice. Artwork stays available but sits
+   after the form instead of gating the top of the screen. */
 html[data-theme] body.ascend-master-ui #journal.active>.eyebrow{order:0!important}
 html[data-theme] body.ascend-master-ui #journal.active>h1{order:1!important}
-html[data-theme] body.ascend-master-ui #journal.active>#reflection-art{order:2!important}
-html[data-theme] body.ascend-master-ui #journal.active>#journal-form{order:3!important}
+html[data-theme] body.ascend-master-ui #journal.active>#journal-form{order:2!important}
+html[data-theme] body.ascend-master-ui #journal.active>#reflection-art{order:3!important}
 html[data-theme] body.ascend-master-ui #journal.active>#journal-status{order:4!important}
 html[data-theme] body.ascend-master-ui #journal.active>#journal-history{order:5!important}
 body.ascend-master-ui #journal #reflection-art,
