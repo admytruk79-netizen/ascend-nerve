@@ -118,6 +118,32 @@ Primary navigation:
 
 `Today | Path | Journal | Library | Me`
 
+## Deployment and rollback
+
+`ascend-path-foundation` is the branch that ships: every push to it runs
+`.github/workflows/deploy-web-preview.yml`'s `test` job, and only on success
+does `deploy` rebuild `mobile-app/www` into GitHub Pages. There is no staging
+step between a green `test` job and production — a passing commit is live
+immediately. `build-android-aab.yml` and `build-android-debug.yml` build the
+Android artifacts from the same branch on the same trigger.
+
+If a pushed commit turns out to be visually or functionally wrong in
+production:
+
+1. **Preferred: `git revert <bad-commit-sha>` and push.** This re-triggers
+   `deploy-web-preview.yml` from a clean, reviewable commit and restores the
+   previous known-good `www/` output without losing history. Prefer
+   reverting the smallest set of commits that removes the regression rather
+   than resetting the branch.
+2. **Manual redeploy of an already-good commit:** `deploy-web-preview.yml`
+   carries a `workflow_dispatch` trigger. Dispatching it re-runs `test` +
+   `deploy` against whatever ref you select in the Actions UI — useful to
+   confirm a specific earlier commit still builds and deploys cleanly before
+   deciding whether to revert forward from it.
+3. Never force-push or `git reset --hard` a shared branch to roll back —
+   that rewrites history other pushes (including a possible concurrent
+   session) may already depend on. A revert commit is always the safe path.
+
 ## Access model
 
 ASCEND Path has no free curriculum tier. Authentication creates an account but
