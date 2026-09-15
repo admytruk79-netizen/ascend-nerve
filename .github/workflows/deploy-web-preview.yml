@@ -1,8 +1,11 @@
 name: Deploy ASCEND Path Web
 
-# Canonical web deployment only.
+# Canonical web deployment.
 # The live GitHub Pages site is built exclusively from ascend-path-foundation.
-# No secondary /preview application is published.
+# /preview is a same-commit mirror of the canonical build, rebuilt and
+# overwritten atomically on every deploy -- unlike the old standalone
+# preview app this replaced, it cannot drift out of sync with production
+# because it is never built from anything else.
 
 on:
   push:
@@ -69,8 +72,16 @@ jobs:
           rm -rf _site
           mkdir -p _site
           cp -a mobile-app/www/. _site/
-          # Prevent any stale historical /preview app from surviving in the artifact.
+          # Guard against mobile-app/www ever growing its own preview/ dir,
+          # which would otherwise land at the wrong URL once copied below.
           rm -rf _site/preview
+          # /preview mirrors this exact same build. It is not a gate before
+          # production -- both are produced by this one job from this one
+          # commit -- but it gives a stable link to sanity-check the live
+          # design (e.g. on a phone) without touching the canonical URL.
+          mkdir -p _site/preview
+          cp -a mobile-app/www/. _site/preview/
+          rm -rf _site/preview/preview
           touch _site/.nojekyll
 
       - name: Configure Pages

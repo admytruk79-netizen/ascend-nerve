@@ -1,5 +1,16 @@
 # ASCEND Path Architecture
 
+## Branch model
+
+`ascend-path-foundation` is the permanent production branch: it is what
+every CI/CD workflow in this repo builds, tests, and deploys from (see
+Deployment and rollback, below). `main` is not kept in sync with it and is
+not a usable fallback — do not assume `main` reflects what is actually
+live. GitHub's PR #1 (`ascend-path-foundation` → `main`) exists in the
+repo's history but is not part of the release process: production has
+never shipped from a merge into `main`. Treat `ascend-path-foundation`,
+not `main`, as canonical when in doubt about what is live.
+
 ## Product principle
 
 ASCEND Path measures formation, not content consumption.
@@ -122,10 +133,22 @@ Primary navigation:
 
 `ascend-path-foundation` is the branch that ships: every push to it runs
 `.github/workflows/deploy-web-preview.yml`'s `test` job, and only on success
-does `deploy` rebuild `mobile-app/www` into GitHub Pages. There is no staging
-step between a green `test` job and production — a passing commit is live
-immediately. `build-android-aab.yml` and `build-android-debug.yml` build the
-Android artifacts from the same branch on the same trigger.
+does `deploy` rebuild `mobile-app/www` into GitHub Pages. `build-android-aab.yml`
+and `build-android-debug.yml` build the Android artifacts from the same
+branch on the same trigger.
+
+The `deploy` job also mirrors the exact same build under `/preview` on the
+same Pages site. This is not a gate before production — both paths are
+produced by the same job from the same commit in the same run — it exists
+only as a stable link for sanity-checking the live design (e.g. on a phone)
+without confusing it with the canonical URL. Because it is rebuilt and
+overwritten atomically alongside production every time, it cannot drift out
+of sync the way the old standalone `/preview` app (removed earlier) did.
+There is still no manual-approval step between a green `test` job and
+production going live; a genuine pre-production gate would require
+configuring a protected GitHub Environment (Settings → Environments →
+`production` → required reviewers) around the `deploy` job, which needs
+repo-admin access to set up and hasn't been done.
 
 If a pushed commit turns out to be visually or functionally wrong in
 production:
