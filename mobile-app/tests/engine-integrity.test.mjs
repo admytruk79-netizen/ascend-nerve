@@ -6,7 +6,9 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..','www');
+const repoRoot=path.resolve(root,'..','..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const readRepo=name=>fs.readFileSync(path.join(repoRoot,name),'utf8');
 
 function progression(){
   const window={};
@@ -42,6 +44,32 @@ test('Primary Path separates primary progression from parallel application',()=>
   assert.match(branches,/Readiness Gate/);
   assert.match(branches,/submit_branch_readiness/);
   assert.match(branches,/Foundation Review/);
+});
+
+test('side curriculum journal handoff preserves structured source context without a second Journal owner',()=>{
+  const branches=read('branches.js');
+  assert.match(branches,/kind:branch\.slug===PHASE_II_SLUG\?'phase_ii':PHASE_I_ADDITIONAL\.has\(branch\.slug\)\?'phase_i_additional':'practice_branch'/);
+  assert.match(branches,/branchId:branch\.id/);
+  assert.match(branches,/branchSlug:branch\.slug/);
+  assert.match(branches,/branchTitle:branch\.title/);
+  assert.match(branches,/moduleId:m\.id/);
+  assert.match(branches,/moduleNumber:m\.module_number/);
+  assert.match(branches,/moduleTitle:m\.title/);
+  assert.match(branches,/ascend:journal-context/);
+  assert.match(branches,/bottom-nav button\[data-screen="journal"\]/);
+  assert.doesNotMatch(branches,/saveJournal|journal_entries.*POST/);
+});
+
+test('Phase II Open Gate is enforced in both UI access lookup and server repetition-log writes',()=>{
+  const branches=read('branches.js');
+  const gate=readRepo('supabase/pending_migrations/enforce_phase_ii_open_gate.sql');
+  assert.match(branches,/path_phase_ii_access/);
+  assert.match(branches,/branch\.slug===PHASE_II_SLUG&&!phaseIIAccess\.allowed/);
+  assert.match(gate,/path_phase_ii_access\(\)/);
+  assert.match(gate,/coalesce\(v_status = 'established', false\)/);
+  assert.match(gate,/before insert on public\.training_branch_repetition_log/);
+  assert.match(gate,/if v_status is distinct from 'established'/);
+  assert.match(gate,/raise exception 'Phase II opens only after the Phase I Open Gate is established'/);
 });
 
 test('Mirror remains subordinate to progression and exposes stage/all-time scopes',()=>{
