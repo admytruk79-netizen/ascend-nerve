@@ -137,18 +137,19 @@ does `deploy` rebuild `mobile-app/www` into GitHub Pages. `build-android-aab.yml
 and `build-android-debug.yml` build the Android artifacts from the same
 branch on the same trigger.
 
-The `deploy` job also mirrors the exact same build under `/preview` on the
-same Pages site. This is not a gate before production — both paths are
-produced by the same job from the same commit in the same run — it exists
-only as a stable link for sanity-checking the live design (e.g. on a phone)
-without confusing it with the canonical URL. Because it is rebuilt and
-overwritten atomically alongside production every time, it cannot drift out
-of sync the way the old standalone `/preview` app (removed earlier) did.
-There is still no manual-approval step between a green `test` job and
-production going live; a genuine pre-production gate would require
-configuring a protected GitHub Environment (Settings → Environments →
-`production` → required reviewers) around the `deploy` job, which needs
-repo-admin access to set up and hasn't been done.
+The site publishes a single application at the Pages root. A `/preview`
+mirror was tried briefly (rebuilt atomically alongside production from the
+same commit, so it couldn't drift stale the way an even older standalone
+`/preview` app once did) but was reverted: publishing any second copy of
+the app, even a same-commit mirror, was still a second live app under this
+domain, which is exactly what "one canonical site" rules out. The `deploy`
+assemble step explicitly strips any `_site/preview` before publishing.
+
+There is no manual-approval step between a green `test` job and production
+going live — a passing commit deploys immediately. A genuine pre-production
+gate would require configuring a protected GitHub Environment (Settings →
+Environments → `production` → required reviewers) around the `deploy` job,
+which needs repo-admin access to set up and hasn't been done.
 
 If a pushed commit turns out to be visually or functionally wrong in
 production:

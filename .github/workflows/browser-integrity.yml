@@ -6,10 +6,6 @@ on:
     paths:
       - 'mobile-app/**'
       - '.github/workflows/browser-integrity.yml'
-  pull_request:
-    paths:
-      - 'mobile-app/**'
-      - '.github/workflows/browser-integrity.yml'
 
 jobs:
   browser-integrity:
