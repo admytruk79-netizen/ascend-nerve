@@ -1,5 +1,17 @@
 /* Final mobile parity corrections against the approved 12-screen ASCEND board. */
 
+/* ONBOARDING CROSSFADE: .intro-cinematic and .intro-guide both fade via
+   opacity on the same ~700-800ms schedule the instant .is-cinematic is
+   removed (path-intro.js's revealGuide()). Because they occupy the same
+   screen region, for a real chunk of that transition both sets of text
+   render simultaneously, fully legible and overlapping -- this is what
+   read as "flickering, disconnected screens" during the automatic intro,
+   confirmed with frame-by-frame capture. Sequencing them (cinematic fades
+   out first, guide only starts after) removes the overlap instead of
+   trying to make it prettier. */
+html[data-theme] body.ascend-master-ui .path-intro .intro-cinematic{transition:opacity .3s ease!important}
+html[data-theme] body.ascend-master-ui .path-intro .intro-guide{transition:opacity .45s ease .3s!important}
+
 /* ONBOARDING: five different files (path-intro.css, cinematic-imagery.css,
    web-recovery.css, visual-system-v2.css, exact-approved-design.css) each
    defined a different background for this same element -- a dark photo, a
