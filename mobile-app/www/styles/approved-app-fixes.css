@@ -1,5 +1,32 @@
 /* Final mobile parity corrections against the approved 12-screen ASCEND board. */
 
+/* ONBOARDING: five different files (path-intro.css, cinematic-imagery.css,
+   web-recovery.css, visual-system-v2.css, exact-approved-design.css) each
+   defined a different background for this same element -- a dark photo, a
+   flat dark color, and a flat light color, fighting via !important with no
+   single winner guaranteed. In practice the photo and its decorative rings
+   were disappearing, leaving bare text over a flat color with a large dead
+   gap where the artwork should anchor the layout. This selector's specificity
+   (one more class than any of the above, all of them scoped no higher than
+   html[data-theme] .path-intro .intro-guide) wins outright rather than
+   relying on import order. */
+html[data-theme] body.ascend-master-ui .path-intro .intro-guide{
+  background-color:#06131e!important;
+  background-image:linear-gradient(180deg,rgba(2,9,16,.62),rgba(2,9,16,.88)),url('../assets/ascend-path-intro-instrument.jpg')!important;
+  background-size:cover!important;background-position:center!important;
+}
+html[data-theme="day"] body.ascend-master-ui .path-intro .intro-guide{
+  background-image:linear-gradient(180deg,rgba(247,243,235,.80),rgba(229,221,207,.92)),url('../assets/ascend-path-intro-instrument.jpg')!important;
+}
+html[data-theme] body.ascend-master-ui .path-intro .intro-guide:before{
+  content:''!important;position:absolute!important;inset:0!important;pointer-events:none!important;
+  background:radial-gradient(circle at 50% 26%,rgba(216,181,107,.10),transparent 30%)!important;
+}
+html[data-theme] body.ascend-master-ui .path-intro .intro-step h1{color:#f4efe4!important}
+html[data-theme] body.ascend-master-ui .path-intro .intro-step p{color:#c4beb4!important}
+html[data-theme="day"] body.ascend-master-ui .path-intro .intro-step h1{color:#17272c!important}
+html[data-theme="day"] body.ascend-master-ui .path-intro .intro-step p{color:#4b5759!important}
+
 /* PRACTICE TIMER: practice-in-progress-visual.css's #timer.timer selector
    carries two ID selectors, so it out-specifies approved-app-shell.css's
    .timer rule regardless of import order -- the same class of bug as the
