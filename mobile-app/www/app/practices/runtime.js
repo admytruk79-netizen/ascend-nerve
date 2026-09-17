@@ -236,7 +236,6 @@ export function initPracticeRuntime(){
   const briefingClose=document.querySelector('#practice-briefing .briefing-close');
   const overlayClose=document.querySelector('#practice-overlay .overlay-close');
   const timerToggle=document.getElementById('timer-toggle');
-  const finish=document.getElementById('finish-practice');
 
   ensureBriefingAtmosphere();
   briefingBegin?.setAttribute('aria-describedby','briefing-intention briefing-duration');
@@ -258,9 +257,15 @@ export function initPracticeRuntime(){
     closeOverlay({resetTimer:true});
   },true);
   timerToggle?.addEventListener('click',syncTimerState);
-  finish?.addEventListener('click',()=>{
-    if(finish.classList.contains('ready'))complete();
-  });
+  // NOTE: #finish-practice is intentionally NOT bound here. bootstrap.js's
+  // bindAuthoritativeFinish() is the sole owner of that click: it performs the
+  // authoritative path_record_practice_completion RPC and calls
+  // ASCENDPracticeRuntime.complete() itself once the server confirms. A second
+  // listener here previously raced it, ran first, and cleared activeSession
+  // before the authoritative handler could read the session id — so
+  // completion silently never reached the backend. Do not re-add a listener
+  // on this element; see docs/ASCEND_MASTER_SYSTEM_DOCUMENT.md section 15
+  // (one-owner rule).
   document.addEventListener('ascend:practice-timer-complete',()=>{
     if(activeRenderer.state==='running')pause();
   });

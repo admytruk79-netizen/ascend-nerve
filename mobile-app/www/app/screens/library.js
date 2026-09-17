@@ -251,7 +251,8 @@ function renderBrowse(content){
     });
   }else visible.forEach(item=>list.append(card(item)));
   if(!visible.length&&!visualCount)list.innerHTML='<div class="empty-state"><h2>No matching Library item</h2><p>Try another word or content type.</p></div>';
-  if(count)count.textContent=`${visible.length} content items · ${visualCount||ASCEND_SEMANTIC_ART.length} visual artworks`;
+  const artworkTotal=type==='all'?(visualCount||ASCEND_SEMANTIC_ART.length):visualCount;
+  if(count)count.textContent=artworkTotal?`${visible.length} content items · ${artworkTotal} visual artworks`:`${visible.length} content items`;
   if(label){label.textContent=grouped?'BROWSE LIBRARY':'RESULTS';label.classList.remove('hidden')}
 }
 
