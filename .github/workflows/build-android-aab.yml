@@ -1,0 +1,189 @@
+name: Build ASCEND Path Play AAB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ ascend-path-foundation ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/build-android-aab.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+
+      - name: Create Android shell and sync web app
+        working-directory: mobile-app
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+          node scripts/configure-android-oauth.mjs
+
+      - name: Target Android API 36
+        working-directory: mobile-app/android
+        run: |
+          # Capacitor generates android/ fresh in CI. Override its generated
+          # SDK levels here so every Play bundle meets the current Play target.
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('variables.gradle')
+          s = p.read_text()
+          import re
+          s, n1 = re.subn(r'compileSdkVersion\s*=\s*\d+', 'compileSdkVersion = 36', s)
+          s, n2 = re.subn(r'targetSdkVersion\s*=\s*\d+', 'targetSdkVersion = 36', s)
+          if not n1 or not n2:
+              raise SystemExit('Could not locate generated compileSdkVersion/targetSdkVersion')
+          p.write_text(s)
+          print(p.read_text())
+          PY
+
+      - name: Set a monotonically increasing versionCode
+        working-directory: mobile-app/android/app
+        run: |
+          VERSION_CODE=$(( $(date -u +%s) / 60 ))
+          sed -i "s/versionCode [0-9]\+/versionCode $VERSION_CODE/" build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"$VERSION_CODE\"/" build.gradle
+          grep -n "versionCode\|versionName" build.gradle
+
+      - name: Verify Play signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo 'Missing ANDROID_KEYSTORE_BASE64'; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo 'Missing ANDROID_KEY_ALIAS'; exit 1; }
+          test -n "$ANDROID_STORE_PASSWORD" || { echo 'Missing ANDROID_STORE_PASSWORD'; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo 'Missing ANDROID_KEY_PASSWORD'; exit 1; }
+
+      - name: Restore and validate upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os, base64, re, pathlib
+          raw = os.environ['ANDROID_KEYSTORE_BASE64'].strip()
+          if raw.startswith('ANDROID_KEYSTORE_BASE64='):
+              raw = raw.split('=', 1)[1]
+          raw = re.sub(r'[^A-Za-z0-9+/=]', '', raw)
+          if not raw:
+              raise SystemExit('Keystore secret became empty after normalization')
+          if '=' in raw:
+              first = raw.index('=')
+              end = first
+              while end < len(raw) and raw[end] == '=':
+                  end += 1
+              raw = raw[:end]
+          raw += '=' * ((4 - len(raw) % 4) % 4)
+          try:
+              data = base64.b64decode(raw, validate=True)
+          except Exception as exc:
+              raise SystemExit(f'Invalid Base64 secret after recovery: {exc}; recovered length={len(raw)}')
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'ascend-upload.jks'
+          out.write_bytes(data)
+          if len(data) < 100:
+              raise SystemExit('Decoded keystore is unexpectedly small')
+          print(f'Restored keystore bytes: {len(data)}; recovered Base64 length: {len(raw)}')
+          PY
+
+          KEYSTORE="$RUNNER_TEMP/ascend-upload.jks"
+          if keytool -list -v -keystore "$KEYSTORE" -storepass "$ANDROID_STORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" 2>/dev/null | grep -q 'Entry type: PrivateKeyEntry'; then
+            RESOLVED_KEY_ALIAS="$ANDROID_KEY_ALIAS"
+            echo 'Configured signing alias is a private-key entry.'
+          else
+            mapfile -t PRIVATE_ALIASES < <(keytool -list -v -keystore "$KEYSTORE" -storepass "$ANDROID_STORE_PASSWORD" | awk -F': ' '/Alias name:/{alias=$2} /Entry type: PrivateKeyEntry/{print alias}')
+            if [ "${#PRIVATE_ALIASES[@]}" -eq 1 ]; then
+              RESOLVED_KEY_ALIAS="${PRIVATE_ALIASES[0]}"
+            elif [ "${#PRIVATE_ALIASES[@]}" -eq 0 ]; then
+              echo 'The uploaded keystore contains no PrivateKeyEntry.'; exit 1
+            else
+              echo 'Multiple private keys; set ANDROID_KEY_ALIAS.'; exit 1
+            fi
+          fi
+          echo "RESOLVED_KEY_ALIAS=$RESOLVED_KEY_ALIAS" >> "$GITHUB_ENV"
+          printf 'ASCEND signing probe' > "$RUNNER_TEMP/signing-probe.txt"
+          jar --create --file "$RUNNER_TEMP/signing-probe.jar" -C "$RUNNER_TEMP" signing-probe.txt
+          cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-keypass.jar"
+          if jarsigner -keystore "$KEYSTORE" -storepass "$ANDROID_STORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" "$RUNNER_TEMP/signing-probe-keypass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+            RESOLVED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+          else
+            NORMALIZED_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+            if [[ "$NORMALIZED_KEY_PASSWORD" == ANDROID_KEY_PASSWORD=* ]]; then NORMALIZED_KEY_PASSWORD="${NORMALIZED_KEY_PASSWORD#ANDROID_KEY_PASSWORD=}"; fi
+            if [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\".*\"$ ]] || [[ "$NORMALIZED_KEY_PASSWORD" =~ ^\'.*\'$ ]]; then NORMALIZED_KEY_PASSWORD="${NORMALIZED_KEY_PASSWORD:1:${#NORMALIZED_KEY_PASSWORD}-2}"; fi
+            cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-normalized.jar"
+            if [ "$NORMALIZED_KEY_PASSWORD" != "$ANDROID_KEY_PASSWORD" ] && jarsigner -keystore "$KEYSTORE" -storepass "$ANDROID_STORE_PASSWORD" -keypass "$NORMALIZED_KEY_PASSWORD" "$RUNNER_TEMP/signing-probe-normalized.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+              RESOLVED_KEY_PASSWORD="$NORMALIZED_KEY_PASSWORD"
+            else
+              cp "$RUNNER_TEMP/signing-probe.jar" "$RUNNER_TEMP/signing-probe-storepass.jar"
+              if jarsigner -keystore "$KEYSTORE" -storepass "$ANDROID_STORE_PASSWORD" -keypass "$ANDROID_STORE_PASSWORD" "$RUNNER_TEMP/signing-probe-storepass.jar" "$RESOLVED_KEY_ALIAS" >/dev/null 2>&1; then
+                RESOLVED_KEY_PASSWORD="$ANDROID_STORE_PASSWORD"
+              else
+                echo 'Cannot unlock private signing key.'; exit 1
+              fi
+            fi
+          fi
+          echo "RESOLVED_KEY_PASSWORD=$RESOLVED_KEY_PASSWORD" >> "$GITHUB_ENV"
+
+      - name: Build release app bundle
+        working-directory: mobile-app/android
+        run: ./gradlew bundleRelease
+
+      - name: Sign release app bundle
+        env:
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          AAB='mobile-app/android/app/build/outputs/bundle/release/app-release.aab'
+          jarsigner -keystore "$RUNNER_TEMP/ascend-upload.jks" -storepass "$ANDROID_STORE_PASSWORD" -keypass "$RESOLVED_KEY_PASSWORD" -sigalg SHA256withRSA -digestalg SHA-256 "$AAB" "$RESOLVED_KEY_ALIAS"
+          jarsigner -verify -verbose -certs "$AAB"
+
+      - name: Upload Play AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascend-path-play-aab
+          path: mobile-app/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Read app version
+        id: version
+        working-directory: mobile-app/android/app
+        run: |
+          echo "code=$(grep -oP 'versionCode \K[0-9]+' build.gradle)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish Play Store AAB release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: play-v${{ steps.version.outputs.code }}-run${{ github.run_number }}
+          name: "Play Store build (versionCode ${{ steps.version.outputs.code }})"
+          prerelease: true
+          files: mobile-app/android/app/build/outputs/bundle/release/app-release.aab

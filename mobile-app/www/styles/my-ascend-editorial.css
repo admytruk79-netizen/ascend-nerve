@@ -1,0 +1,73 @@
+/* ASCEND Path — My ASCEND release-hardening presentation.
+   Presentation only. This layer corrects the remaining card-heavy account screen
+   so My ASCEND follows the Master System hierarchy: formation, rhythm/Resonance,
+   teacher/review, then account/access. No auth, billing, progression or data logic
+   is changed here. Consolidate into the final presentation owner after parity sign-off. */
+
+body.ascend-master-ui #me{
+  max-width:430px!important;
+  margin:0 auto!important;
+}
+
+body.ascend-master-ui #me .rhythm-card,
+body.ascend-master-ui #me .auth-card{
+  margin:0!important;
+  padding:16px 0!important;
+  border:0!important;
+  border-top:1px solid var(--asc-line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+
+body.ascend-master-ui #me .rhythm-card:first-of-type{
+  border-top:0!important;
+  padding-top:4px!important;
+}
+
+body.ascend-master-ui #me .rhythm-card h2,
+body.ascend-master-ui #me .auth-card h2{
+  margin:0 0 7px!important;
+  color:var(--asc-text)!important;
+  font:400 22px/1.08 var(--asc-serif)!important;
+  letter-spacing:-.015em!important;
+}
+
+body.ascend-master-ui #me .rhythm-card p,
+body.ascend-master-ui #me .auth-card p,
+body.ascend-master-ui #me .mirror-content{
+  color:var(--asc-muted)!important;
+  font-size:12px!important;
+  line-height:1.55!important;
+}
+
+body.ascend-master-ui #me .primary,
+body.ascend-master-ui #me .secondary{
+  min-height:44px!important;
+  border-radius:5px!important;
+  box-shadow:none!important;
+}
+
+body.ascend-master-ui #me .auth-field input{
+  border-radius:5px!important;
+  border-color:var(--asc-line)!important;
+  background:rgba(255,255,255,.025)!important;
+  box-shadow:none!important;
+}
+
+body.ascend-master-ui #me .mirror-content,
+body.ascend-master-ui #me #mirror-content{
+  margin-top:8px!important;
+}
+
+body.ascend-master-ui #me .mirror-shell,
+body.ascend-master-ui #me .mirror-block,
+body.ascend-master-ui #me .mirror-related{
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+
+html[data-theme='day'] body.ascend-master-ui #me .auth-field input{
+  background:rgba(255,255,255,.34)!important;
+}
