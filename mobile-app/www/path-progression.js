@@ -62,33 +62,41 @@
     return Math.min(range.end,range.start+elapsedMonth(stageStartedAt,now,timezone)-1);
   };
 
-  let cache=null,cacheAt=0;
+  // Six independent screens/scripts call current() on their own init. The 15s TTL cache
+  // below only protects calls made *after* the first one resolves -- every call made
+  // during that first round-trip (i.e. the whole startup burst) used to bypass it and
+  // fire its own redundant fetch trio. Sharing one in-flight promise closes that gap.
+  let cache=null,cacheAt=0,inflight=null;
   async function current({fresh=false}={}){
     if(!window.PathBackend?.isSignedIn?.())return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC'),signedIn:false};
     if(!fresh&&cache&&Date.now()-cacheAt<15000)return cache;
-    const user=await PathBackend.me();
-    if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC'),signedIn:false};
-    const [profiles,stages,progress]=await Promise.all([
-      PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id,timezone`}),
-      PathBackend.rest('path_stages',{query:'select=id,sort_order,title,metadata&is_published=eq.true&order=sort_order.asc'}),
-      PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
-    ]);
-    const profile=profiles[0]||{};
-    const timezone=validTimezone(profile.timezone||'UTC');
-    const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
-    const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
-    cache={
-      month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at,timezone}),
-      stageSortOrder:Number(stage.sort_order)||1,
-      stageTitle:stage.title||'Beginning',
-      stageMetadata:stage.metadata||{},
-      timezone,
-      curriculumDate:curriculumDate(new Date(),timezone),
-      signedIn:true
-    };
-    window.ASCENDAuthority={month:cache.month,timezone:cache.timezone,curriculumDate:cache.curriculumDate};
-    cacheAt=Date.now();
-    return cache;
+    if(inflight)return inflight;
+    inflight=(async()=>{
+      const user=await PathBackend.me();
+      if(!user)return{month:1,stageSortOrder:1,stageTitle:'Beginning',stageMetadata:{},timezone:'UTC',curriculumDate:curriculumDate(new Date(),'UTC'),signedIn:false};
+      const [profiles,stages,progress]=await Promise.all([
+        PathBackend.rest('path_profiles',{query:`user_id=eq.${user.id}&select=path_started_at,current_stage_id,timezone`}),
+        PathBackend.rest('path_stages',{query:'select=id,sort_order,title,metadata&is_published=eq.true&order=sort_order.asc'}),
+        PathBackend.rest('path_student_progress',{query:`user_id=eq.${user.id}&select=stage_id,status,started_at&order=started_at.asc`})
+      ]);
+      const profile=profiles[0]||{};
+      const timezone=validTimezone(profile.timezone||'UTC');
+      const active=progress.find(row=>row.status==='active'||row.status==='review')||progress[progress.length-1];
+      const stage=stages.find(row=>row.id===(active?.stage_id||profile.current_stage_id))||stages[0]||{sort_order:1,title:'Beginning'};
+      cache={
+        month:monthFor({stageSortOrder:stage.sort_order,stageStartedAt:active?.started_at||profile.path_started_at,timezone}),
+        stageSortOrder:Number(stage.sort_order)||1,
+        stageTitle:stage.title||'Beginning',
+        stageMetadata:stage.metadata||{},
+        timezone,
+        curriculumDate:curriculumDate(new Date(),timezone),
+        signedIn:true
+      };
+      window.ASCENDAuthority={month:cache.month,timezone:cache.timezone,curriculumDate:cache.curriculumDate};
+      cacheAt=Date.now();
+      return cache;
+    })();
+    try{return await inflight}finally{inflight=null}
   }
   function invalidate(){cache=null;cacheAt=0}
   function authority(){return window.ASCENDAuthority||cache||null}

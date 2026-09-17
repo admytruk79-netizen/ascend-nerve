@@ -68,7 +68,18 @@
     App.getLaunchUrl?.().then(event=>consume(event?.url)).catch(error=>console.error('ASCEND launch URL failed',error));
   }
   async function refresh(){if(!session?.refresh_token)return null;try{const body=await jsonFetch(`${BASE}/auth/v1/token?grant_type=refresh_token`,{method:'POST',body:JSON.stringify({refresh_token:session.refresh_token})});persist(body);return body}catch(e){persist(null);return null}}
-  async function me(){if(!session?.access_token)return null;try{return await jsonFetch(`${BASE}/auth/v1/user`)}catch{await refresh();return session?.access_token?jsonFetch(`${BASE}/auth/v1/user`):null}}
+  // Eight independent screens/scripts each call me()/loadCurriculum() on their own init,
+  // with no shared cache between them. Sharing one in-flight promise per call keeps that
+  // fan-out from turning into a stampede of identical concurrent requests that resolve at
+  // staggered times and each re-render the UI on their own -- the observed cause of screens
+  // appearing to "switch versions" during startup.
+  let mePromise=null;
+  async function me(){
+    if(!session?.access_token)return null;
+    if(mePromise)return mePromise;
+    mePromise=(async()=>{try{return await jsonFetch(`${BASE}/auth/v1/user`)}catch{await refresh();return session?.access_token?jsonFetch(`${BASE}/auth/v1/user`):null}})();
+    try{return await mePromise}finally{mePromise=null}
+  }
   function signOut(){persist(null);sessionStorage.removeItem(RECOVERY)}
   async function rest(table,{method='GET',query='',body,prefer}={}){if(!session?.access_token)throw new Error('Sign in required');const h={};if(prefer)h.Prefer=prefer;return jsonFetch(`${BASE}/rest/v1/${table}${query?`?${query}`:''}`,{method,headers:h,body:body===undefined?undefined:JSON.stringify(body)})}
   async function rpc(name,body){if(!session?.access_token)throw new Error('Sign in required');return jsonFetch(`${BASE}/rest/v1/rpc/${name}`,{method:'POST',body:JSON.stringify(body)})}
@@ -121,21 +132,26 @@
     });
   }
 
+  let curriculumPromise=null;
   async function loadCurriculum(){
-    const [phases,stages,practices,links,markers,content,contentRules]=await Promise.all([
-      rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
-      rest('path_stages',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
-      rest('path_practices',{query:'select=*&is_published=eq.true'}),
-      rest('path_stage_practices',{query:'select=*'}),
-      rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),
-      rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),
-      rest('path_content_unlock_rules',{query:'select=*'})
-    ]);
-    const authority=await resolveCurriculumContext(stages);
-    const currentMonth=authority.month;
-    const normalizedLinks=normalizeCanonicalMonth(links,currentMonth);
-    window.ASCENDAuthority={month:authority.month,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
-    return{phases,stages,practices,links:normalizedLinks,markers,content,contentRules,currentMonth,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
+    if(curriculumPromise)return curriculumPromise;
+    curriculumPromise=(async()=>{
+      const [phases,stages,practices,links,markers,content,contentRules]=await Promise.all([
+        rest('path_phases',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
+        rest('path_stages',{query:'select=*&is_published=eq.true&order=sort_order.asc'}),
+        rest('path_practices',{query:'select=*&is_published=eq.true'}),
+        rest('path_stage_practices',{query:'select=*'}),
+        rest('path_attainment_markers',{query:'select=*&order=sort_order.asc'}),
+        rest('path_content_items',{query:'select=*&is_published=eq.true&order=created_at.asc'}),
+        rest('path_content_unlock_rules',{query:'select=*'})
+      ]);
+      const authority=await resolveCurriculumContext(stages);
+      const currentMonth=authority.month;
+      const normalizedLinks=normalizeCanonicalMonth(links,currentMonth);
+      window.ASCENDAuthority={month:authority.month,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
+      return{phases,stages,practices,links:normalizedLinks,markers,content,contentRules,currentMonth,timezone:authority.timezone,curriculumDate:authority.curriculumDate};
+    })();
+    try{return await curriculumPromise}finally{curriculumPromise=null}
   }
   async function ensureStudent(user){const existing=await rest('path_profiles',{query:`user_id=eq.${user.id}&select=*`});if(existing.length)return existing[0];const stages=await rest('path_stages',{query:'select=id,slug&slug=eq.entry-seven-days&limit=1'});const first=stages[0];const profile={user_id:user.id,display_name:user.email?.split('@')[0]||'Student',timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,current_stage_id:first?.id||null,path_started_at:new Date().toISOString()};await rest('path_profiles',{method:'POST',body:profile,prefer:'return=representation'});if(first)await rest('path_student_progress',{method:'POST',body:{user_id:user.id,stage_id:first.id,status:'active',practice_days:0,notes:{}},prefer:'return=minimal'});return profile}
   async function getProgress(userId){return rest('path_student_progress',{query:`user_id=eq.${userId}&select=*&order=started_at.asc`})}

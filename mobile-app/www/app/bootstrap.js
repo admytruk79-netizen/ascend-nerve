@@ -31,7 +31,14 @@ function legacyDataReady(){
 
 function waitForLegacyData(){
   if(!window.PathBackend?.isSignedIn?.()||legacyDataReady())return Promise.resolve();
-  if(document.body.classList.contains('auth-required')||document.body.classList.contains('access-required'))return Promise.resolve();
+  // index.html's <body> starts with class="auth-required" as its static default --
+  // present before any script runs, regardless of whether the visitor is actually
+  // signed in. Checking it here at call time (rather than only via the mutation
+  // observer below, which only fires on a real class change made by app.js once it
+  // has actually determined auth state) made this resolve immediately on almost
+  // every load, handing screen control to master before legacy curriculum data had
+  // loaded at all -- the observed cause of screens rendering empty/default content
+  // and then visibly swapping once the real data arrived.
   return new Promise(resolve=>{
     let settled=false;
     let timeout=0;
