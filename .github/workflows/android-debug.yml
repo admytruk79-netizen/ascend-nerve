@@ -26,6 +26,8 @@ jobs:
         run: npm install
       - name: Run app tests
         run: npm test
+      - name: Enable QA access for this debug artifact
+        run: sed -i '1iwindow.__ASCEND_QA_ACCESS__=true;' www/app.js
       - name: Generate Android project
         run: npx cap add android
       - name: Sync Capacitor
