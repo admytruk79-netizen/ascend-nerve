@@ -1,0 +1,131 @@
+/* ASCEND Path Library — visual collection presentation.
+   The seasonal/reflection art is supporting material, never progression authority. */
+body.ascend-master-ui #library{width:min(100%,680px)}
+body.ascend-master-ui #library .library-tools{display:grid;gap:10px;margin:18px 0 14px}
+body.ascend-master-ui #library #library-count{margin:2px 0 0;color:var(--asc-muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+body.ascend-master-ui #library #library-list-label{margin:20px 0 8px}
+
+body.ascend-master-ui #library .library-visual-group{
+  display:block;
+  margin:0;
+  border:0;
+  background:transparent;
+}
+body.ascend-master-ui #library .library-visual-group>summary{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:16px;
+  padding:0 0 12px;
+  border-bottom:1px solid var(--asc-line);
+  list-style:none;
+  cursor:default;
+}
+body.ascend-master-ui #library .library-visual-group>summary::-webkit-details-marker{display:none}
+body.ascend-master-ui #library .library-visual-group>summary:before{
+  content:'ANNUAL KALEIDOSCOPE';
+  display:block;
+  position:absolute;
+  transform:translateY(-22px);
+  color:var(--asc-accent);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.16em;
+}
+body.ascend-master-ui #library .library-visual-group>summary span{
+  color:var(--asc-text);
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:24px;
+  font-weight:400;
+  line-height:1.1;
+}
+body.ascend-master-ui #library .library-visual-group>summary small{
+  flex:0 0 auto;
+  color:var(--asc-muted);
+  font-size:10px;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+
+/* The visual collection is deliberately visible instead of hiding all artwork
+   behind a collapsed disclosure row. */
+body.ascend-master-ui #library details.library-visual-group:not([open])>.library-group-items,
+body.ascend-master-ui #library .library-visual-group>.library-group-items{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  padding:14px 0 4px;
+}
+body.ascend-master-ui #library .visual-art-card{
+  display:grid;
+  grid-template-rows:auto auto auto auto;
+  align-content:start;
+  min-width:0;
+  padding:0!important;
+  overflow:hidden;
+  border:1px solid var(--asc-line)!important;
+  border-radius:18px!important;
+  background:var(--asc-surface)!important;
+  box-shadow:var(--asc-shadow-soft);
+  cursor:zoom-in;
+}
+body.ascend-master-ui #library .visual-art-card .content-card-art{
+  width:100%;
+  height:auto;
+  aspect-ratio:4/3;
+  margin:0 0 11px!important;
+  border:0!important;
+  border-radius:0!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+}
+body.ascend-master-ui #library .visual-art-card>small,
+body.ascend-master-ui #library .visual-art-card>strong,
+body.ascend-master-ui #library .visual-art-card>span{padding-left:12px;padding-right:12px}
+body.ascend-master-ui #library .visual-art-card>small{
+  color:var(--asc-accent);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.14em;
+}
+body.ascend-master-ui #library .visual-art-card>strong{
+  margin-top:5px;
+  color:var(--asc-text);
+  font-size:14px;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
+body.ascend-master-ui #library .visual-art-card>span{
+  margin:5px 0 12px;
+  color:var(--asc-muted);
+  font-size:9px;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+
+/* Non-visual knowledge remains quieter below the visual collection. */
+body.ascend-master-ui #library .library-group:not(.library-visual-group){
+  margin-top:10px;
+  border-top:1px solid var(--asc-line);
+}
+body.ascend-master-ui #library .library-group:not(.library-visual-group)>summary{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 2px;
+}
+
+html[data-theme="day"] body.ascend-master-ui #library .visual-art-card{
+  background:rgba(255,250,240,.88)!important;
+  border-color:rgba(151,111,48,.16)!important;
+  box-shadow:0 12px 28px rgba(83,61,28,.08)!important;
+}
+html[data-theme="day"] body.ascend-master-ui #library .library-visual-group>summary{
+  border-color:rgba(151,111,48,.16)!important;
+}
+
+@media(max-width:380px){
+  body.ascend-master-ui #library details.library-visual-group:not([open])>.library-group-items,
+  body.ascend-master-ui #library .library-visual-group>.library-group-items{grid-template-columns:1fr}
+}

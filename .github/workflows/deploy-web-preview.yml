@@ -1,0 +1,88 @@
+name: Deploy ASCEND Path Web
+
+# Canonical web deployment.
+# The live GitHub Pages site is built exclusively from ascend-path-foundation
+# and publishes a single application at the repository Pages root.
+
+on:
+  push:
+    branches: [ ascend-path-foundation ]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/deploy-web-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical app
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        working-directory: mobile-app
+        run: npm install --no-audit --no-fund
+      - name: Run ASCEND engine tests
+        working-directory: mobile-app
+        run: npm test
+      - name: Install Chromium
+        working-directory: mobile-app
+        run: |
+          n=0
+          until [ $n -ge 5 ]; do
+            npx playwright install --with-deps chromium && break
+            n=$((n+1))
+            echo "Chromium install failed (attempt $n/5); retrying in $((n*15))s"
+            sleep $((n*15))
+          done
+          if [ $n -ge 5 ]; then
+            echo "::error::Chromium install failed after 5 attempts"
+            exit 1
+          fi
+      - name: Run ASCEND browser tests
+        working-directory: mobile-app
+        run: npm run test:e2e
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical app
+        uses: actions/checkout@v4
+
+      - name: Assemble canonical Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          cp -a mobile-app/www/. _site/
+          # Never publish a second ASCEND app under /preview.
+          rm -rf _site/preview
+          touch _site/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload canonical web app
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
